@@ -1,0 +1,24 @@
+@import url("user.css");
+
+/* iGoogle */
+table tbody tr td#col1,
+#gsea,
+#footerwrap {
+  display: none !important;
+}
+
+/* Google Search */
+div#res {
+  margin-left: 8px !important;
+}
+
+table#mbEnd,
+div#tads,
+div#rh div.rh,
+div#rh div#rb,
+table.ra,
+table[width="25%"][align="right"],
+a[id^="aw"],
+div[id^="tpa"] {
+  display: none !important;
+}

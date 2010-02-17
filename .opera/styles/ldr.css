@@ -1,0 +1,78 @@
+@import url("user.css");
+
+* {
+  font-family: sans-serif !important;
+}
+
+span.treeitem,
+span.folderitem {
+  font-weight: bold !important;
+}
+
+.even {
+  background-color: #ffffff !important;
+}
+
+.hilight {
+  background-color: #f5f5f5 !important;
+}
+
+.body img {
+  max-width: 100% !important;
+}
+
+.body blockquote,
+.body pre {
+  background: #f4f2ef !important;
+  border: 1px solid #808080 !important;
+  margin: 0.5em 0  !important;
+  margin: 0.5em 0 !important;
+  padding: 0.5em !important;
+}
+
+.body blockquote > p {
+  margin: 0 !important;
+}
+
+.body pre,
+.body pre > p {
+  font-family: monospace !important;
+}
+
+
+#header,
+#reader_logo,
+#ads_top,
+#up_button,
+#down_button,
+#myclip_button,
+#myfeed,
+#GuideHeadBox,
+.adsWrapper,
+.fontpad,
+.FullBox,
+.GuideNavigationWrapper,
+.HintAndRecommendBox,
+td[style^="width:260px;height:48px;"] {
+  display: none !important;
+}
+
+#control,
+#message_box {
+  position: fixed !important;
+  top: 0px !important;
+  left: 0px !important;
+  margin: 0px !important;
+}
+
+#total_unread_count {
+  position: fixed !important;
+  top: 6px !important;
+  right: 6px !important;
+  z-index: 1 !important;
+}
+
+#menu {
+  position: static !important;
+  height: 30px !important;
+}

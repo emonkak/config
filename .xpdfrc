@@ -1,0 +1,6 @@
+cidToUnicode Adobe-Japan1 /usr/share/poppler/cidToUnicode/Adobe-Japan1
+unicodeMap ISO-2022-JP /usr/share/poppler/unicodeMap/ISO-2022-JP
+unicodeMap EUC-JP /usr/share/poppler/unicodeMap/EUC-JP
+unicodeMap Shift-JIS /usr/share/poppler/unicodeMap/Shift-JIS
+cMapDir Adobe-Japan1 /usr/share/poppler/cMap/Adobe-Japan1
+toUnicodeDir /usr/share/poppler/cMap/Adobe-Japan1

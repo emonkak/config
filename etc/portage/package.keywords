@@ -1,0 +1,17 @@
+app-emulation/wine ~x86
+app-i18n/multiskkserv ~x86
+app-i18n/skk-jisyo ~x86
+app-misc/screen ~x86
+dev-haskell/utf8-string ~x86
+dev-haskell/x11 ~x86
+dev-scheme/gauche ~x86
+dev-util/git ~x86
+media-gfx/fontforge ~x86
+media-libs/freetype ~x86
+media-sound/ncmpcpp ~x86
+sys-kernel/gentoo-sources ~x86
+www-client/opera ~x86
+x11-misc/xmobar ~x86
+x11-terms/rxvt-unicode ~x86
+x11-wm/xmonad ~x86
+x11-wm/xmonad-contrib ~x86

@@ -1,0 +1,111 @@
+# My .mfiler
+# Option  #{{{1
+
+$pageup_length = 8
+$option_scroll_type = "original"
+$option_afu_copy = false
+$option_left_right_dir_up = false
+$option_enter_cursor_down = false
+$option_tab_remain_dir = false
+$sisearch_except_dir = ["/media/", "/mnt/"]
+
+option_individual_cursor true
+option_check_delete_file true
+option_check_copy_file false
+option_check_exit true
+option_remain_cursor true
+option_auto_rehash false
+option_remain_marks false
+option_read_dir_history true
+option_trashbox_path ENV["HOME"] + "/.trash"
+option_extension_icase false
+option_gnu_screen false
+option_xterm false
+
+
+history_size 10000
+set_change_terminal_title true
+set_isearch_option1 true
+set_menu_scroll_cycle true
+set_cmdline_escape_key true
+set_escape_wait 0
+
+sisearch_migemo false
+sisearch_candidate_max_ascii 17
+sisearch_candidate_max_migemo 1
+
+set_kanjicode("utf8")
+set_shell("zsh", "zsh", "-c")
+set_xterm("urxvt", "-T", "-e", "", 0)
+
+
+
+
+# Color  #{{{1
+
+set_view_bold_dir true
+set_view_bold_exe true
+set_view_color_dir MA_CYAN
+set_view_color_exe MA_RED
+set_view_color_link MA_MAGENTA
+set_view_color_mark MA_YELLOW
+
+option_refresh true
+option_visible_fname_execute true
+
+$file_color = [
+  [/.+\.(zip|gz|tgz|tar|bz2|lzh|rar|7z)$/, MA_GREEN]
+]
+
+
+def cmdline_prompt()
+  return "Minnu's Filer2 version #{version()} 2004-2009 <?> for help"
+end
+
+
+
+
+# Keybind  #{{{1
+
+require "keybind_fdlike.rb"
+
+keycommand NOMETA, KEY_u, ".7z",    "cmdline('7za x %f -o%D2', 0)"
+keycommand NOMETA, KEY_u, ".rar",    "cmdline('unrar x %f %D2', 0)"
+
+keycommand NOMETA, KEY_x, ".class", "cmdline('java %X', 0)"
+keycommand NOMETA, KEY_x, ".pl",    "cmdline('perl %f', 0)"
+keycommand NOMETA, KEY_x, ".py",    "cmdline('python %f', 0)"
+keycommand NOMETA, KEY_x, ".rb",    "cmdline('ruby %f', 0)"
+keycommand NOMETA, KEY_x, ".scm",   "cmdline('gosh %f', 0)"
+keycommand NOMETA, KEY_x, ".sh",    "cmdline('sh %f', 1)"
+
+if ENV['SSH_CONNECTION'] == nil
+  keycommand NOMETA, KEY_ENTER, ".exe", "cmdline('wine %f', 0)"
+  keycommand NOMETA, KEY_ENTER, ".pdf", "cmdline('xpdf %f', 0)"
+  for ext in [".bmp", ".gif", ".jpeg", ".jpg", ".png"]
+    keycommand NOMETA, KEY_ENTER, ext,  "shell('%Q feh -F %f', '%f'); enter_cursor_down()"
+  end
+  for ext in [".avi", ".mkv", ".mp4", ".mpeg", ".mpg", ".wmv", ".ts"]
+    keycommand NOMETA, KEY_ENTER, ext, "mplayer_without_dpms('%f'); enter_cursor_down()"
+  end
+end
+
+keycommand NOMETA, KEY_ENTER, "*",  "shell('%q $PAGER %f', '%f'); enter_cursor_down()"
+
+
+
+
+# Utilities  #{{{1
+
+def mplayer_without_dpms(file)
+  shell('%Q xset -dpms', '')
+  shell('%Q mplayer -really-quiet ' + file, file)
+  shell('%Q xset +dpms', '')
+end
+
+
+
+
+# __END__  #{{{1
+# vim: ft=ruby foldmethod=marker
+# vim: expandtab softtabstop=2 shiftwidth=2

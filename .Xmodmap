@@ -1,0 +1,5 @@
+! semicolon <-> colon
+! keycode 47 = colon semicolon
+
+! like AX layout
+keycode 113 = Zenkaku_Hankaku Kanji

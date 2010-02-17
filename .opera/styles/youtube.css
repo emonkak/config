@@ -1,0 +1,10 @@
+@import url("user.css");
+
+#search-pva,
+#chrome-promo,
+#footer,
+#copyright,
+#watch-channel-brand-div,
+#watch-promoted-videos-container {
+  display: none !important;
+}

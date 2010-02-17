@@ -1,0 +1,16 @@
+a[target="_blank"] {
+	cursor: help !important;
+}
+
+[class="ad"],
+[class="ads"],
+[class^="ads-"],
+[class^="ad-"],
+[class^="ads_"],
+[class^="ad_"],
+[class$="_ads"],
+[class$="_ad"],
+[href^="http://ad."],
+[src^="http://ad."] {
+	display: none !important;
+}
