@@ -2,6 +2,10 @@ a[target="_blank"] {
 	cursor: help !important;
 }
 
+pre {
+  font-family: 'Droid Sans Mono', monospace;
+}
+
 [class="ad"],
 [class="ads"],
 [class^="ads-"],
