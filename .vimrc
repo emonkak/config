@@ -227,14 +227,14 @@ endfunction
 
 " CD - wrapper of :cd to keep cwd for each tabpage  "{{{2
 
-command! -nargs=? CD
+command! -complete=file -nargs=? CD
 \ call s:tabpage_cd(<q-args>)
 
 function! s:tabpage_cd(dir)
-  if a:dir == ''
-    execute 'cd' fnameescape(expand('%:p:h'))
-  else
+  if len(a:dir)
     execute 'cd' fnameescape(a:dir)
+  else
+    execute 'cd' (len(expand('%')) ? fnameescape(expand('%:p:h')) : '')
   endif
   let t:cwd = getcwd()
   echo t:cwd
@@ -288,17 +288,59 @@ function! s:grep(command, args)
   catch /^Vim(l\?grep):E303:/
     redraw
     echo 'No matches found:' file
-    return
   catch /^Vim(l\?grep):E480:/
     redraw
     echo 'Not match:' pattern
-    return
   endtry
   execute a:command == 'lgrep' ? 'lwin' : 'cwin'
 endfunction
 
 AlterCommand grep  Grep
 AlterCommand lgrep  Lgrep
+
+
+
+
+" Jump sections  "{{{2
+
+" for normal mode.  a:pattern is '/regexp' or '?regexp'.
+function! s:jump_section_n(pattern)
+  let pattern = a:pattern[1:]
+  let forward_p = a:pattern[0] == '/'
+  let flags = forward_p ? 'W' : 'Wb'
+
+  mark '
+  let i = 0
+  while i < v:count1
+    if search(pattern, flags) == 0
+      if forward_p
+        normal! G
+      else
+        normal! gg
+      endif
+      break
+    endif
+    let i = i + 1
+  endwhile
+endfunction
+
+
+" for visual mode.  a:motion is '[[', '[]', ']]' or ']['.
+function! s:jump_section_v(motion)
+  execute 'normal!' "gv\<Esc>"
+  execute 'normal' v:count1 . a:motion
+  let line = line('.')
+  let col = col('.')
+
+  normal! gv
+  call cursor(line, col)
+endfunction
+
+
+" for operator-pending mode.  a:motion is '[[', '[]', ']]' or ']['.
+function! s:jump_section_o(motion)
+  execute 'normal' v:count1 . a:motion
+endfunction
 
 
 
@@ -446,6 +488,7 @@ inoremap <C-f>  <Right>
 inoremap <C-a>  <Home>
 inoremap <C-e>  <End>
 inoremap <C-d>  <Delete>
+inoremap <C-\>  <C-a>
 
 " Emacs like kill-line.
 inoremap <expr> <C-k>  (col('.') == col('$') ? '<C-o>gJ' : '<C-o>D')
@@ -500,6 +543,24 @@ nnoremap [Space]v  zMzv
 
 nmap [Space]s  <Plug>(operator-my-sort)
 vmap [Space]s  <Plug>(operator-my-sort)
+
+
+
+
+" Section jumping  "{{{2
+
+" Enable *consistent* ]] and other motions in Visual and Operator-pending
+" mode.  Because some ftplugins provide these motions only for Normal mode and
+" other ftplugins provide these motions with some faults, e.g., not countable.
+
+vnoremap <silent> ]]  :<C-u>call <SID>jump_section_v(']]')<CR>
+vnoremap <silent> ][  :<C-u>call <SID>jump_section_v('][')<CR>
+vnoremap <silent> [[  :<C-u>call <SID>jump_section_v('[[')<CR>
+vnoremap <silent> []  :<C-u>call <SID>jump_section_v('[]')<CR>
+onoremap <silent> ]]  :<C-u>call <SID>jump_section_o(']]')<CR>
+onoremap <silent> ][  :<C-u>call <SID>jump_section_o('][')<CR>
+onoremap <silent> [[  :<C-u>call <SID>jump_section_o('[[')<CR>
+onoremap <silent> []  :<C-u>call <SID>jump_section_o('[]')<CR>
 
 
 
@@ -660,7 +721,7 @@ function! s:on_FileType_any()
   endif
 
   " Make omni completion available for all filetypes.
-  if &l:omnifunc == ''
+  if !len(&l:omnifunc)
     setlocal omnifunc=syntaxcomplete#Complete
   endif
 endfunction
@@ -714,6 +775,12 @@ autocmd MyAutoCmd FileType dosini
 \ call s:on_FileType_dosini()
 
 function! s:on_FileType_dosini()
+  " Jumping around sections.
+  nnoremap <buffer> <silent> ]]  :<C-u>call <SID>jump_section_n('/^\[')<CR>
+  nnoremap <buffer> <silent> ][  :<C-u>call <SID>jump_section_n('/\n\[\@=')<CR>
+  nnoremap <buffer> <silent> [[  :<C-u>call <SID>jump_section_n('?^\[')<CR>
+  nnoremap <buffer> <silent> []  :<C-u>call <SID>jump_section_n('?\n\[\@=')<CR>
+
   " Folding sections.
   setlocal foldmethod=expr
   let &l:foldexpr = '(getline(v:lnum)[0] == "[") ? ">1" :'
@@ -752,6 +819,15 @@ endfunction
 
 autocmd MyAutoCmd FileType lua
 \ call s:set_short_indent()
+
+
+
+
+" markdown  "{{{2
+
+autocmd MyAutoCmd BufRead,BufNewFile *.mkd
+\   setfiletype mkd
+\ | call s:set_short_indent()
 
 
 
@@ -990,6 +1066,10 @@ let g:quickrun_config = {
 \    'exec': ['echo "<applet code=%s:t:r width=500 height=500></applet>" > %s:p:r.html',
 \             'appletviewer %s:p:r.html',
 \             'rm -f %s:p:r.html'],
+\    'tempfile': '{fnamemodify(tempname(), ":p:h")}/{expand("%:t")}',
+\  },
+\  'mkd': {
+\    'exec': ['markdown.pl %s | tee %s:p:r.html'],
 \    'tempfile': '{fnamemodify(tempname(), ":p:h")}/{expand("%:t")}',
 \  },
 \  'tex': {
