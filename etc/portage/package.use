@@ -4,13 +4,13 @@ app-i18n/skk-jisyo cdb
 app-i18n/uim -anthy X gtk xft
 app-text/poppler cairo cjk
 app-text/ptex X
-app-text/xpdf linguas_ja
 dev-lang/ghc binary
 dev-util/git perl
 media-gfx/fontforge cairo cjk svg
 media-gfx/gimp exif jpeg png svg
 media-gfx/imagemagick X jpeg png
 media-libs/imlib2 X gif jpeg png
+media-sound/ncmpcpp taglib
 net-print/cups samba
 sys-devel/gcc -fortran
 sys-kernel/gentoo-sources symlink
