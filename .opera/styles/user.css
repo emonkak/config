@@ -1,10 +1,12 @@
 a[target="_blank"] {
-	cursor: help !important;
+  cursor: help !important;
 }
 
+/* For opera 10.5 of Windows. */
 pre {
   font-family: 'Droid Sans Mono', monospace;
 }
+
 
 [class="ad"],
 [class="ads"],
@@ -16,5 +18,5 @@ pre {
 [class$="_ad"],
 [href^="http://ad."],
 [src^="http://ad."] {
-	display: none !important;
+  display: none !important;
 }
