@@ -50,23 +50,6 @@ Rxvt.foreground:  #cccccc
 Rxvt.cursorColor: #cccccc
 Rxvt.cursorColor2: #000000
 
-!Rxvt.color0:  #000000
-!Rxvt.color1:  #993333
-!Rxvt.color2:  #66cc00
-!Rxvt.color3:  #cccc33
-!Rxvt.color4:  #0033cc
-!Rxvt.color5:  #cc33cc
-!Rxvt.color6:  #3399cc
-!Rxvt.color7:  #999999
-!Rxvt.color8:  #555555
-!Rxvt.color9:  #cc6666
-!Rxvt.color10: #99ff33
-!Rxvt.color11: #ffff66
-!Rxvt.color12: #3366ff
-!Rxvt.color13: #ff66ff
-!Rxvt.color14: #66ccff
-!Rxvt.color15: #ffffff
-
 
 ! MISC
 Rxvt.externalBorder: 0
