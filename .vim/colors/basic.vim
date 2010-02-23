@@ -55,10 +55,10 @@ hi SpellRare    cterm=NONE         ctermfg=NONE ctermbg=5
 hi SpellLocal   cterm=underline    ctermfg=NONE ctermbg=6
 
 " complete menu
-hi Pmenu        cterm=Underline    ctermfg=NONE ctermbg=NONE
-hi PmenuSel     cterm=reverse      ctermfg=NONE ctermbg=NONE
+hi Pmenu        cterm=underline    ctermfg=NONE ctermbg=NONE
+hi PmenuSel     cterm=NONE         ctermfg=0    ctermbg=11
 hi PmenuSbar    cterm=NONE         ctermfg=NONE ctermbg=NONE
-hi PmenuThumb   cterm=reverse      ctermfg=NONE ctermbg=NONE
+hi PmenuThumb   cterm=NONE         ctermfg=NONE ctermbg=11
 
 " syntax
 hi Comment      cterm=NONE         ctermfg=14   ctermbg=NONE

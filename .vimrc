@@ -60,6 +60,10 @@ filetype plugin indent on
 
 set ambiwidth=double
 set backspace=indent,eol,start
+if has('clipboard')
+  set clipboard&
+  set clipboard+=unnamed
+endif
 set diffopt=filler,vertical
 set directory=$HOME/.vim
 set grepprg=internal
@@ -93,8 +97,8 @@ if &expandtab == 0
   set tabstop=4
 endif
 set formatlistpat&
-set formatoptions=tcroqnlM1
 let &formatlistpat .= '\|^\s*[*+-]\s*'
+set formatoptions=tcroqnlM1
 set ignorecase
 set incsearch
 set smartcase
@@ -134,8 +138,8 @@ endfunction "}}}
 let &tabline = '%!' . s:SID_PREFIX() . 'my_tabline()'
 
 
-let mapleader = ','
-let maplocalleader = '.'
+let g:mapleader = ','
+let g:maplocalleader = '.'
 
 
 let g:html_use_css = 1
@@ -173,11 +177,11 @@ command! -nargs=1 -complete=file Rename
 \ call s:rename(<q-args>)
 
 function! s:rename(newfile)
-  let cur = expand('%:p')
-  if !filereadable(a:newfile) && filewritable(cur)
+  let current = expand('%:p')
+  if !filereadable(a:newfile) && filewritable(current)
     execute 'file' a:newfile
     write
-    call delete(cur)
+    call delete(current)
   endif
 endfunction
 
@@ -196,6 +200,15 @@ function! s:count(...)
     return a:0 == 0 ? '' : a:1
   endif
 endfunction
+
+
+
+
+" Source - wrapper of :source with echo.  "{{{2
+
+command! -bar -nargs=1 Source
+\   echo 'Sourcing ...' expand(<q-args>)
+\ | source <args>
 
 
 
@@ -231,10 +244,10 @@ command! -complete=file -nargs=? CD
 \ call s:tabpage_cd(<q-args>)
 
 function! s:tabpage_cd(dir)
-  if len(a:dir)
+  if strlen(a:dir)
     execute 'cd' fnameescape(a:dir)
   else
-    execute 'cd' (len(expand('%')) ? fnameescape(expand('%:p:h')) : '')
+    execute 'cd' (strlen(expand('%')) ? fnameescape(expand('%:p:h')) : '')
   endif
   let t:cwd = getcwd()
   echo t:cwd
@@ -520,10 +533,12 @@ map <Space> [Space]
 " fallback
 noremap [Space] <Nop>
 
-nnoremap <silent> [Space]m  :<C-u>marks<CR>
-nnoremap <silent> [Space]r  :<C-u>registers<CR>
-nnoremap <silent> [Space]q  :<C-u>help quickref<CR>
+nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
 nnoremap <silent> [Space]?  :<C-u>help <C-r><C-w><CR>
+nnoremap <silent> [Space]b  :<C-u>ls<CR>
+nnoremap <silent> [Space]m  :<C-u>marks<CR>
+nnoremap <silent> [Space]q  :<C-u>help quickref<CR>
+nnoremap <silent> [Space]r  :<C-u>registers<CR>
 
 nnoremap <silent> [Space]on  :<C-u>call <SID>toggle_option('number')<CR>
 nnoremap <silent> [Space]op  :<C-u>call <SID>toggle_option('paste')<CR>
@@ -531,11 +546,13 @@ nnoremap <silent> [Space]os  :<C-u>call <SID>toggle_option('spell')<CR>
 nnoremap <silent> [Space]ow  :<C-u>call <SID>toggle_option('wrap')<CR>
 
 
-" Close a fold.
+" Close fold.
 nnoremap [Space]h  zc
+nnoremap [Space]H  zM
 
-" Open a fold.
+" Open fold.
 nnoremap [Space]l  zo
+nnoremap [Space]L  zR
 
 " Close all folds but including the cursor.
 nnoremap [Space]v  zMzv
@@ -585,25 +602,25 @@ nnoremap <C-w>Q  :<C-u>quit!<CR>
 
 " Text objects  "{{{2
 
-" angle
+" Angle
 vnoremap aa  a>
 onoremap aa  a>
 vnoremap ia  i>
 onoremap ia  i>
 
-" rectangle
+" Rectangle
 vnoremap ar  a]
 onoremap ar  a]
 vnoremap ir  i]
 onoremap ir  i]
 
-" quote
+" Quote
 vnoremap aq  a'
 onoremap aq  a'
 vnoremap iq  i'
 onoremap iq  i'
 
-" double quote
+" Double quote
 vnoremap ad  a"
 onoremap ad  a"
 vnoremap id  i"
@@ -629,7 +646,7 @@ nnoremap <C-w>.  :<C-u>edit .<CR>
 nnoremap <C-z>  :<C-u>SuspendWithAutomticCD<CR>
 
 
-" "Y" to work from the cursor to the end of line
+" "Y" to work from the cursor to the end of line.
 nnoremap Y y$
 
 
@@ -714,14 +731,14 @@ autocmd MyAutoCmd FileType *
 \ call s:on_FileType_any()
 
 function! s:on_FileType_any()
-  " Load the dictionary for this filetype.
+  " Load the dictionary for filetype now.
   let dict = expand('$HOME/.vim/dict/').&l:filetype.'.dict'
   if filereadable(dict)
     let &l:dictionary = dict
   endif
 
   " Make omni completion available for all filetypes.
-  if !len(&l:omnifunc)
+  if &l:omnifunc == ''
     setlocal omnifunc=syntaxcomplete#Complete
   endif
 endfunction
@@ -1089,7 +1106,7 @@ let g:quickrun_config = {
 
 " Use async processing if possible.
 autocmd MyAutoCmd VimEnter *
-\   if has('clientserver') && len(v:servername)
+\   if has('clientserver') && strlen(v:servername)
 \ |   let g:quickrun_config['*']['runmode'] = 'async:remote:vimproc'
 \ | endif
 
