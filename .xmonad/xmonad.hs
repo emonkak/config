@@ -3,6 +3,7 @@
 
 import XMonad hiding (Tall)
 
+import XMonad.Actions.DwmPromote
 import XMonad.Actions.UpdatePointer
 
 import XMonad.Hooks.DynamicLog
@@ -10,13 +11,15 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
 
+import XMonad.Layout.HintedTile
 import XMonad.Layout.IM
+import XMonad.Layout.MultiToggle
+import XMonad.Layout.MultiToggle.Instances
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Reflect
 import XMonad.Layout.SimpleFloat
 import XMonad.Layout.Tabbed
-import XMonad.Layout.HintedTile
 
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
@@ -88,7 +91,7 @@ myXPConfig = defaultXPConfig
 myLayoutHook = avoidStruts $
   smartBorders $
   onWorkspace "9" gimpLayout $
-  hintedTile Wide ||| hintedTile Tall ||| Full
+  mkToggle (single FULL) (hintedTile Wide ||| hintedTile Tall)
 
   where
     hintedTile  = HintedTile 1 (3/100) (3/5) TopLeft
@@ -118,7 +121,7 @@ myLogHook xmproc = dynamicLogWithPP $ xmobarPP
 -- Keys  --{{{1
 
 myKeys conf = mkKeymap conf $
-  [ ("M-<Return>",   windows W.swapMaster)
+  [ ("M-<Return>",   dwmpromote)
   , ("M-<Space>",    sendMessage NextLayout)
   , ("M-S-<Return>", spawn $ XMonad.terminal conf)
   , ("M-S-<Space>",  setLayout $ XMonad.layoutHook conf)
@@ -134,6 +137,7 @@ myKeys conf = mkKeymap conf $
   , ("M-l",          sendMessage Expand)
 
   , ("M-t",          withFocused $ windows . W.sink)
+  , ("M-f",          sendMessage $ Toggle FULL)
   , ("M-,",          sendMessage (IncMasterN 1))
   , ("M-.",          sendMessage (IncMasterN (-1)))
 
