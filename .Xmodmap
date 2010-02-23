@@ -1,5 +1,7 @@
-! semicolon <-> colon
-! keycode 47 = colon semicolon
+! My xmodmap
 
-! like AX layout
+! Semicolon <-> Colon
+keycode 47 = colon semicolon
+
+! Like AX layout
 keycode 113 = Zenkaku_Hankaku Kanji
