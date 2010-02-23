@@ -156,7 +156,7 @@ alias grep='grep -E --line-number --color'
 alias pstree='pstree -A'
 
 alias s='sudo '
-alias sc='screen'
+alias sc='screen -R'
 if [ "$OSTYPE" = 'cygwin' ]; then
   alias v='vim'
 else
