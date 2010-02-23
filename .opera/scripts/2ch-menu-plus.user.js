@@ -5,21 +5,36 @@
 // ==/UserScript==
 
 (function() {
-	var m = document.location.href.match(/^http:\/\/([^\/]+)\/test\/read\.cgi\/([^\/]+)\/(\d+)/);
-	if (!m) return;
+	var match = location.href.match(/^http:\/\/([^\/]+)\/test\/read\.cgi\/([^\/]+)\/(\d+)/);
+	if (!match) return;
+
+	var url = match[0];
+	var host = match[1];
+	var bbs = match[2];
+	var dat = match[3];
 
 	var SITE_INFO = [
 		{
 			name: 'rep2',
-			url: 'http://p2.2ch.net/p2/read.php?url=' + m[0]
+			url: 'http://p2.2ch.net/p2/read.php?host=' + host + '&bbs=' + bbs
+			      + '&key=' + dat + '&ls=all'
+		},
+		{
+			name: 'ranran2',
+			url: "http://ranran2.net/app/2ch/" + bbs + '/' + dat
+		},
+		{
+			name: 'unkar',
+			url: "http://www.unkar.org/read/" + host + '/' + bbs + '/' + dat
 		},
 		{
 			name: 'mimizun',
-			url: "http://mimizun.com/log/2ch/" + m[2] + '/' + m[1] + '/' + m[2] + '/kako/' + m[3].substring(0, 4) + '/' + m[3].substring(0, 5) + '/' + m[3] + '.html'
+			url: "http://mimizun.com/log/2ch/" + bbs + '/' + host + '/' + bbs + '/kako/'
+			     + dat.substring(0, 4) + '/' + dat.substring(0, 5) + '/' + dat + '.html'
 		},
 		{
 			name: 'mirror',
-			url: 'http://www.geocities.jp/mirrorhenkan/url?u=' + m[0]
+			url: 'http://www.geocities.jp/mirrorhenkan/url?u=' + url
 		}
 	];
 
