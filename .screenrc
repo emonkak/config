@@ -1,6 +1,8 @@
 # My screenrc
 
 escape ^Z^Z
+maptimeout 0
+msgwait 1
 shell /bin/zsh
 shelltitle 'shell'
 term xterm-256color
@@ -16,7 +18,6 @@ startup_message off
 vbell off
 
 caption always '%{= kc}%?%F%{.b.}%?[%{d}%c%{-}] %{d}%-w%{-}[%{d}%n %t%{-}]%{d}%+w%=%{-}[%{d}%l%{-}]'
-#caption always '%{= Kd}%-w%{+bu W}%n %t%{-}%+w%-18= | %D %m-%d %02c'
 hardstatus ignore
 
 hardcopydir "$HOME/Desktop/"
@@ -44,3 +45,5 @@ bind ^v split -v
 bind - resize -2
 bind + resize +2
 bind = resize =
+
+bind . eval 'source $HOME/.screenrc' 'echo "~/.screenrc has been reloaded."'
