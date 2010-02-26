@@ -88,7 +88,6 @@ set title
 set titlestring=Vim:\ %f\ %h%r%m
 set ttimeoutlen=50
 set wildmenu
-set virtualedit=block
 
 set autoindent
 set cinoptions=:0,t0,(0,W1s
@@ -107,7 +106,7 @@ set smartindent
 let &statusline = ''
 let &statusline .= '(%{(&ft!=""?&ft:"none")}) %<%f %h%m%r%w'
 let &statusline .= '[%{(&fenc!=""?&fenc:&enc).":".&ff}]'
-let &statusline .= '%=%-8.(%l,%c%) %P'
+let &statusline .= '%=%-16.(%l,%c [0x%B]%) %P'
 
 function! s:my_tabline()  "{{{
   let s = ''
@@ -215,8 +214,8 @@ command! -bar -nargs=1 Source
 
 " SuspendWithAutomticCD  "{{{2
 
-if !exists('s:GNU_SCREEN_AVAILABLE_P')
-  let s:GNU_SCREEN_AVAILABLE_P = len($WINDOW) != 0
+if !exists('s:TMUX_AVAILABLE_P')
+  let s:TMUX_AVAILABLE_P = len($TMUX) != 0
 endif
 
 
@@ -224,12 +223,14 @@ command! -bar -nargs=0 SuspendWithAutomticCD
 \ call s:cmd_SuspendWithAutomticCD()
 
 function! s:cmd_SuspendWithAutomticCD()
-  if s:GNU_SCREEN_AVAILABLE_P
-    silent execute '!screen -X eval'
-    \              '''select shell'''
-    \              '''stuff "cd '.fnameescape(getcwd()).'\015"'''
+  if s:TMUX_AVAILABLE_P
+    let _ = split(system('tmux list-windows'), ':\s\|\s\S\+\n')
+    let i = index(_, 'zsh')
+    silent execute '!tmux'
+    \              (i > -1 ? 'select-window -t '._[i-1] : 'new-window') '\;'
+    \              'send-keys C-u "cd' fnameescape(getcwd()) '" C-m'
     redraw!
-    let s:GNU_SCREEN_AVAILABLE_P = (v:shell_error == 0)
+    let s:TMUX_AVAILABLE_P = (v:shell_error == 0)
   else
     suspend
   endif
@@ -376,10 +377,10 @@ endfunction
 " Mappings  "{{{1
 " Quickfix  "{{{2
 
-" the prefix key.
+" The prefix key.
 nnoremap q  <Nop>
 
-" alternative key for the original action.
+" Alternative key for the original action.
 nnoremap Q  q
 
 
@@ -403,7 +404,7 @@ nnoremap q<Space>  :<C-u>make<Space>
 nnoremap qg  :<C-u>Grep<Space>
 
 
-" For location list. (mnemonic: Quickfix list for the current Window)
+" For location list.
 nnoremap <silent> qwj  :lnext<CR>
 nnoremap <silent> qwk  :lprevious<CR>
 nnoremap <silent> qwr  :Qexecute lrewind<CR>
@@ -480,7 +481,6 @@ nmap <C-t><C-h>  <C-t>h
 cnoremap <C-b>  <Left>
 cnoremap <C-f>  <Right>
 cnoremap <C-a>  <Home>
-cnoremap <C-e>  <End>
 cnoremap <C-d>  <Delete>
 
 cnoremap <C-p>  <Up>
@@ -501,7 +501,12 @@ inoremap <C-f>  <Right>
 inoremap <C-a>  <Home>
 inoremap <C-e>  <End>
 inoremap <C-d>  <Delete>
+
+
+" Alternative key for the original action.
+inoremap <C-q>  <C-d>
 inoremap <C-\>  <C-a>
+
 
 " Emacs like kill-line.
 inoremap <expr> <C-k>  (col('.') == col('$') ? '<C-o>gJ' : '<C-o>D')
@@ -534,7 +539,6 @@ map <Space> [Space]
 noremap [Space] <Nop>
 
 nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
-nnoremap <silent> [Space]?  :<C-u>help <C-r><C-w><CR>
 nnoremap <silent> [Space]b  :<C-u>ls<CR>
 nnoremap <silent> [Space]m  :<C-u>marks<CR>
 nnoremap <silent> [Space]q  :<C-u>help quickref<CR>
@@ -923,14 +927,9 @@ autocmd MyAutoCmd FileType vim
 
 function! s:on_FileType_vim()
   call s:set_short_indent()
+  nnoremap <buffer> <silent> K  :<C-u>help <C-r><C-w><CR>
 
   " Fix the default syntax to properly highlight.
-  syntax clear vimOperParen
-  syn region vimOperParen
-  \ matchgroup=vimOper start="(" end=")" contains=@vimOperGroup
-  syn region vimOperParen
-  \ matchgroup=vimSep  start="{" end="}" contains=@vimOperGroup nextgroup=vimVar
-
   syntax clear vimFunc
   syntax match vimFunc
   \ "\%([sS]:\|<[sS][iI][dD]>\|\<\%(\I\i*[#.]\)\+\)\=\I\i*\ze\s*("
@@ -1106,9 +1105,26 @@ let g:quickrun_config = {
 
 " Use async processing if possible.
 autocmd MyAutoCmd VimEnter *
-\   if has('clientserver') && strlen(v:servername)
+\   if has('clientserver') && strlen(v:servername) && exists('*vimproc#popen2')
 \ |   let g:quickrun_config['*']['runmode'] = 'async:remote:vimproc'
 \ | endif
+
+
+
+
+" ref  "{{{2
+
+map K <Plug>(ref-keyword)
+
+autocmd MyAutoCmd FileType ref
+\   map <buffer> <C-]> <Plug>(ref-keyword)
+\ | map <buffer> <C-j> <Plug>(ref-forward)
+\ | map <buffer> <C-k> <Plug>(ref-back)
+
+
+let g:ref_no_default_key_mappings = 1
+let g:ref_cache_dir = expand('$HOME/.vim/info/ref')
+let g:ref_open = 'botright vsplit'
 
 
 

@@ -2,7 +2,7 @@
 # Misc.  #{{{1
 
 ulimit -c 0
-stty stop undef
+stty -ixon -ixoff
 
 
 
@@ -16,29 +16,45 @@ SAVEHIST=10000
 
 
 
-# Prompt  #{{{1
+# Options  #{{{1
 
-unsetopt promptcr
+setopt auto_cd
+setopt auto_pushd
+setopt pushd_ignore_dups
+setopt pushd_silent
+
+setopt auto_list
+setopt auto_menu
+setopt auto_param_keys
+setopt auto_param_slash
+setopt list_packed
+setopt list_types
+
+setopt brace_ccl
+setopt equals
+setopt extended_glob
+setopt magic_equal_subst
+setopt mark_dirs
+
+setopt append_history
+setopt hist_ignore_all_dups
+setopt hist_ignore_dups
+setopt hist_ignore_space
+setopt hist_no_store
+setopt hist_reduce_blanks
+setopt inc_append_history
+setopt share_history
+unsetopt extended_history
+
+setopt ignore_eof
 setopt prompt_subst
-
-autoload -Uz vcs_info
-zstyle ':vcs_info:*' actionformats '[%s:%b|%a]'
-zstyle ':vcs_info:*' formats '[%s:%b]'
-zstyle ':vcs_info:bzr:*' use-simple true
+unsetopt beep
+unsetopt flow_control
 
 
-# Ansi Color escape sequence
-# ,---------+--------.
-# |   Black | \e[30m |
-# |     Red | \e[31m |
-# |   Green | \e[32m |
-# |  Yellow | \e[33m |
-# |    Blue | \e[34m |
-# | Magenta | \e[35m |
-# |    Cyan | \e[36m |
-# |    Gray | \e[37m |
-# |   Reset | \e[0m  |
-# `---------+--------'
+
+
+# Prompt  #{{{1
 
 function prompt_setup() {
   local user
@@ -67,6 +83,13 @@ prompt_setup
 unset -f prompt_setup
 
 
+autoload -Uz vcs_info
+zstyle ':vcs_info:*' actionformats '[%s:%b|%a]'
+zstyle ':vcs_info:*' formats '[%s:%b]'
+zstyle ':vcs_info:bzr:*' use-simple true
+
+
+
 
 # Title  #{{{1
 
@@ -75,16 +98,18 @@ if [ $STY ]; then  # is GNU screen
     local -a cmd; cmd=(${(z)2})
     case "$cmd[1]" in
     sudo)
-      print -Pn "\ek$cmd[2]:t\e\\"
+      cmd=($cmd[2])
+      ;;
+    exit)
+      cmd=($(ps -o comm -p $PPID))
+      cmd=($cmd[2])
       ;;
     fg|%*)
       local -A jt; jt=(${(kv)jobtexts})
       cmd=(${(z)${(e):-\$jt$num}})
-      ;&
-    *)
-      print -Pn "\ek$cmd[1]:t\e\\"
       ;;
     esac
+    print -Pn "\ek$cmd[1]:t\e\\"
   }
   precmd() {
     vcs_info
@@ -92,7 +117,7 @@ if [ $STY ]; then  # is GNU screen
   }
 else
   case "$TERM" in
-  xterm*|rxvt*)
+  xterm*|rxvt*|screen*)
     precmd() {
       vcs_info
       print -Pn "\e]0;%n@%m:%~\a"
@@ -100,43 +125,6 @@ else
     ;;
   esac
 fi
-
-
-
-
-# Options  #{{{1
-
-setopt auto_cd
-setopt auto_pushd
-setopt pushd_ignore_dups
-setopt pushd_silent
-
-setopt auto_list
-setopt auto_menu
-setopt auto_param_keys
-setopt auto_param_slash
-setopt list_packed
-setopt list_types
-
-setopt brace_ccl
-setopt equals
-setopt extended_glob
-setopt magic_equal_subst
-setopt mark_dirs
-
-unsetopt extended_history
-setopt append_history
-setopt hist_ignore_all_dups
-setopt hist_ignore_dups
-setopt hist_ignore_space
-setopt hist_no_store
-setopt hist_reduce_blanks
-setopt inc_append_history
-setopt share_history
-
-unsetopt beep
-unsetopt flow_control
-setopt ignore_eof
 
 
 
@@ -152,16 +140,16 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -i'
 
-alias grep='grep -E --line-number --color'
-alias pstree='pstree -A'
-
 alias s='sudo '
-alias sc='screen -R'
 if [ "$OSTYPE" = 'cygwin' ]; then
   alias v='vim'
 else
   alias v='vim --servername VIM'
 fi
+
+
+alias grep='grep -E --line-number --color'
+alias pstree='pstree -A'
 
 if which emerge &>/dev/null; then
   alias emerge='emerge -a'
@@ -176,12 +164,60 @@ alias untargz='tar -vxzf'
 
 
 # Functions  #{{{1
+# mplayer-without-dpms  #{{{2
 
 if which mplayer &>/dev/null && [ -n "$DISPLAY" ]; then
-  function mplayer-without-dpms {
+  function mplayer-without-dpms() {
     xset -dpms
     mplayer -really-quiet $@
     xset +dpms
+  }
+fi
+
+
+
+
+# mkpasswd  #{{{2
+
+if which apg &>/dev/null; then
+  function mkpasswd() {
+    local -A options
+    options[M]='SNCL'
+    options[n]=1
+    while getopts 'l:m:n:rh' OPTION; do
+      case $OPTION in
+      l)
+        options[m]=$OPTARG
+        options[x]=$OPTARG
+        ;;
+      m)
+        options[M]=$OPTARG
+        ;;
+      n)
+        options[n]=$OPTARG
+        ;;
+      r)
+        options[a]=1
+        ;;
+      h|?)
+        echo "Usage: $0 [-l length] [-m mode] [-n num_of_pass] [-r] [-h]" >&2
+        echo "-l length       password length" >&2
+        echo "-m mode         new style password modes [SNCL]" >&2
+        echo "-n num_of_pass  generate num_of_pass passwords [1]" >&2
+        echo "-r              random character password generation" >&2
+        echo "-h              print this help screen" >&2
+        return 1
+        ;;
+      esac
+    done
+
+    local -a args
+    local command='apg'
+    for key in ${(k)options}; do
+      args+=(-$key)
+      args+=($options[$key])
+    done
+    $command $args
   }
 fi
 

@@ -2,6 +2,7 @@ app-editors/vim vim-with-x
 app-emulation/wine alsa jpeg png xml
 app-i18n/skk-jisyo cdb
 app-i18n/uim -anthy X gtk xft
+app-misc/tmux cjkwidth vim-syntax
 app-text/poppler cairo cjk
 app-text/ptex X
 dev-lang/ghc binary

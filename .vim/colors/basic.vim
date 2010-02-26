@@ -15,7 +15,7 @@ hi Directory    cterm=NONE         ctermfg=14   ctermbg=NONE
 hi Question     cterm=NONE         ctermfg=10   ctermbg=NONE
 hi Title        cterm=NONE         ctermfg=14   ctermbg=NONE
 hi Visual       cterm=reverse      ctermfg=NONE ctermbg=NONE
-hi VertSplit    cterm=reverse      ctermfg=7    ctermbg=NONE
+hi VertSplit    cterm=NONE         ctermfg=8    ctermbg=NONE
 hi WildMenu     cterm=NONE         ctermfg=15   ctermbg=4
 
 " fold

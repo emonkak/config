@@ -1,7 +1,7 @@
 app-emulation/wine ~x86
 app-i18n/multiskkserv ~x86
 app-i18n/skk-jisyo ~x86
-app-misc/screen ~x86
+app-misc/tmux ~x86
 dev-haskell/utf8-string ~x86
 dev-haskell/x11 ~x86
 dev-scheme/gauche ~x86

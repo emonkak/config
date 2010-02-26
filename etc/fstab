@@ -11,11 +11,11 @@
 # See the manpage fstab(5) for more information.
 #
 
-# <fs>			<mountpoint>	<type>		<opts>		<dump/pass>
-/dev/sda1   /boot       ext4   noauto,noatime 1 2
-/dev/sda5   none        swap   sw             0 0
-/dev/sda6   /           ext4   noatime        0 1
-/dev/sda7   /var        ext4   noatime        0 1
-/dev/sda8   /home       ext4   noatime        0 1
-/dev/cdrom  /mnt/cdrom  auto   noauto,user    0 0
-tmpfs       /tmp        tmpfs  noatime,size=128m 0 0
+# <fs>      <mountpoint> <type> <opts>             <dump/pass>
+/dev/sda1   /boot        ext4   noauto,noatime     1 2
+/dev/sda5   none         swap   sw                 0 0
+/dev/sda6   /            ext4   noatime            0 1
+/dev/sda7   /var         ext4   noatime            0 1
+/dev/sda8   /home        ext4   noatime            0 1
+/dev/cdrom  /mnt/cdrom   auto   noauto,user        0 0
+tmpfs       /tmp         tmpfs  noatime,size=128m  0 0

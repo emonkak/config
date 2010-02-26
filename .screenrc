@@ -17,7 +17,7 @@ defbce on
 startup_message off
 vbell off
 
-caption always '%{= kc}%?%F%{.b.}%?[%{d}%c%{-}] %{d}%-w%{-}[%{d}%n %t%{-}]%{d}%+w%=%{-}[%{d}%l%{-}]'
+caption always '%{= Kw}%-w%{+bu}%n %t%{-}%+w%-18= | %D %m-%d %02c'
 hardstatus ignore
 
 hardcopydir "$HOME/Desktop/"
