@@ -10,7 +10,9 @@ media-gfx/fontforge ~x86
 media-libs/freetype ~x86
 media-sound/ncmpcpp ~x86
 sys-kernel/gentoo-sources ~x86
+sys-kernel/linux-headers ~x86
 www-client/opera ~x86
+www-plugins/adobe-flash ~x86
 x11-misc/xmobar ~x86
 x11-terms/rxvt-unicode ~x86
 x11-wm/xmonad ~x86

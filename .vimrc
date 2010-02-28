@@ -539,7 +539,6 @@ map <Space> [Space]
 noremap [Space] <Nop>
 
 nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
-nnoremap <silent> [Space]b  :<C-u>ls<CR>
 nnoremap <silent> [Space]m  :<C-u>marks<CR>
 nnoremap <silent> [Space]q  :<C-u>help quickref<CR>
 nnoremap <silent> [Space]r  :<C-u>registers<CR>
@@ -644,6 +643,8 @@ call operator#user#define_ex_command('my-sort', 'sort')
 " Misc.  "{{{2
 
 nnoremap <Leader><Leader>  :<C-u>update<CR>
+nnoremap <Leader>d  :<C-u>bdelete<CR>
+nnoremap <Leader>D  :<C-u>bdelete!<CR>
 nnoremap <C-h>  :<C-u>help<Space>
 nnoremap <C-o>  :<C-u>edit<Space>
 nnoremap <C-w>.  :<C-u>edit .<CR>
@@ -1058,7 +1059,7 @@ vnoremap <silent> <Leader>R  :<C-u>QuickRun >! -runmode simple -mode v<CR>
 let g:quickrun_config = {
 \  '*': {
 \    'output_encode': '',
-\    'split': '{winwidth(0) * 2 < winheight(0) * 5 ? "botright" : "botright vertical"}',
+\    'split': 'botright {winwidth(0) * 2 < winheight(0) * 5 ? "" : "vertical"}',
 \  },
 \  'c': {
 \    'command': 'gcc',
@@ -1124,7 +1125,7 @@ autocmd MyAutoCmd FileType ref
 
 let g:ref_no_default_key_mappings = 1
 let g:ref_cache_dir = expand('$HOME/.vim/info/ref')
-let g:ref_open = 'botright vsplit'
+let g:ref_open = 'botright '.(winwidth(0) * 2 < winheight(0) * 5 ? "split" : "vsplit")
 
 
 
@@ -1157,21 +1158,6 @@ map ge  <Plug>(smartword-ge)
 " the default mappings of vi -- y is for yank.
 nmap s  <Plug>Ysurround
 nmap ss  <Plug>Yssurround
-
-
-
-
-" wwwsearch  "{{{2
-
-nnoremap [Space]*  :<C-u>Wwwsearch -default <C-r><C-w><CR>
-
-
-let g:wwwsearch_command_to_open_uri = 'w3m {uri}'
-
-call wwwsearch#add('default', 'http://www.google.com/search?hl=ja&lr=&q={keyword}')
-call wwwsearch#add('google', 'http://www.google.com/search?hl=ja&lr=&q={keyword}')
-call wwwsearch#add('wikipedia', 'http://ja.wikipedia.org/wiki/{keyword}')
-call wwwsearch#add('dictionary', 'http://dictionary.goo.ne.jp/srch/all/{keyword}/m0u/')
 
 
 

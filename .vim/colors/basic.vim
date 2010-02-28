@@ -45,7 +45,7 @@ hi WarningMsg   cterm=NONE         ctermfg=11   ctermbg=NONE
 " diff
 hi DiffAdd      cterm=NONE         ctermfg=NONE ctermbg=4
 hi DiffChange   cterm=NONE         ctermfg=NONE ctermbg=5
-hi DiffDelete   cterm=NONE         ctermfg=7    ctermbg=NONE
+hi DiffDelete   cterm=NONE         ctermfg=8    ctermbg=NONE
 hi DiffText     cterm=NONE         ctermfg=NONE ctermbg=5
 
 " spell check

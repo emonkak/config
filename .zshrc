@@ -83,48 +83,23 @@ prompt_setup
 unset -f prompt_setup
 
 
+
+
+# Title  #{{{1
+
 autoload -Uz vcs_info
 zstyle ':vcs_info:*' actionformats '[%s:%b|%a]'
 zstyle ':vcs_info:*' formats '[%s:%b]'
 zstyle ':vcs_info:bzr:*' use-simple true
 
-
-
-
-# Title  #{{{1
-
-if [ $STY ]; then  # is GNU screen
-  preexec() {
-    local -a cmd; cmd=(${(z)2})
-    case "$cmd[1]" in
-    sudo)
-      cmd=($cmd[2])
-      ;;
-    exit)
-      cmd=($(ps -o comm -p $PPID))
-      cmd=($cmd[2])
-      ;;
-    fg|%*)
-      local -A jt; jt=(${(kv)jobtexts})
-      cmd=(${(z)${(e):-\$jt$num}})
-      ;;
-    esac
-    print -Pn "\ek$cmd[1]:t\e\\"
-  }
+case "$TERM" in
+xterm*|rxvt*|screen*)
   precmd() {
     vcs_info
-    print -Pn "\ekshell\e\\"
+    print -Pn "\e]0;%m@%n:%~\a"
   }
-else
-  case "$TERM" in
-  xterm*|rxvt*|screen*)
-    precmd() {
-      vcs_info
-      print -Pn "\e]0;%n@%m:%~\a"
-    }
-    ;;
-  esac
-fi
+  ;;
+esac
 
 
 
@@ -149,6 +124,7 @@ fi
 
 
 alias grep='grep -E --line-number --color'
+alias diff='colordiff'
 alias pstree='pstree -A'
 
 if which emerge &>/dev/null; then
@@ -182,22 +158,23 @@ fi
 if which apg &>/dev/null; then
   function mkpasswd() {
     local -A options
-    options[M]='SNCL'
-    options[n]=1
+    options[-M]='SNCL'
+    options[-n]=1
+
     while getopts 'l:m:n:rh' OPTION; do
       case $OPTION in
       l)
-        options[m]=$OPTARG
-        options[x]=$OPTARG
+        options[-m]=$OPTARG
+        options[-x]=$OPTARG
         ;;
       m)
-        options[M]=$OPTARG
+        options[-M]=$OPTARG
         ;;
       n)
-        options[n]=$OPTARG
+        options[-n]=$OPTARG
         ;;
       r)
-        options[a]=1
+        options[-a]=1
         ;;
       h|?)
         echo "Usage: $0 [-l length] [-m mode] [-n num_of_pass] [-r] [-h]" >&2
@@ -214,8 +191,7 @@ if which apg &>/dev/null; then
     local -a args
     local command='apg'
     for key in ${(k)options}; do
-      args+=(-$key)
-      args+=($options[$key])
+      args+=($key $options[$key])
     done
     $command $args
   }
