@@ -27,11 +27,6 @@ Rxvt.imFont: \
   -jis-fixed-medium-r-normal--16-*-*-*-*-*-jisx0208.1983-0
 
 
-! TRANSPARENT
-!Rxvt.inheritPixmap: true
-!Rxvt.shading: 20
-
-
 ! COLOR
 Rxvt.color0: #000000
 Rxvt.color1: #990000
@@ -52,7 +47,7 @@ Rxvt.color15: #ffffff
 
 Rxvt.background:  #222222
 Rxvt.foreground:  #cccccc
-Rxvt.cursorColor: #cccccc
+Rxvt.cursorColor: #009900
 Rxvt.cursorColor2: #000000
 
 
