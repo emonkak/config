@@ -1,19 +1,45 @@
+=app-misc/tmux-9999 ~x86
 app-emulation/wine ~x86
 app-i18n/multiskkserv ~x86
 app-i18n/skk-jisyo ~x86
-app-misc/tmux ~x86
-dev-haskell/utf8-string ~x86
-dev-haskell/x11 ~x86
 dev-scheme/gauche ~x86
 dev-util/git ~x86
 media-gfx/fontforge ~x86
 media-libs/freetype ~x86
+media-sound/mpd ~x86
 media-sound/ncmpcpp ~x86
 sys-kernel/gentoo-sources ~x86
 sys-kernel/linux-headers ~x86
 www-client/opera ~x86
 www-plugins/adobe-flash ~x86
-x11-misc/xmobar ~x86
 x11-terms/rxvt-unicode ~x86
+
+# For XMonad
+dev-haskell/cabal ~x86
+dev-haskell/utf8-string ~x86
+dev-haskell/x11 ~x86
+dev-haskell/x11-xft ~x86
+x11-misc/xmobar ~x86
 x11-wm/xmonad ~x86
 x11-wm/xmonad-contrib ~x86
+
+# For ATI Radeon hardware acceleration
+=media-libs/mesa-9999 ~x86
+=x11-drivers/xf86-video-ati-9999 ~x86
+x11-libs/libdrm ~x86
+x11-base/xorg-drivers
+x11-base/xorg-server ~x86
+x11-drivers/xf86-input-wacom
+x11-libs/libX11 ~x86
+x11-libs/libXext ~x86
+x11-libs/libXi ~x86
+x11-libs/libXtst ~x86
+x11-libs/libXxf86vm ~x86
+x11-proto/dri2proto ~x86
+x11-proto/fixesproto ~x86
+x11-proto/inputproto ~x86
+x11-proto/recordproto ~x86
+x11-proto/xextproto ~x86
+x11-proto/xf86dgaproto ~x86
+x11-proto/xf86vidmodeproto ~x86
+x11-proto/xineramaproto ~x86

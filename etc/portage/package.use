@@ -11,10 +11,12 @@ media-gfx/fontforge cairo cjk svg
 media-gfx/gimp exif jpeg png svg
 media-gfx/imagemagick X jpeg png
 media-libs/imlib2 X gif jpeg png
-media-sound/ncmpcpp taglib
+media-sound/ncmpcpp clock taglib
+net-misc/rdesktop ao oss
 net-print/cups samba
 sys-devel/gcc -fortran
 sys-kernel/gentoo-sources symlink
+www-client/w3m linguas_ja
 x11-libs/cairo X svg
 x11-libs/gtk+ jpeg
 x11-terms/rxvt-unicode truetype xterm-color

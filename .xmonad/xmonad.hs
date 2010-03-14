@@ -18,7 +18,6 @@ import XMonad.Layout.MultiToggle.Instances
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Reflect
-import XMonad.Layout.Tabbed
 
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
@@ -28,7 +27,6 @@ import XMonad.Prompt.Shell
 
 import System.Exit
 import Data.List
-
 
 import qualified Data.Map as M
 import qualified XMonad.StackSet as W
@@ -42,10 +40,12 @@ myWorkspaces = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 myManageHook = composeAll
   [ className =? "MPlayer"               --> doCenterFloat
+  , className =? "Wine"                  --> doCenterFloat
   , className =? "Xmessage"              --> doCenterFloat
   , className =? "feh"                   --> doCenterFloat
-  , className =? "fontforge"             --> doFloat
+  , className =? "rdesktop"              --> doCenterFloat
   , className =? "XmBDFEdit"             --> doFloat
+  , className =? "fontforge"             --> doFloat
   , className =? "Opera" <&&>
     role `notContain` "opera-mainwindow" --> doFloat
   , className =? "Gimp"                  --> doShiftAndGo "9"
@@ -62,35 +62,6 @@ myManageHook = composeAll
 
 
 
--- Theme  --{{{1
-
-myTheme = defaultTheme
-  { fontName            = "-xos4-terminus-medium-r-normal--12-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--12-*-*-*-*-*-*-*"
-  , activeColor         = "#000000"
-  , activeBorderColor   = "orange"
-  , activeTextColor     = "#cccccc"
-  , inactiveColor       = "#000000"
-  , inactiveBorderColor = "#333333"
-  , inactiveTextColor   = "#999999"
-  , decoHeight          = 16
-  }
-
-
-myXPConfig = defaultXPConfig
-  { font              = "-xos4-terminus-medium-r-normal--12-*-*-*-*-*-*-*"
-  , fgColor           = "#cccccc"
-  , fgHLight          = "#cccc00"
-  , bgColor           = "#000000"
-  , bgHLight          = "#000000"
-  , borderColor       = "#333333"
-  , promptBorderWidth = 0
-  , position          = Top
-  , height            = 16
-  }
-
-
-
-
 -- Lauout  --{{{1
 
 myLayoutHook = avoidStruts $
@@ -100,7 +71,6 @@ myLayoutHook = avoidStruts $
 
   where
     hintedTile  = HintedTile 1 (3/100) (3/5) TopLeft
-  --tabLayout   = tabbed shrinkText myTheme
     gimpLayout  = withIM (0.15) (Role "gimp-toolbox") $
                   reflectHoriz $ withIM (0.20) (Role "gimp-dock") $
                   reflectHoriz $ mkToggle (single FULL) (hintedTile Wide ||| hintedTile Tall)
@@ -114,6 +84,25 @@ myLogHook xmproc = dynamicLogWithPP $ xmobarPP
   { ppOutput  = hPutStrLn xmproc
   , ppCurrent = xmobarColor "#cccc00" "" . wrap "[" "]"
   , ppTitle   = xmobarColor "#00cc00" "" . shorten 80
+  }
+
+
+
+
+-- Theme  --{{{1
+
+myFont = "-xos4-terminus-medium-r-normal--12-*-*-*-*-*-*-*,-mplus-gothic-medium-r-normal--12-*-*-*-*-*-*-*"
+
+myXPConfig = defaultXPConfig
+  { font              = myFont
+  , fgColor           = "#cccccc"
+  , fgHLight          = "#cccc00"
+  , bgColor           = "#000000"
+  , bgHLight          = "#000000"
+  , borderColor       = "#333333"
+  , promptBorderWidth = 0
+  , position          = Top
+  , height            = 16
   }
 
 
@@ -148,16 +137,14 @@ myKeys conf = mkKeymap conf $
   , ("M-S-q",        io (exitWith ExitSuccess))
   , ("M-S-c",        kill)
 
-  , ("M-=",          spawn "amixer -q set Master 2dB+")
-  , ("M--",          spawn "amixer -q set Master 2dB-")
+  , ("M-=",          spawn "amixer -q set Master 4dB+")
+  , ("M--",          spawn "amixer -q set Master 4dB-")
   , ("M-0",          spawn "amixer -q set Master toggle")
   , ("M-<Esc>",      spawn "sleep 1; xset dpms force off")
 
   , ("M-x o",        spawn "opera")
   , ("M-x v",        spawn "gqview")
   , ("M-x g",        spawn "gimp")
-  , ("M-x f",        spawn "fontforge")
-  , ("M-x i",        spawn "inkscape")
 
   , ("M-\\",         spawn "ncmpcpp toggle")
   , ("M-[",          spawn "ncmpcpp prev")

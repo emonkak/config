@@ -36,7 +36,7 @@ span.folderitem {
 
 .body pre,
 .body pre > p {
-  font-family: monospace !important;
+  font-family: 'Droid Sans Mono', monospace !important;
 }
 
 

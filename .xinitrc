@@ -5,6 +5,8 @@ usermodmap="$HOME/.Xmodmap"
 [ -f $userresources ] && xrdb -merge "$userresources"
 [ -f $usermodmap ] && xmodmap "$usermodmap"
 
+xset r rate 250 30
+
 export XMODIFIERS='@im=uim'
 export GTK_IM_MODULE='uim'
 export QT_IM_MODULE='uim'

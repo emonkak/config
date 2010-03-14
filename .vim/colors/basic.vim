@@ -14,17 +14,17 @@ hi LineNr       cterm=NONE         ctermfg=8    ctermbg=NONE
 hi Directory    cterm=NONE         ctermfg=14   ctermbg=NONE
 hi Question     cterm=NONE         ctermfg=10   ctermbg=NONE
 hi Title        cterm=NONE         ctermfg=14   ctermbg=NONE
-hi Visual       cterm=reverse      ctermfg=NONE ctermbg=NONE
 hi VertSplit    cterm=NONE         ctermfg=8    ctermbg=NONE
+hi Visual       cterm=NONE         ctermfg=NONE ctermbg=4
 hi WildMenu     cterm=NONE         ctermfg=15   ctermbg=4
+hi MatchParen   cterm=NONE         ctermfg=NONE ctermbg=6
 
 " fold
 hi Folded       cterm=NONE         ctermfg=6    ctermbg=NONE
-hi FoldColumn   cterm=NONE         ctermfg=14   ctermbg=NONE
+hi FoldColumn   cterm=NONE         ctermfg=6    ctermbg=NONE
 
 " search
-hi Search       cterm=NONE         ctermfg=NONE ctermbg=4
-hi MatchParen   cterm=NONE         ctermfg=NONE ctermbg=6
+hi Search       cterm=NONE         ctermfg=0    ctermbg=11
 hi IncSearch    cterm=reverse      ctermfg=NONE ctermbg=NONE
 
 " status line
@@ -64,7 +64,7 @@ hi PmenuThumb   cterm=NONE         ctermfg=NONE ctermbg=11
 hi Comment      cterm=NONE         ctermfg=14   ctermbg=NONE
 hi Constant     cterm=NONE         ctermfg=13   ctermbg=NONE
 hi Special      cterm=NONE         ctermfg=9    ctermbg=NONE
-hi Identifier   cterm=bold         ctermfg=14   ctermbg=NONE
+hi Identifier   cterm=NONE         ctermfg=14   ctermbg=NONE
 hi Statement    cterm=NONE         ctermfg=11   ctermbg=NONE
 hi PreProc      cterm=NONE         ctermfg=12   ctermbg=NONE
 hi Type         cterm=NONE         ctermfg=10   ctermbg=NONE

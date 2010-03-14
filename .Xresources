@@ -16,11 +16,11 @@ Xcursor.size: 24
 
 ! FONT
 Rxvt.font: \
-  xft:Droid Sans Mono:size=11:antialias=true, \
-  xft:AXIS Std:size=11:antialias=true
+  xft:Droid Sans Mono:size=10:antialias=true, \
+  xft:AXIS Std:size=10:antialias=true
 Rxvt.boldFont: \
-  xft:Droid Sans Mono:size=11:antialias=true:bold, \
-  xft:AXIS Std:size=11:antialias=true:bold
+  xft:Droid Sans Mono:size=10:antialias=true:bold, \
+  xft:AXIS Std:size=10:antialias=true:bold
 Rxvt.imFont: \
   -sony-fixed-medium-r-normal--16-*-*-*-*-*-iso8859-1, \
   -sony-fixed-medium-r-normal--16-*-*-*-*-*-jisx0201.1976-0, \

@@ -60,9 +60,8 @@ filetype plugin indent on
 
 set ambiwidth=double
 set backspace=indent,eol,start
-if has('clipboard')
-  set clipboard&
-  set clipboard+=unnamed
+if exists('+clipboard')
+  set clipboard=unnamed,autoselect,exclude:cons\|linux
 endif
 set diffopt=filler,vertical
 set directory=$HOME/.vim
@@ -74,10 +73,11 @@ set nobackup
 set cmdheight=1
 set completeopt=longest,menu
 set display=lastline
+set foldmethod=marker
 set laststatus=2
 set linebreak
 set list
-set listchars=tab:>-,extends:<,trail:-
+set listchars=tab:»\ ,extends:<,trail:-
 set noequalalways
 set nohlsearch
 set nonumber
@@ -103,10 +103,13 @@ set incsearch
 set smartcase
 set smartindent
 
+" default 'statusline' with 'fileencoding'.
 let &statusline = ''
-let &statusline .= '(%{(&ft!=""?&ft:"none")}) %<%f %h%m%r%w'
-let &statusline .= '[%{(&fenc!=""?&fenc:&enc).":".&ff}]'
-let &statusline .= '%=%-16.(%l,%c [0x%B]%) %P'
+let &statusline .= '(%{(&filetype == "" ? "none" : &filetype)})'
+let &statusline .= ' %<%f %h%m%r%w'
+let &statusline .= '[%{(&l:fileencoding == "" ? &encoding : &l:fileencoding).":".&fileformat}]'
+let &statusline .= '%='
+let &statusline .= '%-14.(%l,%c%V%) %P'
 
 function! s:my_tabline()  "{{{
   let s = ''
@@ -187,22 +190,6 @@ endfunction
 
 
 
-" Qexecute - variant of :execute with some extensions  "{{{2
-
-command! -complete=command -nargs=* -range Qexecute
-\ execute <q-args> s:count()
-
-function! s:count(...)
-  if v:count == v:count1  " is count given?
-    return v:count
-  else  " count isn't given.  (the default '' is useful for special value)
-    return a:0 == 0 ? '' : a:1
-  endif
-endfunction
-
-
-
-
 " Source - wrapper of :source with echo.  "{{{2
 
 command! -bar -nargs=1 Source
@@ -224,10 +211,10 @@ command! -bar -nargs=0 SuspendWithAutomticCD
 
 function! s:cmd_SuspendWithAutomticCD()
   if s:TMUX_AVAILABLE_P
-    let _ = split(system('tmux list-windows'), ':\s\|\s\S\+\n')
-    let i = index(_, 'zsh')
+    let windows = split(system('tmux list-windows'), ':\s\|\s\S\+\n')
+    let index = index(windows, split($SHELL, '/')[-1])
     silent execute '!tmux'
-    \              (i > -1 ? 'select-window -t '._[i-1] : 'new-window') '\;'
+    \              (index > -1 ? 'select-window -t '.windows[index-1] : 'new-window') '\;'
     \              'send-keys C-u "cd' fnameescape(getcwd()) '" C-m'
     redraw!
     let s:TMUX_AVAILABLE_P = (v:shell_error == 0)
@@ -295,18 +282,15 @@ command! -bar -complete=file -nargs=+ Grep  call s:grep('grep', [<f-args>])
 command! -bar -complete=file -nargs=+ Lgrep  call s:grep('lgrep', [<f-args>])
 
 function! s:grep(command, args)
-  let pattern = a:args[0]
-  let file = join(a:args[1:])
+  let pattern = a:args[-1]
+  let file = join(a:args[:-2])
   try
     execute a:command '/'.pattern.'/j' file
-  catch /^Vim(l\?grep):E303:/
-    redraw
-    echo 'No matches found:' file
-  catch /^Vim(l\?grep):E480:/
-    redraw
-    echo 'Not match:' pattern
+  catch
+    echo join(split(v:exception)[1:])
+    return
   endtry
-  execute a:command == 'lgrep' ? 'lwin' : 'cwin'
+  execute a:command == 'lgrep' ? 'lwindow' : 'cwindow'
 endfunction
 
 AlterCommand grep  Grep
@@ -387,17 +371,17 @@ nnoremap Q  q
 " For quickfix list.
 nnoremap <silent> qj  :cnext<CR>
 nnoremap <silent> qk  :cprevious<CR>
-nnoremap <silent> qr  :Qexecute crewind<CR>
-nnoremap <silent> qK  :Qexecute cfirst<CR>
-nnoremap <silent> qJ  :Qexecute clast<CR>
-nnoremap <silent> qfj  :Qexecute cnfile<CR>
-nnoremap <silent> qfk  :Qexecute cpfile<CR>
+nnoremap <silent> qr  :<C-u>crewind<CR>
+nnoremap <silent> qK  :<C-u>cfirst<CR>
+nnoremap <silent> qJ  :<C-u>clast<CR>
+nnoremap <silent> qfj  :<C-u>cnfile<CR>
+nnoremap <silent> qfk  :<C-u>cpfile<CR>
 nnoremap <silent> ql  :<C-u>clist<CR>
-nnoremap <silent> qq  :Qexecute cc<CR>
-nnoremap <silent> qo  :Qexecute copen<CR>
+nnoremap <silent> qq  :<C-u>cc<CR>
+nnoremap <silent> qo  :<C-u>copen<CR>
 nnoremap <silent> qc  :<C-u>cclose<CR>
-nnoremap <silent> qp  :Qexecute colder<CR>
-nnoremap <silent> qn  :Qexecute cnewer<CR>
+nnoremap <silent> qp  :<C-u>colder<CR>
+nnoremap <silent> qn  :<C-u>cnewer<CR>
 nnoremap <silent> qm  :<C-u>make<CR>
 nnoremap qM  :<C-u>make<Space>
 nnoremap q<Space>  :<C-u>make<Space>
@@ -407,17 +391,17 @@ nnoremap qg  :<C-u>Grep<Space>
 " For location list.
 nnoremap <silent> qwj  :lnext<CR>
 nnoremap <silent> qwk  :lprevious<CR>
-nnoremap <silent> qwr  :Qexecute lrewind<CR>
-nnoremap <silent> qwK  :Qexecute lfirst<CR>
-nnoremap <silent> qwJ  :Qexecute llast<CR>
-nnoremap <silent> qwfj  :Qexecute lnfile<CR>
-nnoremap <silent> qwfk  :Qexecute lpfile<CR>
+nnoremap <silent> qwr  :<C-u>lrewind<CR>
+nnoremap <silent> qwK  :<C-u>lfirst<CR>
+nnoremap <silent> qwJ  :<C-u>llast<CR>
+nnoremap <silent> qwfj  :<C-u>lnfile<CR>
+nnoremap <silent> qwfk  :<C-u>lpfile<CR>
 nnoremap <silent> qwl  :<C-u>llist<CR>
-nnoremap <silent> qwq  :Qexecute ll<CR>
-nnoremap <silent> qwo  :Qexecute lopen<CR>
+nnoremap <silent> qwq  :<C-u>ll<CR>
+nnoremap <silent> qwo  :<C-u>lopen<CR>
 nnoremap <silent> qwc  :<C-u>close<CR>
-nnoremap <silent> qwp  :Qexecute lolder<CR>
-nnoremap <silent> qwn  :Qexecute lnewer<CR>
+nnoremap <silent> qwp  :<C-u>lolder<CR>
+nnoremap <silent> qwn  :<C-u>lnewer<CR>
 nnoremap <silent> qwm  :<C-u>lmake<CR>
 nnoremap qwM  :<C-u>lmake<Space>
 nnoremap qw<Space>  :<C-u>lmake<Space>
@@ -482,6 +466,7 @@ cnoremap <C-b>  <Left>
 cnoremap <C-f>  <Right>
 cnoremap <C-a>  <Home>
 cnoremap <C-d>  <Delete>
+cnoremap <C-y>  <C-r>"
 
 cnoremap <C-p>  <Up>
 cnoremap <C-n>  <Down>
@@ -543,19 +528,17 @@ nnoremap <silent> [Space]m  :<C-u>marks<CR>
 nnoremap <silent> [Space]q  :<C-u>help quickref<CR>
 nnoremap <silent> [Space]r  :<C-u>registers<CR>
 
+nnoremap <silent> [Space]/  :<C-u>call <SID>toggle_option('hlsearch')<CR>
 nnoremap <silent> [Space]on  :<C-u>call <SID>toggle_option('number')<CR>
-nnoremap <silent> [Space]op  :<C-u>call <SID>toggle_option('paste')<CR>
 nnoremap <silent> [Space]os  :<C-u>call <SID>toggle_option('spell')<CR>
 nnoremap <silent> [Space]ow  :<C-u>call <SID>toggle_option('wrap')<CR>
 
 
-" Close fold.
+" Close a fold.
 nnoremap [Space]h  zc
-nnoremap [Space]H  zM
 
-" Open fold.
+" Open a fold.
 nnoremap [Space]l  zo
-nnoremap [Space]L  zR
 
 " Close all folds but including the cursor.
 nnoremap [Space]v  zMzv
@@ -642,13 +625,20 @@ call operator#user#define_ex_command('my-sort', 'sort')
 
 " Misc.  "{{{2
 
-nnoremap <Leader><Leader>  :<C-u>update<CR>
-nnoremap <Leader>d  :<C-u>bdelete<CR>
-nnoremap <Leader>D  :<C-u>bdelete!<CR>
+nnoremap <silent> <Leader><Leader>  :<C-u>update<CR>
+nnoremap <silent> <Leader>d  :<C-u>bdelete<CR>
+nnoremap <silent> <Leader>D  :<C-u>bdelete!<CR>
+
 nnoremap <C-h>  :<C-u>help<Space>
 nnoremap <C-o>  :<C-u>edit<Space>
 nnoremap <C-w>.  :<C-u>edit .<CR>
+
 nnoremap <C-z>  :<C-u>SuspendWithAutomticCD<CR>
+
+
+" Delete a character with '_' register.
+nnoremap X "_X
+nnoremap x "_x
 
 
 " "Y" to work from the cursor to the end of line.
@@ -671,9 +661,9 @@ nmap \  <Plug>(repeat-.)
 
 
 " Complete or indent.
-inoremap <expr> <C-i>  (<SID>should_indent_rather_than_complete_p()
-                      \ ? '<C-i>'
-                      \ : <SID>keys_to_complete())
+inoremap <expr> <C-i>  <SID>should_indent_rather_than_complete_p()
+                     \ ? '<C-i>'
+                     \ : <SID>keys_to_complete()
 
 function! s:should_indent_rather_than_complete_p()
   let m = match(getline('.'), '\S')
@@ -756,12 +746,6 @@ autocmd MyAutoCmd BufReadPost *
 \ | endif
 
 
-" Unset 'paste' automatically.  It's often hard to do so because of most
-" mappings are disabled in Paste mode.
-autocmd MyAutoCmd InsertLeave *
-\ set nopaste
-
-
 
 
 " c,cpp  "{{{2
@@ -812,14 +796,6 @@ endfunction
 
 
 
-" go  "{{{2
-
-autocmd MyAutoCmd BufNewFile,BufRead *.go
-\ set filetype=go
-
-
-
-
 " java  "{{{2
 
 autocmd MyAutoCmd FileType java
@@ -841,15 +817,6 @@ endfunction
 
 autocmd MyAutoCmd FileType lua
 \ call s:set_short_indent()
-
-
-
-
-" markdown  "{{{2
-
-autocmd MyAutoCmd BufRead,BufNewFile *.mkd
-\   setfiletype mkd
-\ | call s:set_short_indent()
 
 
 
@@ -924,27 +891,12 @@ autocmd MyAutoCmd FileType tex,plaintex
 " vim  "{{{2
 
 autocmd MyAutoCmd FileType vim
-\ call s:on_FileType_vim()
+\   call s:set_short_indent()
+\ | nnoremap <buffer> <silent> K  :<C-u>help <C-r><C-w><CR>
 
-function! s:on_FileType_vim()
-  call s:set_short_indent()
-  nnoremap <buffer> <silent> K  :<C-u>help <C-r><C-w><CR>
+autocmd MyAutoCmd FileType help
+\ nnoremap <buffer> <silent> K  :<C-u>help <C-r><C-w><CR>
 
-  " Fix the default syntax to properly highlight.
-  syntax clear vimFunc
-  syntax match vimFunc
-  \ "\%([sS]:\|<[sS][iI][dD]>\|\<\%(\I\i*[#.]\)\+\)\=\I\i*\ze\s*("
-  \ contains=vimFuncName,vimUserFunc,vimCommand,vimNotFunc,vimExecute
-
-  syntax clear vimUserFunc
-  syntax match vimUserFunc contained
-  \ "\%([sS]:\|<[sS][iI][dD]>\|\<\%(\I\i*[#.]\)\+\)\i\+\|\<\u\i*\>\|\<if\>"
-  \ contains=vimNotation,vimCommand
-
-  syntax clear vimCmplxRepeat
-  syntax cluster vimFuncList
-  \ remove=vimFunctionError
-endfunction
 
 let g:vim_indent_cont = 0
 
@@ -986,19 +938,6 @@ vmap gd  <Plug>(operator-grex-delete)
 
 " ku  "{{{2
 
-nnoremap <silent> [Space]ka  :<C-u>Ku args<CR>
-nnoremap <silent> [Space]kb  :<C-u>Ku buffer<CR>
-nnoremap <silent> [Space]kf  :<C-u>Ku file<CR>
-nnoremap <silent> [Space]kg  :<C-u>Ku metarw/git<CR>
-nnoremap <silent> [Space]kh  :<C-u>Ku history<CR>
-nnoremap <silent> [Space]kq  :<C-u>Ku quickfix<CR>
-nnoremap <silent> [Space]ks  :<C-u>Ku source<CR>
-
-nnoremap <silent> [Space]km  :<C-u>Ku file_mru<CR>
-nnoremap <silent> [Space]k:  :<C-u>Ku cmd_mru/cmd<CR>
-nnoremap <silent> [Space]k/  :<C-u>Ku cmd_mru/search<CR>
-
-
 autocmd MyAutoCmd FileType ku
 \   call ku#default_key_mappings(s:TRUE)
 \ | call s:ku_my_key_mappings()
@@ -1009,6 +948,18 @@ function! s:ku_my_key_mappings()
 endfunction
 
 
+call ku#custom_action('common', 'cd', s:SID_PREFIX().'ku_common_action_my_cd')
+call ku#custom_action('common', 'Yank', s:SID_PREFIX().'ku_common_action_Yank')
+call ku#custom_action('common', 'yank', s:SID_PREFIX().'ku_common_action_yank')
+
+function! s:ku_common_action_my_cd(item)
+  if isdirectory(a:item.word)
+    execute 'CD' a:item.word
+  else  " treat a:item as a file name
+    execute 'CD' fnamemodify(a:item.word, ':h')
+  endif
+endfunction
+
 function! s:ku_common_action_yank(item)
   call setreg('"', a:item.word, 'c')
 endfunction
@@ -1016,8 +967,6 @@ function! s:ku_common_action_Yank(item)
   call setreg('"', a:item.word, 'l')
 endfunction
 
-call ku#custom_action('common', 'yank', s:SID_PREFIX().'ku_common_action_yank')
-call ku#custom_action('common', 'Yank', s:SID_PREFIX().'ku_common_action_Yank')
 
 call ku#custom_key('common', 'y', 'yank')
 call ku#custom_key('common', 'Y', 'Yank')
@@ -1026,6 +975,21 @@ call ku#custom_key('buffer', 'd', 'delete')
 call ku#custom_prefix('common', '~', $HOME)
 call ku#custom_prefix('common', '.vim', $HOME.'/.vim')
 call ku#custom_prefix('common', 'VIM', $VIMRUNTIME)
+
+
+nnoremap <silent> [Space]ka  :<C-u>Ku args<CR>
+nnoremap <silent> [Space]kb  :<C-u>Ku buffer<CR>
+nnoremap <silent> [Space]kf  :<C-u>Ku file<CR>
+nnoremap <silent> [Space]kg  :<C-u>Ku metarw/git<CR>
+nnoremap <silent> [Space]kh  :<C-u>Ku history<CR>
+nnoremap <silent> [Space]kk  :<C-u>call ku#restart()<CR>
+
+nnoremap <silent> [Space]kq  :<C-u>Ku quickfix<CR>
+nnoremap <silent> [Space]ks  :<C-u>Ku source<CR>
+
+nnoremap <silent> [Space]km  :<C-u>Ku file_mru<CR>
+nnoremap <silent> [Space]k:  :<C-u>Ku cmd_mru/cmd<CR>
+nnoremap <silent> [Space]k/  :<C-u>Ku cmd_mru/search<CR>
 
 
 let g:ku_file_mru_file = expand('$HOME/.vim/info/ku/mru')
@@ -1037,8 +1001,8 @@ let g:ku_file_mru_ignore_pattern = '/$\|^/usr/portage/\|^/cygdrive/'
 
 " narrow  "{{{2
 
-noremap [Space]xn  :Narrow<CR>
-noremap [Space]xw  :<C-u>Widen<CR>
+noremap <silent> [Space]xn  :Narrow<CR>
+noremap <silent> [Space]xw  :<C-u>Widen<CR>
 
 
 
@@ -1052,8 +1016,8 @@ map _  <Plug>(operator-replace)
 
 " quickrun  "{{{2
 
-nnoremap <silent> <Leader>R  :<C-u>QuickRun >! -runmode simple -mode n<CR>
-vnoremap <silent> <Leader>R  :<C-u>QuickRun >! -runmode simple -mode v<CR>
+nnoremap <silent> <Leader>R  :<C-u>QuickRun >: -mode n<CR>
+vnoremap <silent> <Leader>R  :<C-u>QuickRun >: -mode v<CR>
 
 
 let g:quickrun_config = {
@@ -1081,8 +1045,8 @@ let g:quickrun_config = {
 \  },
 \  'java-applet': {
 \    'exec': ['echo "<applet code=%s:t:r width=500 height=500></applet>" > %s:p:r.html',
-\             'appletviewer %s:p:r.html',
-\             'rm -f %s:p:r.html'],
+\             'appletviewer __%s:p:r.html',
+\             'rm -f __%s:p:r.html'],
 \    'tempfile': '{fnamemodify(tempname(), ":p:h")}/{expand("%:t")}',
 \  },
 \  'mkd': {
@@ -1097,7 +1061,6 @@ let g:quickrun_config = {
 \    'runmode': 'simple',
 \  },
 \  'xdefaults': {
-\    'runmode': 'simple',
 \    'exec': ['xrdb -remove',
 \             'xrdb -merge %s:p:r'],
 \  },
@@ -1116,16 +1079,17 @@ autocmd MyAutoCmd VimEnter *
 " ref  "{{{2
 
 map K <Plug>(ref-keyword)
+nnoremap <silent> <Leader>t  :<C-u>Ref alc <C-r><C-w><CR>
 
 autocmd MyAutoCmd FileType ref
-\   map <buffer> <C-]> <Plug>(ref-keyword)
-\ | map <buffer> <C-j> <Plug>(ref-forward)
-\ | map <buffer> <C-k> <Plug>(ref-back)
+\   nmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
+\ | nmap <buffer> <silent> <C-j>  <Plug>(ref-forward)
+\ | nmap <buffer> <silent> <C-k>  <Plug>(ref-back)
 
 
 let g:ref_no_default_key_mappings = 1
 let g:ref_cache_dir = expand('$HOME/.vim/info/ref')
-let g:ref_open = 'botright '.(winwidth(0) * 2 < winheight(0) * 5 ? "split" : "vsplit")
+let g:ref_open = 'botright '.(winwidth(0) * 2 < winheight(0) * 5 ? '' : 'v').'split'
 
 
 
