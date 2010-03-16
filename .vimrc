@@ -61,7 +61,7 @@ filetype plugin indent on
 set ambiwidth=double
 set backspace=indent,eol,start
 if exists('+clipboard')
-  set clipboard=unnamed,autoselect,exclude:cons\|linux
+  set clipboard=unnamed,exclude:cons\|linux
 endif
 set diffopt=filler,vertical
 set directory=$HOME/.vim
@@ -1025,28 +1025,14 @@ let g:quickrun_config = {
 \    'output_encode': '',
 \    'split': 'botright {winwidth(0) * 2 < winheight(0) * 5 ? "" : "vertical"}',
 \  },
-\  'c': {
-\    'command': 'gcc',
-\    'exec': ['%c %s -o %s:p:r', '%s:p:r %a'],
-\    'tempfile': '{tempname()}.c',
-\  },
-\  'cpp': {
-\    'command': 'g++',
-\    'exec': ['%c %s -o %s:p:r', '%s:p:r %a'],
-\    'tempfile': '{tempname()}.cpp',
-\  },
-\  'go': {
-\    'command': '8g',
-\    'exec': ['%c %s', '8l -o %s:p:r %s:p:r.8', '%s:p:r %a'],
-\  },
 \  'java': {
 \    'exec': ['javac -Xlint:deprecation %s', '%c %s:t:r %a'],
 \    'tempfile': '{fnamemodify(tempname(), ":p:h")}/{expand("%:t")}',
 \  },
 \  'java-applet': {
 \    'exec': ['echo "<applet code=%s:t:r width=500 height=500></applet>" > %s:p:r.html',
-\             'appletviewer __%s:p:r.html',
-\             'rm -f __%s:p:r.html'],
+\             'appletviewer %s:p:r.html',
+\             'rm -f %s:p:r.html'],
 \    'tempfile': '{fnamemodify(tempname(), ":p:h")}/{expand("%:t")}',
 \  },
 \  'mkd': {

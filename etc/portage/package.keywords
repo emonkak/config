@@ -14,7 +14,18 @@ www-client/opera ~x86
 www-plugins/adobe-flash ~x86
 x11-terms/rxvt-unicode ~x86
 
-# For XMonad
+# Openrc
+sys-apps/baselayout
+sys-apps/openrc
+sys-apps/sysvinit
+sys-fs/udev
+
+# Perl
+app-admin/perl-cleaner ~x86
+dev-lang/perl ~x86
+sys-devel/libperl ~x86
+
+# XMonad
 dev-haskell/cabal ~x86
 dev-haskell/utf8-string ~x86
 dev-haskell/x11 ~x86

@@ -1,4 +1,4 @@
-Config { font = "-xos4-terminus-medium-r-normal--12-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--12-*-*-*-*-*-*-*"
+Config { font = "-xos4-terminus-medium-r-normal--12-*-*-*-*-*-*-*,-mplus-gothic-medium-r-normal--12-*-*-*-*-*-*-*"
        , bgColor = "#000000"
        , fgColor = "#cccccc"
        , position = Top

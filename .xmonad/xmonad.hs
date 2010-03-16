@@ -4,7 +4,6 @@
 import XMonad hiding (Tall)
 
 import XMonad.Actions.DwmPromote
-import XMonad.Actions.UpdatePointer
 
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
@@ -40,7 +39,6 @@ myWorkspaces = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 myManageHook = composeAll
   [ className =? "MPlayer"               --> doCenterFloat
-  , className =? "Wine"                  --> doCenterFloat
   , className =? "Xmessage"              --> doCenterFloat
   , className =? "feh"                   --> doCenterFloat
   , className =? "rdesktop"              --> doCenterFloat
@@ -139,7 +137,6 @@ myKeys conf = mkKeymap conf $
 
   , ("M-=",          spawn "amixer -q set Master 4dB+")
   , ("M--",          spawn "amixer -q set Master 4dB-")
-  , ("M-0",          spawn "amixer -q set Master toggle")
   , ("M-<Esc>",      spawn "sleep 1; xset dpms force off")
 
   , ("M-x o",        spawn "opera")
@@ -166,9 +163,9 @@ main = do
   xmonad $ defaultConfig
     { terminal           = "urxvt"
     , modMask            = mod4Mask
-    , borderWidth        = 1
-    , normalBorderColor  = "#333333"
-    , focusedBorderColor = "orange"
+    , borderWidth        = 2
+    , normalBorderColor  = "#5f676a"
+    , focusedBorderColor = "#285577"
 
     , workspaces         = myWorkspaces
     , keys               = myKeys
