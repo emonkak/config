@@ -1,21 +1,26 @@
-=app-misc/tmux-9999 ~x86
+=app-i18n/skk-jisyo-9999 ~x86
+=app-i18n/skk-jisyo-seiyu-9999 ~x86
 app-emulation/wine ~x86
 app-i18n/multiskkserv ~x86
-app-i18n/skk-jisyo ~x86
+app-misc/tmux ~x86
+app-portage/gentoolkit ~x86
 dev-scheme/gauche ~x86
-dev-util/git ~x86
+dev-vcs/git ~x86
 media-gfx/fontforge ~x86
 media-libs/freetype ~x86
+media-libs/libmpdclient ~x86
 media-sound/mpd ~x86
 media-sound/ncmpcpp ~x86
 net-misc/openssh ~x86
+net-wireless/b43-firmware ~x86
+net-wireless/b43-fwcutter ~x86
 sys-kernel/gentoo-sources ~x86
 sys-kernel/linux-headers ~x86
 www-client/opera ~x86
 www-plugins/adobe-flash ~x86
 x11-terms/rxvt-unicode ~x86
 
-# For Samba
+# Samba
 net-fs/samba ~x86
 net-fs/samba-client ~x86
 net-fs/samba-libs ~x86
@@ -23,18 +28,18 @@ net-fs/samba-server ~x86
 sys-libs/talloc ~x86
 sys-libs/tdb ~x86
 
-# For Openrc
+# Openrc
 sys-apps/baselayout ~x86
 sys-apps/openrc ~x86
 sys-apps/sysvinit ~x86
 sys-fs/udev ~x86
 
-# For Perl 5.10
+# Perl
 app-admin/perl-cleaner ~x86
 dev-lang/perl ~x86
 sys-devel/libperl ~x86
 
-# For XMonad 0.9
+# XMonad
 dev-haskell/cabal ~x86
 dev-haskell/utf8-string ~x86
 dev-haskell/x11 ~x86
@@ -42,18 +47,18 @@ x11-misc/xmobar ~x86
 x11-wm/xmonad ~x86
 x11-wm/xmonad-contrib ~x86
 
-# For ATI Radeon hardware acceleration
-=media-libs/mesa-9999 ~x86
-=x11-drivers/xf86-video-ati-9999 ~x86
-x11-libs/libdrm ~x86
-x11-base/xorg-drivers
+# X.Org
+media-libs/mesa ~x86
+x11-base/xorg-drivers ~x86
 x11-base/xorg-server ~x86
 x11-drivers/xf86-input-wacom ~x86
+x11-drivers/xf86-video-ati ~x86
 x11-libs/libX11 ~x86
 x11-libs/libXext ~x86
 x11-libs/libXi ~x86
 x11-libs/libXtst ~x86
 x11-libs/libXxf86vm ~x86
+x11-libs/libdrm ~x86
 x11-proto/dri2proto ~x86
 x11-proto/fixesproto ~x86
 x11-proto/inputproto ~x86

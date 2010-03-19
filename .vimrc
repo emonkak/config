@@ -77,13 +77,15 @@ set foldmethod=marker
 set laststatus=2
 set linebreak
 set list
-set listchars=tab:»\ ,extends:<,trail:-
+set listchars=tab:>\ ,extends:<,trail:-
 set noequalalways
 set nohlsearch
 set nonumber
 set nowrapscan
 set pumheight=20
 set showcmd
+set splitbelow
+set splitright
 set title
 set titlestring=Vim:\ %f\ %h%r%m
 set ttimeoutlen=50
@@ -500,17 +502,6 @@ inoremap <expr> <C-k>  (col('.') == col('$') ? '<C-o>gJ' : '<C-o>D')
 " To be able to undo these types of deletion.
 inoremap <C-w>  <C-g>u<C-w>
 inoremap <C-u>  <C-g>u<C-u>
-
-
-
-
-" Input: datetime  "{{{2
-
-inoremap <Leader>dF  <C-r>=strftime('%Y-%m-%dT%H:%M:%S+09:00')<CR>
-inoremap <Leader>df  <C-r>=strftime('%Y-%m-%dT%H:%M:%S')<CR>
-inoremap <Leader>dd  <C-r>=strftime('%Y-%m-%d')<CR>
-inoremap <Leader>dT  <C-r>=strftime('%H:%M:%S')<CR>
-inoremap <Leader>dt  <C-r>=strftime('%H:%M')<CR>
 
 
 
@@ -994,7 +985,7 @@ nnoremap <silent> [Space]k/  :<C-u>Ku cmd_mru/search<CR>
 
 let g:ku_file_mru_file = expand('$HOME/.vim/info/ku/mru')
 let g:ku_file_mru_limit = 256
-let g:ku_file_mru_ignore_pattern = '/$\|^/usr/portage/\|^/cygdrive/'
+let g:ku_file_mru_ignore_pattern = '\v/$|^/cygdrive/|^/mnt/|^/media/'
 
 
 

@@ -19,6 +19,7 @@ import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Reflect
 
 import XMonad.Util.EZConfig
+import XMonad.Util.Loggers
 import XMonad.Util.Run
 
 import XMonad.Prompt
@@ -76,20 +77,17 @@ myLayoutHook = avoidStruts $
 
 
 
--- Log  --{{{1
+-- StatusBar  --{{{1
 
-myLogHook xmproc = dynamicLogWithPP $ xmobarPP
-  { ppOutput  = hPutStrLn xmproc
+myFont = "-xos4-terminus-medium-r-normal--12-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--12-*-*-*-*-*-*-*"
+myStatusBar = "xmobar"
+
+myLogHook h = dynamicLogWithPP $ xmobarPP
+  { ppOutput  = hPutStrLn h
+  , ppSep     = xmobarColor "#666666" "" " | "
   , ppCurrent = xmobarColor "#cccc00" "" . wrap "[" "]"
-  , ppTitle   = xmobarColor "#00cc00" "" . shorten 80
+  , ppTitle   = xmobarColor "#00cc00" "" . trim
   }
-
-
-
-
--- Theme  --{{{1
-
-myFont = "-xos4-terminus-medium-r-normal--12-*-*-*-*-*-*-*,-mplus-gothic-medium-r-normal--12-*-*-*-*-*-*-*"
 
 myXPConfig = defaultXPConfig
   { font              = myFont
@@ -106,7 +104,7 @@ myXPConfig = defaultXPConfig
 
 
 
--- Keys  --{{{1
+-- Keybinds  --{{{1
 
 myKeys conf = mkKeymap conf $
   [ ("M-<Return>",   dwmpromote)
@@ -159,13 +157,13 @@ myKeys conf = mkKeymap conf $
 -- Main  --{{{1
 
 main = do
-  xmproc <- spawnPipe "xmobar"
+  statusPipe <- spawnPipe myStatusBar
   xmonad $ defaultConfig
     { terminal           = "urxvt"
     , modMask            = mod4Mask
     , borderWidth        = 2
-    , normalBorderColor  = "#5f676a"
-    , focusedBorderColor = "#285577"
+    , normalBorderColor  = "#333333"
+    , focusedBorderColor = "#3366cc"
 
     , workspaces         = myWorkspaces
     , keys               = myKeys
@@ -173,7 +171,7 @@ main = do
     , startupHook        = setWMName "LG3D"
     , layoutHook         = myLayoutHook
     , manageHook         = myManageHook
-    , logHook            = myLogHook xmproc
+    , logHook            = myLogHook statusPipe
     }
 
 
