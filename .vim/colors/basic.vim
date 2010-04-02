@@ -64,14 +64,14 @@ hi PmenuThumb   cterm=NONE         ctermfg=NONE ctermbg=11
 hi Comment      cterm=NONE         ctermfg=14   ctermbg=NONE
 hi Constant     cterm=NONE         ctermfg=13   ctermbg=NONE
 hi Special      cterm=NONE         ctermfg=9    ctermbg=NONE
-hi Identifier   cterm=bold         ctermfg=14   ctermbg=NONE
+hi Identifier   cterm=NONE         ctermfg=14   ctermbg=NONE
 hi Statement    cterm=NONE         ctermfg=11   ctermbg=NONE
 hi PreProc      cterm=NONE         ctermfg=12   ctermbg=NONE
 hi Type         cterm=NONE         ctermfg=10   ctermbg=NONE
 hi Underlined   cterm=underline    ctermfg=12   ctermbg=NONE
 hi Ignore       cterm=NONE         ctermfg=0    ctermbg=NONE
 hi Error        cterm=NONE         ctermfg=NONE ctermbg=1
-hi Todo         cterm=NONE         ctermfg=0    ctermbg=3
+hi Todo         cterm=NONE         ctermfg=0    ctermbg=11
 
 " link
 hi link String         Constant

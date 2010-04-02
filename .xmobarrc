@@ -11,5 +11,5 @@ Config { font = "-xos4-terminus-medium-r-normal--12-*-*-*-*-*-*-*,-mplus-gothic-
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%StdinReader% }{ %cpu% <fc=#666666>|</fc> %memory% <fc=#666666>|</fc> %wlan0% <fc=#666666>|</fc> %date%"
+       , template = "%StdinReader% }{ %cpu% <fc=#666666>|</fc> %memory% <fc=#666666>|</fc> %wlan0% <fc=#666666>|</fc> <fc=#cccc00>%date%</fc>"
        }

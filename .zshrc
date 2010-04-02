@@ -65,7 +65,7 @@ function prompt_setup() {
   fi
 
   local host
-  if [ -n "$SSH_CONNECTION" ]; then
+  if [ -n "$SSH_CLIENT" ]; then
     host=$'%{\e[36m%}%m'
   else
     host=$'%{\e[32m%}%m'
