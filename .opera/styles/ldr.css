@@ -34,6 +34,8 @@ span.folderitem {
   margin: 0 !important;
 }
 
+.body blockquote,
+.body blockquote > p,
 .body pre,
 .body pre > p {
   font-family: 'Droid Sans Mono', monospace !important;
