@@ -5,54 +5,49 @@
 // ==/UserScript==
 
 (function() {
-	var match = location.href.match(/^http:\/\/([^\/]+)\/test\/read\.cgi\/([^\/]+)\/(\d+)/);
-	if (!match) return;
+  var m = location.href.match(/^http:\/\/([^\/]+)\/test\/read\.cgi\/([^\/]+)\/(\d+)/);
+  if (!m) return;
 
-	var url = match[0];
-	var host = match[1];
-	var bbs = match[2];
-	var dat = match[3];
+  var SITEINFO = [
+    {
+      name: 'rep2',
+      url: 'http://p2.2ch.net/p2/read.php?host=' + m[1] + '&bbs=' + m[2]
+            + '&key=' + m[3] + '&ls=all'
+    },
+    {
+      name: 'ranran2',
+      url: 'http://ranran2.net/app/2ch/' + m[2] + '/' + m[3]
+    },
+    {
+      name: 'unkar',
+      url: 'http://www.unkar.org/read/' + m[1] + '/' + m[2] + '/' + m[3]
+    },
+    {
+      name: 'mimizun',
+      url: 'http://mimizun.com/log/2ch/' + m[2] + '/' + m[1] + '/' + m[2] + '/kako/'
+           + m[3].substring(0, 4) + '/' + m[3].substring(0, 5) + '/' + m[3] + '.html'
+    },
+    {
+      name: 'mirror',
+      url: 'http://www.geocities.jp/mirrorhenkan/url?u=' + m[0]
+    }
+  ];
 
-	var SITE_INFO = [
-		{
-			name: 'rep2',
-			url: 'http://p2.2ch.net/p2/read.php?host=' + host + '&bbs=' + bbs
-			      + '&key=' + dat + '&ls=all'
-		},
-		{
-			name: 'ranran2',
-			url: "http://ranran2.net/app/2ch/" + bbs + '/' + dat
-		},
-		{
-			name: 'unkar',
-			url: "http://www.unkar.org/read/" + host + '/' + bbs + '/' + dat
-		},
-		{
-			name: 'mimizun',
-			url: "http://mimizun.com/log/2ch/" + bbs + '/' + host + '/' + bbs + '/kako/'
-			     + dat.substring(0, 4) + '/' + dat.substring(0, 5) + '/' + dat + '.html'
-		},
-		{
-			name: 'mirror',
-			url: 'http://www.geocities.jp/mirrorhenkan/url?u=' + url
-		}
-	];
+  var header = getFirstElementByXPath('//div[@style="margin-top:1em;"]', document);
+  var right = getFirstElementByXPath('//span[@style="float:right;"]', document);
+  var left = getFirstElementByXPath('//span[@style="float:left;"]', header);
+  header.removeChild(right);
+  SITEINFO.forEach(function(site) {
+    var link = document.createElement('a');
+    link.href = site.url;
+    link.innerHTML = '&raquo;' + site.name;
+    link.style.backgroundColor = '#ffffcc';
+    left.appendChild(document.createTextNode(' '));
+    left.appendChild(link);
+  });
 
-	var header = getFirstElementByXPath('//div[@style="margin-top:1em;"]', document);
-	var pr = getFirstElementByXPath('//span[@style="float:right;"]', header);
-	var menu = getFirstElementByXPath('//span[@style="float:left;"]', header);
-	header.removeChild(pr);
-	SITE_INFO.forEach(function(site) {
-		var link = document.createElement('a');
-		link.href = site.url;
-		link.innerHTML = '&raquo;' + site.name;
-		link.style.backgroundColor = '#ffffcc';
-		menu.appendChild(document.createTextNode(' '));
-		menu.appendChild(link);
-	});
-
-	function getFirstElementByXPath(xpath, node) {
-		var result = document.evaluate(xpath, node, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-		return result.singleNodeValue;
-	}
+  function getFirstElementByXPath(xpath, node) {
+    var result = document.evaluate(xpath, node, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+    return result.singleNodeValue;
+  }
 })();
