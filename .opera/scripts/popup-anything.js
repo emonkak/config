@@ -63,6 +63,7 @@
       'position': 'fixed',
       'text-align': 'left',
       'width': '100%',
+      'z-index': 1000,
     },
     '#popup-anything *': {
       'color': 'inherit',
@@ -251,13 +252,13 @@
       this.node = document.createElement('div');
       this.node.id = 'popup-anything';
       this.node.style.display = 'none';
-      this.node.style.zIndex = '1000';
-      document.body.appendChild(this.node);
 
       var self = this;
       this.node.addEventListener('dblclick', function(e){
         self.hide.call(self);
       }, false);
+
+      document.body.appendChild(this.node);
     }
 
     Popup.prototype.load = function(){
@@ -265,11 +266,9 @@
       var text = document.createTextNode('Loading...');
       img.style.border = 'none';
       img.style.margin = '0 8px 0 0';
-      img.style.padding = '0px';
+      img.style.padding = '0';
+      img.style.verticalAlign = 'middle';
       img.src = LOADING_IMAGE;
-      img.align = 'middle';
-      img.width = 24;
-      img.height = 24;
 
       this.apply('');
       this.node.appendChild(img);
@@ -325,9 +324,6 @@
     form.method = param.method;
     form.target = iframe.name;
 
-    document.body.appendChild(iframe);
-    document.body.appendChild(form);
-
     for (var key in param.data) {
       var input = document.createElement('input');
       input.type = 'hidden';
@@ -338,7 +334,8 @@
       form.appendChild(input);
     }
 
-    form.submit();
+    document.body.appendChild(iframe);
+    document.body.appendChild(form);
 
     window.addEventListener('message', function(){
       window.removeEventListener('message', callback, false);
@@ -347,6 +344,8 @@
       document.body.removeChild(form);
     }, false);
     window.addEventListener('message', callback, false);
+
+    form.submit();
   }
 })();
 
