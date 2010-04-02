@@ -46,9 +46,6 @@ endif
 " Options  "{{{2
 
 if (1 < &t_Co || has('gui')) && has('syntax')
-  if &term ==# '256color'
-    set t_Co=256
-  endif
   syntax on
   if !exists('g:colors_name')
     colorscheme basic
@@ -86,13 +83,17 @@ set pumheight=20
 set showcmd
 set splitbelow
 set splitright
+if &term =~# 'screen'
+  execute "set t_fs=\<C-g>"
+  execute "set t_ts=\<Esc>]2;"
+endif
 set title
 set titlestring=Vim:\ %f\ %h%r%m
 set ttimeoutlen=50
 set wildmenu
 
 set autoindent
-set cinoptions=:0,t0,(0,W1s
+set cinoptions=:0,l1,g0,t0,(0,j1
 if &expandtab == 0
   set shiftwidth=4
   set tabstop=4
@@ -175,23 +176,6 @@ let s:TRUE = !s:FALSE
 
 
 
-" Rename - rename the current file  "{{{2
-
-command! -nargs=1 -complete=file Rename
-\ call s:rename(<q-args>)
-
-function! s:rename(newfile)
-  let current = expand('%:p')
-  if !filereadable(a:newfile) && filewritable(current)
-    execute 'file' a:newfile
-    write
-    call delete(current)
-  endif
-endfunction
-
-
-
-
 " Source - wrapper of :source with echo.  "{{{2
 
 command! -bar -nargs=1 Source
@@ -207,14 +191,13 @@ if !exists('s:TMUX_AVAILABLE_P')
   let s:TMUX_AVAILABLE_P = len($TMUX) != 0
 endif
 
-
 command! -bar -nargs=0 SuspendWithAutomticCD
 \ call s:cmd_SuspendWithAutomticCD()
 
 function! s:cmd_SuspendWithAutomticCD()
   if s:TMUX_AVAILABLE_P
     let windows = split(system('tmux list-windows'), ':\s\|\s\S\+\n')
-    let index = index(windows, split($SHELL, '/')[-1])
+    let index = index(windows, split(&shell, '/')[-1])
     silent execute '!tmux'
     \              (index > -1 ? 'select-window -t '.windows[index-1] : 'new-window') '\;'
     \              'send-keys C-u "cd' fnameescape(getcwd()) '" C-m'
@@ -234,11 +217,7 @@ command! -complete=file -nargs=? CD
 \ call s:tabpage_cd(<q-args>)
 
 function! s:tabpage_cd(dir)
-  if strlen(a:dir)
-    execute 'cd' fnameescape(a:dir)
-  else
-    execute 'cd' (strlen(expand('%')) ? fnameescape(expand('%:p:h')) : '')
-  endif
+  execute 'cd' fnameescape(a:dir)
   let t:cwd = getcwd()
   echo t:cwd
 endfunction
@@ -280,23 +259,44 @@ command! -bang -bar -complete=file -nargs=? Sjis  Cp932<bang> <args>
 " Utilities  "{{{1
 " :grep wrappers  "{{{2
 
-command! -bar -complete=file -nargs=+ Grep  call s:grep('grep', [<f-args>])
-command! -bar -complete=file -nargs=+ Lgrep  call s:grep('lgrep', [<f-args>])
+command! -bar -complete=file -nargs=+ Grep
+\ call s:grep('grep', [<f-args>])
+command! -bar -complete=file -nargs=+ Lgrep
+\ call s:grep('lgrep', [<f-args>])
 
 function! s:grep(command, args)
-  let pattern = a:args[-1]
-  let file = join(a:args[:-2])
-  try
-    execute a:command '/'.pattern.'/j' file
-  catch
-    echo join(split(v:exception)[1:])
-    return
-  endtry
-  execute a:command == 'lgrep' ? 'lwindow' : 'cwindow'
+  execute a:command '/'.a:args[-1].'/j' join(a:args[:-2])
+  if len(getqflist()) != 0
+    execute a:command == 'lgrep' ? 'lopen' : 'copen'
+  endif
 endfunction
 
-AlterCommand grep  Grep
-AlterCommand lgrep  Lgrep
+AlterCommand gr[ep]  Grep
+AlterCommand lgr[ep]  Lgrep
+
+
+
+
+" Split nicely  "{{{2
+
+command! -bar -nargs=* -complete=file Split
+\ call s:split_nicely_with('split', <f-args>)
+command! -bar -nargs=* -complete=help Help
+\ call s:split_nicely_with('help', <f-args>)
+command! -bar -nargs=* -complete=file New
+\ call s:split_nicely_with('new', <f-args>)
+
+function! s:split_nicely_with(...)
+  if winwidth(0) * 2 > winheight(0) * 5
+    execute 'vertical' join(a:000)
+  else
+    execute join(a:000)
+  endif
+endfunction
+
+AlterCommand sp[lit]  Split
+AlterCommand h[elp]  Help
+AlterCommand new  New
 
 
 
@@ -340,6 +340,23 @@ endfunction
 " for operator-pending mode.  a:motion is '[[', '[]', ']]' or ']['.
 function! s:jump_section_o(motion)
   execute 'normal' v:count1 . a:motion
+endfunction
+
+
+
+
+" Rename  "{{{2
+
+command! -nargs=1 -complete=file Rename
+\ call s:rename(<q-args>)
+
+function! s:rename(newfile)
+  let current = expand('%:p')
+  if !filereadable(a:newfile) && filewritable(current)
+    execute 'file' a:newfile
+    write
+    call delete(current)
+  endif
 endfunction
 
 
@@ -515,15 +532,16 @@ map <Space> [Space]
 noremap [Space] <Nop>
 
 nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
+nnoremap <silent> [Space]c  :<C-u>CD %:p:h<CR>
 nnoremap <silent> [Space]m  :<C-u>marks<CR>
-nnoremap <silent> [Space]q  :<C-u>help quickref<CR>
+nnoremap <silent> [Space]q  :<C-u>Help quickref<CR>
 nnoremap <silent> [Space]r  :<C-u>registers<CR>
 
 nnoremap <silent> [Space]/  :<C-u>call <SID>toggle_option('hlsearch')<CR>
 nnoremap <silent> [Space]on  :<C-u>call <SID>toggle_option('number')<CR>
+nnoremap <silent> [Space]op  :<C-u>call <SID>toggle_option('paste')<CR>
 nnoremap <silent> [Space]os  :<C-u>call <SID>toggle_option('spell')<CR>
 nnoremap <silent> [Space]ow  :<C-u>call <SID>toggle_option('wrap')<CR>
-
 
 " Close a fold.
 nnoremap [Space]h  zc
@@ -577,35 +595,6 @@ nnoremap <C-w>Q  :<C-u>quit!<CR>
 
 
 
-" Text objects  "{{{2
-
-" Angle
-vnoremap aa  a>
-onoremap aa  a>
-vnoremap ia  i>
-onoremap ia  i>
-
-" Rectangle
-vnoremap ar  a]
-onoremap ar  a]
-vnoremap ir  i]
-onoremap ir  i]
-
-" Quote
-vnoremap aq  a'
-onoremap aq  a'
-vnoremap iq  i'
-onoremap iq  i'
-
-" Double quote
-vnoremap ad  a"
-onoremap ad  a"
-vnoremap id  i"
-onoremap id  i"
-
-
-
-
 " Operators  "{{{2
 
 " User key mappings will be defined later - see [Space].
@@ -617,20 +606,22 @@ call operator#user#define_ex_command('my-sort', 'sort')
 " Misc.  "{{{2
 
 nnoremap <silent> <Leader><Leader>  :<C-u>update<CR>
-nnoremap <silent> <Leader>d  :<C-u>bdelete<CR>
-nnoremap <silent> <Leader>D  :<C-u>bdelete!<CR>
 
-nnoremap <C-h>  :<C-u>help<Space>
+nnoremap <C-h>  :<C-u>Help<Space>
 nnoremap <C-o>  :<C-u>edit<Space>
 nnoremap <C-w>.  :<C-u>edit .<CR>
-
 nnoremap <C-z>  :<C-u>SuspendWithAutomticCD<CR>
 
 
-" Delete a character with '_' register.
+" Move cursor by display lines when wrapping.
+noremap j  gj
+noremap k  gk
+noremap gj  j
+noremap gk  k
+
+" Delete a character with noname register.
 nnoremap X "_X
 nnoremap x "_x
-
 
 " "Y" to work from the cursor to the end of line.
 nnoremap Y y$
@@ -717,7 +708,7 @@ autocmd MyAutoCmd FileType *
 \ call s:on_FileType_any()
 
 function! s:on_FileType_any()
-  " Load the dictionary for filetype now.
+  " Load the dictionary for filetype.
   let dict = expand('$HOME/.vim/dict/').&l:filetype.'.dict'
   if filereadable(dict)
     let &l:dictionary = dict
@@ -795,7 +786,6 @@ autocmd MyAutoCmd FileType java
 function! s:on_FileType_java()
   setlocal makeprg=javac\ -Xlint:deprecation\ %
   setlocal errorformat=%E%f:%l:\ %m,%C%\\S%\\+:\ %.%#\ %m,%Z%p^,%C%.%#
-  setlocal cinoptions=:0,t0,(0,W1s
 
   nnoremap <silent> <LocalLeader>a  :<C-u>QuickRun java-applet -mode n<CR>
   vnoremap <silent> <LocalLeader>a  :<C-u>QuickRun java-applet -mode v<CR>
@@ -826,7 +816,7 @@ autocmd MyAutoCmd FileType registry
 \ call s:on_FileType_registry()
 
 function! s:on_FileType_registry()
-  " Fix the default syntax to properly highlight
+  " Fix the default syntax to properly highlight.
   syntax match registryHead  "Windows Registry Editor Version \d\+\.\d\+"
 
   syntax clear registryString
@@ -883,10 +873,10 @@ autocmd MyAutoCmd FileType tex,plaintex
 
 autocmd MyAutoCmd FileType vim
 \   call s:set_short_indent()
-\ | nnoremap <buffer> <silent> K  :<C-u>help <C-r><C-w><CR>
+\ | nnoremap <buffer> <silent> K  :<C-u>Help <C-r><C-w><CR>
 
 autocmd MyAutoCmd FileType help
-\ nnoremap <buffer> <silent> K  :<C-u>help <C-r><C-w><CR>
+\ nnoremap <buffer> <silent> K  :<C-u>Help <C-r><C-w><CR>
 
 
 let g:vim_indent_cont = 0
@@ -963,9 +953,11 @@ call ku#custom_key('common', 'y', 'yank')
 call ku#custom_key('common', 'Y', 'Yank')
 call ku#custom_key('buffer', 'd', 'delete')
 
-call ku#custom_prefix('common', '~', $HOME)
 call ku#custom_prefix('common', '.vim', $HOME.'/.vim')
+call ku#custom_prefix('common', 'HOME', $HOME)
 call ku#custom_prefix('common', 'VIM', $VIMRUNTIME)
+call ku#custom_prefix('common', 'W', $HOME.'/working')
+call ku#custom_prefix('common', '~', $HOME)
 
 
 nnoremap <silent> [Space]ka  :<C-u>Ku args<CR>
@@ -1014,10 +1006,9 @@ vnoremap <silent> <Leader>R  :<C-u>QuickRun >: -mode v<CR>
 let g:quickrun_config = {
 \  '*': {
 \    'output_encode': '',
-\    'split': 'botright {winwidth(0) * 2 < winheight(0) * 5 ? "" : "vertical"}',
 \  },
 \  'java': {
-\    'exec': ['javac -Xlint:deprecation %s', '%c %s:t:r %a'],
+\    'exec': ['javac -Xlint:deprecation %s', '%c %s:t:r %a', 'rm -f %s:t:r*.class'],
 \    'tempfile': '{fnamemodify(tempname(), ":p:h")}/{expand("%:t")}',
 \  },
 \  'java-applet': {
@@ -1046,7 +1037,7 @@ let g:quickrun_config = {
 
 " Use async processing if possible.
 autocmd MyAutoCmd VimEnter *
-\   if has('clientserver') && strlen(v:servername) && exists('*vimproc#popen2')
+\   if has('clientserver') && exists('*vimproc#popen2') && strlen(v:servername)
 \ |   let g:quickrun_config['*']['runmode'] = 'async:remote:vimproc'
 \ | endif
 
@@ -1066,7 +1057,7 @@ autocmd MyAutoCmd FileType ref
 
 let g:ref_no_default_key_mappings = 1
 let g:ref_cache_dir = expand('$HOME/.vim/info/ref')
-let g:ref_open = 'botright '.(winwidth(0) * 2 < winheight(0) * 5 ? '' : 'v').'split'
+let g:ref_open = 'Split'
 
 
 
