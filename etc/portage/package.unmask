@@ -1,10 +1,4 @@
 =app-i18n/skk-jisyo-9999
 =app-i18n/skk-jisyo-seiyu-9999
-
-# ---
-# BEGIN: x11-drivers/xf86-video-ati-6.12.192
-# ---
-# ---
-# END: x11-drivers/xf86-video-ati-6.12.192
-# ---
-
+app-admin/haskell-updater
+dev-lang/ghc
