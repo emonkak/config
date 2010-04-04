@@ -46,7 +46,7 @@
     'Kx66Q74yMSPCxDFDury+wLoAtrjQgz0kJwqmhR5KSdqESCUUFCwKhh4I6ZeGPTzjFA+oIY8AIQnp' +
     'It+CHCjvJEgjHjwYgSRJgoMhEIVAwaNEjyQCBV5SIkIELURIekBSEvHBOiT6EiEZInBIyEhIlNCj' +
     'FikQADs=';
-  const STYLE_SHEET = {
+  const POPUP_STYLE = {
     '#popup-anything': {
       'background-color': '#000',
       'border': 'none',
@@ -71,6 +71,7 @@
       'font-family': 'inherit',
       'font-size': 'inherit',
       'line-height': 'inherit',
+      'text-align': 'inherit',
     },
     '#popup-anything a': {
       'border-color': '#333',
@@ -84,6 +85,7 @@
       'border-color': '#666',
       'border-style': 'solid',
       'border-width': '0 0 1px 0',
+      'color': '#fff',
     },
     '#popup-anything li': {
       'display': 'list-item',
@@ -192,7 +194,7 @@
       window.parent.postMessage(contents.join(''), document.referrer);
     }, false);
   } else if (window.parent === window) {
-    add_style_sheet(STYLE_SHEET);
+    add_style_sheet(POPUP_STYLE);
 
     document.addEventListener('DOMContentLoaded', function(e){
       var popup = init_interface();
@@ -207,27 +209,25 @@
         if (!query)
           return;
 
-        var param = [];
+        var params = [];
         for (var i = 0, l = siteinfo.length; i < l; i++)
           if (new RegExp(siteinfo[i].pattern).test(query))
-            param.push(siteinfo[i]);
-        if (param.length === 0)
+            params.push(siteinfo[i]);
+        if (params.length === 0)
           return;
 
         popup.load();
-        iframe_http_reqest(param.shift(), query, function(e){
+        iframe_http_reqest(params.shift(), query, function(e){
           if (!popup.disp())
             return;
 
           if (e.data) {
             popup.apply(e.data);
           } else {
-            if (param.length > 0) {
-              iframe_http_reqest(param.shift(), query, arguments.callee);
-            } else {
-              popup.apply('Not found.');
-              setTimeout(function(){popup.hide.call(popup)}, 3000);
-            }
+            if (params.length > 0)
+              iframe_http_reqest(params.shift(), query, arguments.callee);
+            else
+              popup.hide();
           }
         });
       }, false);
