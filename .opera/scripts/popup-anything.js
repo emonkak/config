@@ -164,36 +164,12 @@
       method: 'GET',
       url: 'http://www.google.com/search',
       data: {hl: 'ja', lr: '', q: '%s'},
+      pattern: /^ *\S+ *$/,
       xpath: '//div[@id="res"]/div/ol',
     },
   ];
 
-  if (window.name && window.name.indexOf(IFRAME_WINDOW_NAME) === 0 && window.parent !== window) {
-    add_style_sheet({'body': {'display': 'none'}});
-
-    window.opera.addEventListener('BeforeScript', function(e){
-      e.preventDefault();
-    }, false);
-    window.opera.addEventListener('BeforeExternalScript', function(e){
-      e.preventDefault();
-    }, false);
-    window.opera.addEventListener('BeforeEventListener', function(e){
-      if (e.event.type != 'DOMContentLoaded')
-        e.preventDefault();
-    }, false);
-    document.addEventListener('DOMContentLoaded', function(e){
-      var xpath = window.name.split('\n')[1];
-      var entry = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-      var contents = [];
-
-      for (var i = 0, l = entry.snapshotLength; i < l; i++) {
-        var node = entry.snapshotItem(i);
-        contents.push(parse_node(node));
-      }
-
-      window.parent.postMessage(contents.join(''), document.referrer);
-    }, false);
-  } else if (window.parent === window) {
+  if (window.parent === window) {
     add_style_sheet(POPUP_STYLE);
 
     document.addEventListener('DOMContentLoaded', function(e){
@@ -206,7 +182,7 @@
           return;
 
         var query = document.getSelection();
-        if (!query)
+        if (!query || new RegExp(/^\s*$/).test(query))
           return;
 
         var params = [];
@@ -223,14 +199,39 @@
 
           if (e.data) {
             popup.apply(e.data);
+          } else if (params.length > 0) {
+            iframe_http_reqest(params.shift(), query, arguments.callee);
           } else {
-            if (params.length > 0)
-              iframe_http_reqest(params.shift(), query, arguments.callee);
-            else
-              popup.hide();
+            popup.hide();
           }
         });
       }, false);
+    }, false);
+  } else if (window.name.indexOf(IFRAME_WINDOW_NAME) === 0) {
+    add_style_sheet({'body': {'display': 'none'}});
+
+    window.opera.addEventListener('BeforeScript', function(e){
+      e.preventDefault();
+    }, false);
+    window.opera.addEventListener('BeforeExternalScript', function(e){
+      e.preventDefault();
+    }, false);
+    window.opera.addEventListener('BeforeEventListener', function(e){
+      if (e.event.type != 'DOMContentLoaded')
+        e.preventDefault();
+    }, false);
+
+    document.addEventListener('DOMContentLoaded', function(e){
+      var xpath = window.name.split('\n')[1];
+      var entry = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+      var contents = [];
+
+      for (var i = 0, l = entry.snapshotLength; i < l; i++) {
+        var node = entry.snapshotItem(i);
+        contents.push(parse_node(node));
+      }
+
+      window.parent.postMessage(contents.join(''), document.referrer);
     }, false);
   }
 
@@ -240,7 +241,7 @@
 
     var children = node.childNodes;
     var contents = [];
-    for (var i = 0, l = children.length; i < l; i++){
+    for (var i = 0, l = children.length; i < l; i++) {
       var content = arguments.callee(children[i]);
       if (content)
         contents.push(content);
@@ -249,38 +250,38 @@
     switch (node.nodeType) {
     case Node.ELEMENT_NODE:
       var tag = node.tagName.toLowerCase();
-      var attr = ['']
-        switch (tag) {
-        case 'a':
-          attr.push('target="_blank"');
-          if (node.href.indexOf('http:') === 0)
-            attr.push('href="' + node.href + '"');
-          break;
-        case 'font':
-        case 'h1':
-        case 'h2':
-        case 'h3':
-        case 'h4':
-        case 'h5':
-        case 'h6':
-          tag = 'strong';
-          break;
-        case 'span':
-          // Delete ruby for iknow dictionary.
-          if (node.className === 'kana')
-            return;
-          break;
-        case 'br':
-          return '<' + tag + '/>';
-        case 'button':
-        case 'img':
+      var attr = [''];
+
+      switch (tag) {
+      case 'a':
+        attr.push('target="_blank"');
+        if (node.href.indexOf('http:') === 0)
+          attr.push('href="' + node.href + '"');
+        break;
+      case 'font':
+      case 'h1':
+      case 'h2':
+      case 'h3':
+      case 'h4':
+      case 'h5':
+      case 'h6':
+        tag = 'strong';
+        break;
+      case 'span':
+        // Delete ruby for iknow dictionary.
+        if (node.className === 'kana')
           return;
-        }
-      return '<' + tag + attr.join(' ') + '>' + contents.join('') + '</' + tag + '>';
-      break;
+        break;
+      case 'button':
+      case 'img':
+      case 'script':
+        return;
+      }
+      return children.length === 0
+           ? '<' + tag + attr.join(' ') + '/>' + contents.join('')
+           : '<' + tag + attr.join(' ') + '>'  + contents.join('') + '</' + tag + '>';
     case Node.TEXT_NODE:
       return node.nodeValue;
-      break;
     }
   }
 
@@ -373,8 +374,8 @@
       input.type = 'hidden';
       input.name = key;
       input.value = typeof(param.data[key]) === 'string'
-        ? param.data[key].replace(/%s/, query)
-        : param.data[key];
+                  ? param.data[key].replace(/%s/, query)
+                  : param.data[key];
       form.appendChild(input);
     }
 
