@@ -57,9 +57,6 @@ filetype plugin indent on
 
 set ambiwidth=double
 set backspace=indent,eol,start
-if exists('+clipboard')
-  set clipboard=unnamed,exclude:cons\|linux
-endif
 set diffopt=filler,vertical
 set directory=$HOME/.vim
 set grepprg=internal
@@ -75,7 +72,6 @@ set laststatus=2
 set linebreak
 set list
 set listchars=tab:>\ ,extends:<,trail:-
-set noequalalways
 set nohlsearch
 set nonumber
 set nowrapscan
@@ -83,6 +79,7 @@ set pumheight=20
 set showcmd
 set splitbelow
 set splitright
+" Set title when used tmux.
 if &term =~# 'screen'
   execute "set t_fs=\<C-g>"
   execute "set t_ts=\<Esc>]2;"
@@ -273,30 +270,6 @@ endfunction
 
 AlterCommand gr[ep]  Grep
 AlterCommand lgr[ep]  Lgrep
-
-
-
-
-" Split nicely  "{{{2
-
-command! -bar -nargs=* -complete=file Split
-\ call s:split_nicely_with('split', <f-args>)
-command! -bar -nargs=* -complete=help Help
-\ call s:split_nicely_with('help', <f-args>)
-command! -bar -nargs=* -complete=file New
-\ call s:split_nicely_with('new', <f-args>)
-
-function! s:split_nicely_with(...)
-  if winwidth(0) * 2 > winheight(0) * 5
-    execute 'vertical' join(a:000)
-  else
-    execute join(a:000)
-  endif
-endfunction
-
-AlterCommand sp[lit]  Split
-AlterCommand h[elp]  Help
-AlterCommand new  New
 
 
 
@@ -532,10 +505,13 @@ map <Space> [Space]
 noremap [Space] <Nop>
 
 nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
-nnoremap <silent> [Space]c  :<C-u>CD %:p:h<CR>
 nnoremap <silent> [Space]m  :<C-u>marks<CR>
-nnoremap <silent> [Space]q  :<C-u>Help quickref<CR>
+nnoremap <silent> [Space]q  :<C-u>help quickref<CR>
 nnoremap <silent> [Space]r  :<C-u>registers<CR>
+
+nnoremap <silent> [Space]cd  :<C-u>CD %:p:h<CR>
+nnoremap <silent> [Space]bd  :<C-u>bdelete<CR>
+nnoremap <silent> [Space]bD  :<C-u>bdelete!<CR>
 
 nnoremap <silent> [Space]/  :<C-u>call <SID>toggle_option('hlsearch')<CR>
 nnoremap <silent> [Space]on  :<C-u>call <SID>toggle_option('number')<CR>
@@ -607,7 +583,7 @@ call operator#user#define_ex_command('my-sort', 'sort')
 
 nnoremap <silent> <Leader><Leader>  :<C-u>update<CR>
 
-nnoremap <C-h>  :<C-u>Help<Space>
+nnoremap <C-h>  :<C-u>help<Space>
 nnoremap <C-o>  :<C-u>edit<Space>
 nnoremap <C-w>.  :<C-u>edit .<CR>
 nnoremap <C-z>  :<C-u>SuspendWithAutomticCD<CR>
@@ -619,7 +595,7 @@ noremap k  gk
 noremap gj  j
 noremap gk  k
 
-" Delete a character with noname register.
+" Delete a character with the blank hole register.
 nnoremap X "_X
 nnoremap x "_x
 
@@ -786,6 +762,7 @@ autocmd MyAutoCmd FileType java
 function! s:on_FileType_java()
   setlocal makeprg=javac\ -Xlint:deprecation\ %
   setlocal errorformat=%E%f:%l:\ %m,%C%\\S%\\+:\ %.%#\ %m,%Z%p^,%C%.%#
+  setlocal cinoptions=:0,l1,g0,t0,(0,j1
 
   nnoremap <silent> <LocalLeader>a  :<C-u>QuickRun java-applet -mode n<CR>
   vnoremap <silent> <LocalLeader>a  :<C-u>QuickRun java-applet -mode v<CR>
@@ -805,7 +782,10 @@ autocmd MyAutoCmd FileType lua
 " perl  "{{{2
 
 autocmd MyAutoCmd FileType perl
-\ call s:set_short_indent()
+\   compiler perl
+\ | call s:set_short_indent()
+\ | setlocal include=
+
 
 
 
@@ -873,10 +853,10 @@ autocmd MyAutoCmd FileType tex,plaintex
 
 autocmd MyAutoCmd FileType vim
 \   call s:set_short_indent()
-\ | nnoremap <buffer> <silent> K  :<C-u>Help <C-r><C-w><CR>
+\ | nnoremap <buffer> <silent> K  :<C-u>help <C-r><C-w><CR>
 
 autocmd MyAutoCmd FileType help
-\ nnoremap <buffer> <silent> K  :<C-u>Help <C-r><C-w><CR>
+\ nnoremap <buffer> <silent> K  :<C-u>help <C-r><C-w><CR>
 
 
 let g:vim_indent_cont = 0
@@ -1057,7 +1037,6 @@ autocmd MyAutoCmd FileType ref
 
 let g:ref_no_default_key_mappings = 1
 let g:ref_cache_dir = expand('$HOME/.vim/info/ref')
-let g:ref_open = 'Split'
 
 
 
