@@ -595,7 +595,7 @@ noremap k  gk
 noremap gj  j
 noremap gk  k
 
-" Delete a character with the blank hole register.
+" Delete a character with the black hole register.
 nnoremap X "_X
 nnoremap x "_x
 
@@ -997,7 +997,7 @@ let g:quickrun_config = {
 \             'rm -f %s:p:r.html'],
 \    'tempfile': '{fnamemodify(tempname(), ":p:h")}/{expand("%:t")}',
 \  },
-\  'mkd': {
+\  'markdown': {
 \    'exec': ['markdown.pl %s | tee %s:p:r.html'],
 \    'tempfile': '{fnamemodify(tempname(), ":p:h")}/{expand("%:t")}',
 \  },
