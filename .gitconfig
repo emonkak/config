@@ -1,4 +1,4 @@
-# my gitconfig
+# My gitconfig
 
 [user]
 	name = emonkak
@@ -6,3 +6,4 @@
 
 [color]
 	ui = auto
+	excludesfile = /home/emon/.gitignore
