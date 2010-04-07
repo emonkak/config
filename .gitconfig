@@ -1,0 +1,9 @@
+# my gitconfig
+
+[user]
+	name = emonkak
+	email = emonkak@gmail.com
+
+[color]
+	ui = auto
+	excludesfile = /home/emon/.gitignore
