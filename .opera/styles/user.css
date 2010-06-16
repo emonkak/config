@@ -2,12 +2,6 @@ a[target="_blank"] {
   cursor: help !important;
 }
 
-/* For opera 10.5 of Windows. */
-pre {
-  font-family: 'Droid Sans Mono', monospace;
-}
-
-
 [class="ad"],
 [class="ads"],
 [class^="ads-"],

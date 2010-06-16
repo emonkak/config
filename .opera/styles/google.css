@@ -1,24 +1,21 @@
 @import url("user.css");
 
-/* iGoogle */
-table tbody tr td#col1,
-#gsea,
-#footerwrap {
-  display: none !important;
+#cnt {
+  max-width: none !important;
 }
 
-/* Google Search */
-div#res {
-  margin-left: 8px !important;
+#leftnav {
+  right: 0px !important;
 }
 
-table#mbEnd,
-div#tads,
-div#rh div.rh,
-div#rh div#rb,
-table.ra,
-table[width="25%"][align="right"],
-a[id^="aw"],
-div[id^="tpa"] {
+#center_col {
+  border-left: none !important;
+  border-right: 1px solid #d3e1f9 !important;
+  margin-left: 0px !important;
+  margin-right: 155px !important;
+}
+
+#center_col > #tads,
+#center_col ~ #rhs {
   display: none !important;
 }

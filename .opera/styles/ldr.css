@@ -4,8 +4,8 @@
   font-family: sans-serif !important;
 }
 
-span.treeitem,
-span.folderitem {
+.treeitem,
+.folderitem {
   font-weight: bold !important;
 }
 
@@ -38,7 +38,7 @@ span.folderitem {
 .body blockquote > p,
 .body pre,
 .body pre > p {
-  font-family: 'Droid Sans Mono', monospace !important;
+  font-family: monospace !important;
 }
 
 
