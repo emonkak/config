@@ -40,6 +40,7 @@ myWorkspaces = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 myManageHook = composeAll
   [ className =? "MPlayer"               --> doCenterFloat
+  , className =? "Gnome-mplayer"         --> doCenterFloat
   , className =? "Xmessage"              --> doCenterFloat
   , className =? "feh"                   --> doCenterFloat
   , className =? "rdesktop"              --> doCenterFloat
