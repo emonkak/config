@@ -1,4 +1,8 @@
-hi clear
+" Vim colorscheme: basic
+" Copyright (C) 2010 emonkak <http://github.com/emonkak/>
+" Absolute  "{{{1
+
+highlight clear
 set background=dark
 
 if exists("syntax_on")
@@ -7,73 +11,132 @@ endif
 
 let g:colors_name = "basic"
 
-hi Normal       cterm=NONE         ctermfg=NONE ctermbg=NONE
-hi SpecialKey   cterm=NONE         ctermfg=8    ctermbg=NONE
-hi NonText      cterm=NONE         ctermfg=4    ctermbg=NONE
-hi LineNr       cterm=NONE         ctermfg=8    ctermbg=NONE
-hi Directory    cterm=NONE         ctermfg=14   ctermbg=NONE
-hi Question     cterm=NONE         ctermfg=10   ctermbg=NONE
-hi Title        cterm=NONE         ctermfg=14   ctermbg=NONE
-hi VertSplit    cterm=NONE         ctermfg=8    ctermbg=NONE
-hi Visual       cterm=NONE         ctermfg=NONE ctermbg=4
-hi WildMenu     cterm=NONE         ctermfg=15   ctermbg=4
-hi MatchParen   cterm=NONE         ctermfg=NONE ctermbg=6
 
-" fold
-hi Folded       cterm=NONE         ctermfg=6    ctermbg=NONE
-hi FoldColumn   cterm=NONE         ctermfg=6    ctermbg=NONE
 
-" search
-hi Search       cterm=NONE         ctermfg=0    ctermbg=11
-hi IncSearch    cterm=reverse      ctermfg=NONE ctermbg=NONE
 
-" status line
-hi StatusLine   cterm=reverse      ctermfg=NONE ctermbg=0
-hi StatusLineNC cterm=reverse      ctermfg=7    ctermbg=0
+" Variables  "{{{1
 
-" tab line
-hi TabLine      cterm=reverse      ctermfg=NONE ctermbg=0
-hi TabLineSel   cterm=NONE         ctermfg=15   ctermbg=NONE
-hi TabLineFill  cterm=reverse      ctermfg=NONE ctermbg=0
+let s:gui_running = has('gui_running')
+let s:gui_ansi_colors = [
+\ '#000000', '#990000', '#009900', '#999900',
+\ '#000099', '#990099', '#009999', '#999999',
+\ '#555555', '#cc6633', '#00cc00', '#cccc00',
+\ '#3366cc', '#cc00cc', '#00cccc', '#ffffff',
+\ ]
 
-" message
-hi MoreMsg      cterm=NONE         ctermfg=NONE ctermbg=2
-hi ModeMsg      cterm=NONE         ctermfg=NONE ctermbg=4
-hi ErrorMsg     cterm=NONE         ctermfg=NONE ctermbg=1
-hi WarningMsg   cterm=NONE         ctermfg=11   ctermbg=NONE
 
-" diff
-hi DiffAdd      cterm=NONE         ctermfg=NONE ctermbg=4
-hi DiffChange   cterm=NONE         ctermfg=NONE ctermbg=5
-hi DiffDelete   cterm=NONE         ctermfg=8    ctermbg=NONE
-hi DiffText     cterm=NONE         ctermfg=NONE ctermbg=5
 
-" spell check
-hi SpellBad     cterm=NONE         ctermfg=NONE ctermbg=1
-hi SpellCap     cterm=NONE         ctermfg=NONE ctermbg=4
-hi SpellRare    cterm=NONE         ctermfg=NONE ctermbg=5
-hi SpellLocal   cterm=underline    ctermfg=NONE ctermbg=6
 
-" complete menu
-hi Pmenu        cterm=underline    ctermfg=NONE ctermbg=NONE
-hi PmenuSel     cterm=NONE         ctermfg=0    ctermbg=11
-hi PmenuSbar    cterm=NONE         ctermfg=NONE ctermbg=NONE
-hi PmenuThumb   cterm=NONE         ctermfg=NONE ctermbg=11
+" Utilities  "{{{1
+function! s:highlight_attributes(attributes)  "{{{2
+  let _ = {
+  \ 'b': 'bold',
+  \ 'i': 'italic',
+  \ 'r': 'reverse',
+  \ 'u': 'underline',
+  \ 'c': 'undercurl',
+  \ }
+  return join(map(split(a:attributes, '.\zs'), 'get(_, v:val, "")'), ',')
+endfunction
 
-" syntax
-hi Comment      cterm=NONE         ctermfg=14   ctermbg=NONE
-hi Constant     cterm=NONE         ctermfg=13   ctermbg=NONE
-hi Special      cterm=NONE         ctermfg=9    ctermbg=NONE
-hi Identifier   cterm=NONE         ctermfg=14   ctermbg=NONE
-hi Statement    cterm=NONE         ctermfg=11   ctermbg=NONE
-hi PreProc      cterm=NONE         ctermfg=12   ctermbg=NONE
-hi Type         cterm=NONE         ctermfg=10   ctermbg=NONE
-hi Underlined   cterm=underline    ctermfg=12   ctermbg=NONE
-hi Ignore       cterm=NONE         ctermfg=0    ctermbg=NONE
-hi Error        cterm=NONE         ctermfg=NONE ctermbg=1
-hi Todo         cterm=NONE         ctermfg=0    ctermbg=11
 
-" link
+
+
+function! s:highlight(name, fg, bg, ...)  "{{{2
+  if s:gui_running
+    let prefix = 'gui'
+    let fg = a:fg > -1 ? get(s:gui_ansi_colors, a:fg, 'NONE') : 'NONE'
+    let bg = a:bg > -1 ? get(s:gui_ansi_colors, a:bg, 'NONE') : 'NONE'
+  else
+    let prefix = 'cterm'
+    let fg = a:fg > -1 ? a:fg : 'NONE'
+    let bg = a:bg > -1 ? a:bg : 'NONE'
+  endif
+  let attr = exists('a:1') && len(a:1) ? s:highlight_attributes(a:1) : 'NONE'
+  execute 'highlight' a:name
+  \        prefix.'fg='.fg
+  \        prefix.'bg='.bg
+  \        prefix.'='.attr
+endfunction
+
+
+
+
+" General colors  "{{{1
+
+if s:gui_running
+  highlight Normal   guifg=#cccccc guibg=#222222
+  highlight Cursor   guifg=#000000 guibg=#009900
+  highlight CursorIM guifg=#000000 guibg=#009999
+  highlight lCursor  guifg=#000000 guibg=#009999
+endif
+
+call s:highlight('SpecialKey'   ,  8, -1)
+call s:highlight('NonText'      ,  4, -1)
+call s:highlight('Directory'    , 14, -1)
+call s:highlight('MatchParen'   , -1,  6)
+call s:highlight('LineNr'       ,  8, -1)
+call s:highlight('Question'     , 10, -1)
+call s:highlight('VertSplit'    ,  8, -1)
+call s:highlight('Title'        , 14, -1)
+call s:highlight('Visual'       , -1,  4)
+call s:highlight('VisualNOS'    , -1, -1, 'r')
+call s:highlight('WildMenu'     ,  0, 11)
+
+call s:highlight('ErrorMsg'     , -1,  1)
+call s:highlight('MoreMsg'      , -1,  2)
+call s:highlight('ModeMsg'      , -1,  4)
+call s:highlight('WarningMsg'   , 11, -1)
+
+call s:highlight('IncSearch'    , -1, -1, 'r')
+call s:highlight('Search'       ,  0, 11)
+
+call s:highlight('StatusLine'   , -1,  0, 'r')
+call s:highlight('StatusLineNC' ,  7,  0, 'r')
+
+call s:highlight('Folded'       ,  6, -1)
+call s:highlight('FoldColumn'   ,  6, -1)
+call s:highlight('SignColumn'   , 14, -1)
+
+call s:highlight('DiffAdd'      , -1,  4)
+call s:highlight('DiffChange'   , -1,  5)
+call s:highlight('DiffDelete'   ,  8, -1)
+call s:highlight('DiffText'     , -1,  5)
+
+call s:highlight('SpellBad'     , -1,  1)
+call s:highlight('SpellCap'     , -1,  4)
+call s:highlight('SpellRare'    , -1,  5)
+call s:highlight('SpellLocal'   , -1,  6)
+
+call s:highlight('Pmenu'        , -1, -1, 'u')
+call s:highlight('PmenuSel'     ,  0, 11)
+call s:highlight('PmenuSbar'    , -1, -1)
+call s:highlight('PmenuThumb'   , -1, 11)
+
+call s:highlight('TabLine'      , -1,  0, 'r')
+call s:highlight('TabLineSel'   , 15, -1)
+call s:highlight('TabLineFill'  , -1,  0, 'r')
+
+call s:highlight('CursorColumn' , -1,  0)
+call s:highlight('CursorLine'   , -1,  0)
+
+
+
+
+" Syntax highlighting  "{{{1
+
+call s:highlight('Comment'      , 14, -1)
+call s:highlight('Constant'     , 13, -1)
+call s:highlight('Special'      ,  9, -1)
+call s:highlight('Identifier'   , 14, -1, 'b')
+call s:highlight('Statement'    , 11, -1)
+call s:highlight('PreProc'      , 12, -1)
+call s:highlight('Type'         , 10, -1)
+call s:highlight('Underlined'   , 12, -1, 'u')
+call s:highlight('Ignore'       ,  0, -1)
+call s:highlight('Error'        , -1,  1)
+call s:highlight('Todo'         ,  0, 11)
+
 hi link String         Constant
 hi link Character      Constant
 hi link Number         Constant
@@ -98,3 +161,9 @@ hi link SpecialChar    Special
 hi link Delimiter      Special
 hi link SpecialComment Special
 hi link Debug          Special
+
+
+
+
+" __END__  "{{{1
+" vim: foldmethod=marker
