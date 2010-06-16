@@ -65,7 +65,7 @@ function prompt_setup() {
   fi
 
   local host
-  if [ -n "$SSH_CLIENT" ]; then
+  if [ -n "$SSH_CONNECTION" ]; then
     host=$'%{\e[36m%}%m'
   else
     host=$'%{\e[32m%}%m'
@@ -115,6 +115,16 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -i'
 
+alias diff='colordiff -u'
+alias grep='grep -E --line-number --color'
+alias lv='lv -c'
+alias pstree='pstree -A'
+
+if which emerge &>/dev/null; then
+  alias emerge='emerge -a'
+fi
+
+
 alias s='sudo '
 if [ "$OSTYPE" = 'cygwin' ]; then
   alias v='vim'
@@ -123,18 +133,14 @@ else
 fi
 
 
-alias grep='grep -E --line-number --color'
-alias diff='colordiff'
-alias pstree='pstree -A'
-
-if which emerge &>/dev/null; then
-  alias emerge='emerge -a'
-fi
-
-
 alias mount-cifs='sudo mount -t cifs -o defaults,noatime,user,iocharset=utf8,uid=$USER,gid=users,file_mode=0644,dir_mode=0755,username=$USER'
 alias untarbz2='tar -vxjf'
 alias untargz='tar -vxzf'
+
+if which xsel &>/dev/null; then
+  alias pbcopy='xsel --input --clipboard'
+  alias pbpaste='xsel --output --clipboard'
+fi
 
 
 
@@ -145,7 +151,7 @@ alias untargz='tar -vxzf'
 if which mplayer &>/dev/null && [ -n "$DISPLAY" ]; then
   function mplayer-without-dpms() {
     xset -dpms
-    mplayer -really-quiet $@
+    mplayer $@
     xset +dpms
   }
 fi

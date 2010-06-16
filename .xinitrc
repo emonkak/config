@@ -2,8 +2,8 @@
 
 userresources="$HOME/.Xresources"
 usermodmap="$HOME/.Xmodmap"
-[ -f $userresources ] && xrdb -merge "$userresources"
-[ -f $usermodmap ] && xmodmap "$usermodmap"
+[ -f "$userresources" ] && xrdb -merge "$userresources"
+[ -f "$usermodmap" ] && xmodmap "$usermodmap"
 
 xset r rate 250 30
 

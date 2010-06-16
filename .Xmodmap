@@ -4,4 +4,4 @@
 keycode 47 = colon semicolon
 
 ! Like AX layout
-keycode 113 = Zenkaku_Hankaku Kanji
+keycode 108 = Zenkaku_Hankaku Kanji

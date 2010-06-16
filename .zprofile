@@ -1,9 +1,9 @@
 # My zprofile
 
-export GOROOT=$HOME/go
-export GOBIN=$GOROOT/bin
-export GOOS=linux
-export GOARCH=386
+export GOROOT="$HOME/go"
+export GOBIN="$GOROOT/bin"
+export GOOS='linux'
+export GOARCH='386'
 
 export PATH="$HOME/bin:$HOME/.gem/ruby/1.8/bin:$GOBIN:$PATH"
 
