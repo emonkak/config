@@ -1,3 +1,4 @@
-=dev-python/beautifulsoup-3.1.0.1-r1
->=dev-lang/python-3
+=app-arch/unzip-6.0*
+=www-client/opera-10.5*
+=x11-drivers/xf86-input-wacom-9999
 >app-i18n/skk-jisyo-9999

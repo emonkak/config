@@ -1,4 +1,5 @@
 =app-i18n/skk-jisyo-9999
 =app-i18n/skk-jisyo-seiyu-9999
+=sys-apps/portage-2.2*
 app-admin/haskell-updater
 dev-lang/ghc
