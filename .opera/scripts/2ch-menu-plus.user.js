@@ -1,53 +1,49 @@
 // ==UserScript==
-// @name          2ch menu plus
-// @include       http://*.2ch.net/test/read.cgi/*
-// @include       http://*.bbspink.com/test/read.cgi/*
+// @name     2ch-menu-plus
+// @author   emonkak
+// @include  http://*.2ch.net/test/read.cgi/*
+// @include  http://*.bbspink.com/test/read.cgi/*
 // ==/UserScript==
 
 (function() {
-  var m = location.href.match(/^http:\/\/([^\/]+)\/test\/read\.cgi\/([^\/]+)\/(\d+)/);
-  if (!m) return;
+  var match = location.href.match(/^http:\/\/([^\/]+)\/test\/read\.cgi\/([^\/]+)\/(\d+)/);
+  if (!match)
+    return;
 
-  var SITEINFO = [
-    {
-      name: 'rep2',
-      url: 'http://p2.2ch.net/p2/read.php?host=' + m[1] + '&bbs=' + m[2]
-            + '&key=' + m[3] + '&ls=all'
-    },
-    {
-      name: 'ranran2',
-      url: 'http://ranran2.net/app/2ch/' + m[2] + '/' + m[3]
-    },
-    {
-      name: 'unkar',
-      url: 'http://www.unkar.org/read/' + m[1] + '/' + m[2] + '/' + m[3]
-    },
-    {
-      name: 'mimizun',
-      url: 'http://mimizun.com/log/2ch/' + m[2] + '/' + m[1] + '/' + m[2] + '/kako/'
-           + m[3].substring(0, 4) + '/' + m[3].substring(0, 5) + '/' + m[3] + '.html'
-    },
-    {
-      name: 'mirror',
-      url: 'http://www.geocities.jp/mirrorhenkan/url?u=' + m[0]
+  var siteinfo = function(_){
+    with ({url: _[0], host: _[1], bbs: _[2], key: _[3]}) {
+      return {
+        'p2':      'http://p2.2ch.net/p2/read.php?host=' + host + '&bbs=' + bbs +
+                   '&key=' + key + '&ls=all',
+        'chbox':   'http://p2.chbox.jp/read.php?host=' + host + '&bbs=' + bbs +
+                   '&key=' + key + '&ls=all',
+        '2bangai': 'http://2bangai.net/read/' + host.split('.')[0] + '/' + bbs +
+                   '/' + key + '/',
+        'unkar':   'http://www.unkar.org/read/' + host + '/' + bbs + '/' + key,
+        'ranran2': 'http://ranran2.net/app/2ch/' + bbs + '/' + key,
+        'mimizun': 'http://mimizun.com/log/2ch/' + bbs + '/' + host + '/' + bbs +
+                   '/kako/' + key.substring(0, 4) + '/' + key.substring(0, 5) +
+                   '/' + key + '.html',
+        'mirror':  'http://www.geocities.jp/mirrorhenkan/url?u=' + url,
+      }
     }
-  ];
+  }(match);
 
-  var header = getFirstElementByXPath('//div[@style="margin-top:1em;"]', document);
-  var right = getFirstElementByXPath('//span[@style="float:right;"]', document);
-  var left = getFirstElementByXPath('//span[@style="float:left;"]', header);
-  header.removeChild(right);
-  SITEINFO.forEach(function(site) {
+  var nodes = document.querySelectorAll('div[style="margin-top:1em;"] > span');
+  if (nodes.length !== 2)
+    return;
+
+  nodes[1].parentNode.removeChild(nodes[1]);
+  for (var key in siteinfo) {
     var link = document.createElement('a');
-    link.href = site.url;
-    link.innerHTML = '&raquo;' + site.name;
-    link.style.backgroundColor = '#ffffcc';
-    left.appendChild(document.createTextNode(' '));
-    left.appendChild(link);
-  });
-
-  function getFirstElementByXPath(xpath, node) {
-    var result = document.evaluate(xpath, node, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-    return result.singleNodeValue;
-  }
+    link.href = siteinfo[key];
+    link.innerHTML = '&raquo;' + key;
+    link.style.backgroundColor = '#ffc';
+    nodes[0].appendChild(document.createTextNode(' '));
+    nodes[0].appendChild(link);
+  };
 })();
+
+
+// __END__
+// vim: expandtab softtabstop=2 shiftwidth=2
