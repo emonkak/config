@@ -2,6 +2,10 @@ a[target="_blank"] {
   cursor: help !important;
 }
 
+pre, tt, code, samp, kbd {
+  font-family: 'Consolas', monospace !important;
+}
+
 [class="ad"],
 [class="ads"],
 [class^="ads-"],

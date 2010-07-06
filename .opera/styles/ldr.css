@@ -38,7 +38,7 @@
 .body blockquote > p,
 .body pre,
 .body pre > p {
-  font-family: monospace !important;
+  font-family: 'Consolas', monospace !important;
 }
 
 
