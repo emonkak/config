@@ -2,9 +2,14 @@
 " Basic  "{{{1
 " Absolute  "{{{2
 
-if !exists('s:loaded_my_vimrc')
+if has('vim_starting')
   " Don't reset twice on reloading - 'compatible' has so many side effects.
   set nocompatible  " to use many extensions of Vim.
+
+  if has('win32') || has('win64')
+    set fileformat=unix
+    set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
+  endif
 endif
 
 
@@ -45,19 +50,21 @@ endif
 
 " Options  "{{{2
 
-if has('win32') || has('win64')
-  language C
-  set shellslash
-  set runtimepath=$HOME/.vim,$VIMRUNTIME,$HOME/.vim/after
-  set viminfo&
-  set viminfo+=n$HOME/.viminfo_win
+if has('gui_running')
+  set guicursor=a:blinkon0
+  if has('gui_gtk2')
+    set guifont=Monospace\ 10.5
+  else
+    set guifont=Consolas:h10.5
+  endif
+  set guioptions=cgM
+  set linespace=0
 endif
-
 
 if (1 < &t_Co || has('gui')) && has('syntax')
   syntax enable
   if !exists('g:colors_name')
-    colorscheme basic
+    colorscheme basic256
   endif
 endif
 
@@ -70,7 +77,8 @@ if has('clientserver')
   set clipboard=unnamed,exclude:cons\|linux
 endif
 set diffopt=filler,vertical
-set directory=$HOME/.vim
+set directory=~/tmp
+set fileformats=unix,dos,mac
 set grepprg=internal
 set hidden
 set history=100
@@ -79,26 +87,19 @@ if has('multi_byte_ime') || has('xim')
   set iminsert=0
   set imsearch=0
 endif
+if exists('+shellslash')
+  set shellslash
+endif
 
 set cmdheight=1
 set completeopt=longest,menu
 set display=lastline
 set foldmethod=marker
-if has('gui_running')
-  set guicursor=a:blinkon0
-  if has('gui_gtk2')
-    set guifont=Monospace\ 10
-  else
-    set guifont=Consolas:h11
-  endif
-  set guioptions=aceM
-endif
 set laststatus=2
 set linebreak
 set list
 set listchars=tab:>\ ,extends:<,trail:-
 set nohlsearch
-set nonumber
 set nowrapscan
 set pumheight=20
 set showcmd
@@ -128,14 +129,11 @@ endif
 set title
 set titlestring=Vim:\ %f\ %h%r%m
 
-" default 'statusline' with 'fileencoding'.
 let &statusline = ''
 let &statusline .= '(%{(&filetype == "" ? "none" : &filetype)})'
 let &statusline .= ' %<%f %h%m%r%w'
 let &statusline .= '[%{(&l:fileencoding == "" ? &encoding : &l:fileencoding).":".&fileformat}]'
-if exists('*eskk#is_enabled')
-  let &statusline .= '%{eskk#get_stl()}'
-endif
+let &statusline .= '%{eskk#get_stl()}'
 let &statusline .= '%='
 let &statusline .= '%-14.(%l,%c%V%) %P'
 
@@ -146,9 +144,9 @@ function! s:my_tabline()  "{{{
     let bufnrs = tabpagebuflist(i)
     let curbufnr = bufnrs[tabpagewinnr(i) - 1]  " first window, first appears
 
-    let no = (i <= 10 ? i-1 : '#')  " display 0-origin tabpagenr.
+    let no = (i <= 10 ? i - 1 : '#')  " display 0-origin tabpagenr.
     let mod = len(filter(bufnrs, 'getbufvar(v:val, "&modified")')) ? '+' : ' '
-    let title = fnamemodify(bufname(curbufnr),':t')
+    let title = fnamemodify(bufname(curbufnr), ':t')
     let title = len(title) ? title : '[No Name]'
 
     let s .= '%'.i.'T'
@@ -161,8 +159,6 @@ function! s:my_tabline()  "{{{
   endfor
 
   let s .= '%#TabLineFill#%T'
-  let s .= '%=%#TabLine#'
-  let s .= '%999X'
   return s
 endfunction "}}}
 let &tabline = '%!' . s:SID_PREFIX() . 'my_tabline()'
@@ -200,6 +196,9 @@ call pathogen#helptags()
 let s:FALSE = 0
 let s:TRUE = !s:FALSE
 
+let s:cygwin_p = has('win32unix')
+let s:win_p = has('win32') || has('win64')
+
 
 
 
@@ -208,6 +207,8 @@ let s:TRUE = !s:FALSE
 command! -bar -nargs=1 Source
 \   echo 'Sourcing ...' expand(<q-args>)
 \ | source <args>
+
+AlterCommand so[urce]  Source
 
 
 
@@ -227,7 +228,7 @@ function! s:cmd_SuspendWithAutomticCD()
     let index = index(windows, split(&shell, '/')[-1])
     silent execute '!tmux'
     \              (index > -1 ? 'select-window -t '.windows[index - 1] : 'new-window') '\;'
-    \              'send-keys C-u "cd' fnameescape(getcwd()) '" C-m'
+    \              'send-keys C-u " cd' fnameescape(getcwd()) '" C-m'
     redraw!
     let s:TMUX_AVAILABLE_P = (v:shell_error == 0)
   else
@@ -247,7 +248,7 @@ function! s:tabpage_cd(directory)
   if len(a:directory)
     let target = fnameescape(a:directory)
   else
-    let target = len(expand('%')) ? fnameescape(expand('%:p:h')) : '~'
+    let target = len(expand('%')) ? fnameescape(expand('%:p:h')) : ''
   endif
   execute 'cd' target
   let t:cwd = getcwd()
@@ -281,6 +282,8 @@ command! -bang -bar -complete=file -nargs=? Iso2022jp
 \ edit<bang> ++enc=iso-2022-jp <args>
 command! -bang -bar -complete=file -nargs=? Utf8
 \ edit<bang> ++enc=utf-8 <args>
+command! -bang -bar -complete=file -nargs=? Utf16
+\ edit<bang> ++enc=utf-16le <args>
 
 command! -bang -bar -complete=file -nargs=? Jis  Iso2022jp<bang> <args>
 command! -bang -bar -complete=file -nargs=? Sjis  Cp932<bang> <args>
@@ -356,7 +359,7 @@ endfunction
 
 " Split nicely  "{{{2
 
-command! -bar -bang -nargs=* -complete=file SplitNicely
+command! -bar -bang -nargs=* -complete=file Split
 \ call s:split_nicely_with(['split', <f-args>], <bang>0)
 command! -bar -bang -nargs=* -complete=help Help
 \ call s:split_nicely_with(['help', <f-args>], <bang>0)
@@ -364,7 +367,7 @@ command! -bar -bang -nargs=* -complete=file New
 \ call s:split_nicely_with(['new', <f-args>], <bang>0)
 
 function! s:vertically()
-    return winwidth(0) * 2 > winheight(0) * 5
+    return winwidth(0) * 2 > winheight(0) * 8
 endfunction
 
 function! s:split_nicely_with(args, banged)
@@ -374,6 +377,7 @@ function! s:split_nicely_with(args, banged)
 endfunction
 
 
+AlterCommand sp[lit] Split
 AlterCommand h[elp]  Help
 AlterCommand new  New
 
@@ -397,9 +401,22 @@ endfunction
 
 
 
-function! s:toggle_option(option_name)  "{{{2
-  execute 'setlocal' a:option_name.'!'
-  execute 'setlocal' a:option_name.'?'
+function! s:get_region()  "{{{2
+  let [_, start_line, start_col, _] = getpos("'<")
+  let [_, end_line, end_col, _] = getpos("'>")
+
+  let region = getline(start_line, end_line)
+  if start_line == end_line  " single line
+    let region[0] = strpart(region[-1], start_col - 1, end_col - (start_col - 1))
+  else  " multi line
+    let region[0] = strpart(region[0], start_col - 1)
+    let region[-1] = strpart(region[-1], 0, end_col)
+  endif
+  if visualmode() ==# 'V'
+    let region += ['']
+  endif
+
+  return region
 endfunction
 
 
@@ -412,104 +429,165 @@ endfunction
 
 
 
+function! s:toggle_option(option_name)  "{{{2
+  execute 'setlocal' a:option_name.'!'
+  execute 'setlocal' a:option_name.'?'
+endfunction
+
+
+
+
 " Mappings  "{{{1
-" Quickfix  "{{{2
+" QuickFix  "{{{2
+" Fallback  "{{{3
 
 " The prefix key.
-nnoremap q  <Nop>
+nmap q  [Quickfix]
+
+" fallback
+noremap [Quickfix] <Nop>
 
 " Alternative key for the original action.
 nnoremap Q  q
 
 
-" For quickfix list.
-nnoremap <silent> qj  :cnext<CR>
-nnoremap <silent> qk  :cprevious<CR>
-nnoremap <silent> qr  :<C-u>crewind<CR>
-nnoremap <silent> qK  :<C-u>cfirst<CR>
-nnoremap <silent> qJ  :<C-u>clast<CR>
-nnoremap <silent> qfj  :<C-u>cnfile<CR>
-nnoremap <silent> qfk  :<C-u>cpfile<CR>
-nnoremap <silent> ql  :<C-u>clist<CR>
-nnoremap <silent> qq  :<C-u>cc<CR>
-nnoremap <silent> qo  :<C-u>copen<CR>
-nnoremap <silent> qc  :<C-u>cclose<CR>
-nnoremap <silent> qp  :<C-u>colder<CR>
-nnoremap <silent> qn  :<C-u>cnewer<CR>
-nnoremap <silent> qm  :<C-u>make<CR>
-nnoremap qM  :<C-u>make<Space>
-nnoremap q<Space>  :<C-u>make<Space>
-nnoremap qg  :<C-u>Grep<Space>
 
 
-" For location list.
-nnoremap <silent> qwj  :lnext<CR>
-nnoremap <silent> qwk  :lprevious<CR>
-nnoremap <silent> qwr  :<C-u>lrewind<CR>
-nnoremap <silent> qwK  :<C-u>lfirst<CR>
-nnoremap <silent> qwJ  :<C-u>llast<CR>
-nnoremap <silent> qwfj  :<C-u>lnfile<CR>
-nnoremap <silent> qwfk  :<C-u>lpfile<CR>
-nnoremap <silent> qwl  :<C-u>llist<CR>
-nnoremap <silent> qwq  :<C-u>ll<CR>
-nnoremap <silent> qwo  :<C-u>lopen<CR>
-nnoremap <silent> qwc  :<C-u>close<CR>
-nnoremap <silent> qwp  :<C-u>lolder<CR>
-nnoremap <silent> qwn  :<C-u>lnewer<CR>
-nnoremap <silent> qwm  :<C-u>lmake<CR>
-nnoremap qwM  :<C-u>lmake<Space>
-nnoremap qw<Space>  :<C-u>lmake<Space>
-nnoremap qwg  :<C-u>Lgrep<Space>
+" For quickfix list  "{{{3
+
+nnoremap <silent> [Quickfix]j  :cnext<CR>
+nnoremap <silent> [Quickfix]k  :cprevious<CR>
+nnoremap <silent> [Quickfix]r  :<C-u>crewind<CR>
+nnoremap <silent> [Quickfix]K  :<C-u>cfirst<CR>
+nnoremap <silent> [Quickfix]J  :<C-u>clast<CR>
+nnoremap <silent> [Quickfix]fj  :<C-u>cnfile<CR>
+nnoremap <silent> [Quickfix]fk  :<C-u>cpfile<CR>
+nnoremap <silent> [Quickfix]l  :<C-u>clist<CR>
+nnoremap <silent> [Quickfix]q  :<C-u>cc<CR>
+nnoremap <silent> [Quickfix]o  :<C-u>copen<CR>
+nnoremap <silent> [Quickfix]c  :<C-u>cclose<CR>
+nnoremap <silent> [Quickfix]p  :<C-u>colder<CR>
+nnoremap <silent> [Quickfix]n  :<C-u>cnewer<CR>
+nnoremap <silent> [Quickfix]m  :<C-u>make<CR>
+nnoremap [Quickfix]M  :<C-u>make<Space>
+nnoremap [Quickfix]<Space>  :<C-u>make<Space>
+nnoremap [Quickfix]g  :<C-u>Grep<Space>
+
+
+
+
+" For location list (mnemonic: Quickfix list for the current Window)  "{{{3
+
+nnoremap <silent> [Quickfix]wj  :lnext<CR>
+nnoremap <silent> [Quickfix]wk  :lprevious<CR>
+nnoremap <silent> [Quickfix]wr  :<C-u>lrewind<CR>
+nnoremap <silent> [Quickfix]wK  :<C-u>lfirst<CR>
+nnoremap <silent> [Quickfix]wJ  :<C-u>llast<CR>
+nnoremap <silent> [Quickfix]wfj  :<C-u>lnfile<CR>
+nnoremap <silent> [Quickfix]wfk  :<C-u>lpfile<CR>
+nnoremap <silent> [Quickfix]wl  :<C-u>llist<CR>
+nnoremap <silent> [Quickfix]wq  :<C-u>ll<CR>
+nnoremap <silent> [Quickfix]wo  :<C-u>lopen<CR>
+nnoremap <silent> [Quickfix]wc  :<C-u>close<CR>
+nnoremap <silent> [Quickfix]wp  :<C-u>lolder<CR>
+nnoremap <silent> [Quickfix]wn  :<C-u>lnewer<CR>
+nnoremap <silent> [Quickfix]wm  :<C-u>lmake<CR>
+nnoremap [Quickfix]wM  :<C-u>lmake<Space>
+nnoremap [Quickfix]w<Space>  :<C-u>lmake<Space>
+nnoremap [Quickfix]wg  :<C-u>Lgrep<Space>
 
 
 
 
 " Tab pages  "{{{2
+" Fallback  "{{{3
 
 " the prefix key.
-nnoremap <C-t>  <Nop>
+nmap <C-t>  [Tabbed]
 
+" fallback
+noremap [Tabbed] <Nop>
+
+
+
+
+" Basic  "{{{3
 
 " Move new tabpage at the last.
-nnoremap <silent> <C-t>n  :<C-u>tabnew \| :tabmove<CR>
-nnoremap <silent> <C-t>c  :<C-u>tabclose<CR>
-nnoremap <silent> <C-t>o  :<C-u>tabonly<CR>
-nnoremap <silent> <C-t>i  :<C-u>tabs<CR>
+nnoremap <silent> [Tabbed]n  :<C-u>tabnew \| :tabmove<CR>
+nnoremap <silent> [Tabbed]c  :<C-u>tabclose<CR>
+nnoremap <silent> [Tabbed]o  :<C-u>tabonly<CR>
+nnoremap <silent> [Tabbed]i  :<C-u>tabs<CR>
 
-nmap <C-t><C-n>  <C-t>n
-nmap <C-t><C-c>  <C-t>c
-nmap <C-t><C-o>  <C-t>o
-nmap <C-t><C-i>  <C-t>i
+nmap [Tabbed]<C-n>  <C-t>n
+nmap [Tabbed]<C-c>  <C-t>c
+nmap [Tabbed]<C-o>  <C-t>o
+nmap [Tabbed]<C-i>  <C-t>i
 
 
-" Moving around tabs.
-nnoremap <silent> <C-t>j  gt
-nnoremap <silent> <C-t>k  gT
-nnoremap <silent> <C-t>K  :<C-u>tabfirst<CR>
-nnoremap <silent> <C-t>J  :<C-u>tablast<CR>
 
-nmap <C-t><C-j>  <C-t>j
-nmap <C-t><C-t>  <C-t>j
-nmap <C-t><C-k>  <C-t>k
+
+" Moving around tabpages.  "{{{3
+
+nnoremap <silent> [Tabbed]j
+\ :<C-u>execute 'tabnext' 1 + (tabpagenr() + v:count1 - 1) % tabpagenr('$')<CR>
+nnoremap <silent> [Tabbed]k
+\ :<C-u>execute 'tabprevious' v:count1 % tabpagenr('$')<CR>
+nnoremap <silent> [Tabbed]K  :<C-u>tabfirst<CR>
+nnoremap <silent> [Tabbed]J  :<C-u>tablast<CR>
+
+nmap [Tabbed]<C-j>  <C-t>j
+nmap [Tabbed]<C-k>  <C-t>k
+nmap [Tabbed]<C-t>  <C-t>j
 
 " GNU screen like mappings.
 " Note that the numbers in {lhs}s are 0-origin.  See also 'tabline'.
 for i in range(10)
-  execute 'nnoremap <silent>' ('<C-t>'.(i))  ((i+1).'gt')
+  execute 'nnoremap <silent>' ('[Tabbed]'.(i))  ((i+1).'gt')
 endfor
 unlet i
 
 
-" Moving tabs themselves.
-nnoremap <silent> <C-t>l
-\ :<C-u>execute 'tabmove' min([tabpagenr() + v:count1 - 1, tabpagenr('$')])<CR>
-nnoremap <silent> <C-t>h
-\ :<C-u>execute 'tabmove' max([tabpagenr() - v:count1 - 1, 0])<CR>
-nnoremap <silent> <C-t>L  :<C-u>tabmove<CR>
-nnoremap <silent> <C-t>H  :<C-u>tabmove 0<CR>
 
-nmap <C-t><C-l>  <C-t>l
-nmap <C-t><C-h>  <C-t>h
+
+" Moving tabpages themselves.  "{{{3
+
+nnoremap <silent> [Tabbed]l
+\ :<C-u>execute 'tabmove' min([tabpagenr() + v:count1 - 1, tabpagenr('$')])<CR>
+nnoremap <silent> [Tabbed]h
+\ :<C-u>execute 'tabmove' max([tabpagenr() - v:count1 - 1, 0])<CR>
+nnoremap <silent> [Tabbed]L  :<C-u>tabmove<CR>
+nnoremap <silent> [Tabbed]H  :<C-u>tabmove 0<CR>
+
+nmap [Tabbed]<C-l>  <C-t>l
+nmap [Tabbed]<C-h>  <C-t>h
+
+
+
+
+" Argument list  "{{{2
+
+" the prefix key.
+nmap <C-g>  [Argument]
+
+" fallback
+noremap [Argument] <Nop>
+
+
+nnoremap [Argument]<Space>  :<C-u>args<Space>
+nnoremap <silent> [Argument]l  :args<CR>
+nnoremap <silent> [Argument]j  :next<CR>
+nnoremap <silent> [Argument]k  :previous<CR>
+nnoremap <silent> [Argument]J  :last<CR>
+nnoremap <silent> [Argument]K  :first<CR>
+nnoremap <silent> [Argument]wj  :wnext<CR>
+nnoremap <silent> [Argument]wk  :wprevious<CR>
+
+nmap [Argument]<C-l>  <C-g>l
+nmap [Argument]<C-j>  <C-g>j
+nmap [Argument]<C-k>  <C-g>k
+nmap [Argument]<C-w><C-j>  <C-g>wj
+nmap [Argument]<C-w><C-k>  <C-g>wk
 
 
 
@@ -537,23 +615,49 @@ cnoremap <C-k>  <C-\>e getcmdpos() == 1 ? '' : getcmdline()[:getcmdpos()-2]<CR>
 
 inoremap <C-b>  <Left>
 inoremap <C-f>  <Right>
-inoremap <C-a>  <Home>
+inoremap <C-a>  <C-o>^
 inoremap <C-e>  <End>
 inoremap <C-d>  <Delete>
 
+" Emacs like kill-line.
+inoremap <expr> <C-k>  (col('.') == col('$') ? '<C-o>gJ' : '<C-o>D')
 
 " Alternative key for the original action.
 inoremap <C-q>  <C-d>
 inoremap <C-\>  <C-a>
 
 
-" Emacs like kill-line.
-inoremap <expr> <C-k>  (col('.') == col('$') ? '<C-o>gJ' : '<C-o>D')
-
-
 " To be able to undo these types of deletion.
 inoremap <C-w>  <C-g>u<C-w>
 inoremap <C-u>  <C-g>u<C-u>
+
+
+" Complete or indent.
+inoremap <expr> <Tab>  pumvisible()
+                   \ ? '<C-n>'
+                   \ : <SID>should_indent_rather_than_complete_p()
+                   \ ? '<C-i>'
+                   \ : <SID>keys_to_complete()
+inoremap <expr> <S-Tab>  pumvisible()
+                     \ ? '<C-p>'
+                     \ : <SID>should_indent_rather_than_complete_p()
+                     \ ? '<C-i>'
+                     \ : <SID>keys_to_complete()
+
+function! s:should_indent_rather_than_complete_p()
+  let m = match(getline('.'), '\S')
+  return m == -1 || col('.') - 1 <= m
+endfunction
+
+function! s:keys_to_complete()
+  if len(&l:completefunc)
+    return "\<C-x>\<C-u>"
+  elseif len(&l:omnifunc)
+    return "\<C-x>\<C-o>"
+  else
+    return "\<C-n>"
+  endif
+endfunction
 
 
 
@@ -566,29 +670,51 @@ map <Space> [Space]
 " fallback
 noremap [Space] <Nop>
 
-nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
-nnoremap <silent> [Space]m  :<C-u>marks<CR>
-nnoremap <silent> [Space]q  :<C-u>Help quickref<CR>
-nnoremap <silent> [Space]r  :<C-u>registers<CR>
 
-nnoremap <silent> [Space]cd  :<C-u>CD<CR>
-
-nnoremap <silent> [Space]o/  :<C-u>call <SID>toggle_option('hlsearch')<CR>
+" Toggle option.
+nnoremap <silent> [Space]/  :<C-u>call <SID>toggle_option('hlsearch')<CR>
+nnoremap <silent> [Space]ol  :<C-u>call <SID>toggle_option('cursorline')<CR>
 nnoremap <silent> [Space]on  :<C-u>call <SID>toggle_option('number')<CR>
-nnoremap <silent> [Space]op  :<C-u>call <SID>toggle_option('paste')<CR>
 nnoremap <silent> [Space]os  :<C-u>call <SID>toggle_option('spell')<CR>
 nnoremap <silent> [Space]ow  :<C-u>call <SID>toggle_option('wrap')<CR>
 
-" Close a fold.
-nnoremap [Space]h  zc
+" Set file option.
+nnoremap [Space]fe  :<C-u>set fileencoding=
+nnoremap [Space]ff  :<C-u>set fileformat=
+nnoremap [Space]ft  :<C-u>set filetype=
+
+" Change tab style.
+nnoremap <silent> [Space]tt :<C-u>call <SID>toggle_option('expandtab')<CR>
+nnoremap <silent> [Space]t2 :<C-u>setlocal shiftwidth=2 softtabstop=2<CR>
+nnoremap <silent> [Space]t4 :<C-u>setlocal shiftwidth=4 softtabstop=4<CR>
+nnoremap <silent> [Space]t8 :<C-u>setlocal shiftwidth=8 softtabstop=8<CR>
+
+
+" Easily check registers and marks.
+nnoremap <silent> [Space]m  :<C-u>marks<CR>
+nnoremap <silent> [Space]r  :<C-u>registers<CR>
+
+" Open quick reference guide.
+nnoremap <silent> [Space]q  :<C-u>Help quickref<CR>
+
+" Change current directory.
+nnoremap <silent> [Space]cd  :<C-u>CD<CR>
+
+" Reload .vimrc
+nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
+
 
 " Open a fold.
 nnoremap [Space]l  zo
+
+" Close a fold.
+nnoremap [Space]h  zc
 
 " Close all folds but including the cursor.
 nnoremap [Space]v  zMzv
 
 
+" Sort operator.
 nmap [Space]s  <Plug>(operator-my-sort)
 vmap [Space]s  <Plug>(operator-my-sort)
 
@@ -628,6 +754,8 @@ nnoremap <C-w>#  <C-w>s#
 " Like "<C-w>q", but does ":quit!".
 nnoremap <C-w>Q  :<C-u>quit!<CR>
 
+
+nnoremap <silent> <C-w>y  :<C-u>Split<CR>
 
 
 
@@ -678,29 +806,6 @@ nnoremap ZQ  <Nop>
 nmap \  <Plug>(repeat-.)
 
 
-" Complete or indent.
-inoremap <expr> <C-i>  <SID>should_indent_rather_than_complete_p()
-                     \ ? '<C-i>'
-                     \ : <SID>keys_to_complete()
-
-function! s:should_indent_rather_than_complete_p()
-  let m = match(getline('.'), '\S')
-  return m == -1 || col('.')-1 <= m
-endfunction
-
-function! s:keys_to_complete()
-  if &l:filetype ==# 'vim'
-    return "\<C-x>\<C-v>"
-  elseif len(&l:dictionary)
-    return "\<C-x>\<C-k>"
-  elseif len(&l:omnifunc)
-    return "\<C-x>\<C-o>"
-  else
-    return "\<C-n>"
-  endif
-endfunction
-
-
 " Disable solely typed <Leader>/<LocalLeader> to avoid unexpected behavior.
 noremap <Leader>  <Nop>
 noremap <LocalLeader>  <Nop>
@@ -709,16 +814,32 @@ noremap <LocalLeader>  <Nop>
 " Like o/O, but insert additional [count] blank lines.
 nnoremap <expr> o  <SID>start_insert_mode_with_blank_lines('o')
 nnoremap <expr> O  <SID>start_insert_mode_with_blank_lines('O')
+
 function! s:start_insert_mode_with_blank_lines(command)
   if v:count != v:count1
     return a:command  " Behave the same as the default commands.
   endif
 
   if a:command ==# 'o'
-    return "\<Esc>o" . repeat("\<Return>", v:count)
+    return "\<Esc>o" . repeat("\<CR>", v:count - 1)
   else  " a:command ==# 'O'
-    return "\<Esc>OX\<Esc>m'o" . repeat("\<Return>", v:count-1) . "\<Esc>''S"
+    return "\<Esc>O" . repeat("\<CR>\<Up>", v:count - 1) . "\<Esc>S"
   endif
+endfunction
+
+
+" Search for the selected text.
+vnoremap *  :<C-u>call <SID>search_selected_text('n')<CR>
+vnoremap #  :<C-u>call <SID>search_selected_text('N')<CR>
+
+function! s:search_selected_text(search_command)
+  let region = join(map(s:get_region(), 'escape(v:val, "\/")'), '\n')
+
+  let @/ = '\V' . region
+  call histadd('/', '\V' . region)
+  execute 'normal!' a:search_command
+
+  let v:searchforward = a:search_command ==# 'n'
 endfunction
 
 
@@ -745,7 +866,7 @@ autocmd MyAutoCmd FileType *
 
 function! s:on_FileType_any()
   " Load the dictionary for filetype.
-  let dict = expand('$HOME/.vim/dict/').&l:filetype.'.dict'
+  let dict = expand('~/.vim/dict/').&l:filetype.'.dict'
   if filereadable(dict)
     let &l:dictionary = dict
   endif
@@ -762,22 +883,6 @@ autocmd MyAutoCmd BufReadPost *
 \   if &modifiable && !search('[^\x00-\x7F]', 'cnw')
 \ |   setlocal fileencoding=
 \ | endif
-
-
-" Unset 'paste' automatically.  It's often hard to do so because of most
-" mappings are disabled in Paste mode.
-autocmd MyAutoCmd InsertLeave *
-\ set nopaste
-
-
-
-
-" c,cpp  "{{{2
-
-if has('win32') || has('win64') || has('win32unix')
-  autocmd MyAutoCmd FileType c,cpp
-  \ setlocal dictionary+=$HOME/.vim/dict/winapi.dict
-endif
 
 
 
@@ -820,18 +925,26 @@ endfunction
 
 
 
+" haskell  "{{{2
+
+autocmd MyAutoCmd FileType haskell
+\ call s:set_short_indent()
+
+
+
+
 " java  "{{{2
 
 autocmd MyAutoCmd FileType java
 \ call s:on_FileType_java()
 
 function! s:on_FileType_java()
+  nnoremap <silent> <LocalLeader>a  :<C-u>QuickRun javaapplet -mode n<CR>
+  vnoremap <silent> <LocalLeader>a  :<C-u>QuickRun javaapplet -mode v<CR>
+
   setlocal cinoptions=:0,l1,g0,t0,(0,j1
   let &l:makeprg = 'javac -Xlint:unchecked -Xlint:deprecation %'
   let &l:errorformat = '%E%f:%l: %m,%C%\S%\+: %.%# %m,%Z%p^,%C%.%#'
-
-  nnoremap <silent> <LocalLeader>a  :<C-u>QuickRun java-applet -mode n<CR>
-  vnoremap <silent> <LocalLeader>a  :<C-u>QuickRun java-applet -mode v<CR>
 endfunction
 
 
@@ -850,8 +963,6 @@ autocmd MyAutoCmd FileType lua
 autocmd MyAutoCmd FileType perl
 \   compiler perl
 \ | call s:set_short_indent()
-\ | setlocal include=
-
 
 
 
@@ -860,8 +971,9 @@ autocmd MyAutoCmd FileType perl
 
 autocmd MyAutoCmd FileType python
 \   call s:set_short_indent()
-\ | setlocal omnifunc=syntaxcomplete#Complete
-
+\ | let python_highlight_numbers = 1
+\ | let python_highlight_builtins = 1
+\ | let python_highlight_space_errors = 1
 
 
 
@@ -912,6 +1024,8 @@ let g:is_gauche = 1
 autocmd MyAutoCmd FileType sh,zsh
 \ call s:set_short_indent()
 
+let g:is_bash = 1
+
 
 
 
@@ -923,7 +1037,9 @@ autocmd MyAutoCmd FileType tex,plaintex
 \ | let &l:makeprg = 'platex --kanji=utf8 -shell-escape -file-line-error -interaction=nonstopmode % && dvipdfmx %:p:r.dvi'
 \ | let &l:errorformat = '%f:%l: %m'
 
+
 let g:tex_flavor = "latex"
+
 
 
 
@@ -932,9 +1048,12 @@ let g:tex_flavor = "latex"
 autocmd MyAutoCmd FileType vim
 \   call s:set_short_indent()
 \ | nnoremap <buffer> <silent> K  :<C-u>Help <C-r><C-w><CR>
+\ | vnoremap <buffer> <silent> K  :<C-u>Help <C-r>=<SID>get_region()[0]<CR><CR>
 
 autocmd MyAutoCmd FileType help
-\ nnoremap <buffer> <silent> K  :<C-u>Help <C-r><C-w><CR>
+\   nnoremap <buffer> <silent> K  :<C-u>Help <C-r><C-w><CR>
+\ | vnoremap <buffer> <silent> K  :<C-u>Help <C-r>=<SID>get_region()[0]<CR><CR>
+\ | nnoremap <buffer> q  <C-w>c
 
 
 let g:vim_indent_cont = 0
@@ -958,19 +1077,20 @@ endfunction
 " Plugins  "{{{1
 " eskk  "{{{2
 
-function! s:get_skk_dictionary()
-  for _ in ['$HOME/.skk-jisyo/SKK-JISYO.L', '/usr/share/skk/SKK-JISYO.L']
-    let _ = expand(_)
-    if filereadable(_)
-      return _
-    endif
-  endfor
-  return ''
-endfunction
+let g:eskk_dictionary = {
+\  'path': expand('~/.skk-eskk-jisyo'),
+\  'sorted': 0,
+\  'encoding': 'utf-8',
+\ }
+let g:eskk_large_dictionary = {
+\  'path': (s:win_p || s:cygwin_p) ? expand('~/.skkime/SKK-JISYO.L') : '/usr/share/skk/SKK-JISYO.L',
+\  'sorted': 1,
+\  'encoding': 'euc-jp',
+\ }
 
-if !exists('g:eskk_large_dictionary')
-  let g:eskk_large_dictionary = s:get_skk_dictionary()
-endif
+let g:eskk_egg_like_newline = 1
+let g:eskk_show_annotation = 1
+
 
 
 
@@ -1036,12 +1156,10 @@ call ku#custom_key('common', 'y', 'yank')
 call ku#custom_key('common', 'Y', 'Yank')
 call ku#custom_key('buffer', 'd', 'delete')
 
-call ku#custom_prefix('common', '.vim', expand('$HOME/.vim'))
-call ku#custom_prefix('common', 'GIT', expand('$HOME/git'))
-call ku#custom_prefix('common', 'HOME', expand('$HOME'))
+call ku#custom_prefix('common', '.vim', expand('~/.vim'))
+call ku#custom_prefix('common', 'HOME', expand('~'))
 call ku#custom_prefix('common', 'VIM', expand('$VIMRUNTIME'))
-call ku#custom_prefix('common', 'WORK', expand('$HOME/working'))
-call ku#custom_prefix('common', '~', expand('$HOME'))
+call ku#custom_prefix('common', '~', expand('~'))
 
 
 nnoremap <silent> [Space]ka  :<C-u>Ku args<CR>
@@ -1058,13 +1176,13 @@ nnoremap <silent> [Space]k:  :<C-u>Ku cmd_mru/cmd<CR>
 nnoremap <silent> [Space]km  :<C-u>Ku file_mru<CR>
 
 
-if has('win32') || has('win64')
-  let g:ku_personal_runtime = split(&runtimepath, ',')[0]
-  let g:ku_file_mru_file = expand('$HOME/.vim/info/ku/mru_win')
+if s:win_p
+  let g:ku_personal_runtime = expand('~/.vim')
+  let g:ku_file_mru_file = expand('~/.vim/info/ku/mru_win')
 else
-  let g:ku_file_mru_file = expand('$HOME/.vim/info/ku/mru')
+  let g:ku_file_mru_file = expand('~/.vim/info/ku/mru')
 endif
-let g:ku_file_mru_limit = 256
+let g:ku_file_mru_limit = 200
 let g:ku_file_mru_ignore_pattern = '\v/$|^/cygdrive/|^/mnt/|^/media/|^//'
 
 
@@ -1074,6 +1192,26 @@ let g:ku_file_mru_ignore_pattern = '\v/$|^/cygdrive/|^/mnt/|^/media/|^//'
 
 noremap <silent> [Space]xn  :Narrow<CR>
 noremap <silent> [Space]xw  :<C-u>Widen<CR>
+
+
+
+
+" neocomplcache  "{{{2
+
+imap <C-l>  <Plug>(neocomplcache_snippets_expand)
+smap <C-l>  <Plug>(neocomplcache_snippets_expand)
+
+
+let g:neocomplcache_disable_auto_complete = 1
+let g:neocomplcache_enable_at_startup = 1
+let g:neocomplcache_enable_auto_select = 0
+let g:neocomplcache_enable_smart_case = 1
+
+let g:neocomplcache_auto_completion_start_length = 2
+let g:neocomplcache_manual_completion_start_length = 2
+
+let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*\|\[ku\]'
+let g:neocomplcache_temporary_dir = expand('~/.vim/info/neocomplcache')
 
 
 
@@ -1091,18 +1229,18 @@ nnoremap <silent> <Leader>R  :<C-u>QuickRun >: -mode n<CR>
 vnoremap <silent> <Leader>R  :<C-u>QuickRun >: -mode v<CR>
 
 
-let g:loaded_quicklaunch = s:TRUE
+let g:loaded_quicklaunch = 1
 let g:quickrun_config = {
 \  '*': {
+\    'split': '{'.s:SID_PREFIX().'vertically() ? "vertical" : "" }',
 \  },
 \  'java': {
-\    'exec': ['javac -Xlint:deprecation %s', '%c %s:t:r %a', 'rm -f %s:t:r*.class'],
+\    'exec': ['javac %s', '%c %s:t:r %a'],
 \    'tempfile': '{fnamemodify(tempname(), ":p:h")}/{expand("%:t")}',
 \  },
-\  'java-applet': {
+\  'javaapplet': {
 \    'exec': ['echo "<applet code=%s:t:r width=500 height=500></applet>" > %s:p:r.html',
-\             'appletviewer %s:p:r.html',
-\             'rm -f %s:p:r.html'],
+\             'appletviewer %s:p:r.html'],
 \    'tempfile': '{fnamemodify(tempname(), ":p:h")}/{expand("%:t")}',
 \  },
 \  'markdown': {
@@ -1111,25 +1249,12 @@ let g:quickrun_config = {
 \  'tex': {
 \    'exec': ['platex --kanji=utf8 -shell-escape -file-line-error -output-directory=%s:p:h %s',
 \             'pxdvi %s:p:r'],
-\  },
-\  'vim': {
 \    'runmode': 'simple',
 \  },
 \  'xdefaults': {
-\    'exec': ['xrdb -remove',
-\             'xrdb -merge %s:p:r',
-\             'xrdb -query'],
+\    'exec': ['xrdb -remove', 'xrdb -merge %s:p:r', 'xrdb -query'],
 \  },
-\}
-
-
-" Use async processing if possible.
-if has('clientserver') && !has('win32') && !has('win64')
-autocmd MyAutoCmd VimEnter *
-\   if len(v:servername)
-\ |   let g:quickrun_config['*']['runmode'] = 'async:remote:vimproc'
-\ | endif
-endif
+\ }
 
 
 
@@ -1140,33 +1265,34 @@ autocmd MyAutoCmd FileType ref
 \   nmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
 \ | nmap <buffer> <silent> <C-j>  <Plug>(ref-forward)
 \ | nmap <buffer> <silent> <C-k>  <Plug>(ref-back)
+\ | nnoremap <buffer> q  <C-w>c
 
 nnoremap <silent> <Leader>t  :<C-u>Ref alc <C-r><C-w><CR>
 
 AlterCommand ref  Ref
 
 
-let g:ref_no_default_key_mappings = s:TRUE
-let g:ref_cache_dir = expand('$HOME/.vim/info/ref')
-let g:ref_open = 'SplitNicely'
+let g:ref_no_default_key_mappings = 1
+let g:ref_cache_dir = expand('~/.vim/info/ref')
+let g:ref_open = 'Split'
 
 
 
 
 " scratch  "{{{2
 
-nmap <Leader>s  <Plug>(scratch-open)
-
 autocmd MyAutoCmd User PluginScratchInitializeAfter
 \   map <buffer> <CR>  <Plug>(scratch-evaluate)
 \ | map <buffer> <C-m>  <Plug>(scratch-evaluate)
-\ | map <buffer> <C-j>  <Plug>(scratch-evaluate)
+\ | map <buffer> q  <Plug>(scratch-close)
+
+nmap <Leader>s  <Plug>(scratch-open)
 
 
-if has('win32') || has('win64')
+if s:win_p
   let g:scratch_buffer_name = '[Scratch]'
 endif
-
+let g:scratch_show_command = 'Split | hide buffer'
 
 
 
@@ -1187,7 +1313,7 @@ call submode#map('scroll', 'n', 'e', 'j', 'line(".") != line("$") ? "<C-d>" : ""
 call submode#map('scroll', 'n', 'e', 'k', 'line(".") != 1         ? "<C-u>" : ""')
 
 call submode#enter_with('window', 'n', '', '[Space]w')
-call submode#map('window', 'n', '', '=', '<C-w>=')
+call submode#map('window', 'n', '', '<Space>', '<C-w>=')
 call submode#map('window', 'n', '', 'H', '<C-w>H')
 call submode#map('window', 'n', '', 'J', '<C-w>J')
 call submode#map('window', 'n', '', 'K', '<C-w>K')
@@ -1198,7 +1324,7 @@ call submode#map('window', 'n', '', 'k', '<C-w>-')
 call submode#map('window', 'n', '', 'l', '<C-w>>')
 
 
-let g:submode_timeout = s:FALSE
+let g:submode_timeout = 0
 
 
 
@@ -1213,26 +1339,38 @@ nmap ss  <Plug>Yssurround
 
 
 
+" vcsi  "{{{2
+
+let g:vcsi_diff_in_commit_buffer_p = 1
+let g:vcsi_open_command = 'Split | enew'
+let g:vcsi_use_native_message_p = 1
+
+
+
+
 " vimfiler  "{{{2
 
-let g:vimfiler_as_default_explorer = s:TRUE
+let g:vimfiler_as_default_explorer = 1
 let g:vimfiler_edit_command = 'tabedit'
+let g:vimfiler_split_command = 'Split'
+let g:vimfiler_trashbox_directory = expand('~/.trash')
+
+if executable('feh')
+  call vimfiler#set_execute_file('bmp,gif,jpeg,jpg,png', 'feh')
+endif
+if executable('acroread')
+  call vimfiler#set_execute_file('pdf', 'acroread')
+endif
+if executable('oobase')
+  call vimfiler#set_execute_file('doc,odt,ott', 'oowriter')
+  call vimfiler#set_execute_file('ods,xls', 'oocalc')
+  call vimfiler#set_execute_file('odp,ppt', 'oodraw')
+endif
 
 
 
 
 " vimshell  "{{{2
-
-if has('win32') || has('win64')
-  let g:vimshell_prompt = $USERNAME.'$ '
-else
-  let g:vimshell_prompt = $USER.($USER == 'root' ? '% ' : '$ ')
-endif
-
-let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
-let g:vimshell_user_prompt .= '." "'
-let g:vimshell_user_prompt .= '.vimshell#vcs#info("[%s:%b]", "[%s:%b|%a]")'
-
 
 autocmd MyAutoCmd FileType vimshell
 \   call vimshell#altercmd#define('l', 'll')
@@ -1241,14 +1379,21 @@ autocmd MyAutoCmd FileType vimshell
 \ | call vimshell#altercmd#define('lla', 'ls -la')
 
 
+let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
+let g:vimshell_user_prompt .= '." "'
+let g:vimshell_user_prompt .= '.vimshell#vcs#info("[%s:%b]", "[%s:%b|%a]")'
+let g:vimshell_prompt = 'YUKI.N' . ($USER ==# 'root' ? '# ' : '> ')
+
+let g:vimshell_enable_smart_case = 1
+let g:vimshell_ignore_case = 0
+
+let g:vimshell_split_command = 'Split'
+let g:vimshell_temporary_directory = expand('~/.vim/info/vimshell')
+
+
 
 
 " Fin.  "{{{1
-
-if !exists('s:loaded_my_vimrc')
-  let s:loaded_my_vimrc = 1
-endif
-
 
 " must be written at the last.  see :help 'secure'.
 set secure
