@@ -15,11 +15,17 @@ Xcursor.size: 24
 
 ! FONT
 Rxvt.font: \
-  xft:Droid Sans Mono:size=11:antialias=true, \
-  xft:AXIS Std:size=11:antialias=true
+  xft:Consolas:pixelsize=14:antialias=true, \
+  xft:AXIS Std:pixelsize=14:antialias=true
 Rxvt.boldFont: \
-  xft:Droid Sans Mono:size=11:bold, \
-  xft:AXIS Std:size=11:bold
+  xft:Consolas:pixelsize=14:bold, \
+  xft:AXIS Std:pixelsize=14:bold
+Rxvt.italicFont: \
+  xft:Consolas:pixelsize=14:italic, \
+  xft:AXIS Std:pixelsize=14:italic
+Rxvt.boldItalicFont: \
+  xft:Consolas:pixelsize=14:bold:italic, \
+  xft:AXIS Std:pixelsize=14:bold:italic
 Rxvt.imFont: \
   -sony-fixed-medium-r-normal--16-*-*-*-*-*-iso8859-1, \
   -sony-fixed-medium-r-normal--16-*-*-*-*-*-jisx0201.1976-0, \
@@ -53,11 +59,11 @@ Rxvt.color15: #ffffff
 ! MISC
 Rxvt.externalBorder: 0
 Rxvt.geometry: 80x25
-Rxvt.internalBorder: 4
+Rxvt.internalBorder: 2
 Rxvt.lineSpace: 0
 Rxvt.saveLines: 1000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true
 Rxvt.secondaryScroll: true
-Rxvt.termName: rxvt-256color
+Rxvt.termName: rxvt-unicode256
 Rxvt.visualBell: false

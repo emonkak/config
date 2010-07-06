@@ -9,7 +9,7 @@ stty -ixon -ixoff
 
 # Parameters  #{{{1
 
-HISTFILE=$HOME/.zsh_history
+HISTFILE="$HOME/.zsh_history"
 HISTSIZE=10000
 SAVEHIST=10000
 
@@ -50,6 +50,18 @@ setopt ignore_eof
 setopt prompt_subst
 unsetopt beep
 unsetopt flow_control
+
+
+zshaddhistory() {
+  local -a args; args=(${(z)1})
+  local cmd
+  if [[ $args[1] = s(udo|) ]]; then
+    cmd=$args[2]
+  else
+    cmd=$args[1]
+  fi
+  [[ $cmd != (ch(grp|mod|own)|rm) ]]
+}
 
 
 
@@ -137,7 +149,7 @@ alias mount-cifs='sudo mount -t cifs -o defaults,noatime,user,iocharset=utf8,uid
 alias untarbz2='tar -vxjf'
 alias untargz='tar -vxzf'
 
-if which xsel &>/dev/null; then
+if [ -n "$DISPLAY" ] && which xsel &>/dev/null; then
   alias pbcopy='xsel --input --clipboard'
   alias pbpaste='xsel --output --clipboard'
 fi
@@ -146,14 +158,15 @@ fi
 
 
 # Functions  #{{{1
-# mplayer-without-dpms  #{{{2
+# MPlayer without DPMS  #{{{2
 
-if which mplayer &>/dev/null && [ -n "$DISPLAY" ]; then
-  function mplayer-without-dpms() {
+if [ -n "$DISPLAY" ] && which mplayer &>/dev/null; then
+  function __mplayer_wrapper() {
     xset -dpms
-    mplayer $@
+    /usr/bin/env mplayer $@
     xset +dpms
   }
+  alias mplayer='__mplayer_wrapper'
 fi
 
 
@@ -195,11 +208,10 @@ if which apg &>/dev/null; then
     done
 
     local -a args
-    local command='apg'
     for key in ${(k)options}; do
       args+=($key $options[$key])
     done
-    $command $args
+    apg $args
   }
 fi
 

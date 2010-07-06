@@ -88,7 +88,7 @@ if ENV['SSH_CONNECTION'] == nil
   keycommand NOMETA, KEY_ENTER, '.doc', 'cmdline("%q oowriter %f &", 0)'
   keycommand NOMETA, KEY_ENTER, '.exe', 'cmdline("wine %f", 0)'
   keycommand NOMETA, KEY_ENTER, '.ott', 'cmdline("%q oowriter %f &", 0)'
-  keycommand NOMETA, KEY_ENTER, '.pdf', 'cmdline("%q epdfview %f &", 0)'
+  keycommand NOMETA, KEY_ENTER, '.pdf', 'cmdline("%q acroread %f &", 0)'
   keycommand NOMETA, KEY_ENTER, '.ppt', 'cmdline("%q oodraw %f &", 0)'
   keycommand NOMETA, KEY_ENTER, '.xls', 'cmdline("%q oocalc %f &", 0)'
   for ext in ['.bmp', '.gif', '.jpeg', '.jpg', '.png']
