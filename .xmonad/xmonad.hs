@@ -4,6 +4,7 @@
 import XMonad hiding (Tall)
 
 import XMonad.Actions.DwmPromote
+import XMonad.Actions.UpdatePointer
 
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
@@ -12,11 +13,12 @@ import XMonad.Hooks.SetWMName
 
 import XMonad.Layout.HintedTile
 import XMonad.Layout.IM
-import XMonad.Layout.MultiToggle
-import XMonad.Layout.MultiToggle.Instances
+import XMonad.Layout.Named
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Reflect
+import XMonad.Layout.Tabbed
+import XMonad.Layout.ToggleLayouts
 
 import XMonad.Util.EZConfig
 import XMonad.Util.Loggers
@@ -62,33 +64,9 @@ myManageHook = composeAll
 
 
 
--- Lauout  --{{{1
-
-myLayoutHook = avoidStruts $
-  smartBorders $
-  onWorkspace "9" gimpLayout $
-  mkToggle (single FULL) (hintedTile Wide ||| hintedTile Tall)
-
-  where
-    hintedTile  = HintedTile 1 (3/100) (3/5) TopLeft
-    gimpLayout  = withIM (0.15) (Role "gimp-toolbox") $
-                  reflectHoriz $ withIM (0.20) (Role "gimp-dock") $
-                  reflectHoriz $ mkToggle (single FULL) (hintedTile Wide ||| hintedTile Tall)
-
-
-
-
--- StatusBar  --{{{1
+-- Theme  --{{{1
 
 myFont = "-xos4-terminus-medium-r-normal--12-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--12-*-*-*-*-*-*-*"
-myStatusBar = "xmobar"
-
-myLogHook h = dynamicLogWithPP $ xmobarPP
-  { ppOutput  = hPutStrLn h
-  , ppSep     = xmobarColor "#666666" "" " | "
-  , ppCurrent = xmobarColor "#cccc00" "" . wrap "[" "]"
-  , ppTitle   = xmobarColor "#00cc00" "" . trim
-  }
 
 myXPConfig = defaultXPConfig
   { font              = myFont
@@ -102,6 +80,48 @@ myXPConfig = defaultXPConfig
   , height            = 16
   }
 
+myTheme = defaultTheme
+  { fontName            = myFont
+  , activeColor         = "#003366"
+  , activeBorderColor   = "#3366cc"
+  , activeTextColor     = "#cccccc"
+  , inactiveColor       = "#000000"
+  , inactiveBorderColor = "#333333"
+  , inactiveTextColor   = "#999999"
+  , decoHeight          = 18
+  }
+
+
+
+
+
+-- Lauout  --{{{1
+
+myLayoutHook = avoidStruts $
+  onWorkspace "9" gimpLayout $
+  toggleLayouts (noBorders Full) (hintedTile Wide ||| hintedTile Tall)
+  where
+    hintedTile = HintedTile 1 (3/100) (3/5) TopLeft
+    tabLayout  = tabbed shrinkText myTheme
+    gimpLayout = named "Gimp" $
+                 withIM (0.15) (Role "gimp-toolbox") $
+                 reflectHoriz $ withIM (0.20) (Role "gimp-dock") $
+                 reflectHoriz $ tabLayout
+
+
+
+
+-- Hook  --{{{1
+
+myLogHook h = do
+  updatePointer (Relative 0.5 0.5)
+  dynamicLogWithPP $ xmobarPP
+    { ppOutput  = hPutStrLn h
+    , ppSep     = xmobarColor "#666666" "" " | "
+    , ppCurrent = xmobarColor "#cccc00" "" . wrap "[" "]"
+    , ppTitle   = xmobarColor "#00cc00" "" . trim
+    }
+
 
 
 
@@ -112,9 +132,8 @@ myKeys conf = mkKeymap conf $
   , ("M-<Space>",    sendMessage NextLayout)
   , ("M-S-<Return>", spawn $ XMonad.terminal conf)
   , ("M-S-<Space>",  setLayout $ XMonad.layoutHook conf)
+  , ("M-f",          sendMessage ToggleLayout)
 
-  , ("M-<Tab>",      windows W.focusDown)
-  , ("M-S-<Tab>",    windows W.focusUp)
   , ("M-j",          windows W.focusDown)
   , ("M-k",          windows W.focusUp)
   , ("M-m",          windows W.focusMaster)
@@ -124,23 +143,23 @@ myKeys conf = mkKeymap conf $
   , ("M-l",          sendMessage Expand)
 
   , ("M-t",          withFocused $ windows . W.sink)
-  , ("M-f",          sendMessage $ Toggle FULL)
-  , ("M-,",          sendMessage (IncMasterN 1))
-  , ("M-.",          sendMessage (IncMasterN (-1)))
+  , ("M-,",          sendMessage $ IncMasterN 1)
+  , ("M-.",          sendMessage $ IncMasterN (-1))
 
   , ("M-p",          shellPrompt myXPConfig)
   , ("M-n",          refresh)
-  , ("M-q",          spawn "xmonad --recompile; xmonad --restart")
-  , ("M-S-q",        io (exitWith ExitSuccess))
+  , ("M-q",          spawn "xmonad --recompile && xmonad --restart")
+  , ("M-S-q",        io $ exitWith ExitSuccess)
   , ("M-S-c",        kill)
 
   , ("M-=",          spawn "amixer -q set Master 4dB+")
   , ("M--",          spawn "amixer -q set Master 4dB-")
   , ("M-<Esc>",      spawn "sleep 1; xset dpms force off")
 
+  , ("M-x e",        spawn "gvim")
+  , ("M-x g",        spawn "gimp")
   , ("M-x o",        spawn "opera")
   , ("M-x v",        spawn "gqview")
-  , ("M-x g",        spawn "gimp")
 
   , ("M-\\",         spawn "ncmpcpp toggle")
   , ("M-[",          spawn "ncmpcpp prev")
@@ -158,7 +177,7 @@ myKeys conf = mkKeymap conf $
 -- Main  --{{{1
 
 main = do
-  statusPipe <- spawnPipe myStatusBar
+  statusPipe <- spawnPipe "xmobar"
   xmonad $ defaultConfig
     { terminal           = "urxvt"
     , modMask            = mod4Mask
