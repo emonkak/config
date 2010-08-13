@@ -2,11 +2,19 @@
 " Basic  "{{{1
 " Absolute  "{{{2
 
+let s:cygwin_p = has('win32unix')
+let s:win_p = has('win32') || has('win64')
+
+
 if has('vim_starting')
   " Don't reset twice on reloading - 'compatible' has so many side effects.
   set nocompatible  " to use many extensions of Vim.
 
-  if has('win32') || has('win64')
+  " Set default indent style.
+  set shiftwidth=4
+  set tabstop=4
+
+  if s:win_p
     set fileformat=unix
     set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
   endif
@@ -14,7 +22,7 @@ endif
 
 
 function! s:SID_PREFIX()
- return matchstr(expand('<sfile>'), '<SNR>\d\+_')
+  return matchstr(expand('<sfile>'), '<SNR>\d\+_')
 endfunction
 
 
@@ -46,18 +54,27 @@ if has('iconv')
 endif
 
 
+if s:win_p
+  language C
+  let $LANG = 'ja_JP.CP932'
+  let $LC_MESSAGE = 'C'
+  let $LC_TIME = 'C'
+  set termencoding=cp932
+endif
+
+
 
 
 " Options  "{{{2
 
 if has('gui_running')
   set guicursor=a:blinkon0
-  if has('gui_gtk2')
-    set guifont=Monospace\ 10.5
+  if s:win_p
+    set guifont=sumiko16:h12
   else
-    set guifont=Consolas:h10.5
+    set guifont=Monospace\ 10.5
   endif
-  set guioptions=cgM
+  set guioptions=AcgM
   set linespace=0
 endif
 
@@ -74,7 +91,7 @@ filetype plugin indent on
 set ambiwidth=double
 set backspace=indent,eol,start
 if has('clientserver')
-  set clipboard=unnamed,exclude:cons\|linux
+  set clipboard=autoselectml,exclude:cons\|linux
 endif
 set diffopt=filler,vertical
 set directory=~/tmp
@@ -110,29 +127,25 @@ set wildmenu
 
 set autoindent
 set cinoptions=:0,l1,g0,t0,(0,j1
-if &expandtab == 0
-  set shiftwidth=4
-  set tabstop=4
-endif
-set formatlistpat&
-let &formatlistpat .= '\|^\s*[*+-]\s*'
 set formatoptions=tcroqnlM1
 set ignorecase
 set incsearch
+set isfname=33-126,161-255
 set smartcase
 set smartindent
 
+set title
+set titlestring=Vim:\ %f\ %h%r%m
 if exists('$TMUX')
   let &t_fs = "\<C-g>"
   let &t_ts = "\<Esc>]2;"
 endif
-set title
-set titlestring=Vim:\ %f\ %h%r%m
 
 let &statusline = ''
 let &statusline .= '(%{(&filetype == "" ? "none" : &filetype)})'
 let &statusline .= ' %<%f %h%m%r%w'
-let &statusline .= '[%{(&l:fileencoding == "" ? &encoding : &l:fileencoding).":".&fileformat}]'
+let &statusline .= '[%{(&l:fileencoding == "" ? &encoding : &l:fileencoding)}'
+let &statusline .= ':%{&fileformat}]'
 let &statusline .= '%{eskk#get_stl()}'
 let &statusline .= '%='
 let &statusline .= '%-14.(%l,%c%V%) %P'
@@ -196,9 +209,6 @@ call pathogen#helptags()
 let s:FALSE = 0
 let s:TRUE = !s:FALSE
 
-let s:cygwin_p = has('win32unix')
-let s:win_p = has('win32') || has('win64')
-
 
 
 
@@ -215,23 +225,33 @@ AlterCommand so[urce]  Source
 
 " SuspendWithAutomticCD  "{{{2
 
-if !exists('s:TMUX_AVAILABLE_P')
-  let s:TMUX_AVAILABLE_P = exists('$TMUX')
-endif
-
 command! -bar -nargs=0 SuspendWithAutomticCD
-\ call s:cmd_SuspendWithAutomticCD()
-
-function! s:cmd_SuspendWithAutomticCD()
-  if s:TMUX_AVAILABLE_P
-    let windows = split(system('tmux list-windows'), ':\s\|\s\S\+\n')
-    let index = index(windows, split(&shell, '/')[-1])
+\ call s:suspend_with_automtic_cd()
+function! s:suspend_with_automtic_cd()
+  if exists('$TMUX')  " tmux available.
+    let _ = split(system('tmux list-windows'), '\n')
+    let _ = map(filter(_, 'v:val =~# "^\\d\\+:"'),
+    \           'split(v:val, "^\\d\\+\\zs:\\s\\|\\s\\[[0-9x]\\+]\\+$")')
+    let shell = split(&shell, '/')[-1]
+    let i = -1
+    for [index, title] in _
+      if title ==# shell
+        let i = index
+        break
+      endif
+    endfor
     silent execute '!tmux'
-    \              (index > -1 ? 'select-window -t '.windows[index - 1] : 'new-window') '\;'
-    \              'send-keys C-u " cd' fnameescape(getcwd()) '" C-m'
+    \              (i > -1 ? 'select-window -t '.i : 'new-window').'\;'
+    \              'send-keys C-u " cd \"'.getcwd().'\"" C-m'
     redraw!
-    let s:TMUX_AVAILABLE_P = (v:shell_error == 0)
-  else
+  elseif exists('$WINDOW')  " GNU Screen available.
+    " BUGS: When shell window does not exist, Keys would be send to vim.
+    let shell = split(&shell, '/')[-1]
+    silent execute '!screen -X eval'
+    \              '''select '.shell.''''
+    \              '''stuff "\025 cd \\"'.getcwd().'\\" \015"'''
+    redraw!
+  else  " Not working terminal multiplexer.
     suspend
   endif
 endfunction
@@ -241,16 +261,15 @@ endfunction
 
 " CD - wrapper of :cd to keep cwd for each tabpage  "{{{2
 
-command! -complete=file -nargs=? CD
-\ call s:tabpage_cd(<q-args>)
-
-function! s:tabpage_cd(directory)
-  if len(a:directory)
-    let target = fnameescape(a:directory)
+command! -complete=file -nargs=? CD  call s:tabpage_cd(<q-args>)
+function! s:tabpage_cd(dir)
+  if len(a:dir)
+    cd `=a:dir`
+  elseif len(expand('%'))
+    cd %:p:h
   else
-    let target = len(expand('%')) ? fnameescape(expand('%:p:h')) : ''
+    cd ~
   endif
-  execute 'cd' target
   let t:cwd = getcwd()
   echo t:cwd
 endfunction
@@ -260,14 +279,31 @@ AlterCommand cd  CD
 
 autocmd MyAutoCmd TabEnter *
 \   if exists('t:cwd')
-\ |   execute 'cd' fnameescape(t:cwd)
+\ |   cd `=t:cwd`
 \ | endif
 
 autocmd MyAutoCmd BufReadPost *
 \   if !exists('t:cwd')
-\ |   execute 'cd' fnameescape(expand('%:p:h'))
+\ |   cd %:p:h
 \ |   let t:cwd = getcwd()
 \ | endif
+
+
+
+
+" Hecho, Hechon, Hechomsg - various :echo with highlight specification  "{{{2
+
+command! -bar -nargs=+ Hecho  call s:hecho('echo', [<f-args>])
+command! -bar -nargs=+ Hechon  call s:hecho('echon', [<f-args>])
+command! -bar -nargs=+ Hechomsg  call s:hecho('echomsg', [<f-args>])
+function! s:hecho(echo_command, args)
+  let highlight_name = a:args[0]
+  let messages = a:args[1:]
+
+  execute 'echohl' highlight_name
+  execute a:echo_command join(messages)
+  echohl None
+endfunction
 
 
 
@@ -294,16 +330,16 @@ command! -bang -bar -complete=file -nargs=? Sjis  Cp932<bang> <args>
 " Utilities  "{{{1
 " :grep wrappers  "{{{2
 
-command! -bar -complete=file -nargs=+ Grep
-\ call s:grep('grep', [<f-args>])
-command! -bar -complete=file -nargs=+ Lgrep
-\ call s:grep('lgrep', [<f-args>])
+command! -bar -complete=file -nargs=+ Grep  call s:grep('grep', [<f-args>])
+command! -bar -complete=file -nargs=+ Lgrep  call s:grep('lgrep', [<f-args>])
 
 function! s:grep(command, args)
   let target = len(a:args) > 1 ? join(a:args[:-2]) : '**/*'
   execute a:command '/'.a:args[-1].'/j' target
-  if len(getqflist()) != 0
-    execute stridx(a:command, 'l') == 0 ? 'lopen' : 'copen'
+  if a:command ==# 'lgrep' && len(getloclist()) != 0
+    lopen
+  elseif len(getqflist()) != 0  " grep
+    copen
   endif
 endfunction
 
@@ -357,7 +393,7 @@ endfunction
 
 
 
-" Split nicely  "{{{2
+" Split nicely with  "{{{2
 
 command! -bar -bang -nargs=* -complete=file Split
 \ call s:split_nicely_with(['split', <f-args>], <bang>0)
@@ -369,7 +405,6 @@ command! -bar -bang -nargs=* -complete=file New
 function! s:vertically()
     return winwidth(0) * 2 > winheight(0) * 8
 endfunction
-
 function! s:split_nicely_with(args, banged)
   execute s:vertically() ? 'vertical' : ''
   \       a:args[0] . (a:banged ? '!' : '')
@@ -384,17 +419,39 @@ AlterCommand new  New
 
 
 
-" Rename  "{{{2
+" Set indent style  {{{2
 
-command! -nargs=1 -complete=file Rename
-\ call s:rename(<q-args>)
+let s:INDENT_STYLES = {
+\  '2space': 'setlocal expandtab tabstop& shiftwidth=2 softtabstop=2',
+\  '4space': 'setlocal expandtab tabstop& shiftwidth=4 softtabstop=4',
+\  '4tab'  : 'setlocal noexpandtab tabstop=4 shiftwidth=4 softtabstop&',
+\  '8tab'  : 'setlocal noexpandtab tabstop=8 shiftwidth=8 softtabstop&',
+\ }
 
+command! -bar -complete=customlist,s:complete_indent_style -nargs=1 IndentStyle
+\ execute get(s:INDENT_STYLES, <f-args>, '')
+function! s:complete_indent_style(arglead, cmdline, cursorpos)
+  return sort(filter(keys(s:INDENT_STYLES), 'v:val =~ "^".a:arglead'))
+endfunction
+
+
+
+
+" Rename current file  "{{{2
+
+command! -nargs=1 -complete=file Rename  call s:rename(<q-args>)
 function! s:rename(name)
-  let current = expand('%:p')
-  if !filereadable(a:name) && filewritable(current)
-    execute 'file' a:name
-    write
+  let current = expand('%')
+  if !&modifiable || !filewritable(current)
+    Hecho ErrorMsg 'This file can not be changes.'
+  elseif filereadable(a:name)
+    Hecho ErrorMsg 'Renamed file already exists.'
+  else
+    file `=a:name`
     call delete(current)
+    write
+    redraw
+    echo 'Renamed:' current '->' a:name
   endif
 endfunction
 
@@ -402,28 +459,21 @@ endfunction
 
 
 function! s:get_region()  "{{{2
-  let [_, start_line, start_col, _] = getpos("'<")
-  let [_, end_line, end_col, _] = getpos("'>")
+  let [_, line1, col1, _] = getpos("'<")
+  let [_, line2, col2, _] = getpos("'>")
 
-  let region = getline(start_line, end_line)
-  if start_line == end_line  " single line
-    let region[0] = strpart(region[-1], start_col - 1, end_col - (start_col - 1))
+  let region = getline(line1, line2)
+  if line1 == line2  " single line
+    let region[0] = strpart(region[-1], col1 - 1, col2 - (col1 - 1))
   else  " multi line
-    let region[0] = strpart(region[0], start_col - 1)
-    let region[-1] = strpart(region[-1], 0, end_col)
+    let region[0] = strpart(region[0], col1 - 1)
+    let region[-1] = strpart(region[-1], 0, col2)
   endif
   if visualmode() ==# 'V'
     let region += ['']
   endif
 
-  return region
-endfunction
-
-
-
-
-function! s:set_short_indent()  "{{{2
-  setlocal expandtab softtabstop=2 shiftwidth=2
+  return region  " return [] of string.
 endfunction
 
 
@@ -438,6 +488,19 @@ endfunction
 
 
 " Mappings  "{{{1
+" Terminal-GUI interoperability  "{{{2
+
+if has('gui_running')
+  " NUL
+  map <C-Space>  <C-@>
+  map! <C-Space>  <C-@>
+
+  noremap! <S-Insert>  <C-r>*
+endif
+
+
+
+
 " QuickFix  "{{{2
 " Fallback  "{{{3
 
@@ -449,8 +512,6 @@ noremap [Quickfix] <Nop>
 
 " Alternative key for the original action.
 nnoremap Q  q
-
-
 
 
 " For quickfix list  "{{{3
@@ -474,8 +535,6 @@ nnoremap [Quickfix]<Space>  :<C-u>make<Space>
 nnoremap [Quickfix]g  :<C-u>Grep<Space>
 
 
-
-
 " For location list (mnemonic: Quickfix list for the current Window)  "{{{3
 
 nnoremap <silent> [Quickfix]wj  :lnext<CR>
@@ -497,8 +556,6 @@ nnoremap [Quickfix]w<Space>  :<C-u>lmake<Space>
 nnoremap [Quickfix]wg  :<C-u>Lgrep<Space>
 
 
-
-
 " Tab pages  "{{{2
 " Fallback  "{{{3
 
@@ -507,8 +564,6 @@ nmap <C-t>  [Tabbed]
 
 " fallback
 noremap [Tabbed] <Nop>
-
-
 
 
 " Basic  "{{{3
@@ -523,8 +578,6 @@ nmap [Tabbed]<C-n>  <C-t>n
 nmap [Tabbed]<C-c>  <C-t>c
 nmap [Tabbed]<C-o>  <C-t>o
 nmap [Tabbed]<C-i>  <C-t>i
-
-
 
 
 " Moving around tabpages.  "{{{3
@@ -548,8 +601,6 @@ endfor
 unlet i
 
 
-
-
 " Moving tabpages themselves.  "{{{3
 
 nnoremap <silent> [Tabbed]l
@@ -561,8 +612,6 @@ nnoremap <silent> [Tabbed]H  :<C-u>tabmove 0<CR>
 
 nmap [Tabbed]<C-l>  <C-t>l
 nmap [Tabbed]<C-h>  <C-t>h
-
-
 
 
 " Argument list  "{{{2
@@ -606,7 +655,16 @@ cnoremap <Up>  <C-p>
 cnoremap <Down>  <C-n>
 
 " Emacs like kill-line.
-cnoremap <C-k>  <C-\>e getcmdpos() == 1 ? '' : getcmdline()[:getcmdpos()-2]<CR>
+cnoremap <C-k>
+\ <C-\>e getcmdpos() == 1 ? '' : getcmdline()[:getcmdpos()-2]<CR>
+
+
+" escape Command-line mode if the command line is empty (like <C-h>)
+cnoremap <expr> <C-u>  getcmdline() == '' ? '<Esc>' : '<C-u>'
+cnoremap <expr> <C-w>  getcmdline() == '' ? '<Esc>' : '<C-w>'
+
+" Search slashes easily (too lazy to prefix backslashes to slashes)
+cnoremap <expr> /  getcmdtype() == '/' ? '\/' : '/'
 
 
 
@@ -619,12 +677,13 @@ inoremap <C-a>  <C-o>^
 inoremap <C-e>  <End>
 inoremap <C-d>  <Delete>
 
-" Emacs like kill-line.
-inoremap <expr> <C-k>  (col('.') == col('$') ? '<C-o>gJ' : '<C-o>D')
-
-" Alternative key for the original action.
-inoremap <C-q>  <C-d>
+" Alternative keys for the original action.
 inoremap <C-\>  <C-a>
+inoremap <C-q>  <C-d>
+
+" Emacs like kill-line.
+" BUGS: Don't use <C-x><X-k> (keyword completion).
+inoremap <expr> <C-k>  col('.') == col('$') ? '<C-o>gJ' : '<C-o>D'
 
 
 " To be able to undo these types of deletion.
@@ -683,25 +742,17 @@ nnoremap [Space]fe  :<C-u>set fileencoding=
 nnoremap [Space]ff  :<C-u>set fileformat=
 nnoremap [Space]ft  :<C-u>set filetype=
 
-" Change tab style.
-nnoremap <silent> [Space]tt :<C-u>call <SID>toggle_option('expandtab')<CR>
-nnoremap <silent> [Space]t2 :<C-u>setlocal shiftwidth=2 softtabstop=2<CR>
-nnoremap <silent> [Space]t4 :<C-u>setlocal shiftwidth=4 softtabstop=4<CR>
-nnoremap <silent> [Space]t8 :<C-u>setlocal shiftwidth=8 softtabstop=8<CR>
-
-
-" Easily check registers and marks.
-nnoremap <silent> [Space]m  :<C-u>marks<CR>
-nnoremap <silent> [Space]r  :<C-u>registers<CR>
-
-" Open quick reference guide.
-nnoremap <silent> [Space]q  :<C-u>Help quickref<CR>
-
-" Change current directory.
-nnoremap <silent> [Space]cd  :<C-u>CD<CR>
 
 " Reload .vimrc
 nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
+
+nnoremap <silent> [Space]cd  :<C-u>CD<CR>
+nnoremap <silent> [Space]d  :<C-u>bdelete<CR>
+nnoremap <silent> [Space]D  :<C-u>bdelete!<CR>
+
+nnoremap <silent> [Space]m  :<C-u>marks<CR>
+nnoremap <silent> [Space]q  :<C-u>Help quickref<CR>
+nnoremap <silent> [Space]r  :<C-u>registers<CR>
 
 
 " Open a fold.
@@ -713,6 +764,12 @@ nnoremap [Space]h  zc
 " Close all folds but including the cursor.
 nnoremap [Space]v  zMzv
 
+
+" Yank to the clipboard.
+nmap [Space]y  "*y
+vmap [Space]y  "*y
+nmap [Space]Y  "*Y
+vmap [Space]Y  "*Y
 
 " Sort operator.
 nmap [Space]s  <Plug>(operator-my-sort)
@@ -759,6 +816,7 @@ nnoremap <silent> <C-w>y  :<C-u>Split<CR>
 
 
 
+
 " Operators  "{{{2
 
 " User key mappings will be defined later - see [Space].
@@ -773,8 +831,6 @@ nnoremap <silent> <Leader><Leader>  :<C-u>update<CR>
 
 nnoremap <C-h>  :<C-u>Help<Space>
 nnoremap <C-o>  :<C-u>edit<Space>
-nnoremap <C-w>.  :<C-u>edit .<CR>
-nnoremap <C-z>  :<C-u>SuspendWithAutomticCD<CR>
 
 
 " Move cursor by display lines when wrapping.
@@ -829,11 +885,11 @@ endfunction
 
 
 " Search for the selected text.
-vnoremap *  :<C-u>call <SID>search_selected_text('n')<CR>
-vnoremap #  :<C-u>call <SID>search_selected_text('N')<CR>
+vnoremap *  :<C-u>call <SID>search_the_selected_text_literaly('n')<CR>
+vnoremap #  :<C-u>call <SID>search_the_selected_text_literaly('N')<CR>
 
-function! s:search_selected_text(search_command)
-  let region = join(map(s:get_region(), 'escape(v:val, "\/")'), '\n')
+function! s:search_the_selected_text_literaly(search_command)
+  let region = join(map(s:get_region(), 'escape(v:val, "\\/")'), '\n')
 
   let @/ = '\V' . region
   call histadd('/', '\V' . region)
@@ -841,6 +897,28 @@ function! s:search_selected_text(search_command)
 
   let v:searchforward = a:search_command ==# 'n'
 endfunction
+
+
+noremap <C-z>  <Nop>
+nnoremap <C-z>  :<C-u>SuspendWithAutomticCD<CR>
+
+
+" Show the lines which match to the last search pattern.
+nnoremap <count> g/  :global//print<CR>
+vnoremap <count> g/  :global//print<CR>
+
+
+" Show the name of the syntax item under the cursor.
+nnoremap gs  :<C-u>echo synIDattr(synID(line("."), col("."), 1), "name")<CR>
+
+
+" Experimental: alternative <Esc>
+noremap <C-@>  <Esc>
+noremap! <C-@>  <Esc>
+
+" c_<Esc> mapped from something doesn't work the same as
+" c_<Esc> directly typed by user.
+cnoremap <C-@>  <C-c>
 
 
 " Make searching directions consistent.
@@ -866,7 +944,7 @@ autocmd MyAutoCmd FileType *
 
 function! s:on_FileType_any()
   " Load the dictionary for filetype.
-  let dict = expand('~/.vim/dict/').&l:filetype.'.dict'
+  let dict = expand('~/.vim/dict/').&filetype.'.dict'
   if filereadable(dict)
     let &l:dictionary = dict
   endif
@@ -889,9 +967,12 @@ autocmd MyAutoCmd BufReadPost *
 
 " changelog  "{{{2
 
-" Fix the new entry mapping.
+" Fix the new entry mapping bug.
 autocmd MyAutoCmd FileType changelog
 \ noremap <buffer> <silent> <Leader>o  :<C-u>NewChangelogEntry<CR>
+
+let g:changelog_timeformat = "%Y-%m-%d"
+let g:changelog_username  = s:win_p ? $USERNAME : $USER
 
 
 
@@ -899,7 +980,7 @@ autocmd MyAutoCmd FileType changelog
 " css  "{{{2
 
 autocmd MyAutoCmd FileType css
-\ call s:set_short_indent()
+\ IndentStyle 2space
 
 
 
@@ -919,7 +1000,7 @@ function! s:on_FileType_dosini()
   " Folding sections.
   setlocal foldmethod=expr
   let &l:foldexpr = '(getline(v:lnum)[0] == "[") ? ">1" :'
-  \               . '(getline(v:lnum) =~# ''^;.*\(__END__\|\*\*\*\)'' ? 0 : "=")'
+  \               . '(getline(v:lnum) =~# ''^;.*\%(__END__\|\*\*\*\)'' ? 0 : "=")'
 endfunction
 
 
@@ -928,7 +1009,19 @@ endfunction
 " haskell  "{{{2
 
 autocmd MyAutoCmd FileType haskell
-\ call s:set_short_indent()
+\ call s:on_FileType_haskell()
+
+function! s:on_FileType_haskell()
+  IndentStyle 2space
+  let &l:makeprg = 'ghc --make "%"'
+  let &l:errorformat = '%-Z %#,'
+  \                  . '%W%f:%l:%c: Warning: %m,'
+  \                  . '%E%f:%l:%c: %m,'
+  \                  . '%E%>%f:%l:%c:,'
+  \                  . '%+C  %#%m,'
+  \                  . '%W%>%f:%l:%c:,'
+  \                  . '%+C  %#%tarning: %m,'
+endfunction
 
 
 
@@ -939,12 +1032,17 @@ autocmd MyAutoCmd FileType java
 \ call s:on_FileType_java()
 
 function! s:on_FileType_java()
-  nnoremap <silent> <LocalLeader>a  :<C-u>QuickRun javaapplet -mode n<CR>
-  vnoremap <silent> <LocalLeader>a  :<C-u>QuickRun javaapplet -mode v<CR>
-
   setlocal cinoptions=:0,l1,g0,t0,(0,j1
-  let &l:makeprg = 'javac -Xlint:unchecked -Xlint:deprecation %'
-  let &l:errorformat = '%E%f:%l: %m,%C%\S%\+: %.%# %m,%Z%p^,%C%.%#'
+  let &l:makeprg = s:cygwin_p
+  \              ? ('javac -Xlint:unchecked -Xlint:deprecation'
+  \                .'-J-Dfile.encoding=UTF-8 "%"')
+  \              : 'javac -Xlint:unchecked -Xlint:deprecation "%"'
+  let &l:errorformat = '%E%f:%l: %m,'
+  \                  . '%C%\S%\+: %.%# %m,'
+  \                  . '%Z%p^,%C%.%#'
+
+  nnoremap <buffer> <silent> <LocalLeader>a  :<C-u>QuickRun javaapplet -mode n<CR>
+  vnoremap <buffer> <silent> <LocalLeader>a  :<C-u>QuickRun javaapplet -mode v<CR>
 endfunction
 
 
@@ -953,7 +1051,7 @@ endfunction
 " lua  "{{{2
 
 autocmd MyAutoCmd FileType lua
-\ call s:set_short_indent()
+\ IndentStyle 2space
 
 
 
@@ -961,8 +1059,7 @@ autocmd MyAutoCmd FileType lua
 " perl  "{{{2
 
 autocmd MyAutoCmd FileType perl
-\   compiler perl
-\ | call s:set_short_indent()
+\ IndentStyle 2space
 
 
 
@@ -970,7 +1067,7 @@ autocmd MyAutoCmd FileType perl
 " python  "{{{2
 
 autocmd MyAutoCmd FileType python
-\   call s:set_short_indent()
+\   IndentStyle 2space
 \ | let python_highlight_numbers = 1
 \ | let python_highlight_builtins = 1
 \ | let python_highlight_space_errors = 1
@@ -988,7 +1085,8 @@ function! s:on_FileType_registry()
   syntax match registryHead  "Windows Registry Editor Version \d\+\.\d\+"
 
   syntax clear registryString
-  syntax match registryString  "\".\{-}\"" contains=registryGUID,registrySpecial
+  syntax match registryString
+  \ "\".\{-}\"" contains=registryGUID,registrySpecial
 
   syntax clear registrySubKey
   syntax match registrySubKey  "^\".\{-}\"="
@@ -1004,7 +1102,7 @@ endfunction
 " ruby  "{{{2
 
 autocmd MyAutoCmd FileType ruby
-\ call s:set_short_indent()
+\ IndentStyle 2space
 
 
 
@@ -1012,7 +1110,7 @@ autocmd MyAutoCmd FileType ruby
 " scheme  "{{{2
 
 autocmd MyAutoCmd FileType scheme
-\ call s:set_short_indent()
+\ IndentStyle 2space
 
 let g:is_gauche = 1
 
@@ -1022,7 +1120,7 @@ let g:is_gauche = 1
 " sh, zsh  "{{{2
 
 autocmd MyAutoCmd FileType sh,zsh
-\ call s:set_short_indent()
+\ IndentStyle 2space
 
 let g:is_bash = 1
 
@@ -1032,11 +1130,18 @@ let g:is_bash = 1
 " tex  "{{{2
 
 autocmd MyAutoCmd FileType tex,plaintex
-\   call s:set_short_indent()
-\ | setlocal foldmarker=%{{{,%}}}
-\ | let &l:makeprg = 'platex --kanji=utf8 -shell-escape -file-line-error -interaction=nonstopmode % && dvipdfmx %:p:r.dvi'
-\ | let &l:errorformat = '%f:%l: %m'
+\ call s:on_FileType_tex()
 
+function! s:on_FileType_tex()
+  IndentStyle 2space
+  setlocal foldmarker=%{{{,%}}}
+  setlocal makeprg=platex\ -kanji=utf8\ -interaction=nonstopmode
+                  \\ -file-line-error
+                  \\ -output-directory=\"%:h\"\ \"%\"
+  setlocal errorformat=%f:%l:\ %m
+
+  nnoremap <buffer> <silent> <LocalLeader>m  :<C-u>!dvipdfmx %:p:r.dvi<CR>
+endfunction
 
 let g:tex_flavor = "latex"
 
@@ -1046,15 +1151,25 @@ let g:tex_flavor = "latex"
 " vim  "{{{2
 
 autocmd MyAutoCmd FileType vim
-\   call s:set_short_indent()
-\ | nnoremap <buffer> <silent> K  :<C-u>Help <C-r><C-w><CR>
-\ | vnoremap <buffer> <silent> K  :<C-u>Help <C-r>=<SID>get_region()[0]<CR><CR>
+\ call s:on_FileType_vim()
 
-autocmd MyAutoCmd FileType help
-\   nnoremap <buffer> <silent> K  :<C-u>Help <C-r><C-w><CR>
-\ | vnoremap <buffer> <silent> K  :<C-u>Help <C-r>=<SID>get_region()[0]<CR><CR>
-\ | nnoremap <buffer> q  <C-w>c
+function! s:on_FileType_vim()
+  IndentStyle 2space
+  nnoremap <buffer> <silent> K  :<C-u>Help <C-r><C-w><CR>
+  vnoremap <buffer> <silent> K  :<C-u>Help <C-r>=join(<SID>get_region())<CR><CR>
 
+  " Fix the default syntax to properly highlight.
+  syntax clear vimOperParen
+  syntax region vimOperParen
+  \ matchgroup=vimParenSep start="(" end=")" contains=@vimOperGroup
+  syntax region vimOperParen
+  \ oneline matchgroup=vimSep start="{" end="}" contains=@vimOperGroup
+  \ nextgroup=vimVar,vimFuncVar
+  syntax clear vimUserAttrbCmpltFunc
+  syntax match vimUserAttrbCmpltFunc
+  \ contained ",\%([sS]:\|<[sS][iI][dD]>\)\=\%(\w*\%(#\w*\)\+\|\w*\)"hs=s+1
+  \ nextgroup=vimUserCmdError
+endfunction
 
 let g:vim_indent_cont = 0
 
@@ -1067,7 +1182,7 @@ autocmd MyAutoCmd FileType html,xhtml,xml,xslt
 \ call s:on_FileType_xml()
 
 function! s:on_FileType_xml()
-  call s:set_short_indent()
+  IndentStyle 2space
   inoremap <buffer> </  </<C-x><C-o>
 endfunction
 
@@ -1083,13 +1198,16 @@ let g:eskk_dictionary = {
 \  'encoding': 'utf-8',
 \ }
 let g:eskk_large_dictionary = {
-\  'path': (s:win_p || s:cygwin_p) ? expand('~/.skkime/SKK-JISYO.L') : '/usr/share/skk/SKK-JISYO.L',
+\  'path': (s:win_p || s:cygwin_p)
+\        ? expand('~/.skkime/SKK-JISYO.L') : '/usr/share/skk/SKK-JISYO.L',
 \  'sorted': 1,
 \  'encoding': 'euc-jp',
 \ }
 
+let g:eskk_enable_completion = 1
 let g:eskk_egg_like_newline = 1
 let g:eskk_show_annotation = 1
+let g:eskk_use_color_cursor = 0
 
 
 
@@ -1099,13 +1217,6 @@ let g:eskk_show_annotation = 1
 " <C-j>/<C-k> for consistency with my UI key mappings on jumplist.
 nmap <Esc><C-j>  <Plug>(exjumplist-next-buffer)
 nmap <Esc><C-k>  <Plug>(exjumplist-previous-buffer)
-
-
-
-
-" fakeclip  "{{{2
-
-let g:fakeclip_x_selection = 'clipboard'
 
 
 
@@ -1135,12 +1246,14 @@ endfunction
 call ku#custom_action('common', 'cd', s:SID_PREFIX().'ku_common_action_my_cd')
 call ku#custom_action('common', 'Yank', s:SID_PREFIX().'ku_common_action_Yank')
 call ku#custom_action('common', 'yank', s:SID_PREFIX().'ku_common_action_yank')
+call ku#custom_action('metarw/git', 'checkout',
+\                     s:SID_PREFIX().'ku_metarw_git_action_checkout')
 
 function! s:ku_common_action_my_cd(item)
   if isdirectory(a:item.word)
-    execute 'CD' a:item.word
+    CD `=a:item.word`
   else  " treat a:item as a file name
-    execute 'CD' fnamemodify(a:item.word, ':h')
+    CD `=fnamemodify(a:item.word, ':h')`
   endif
 endfunction
 
@@ -1151,10 +1264,28 @@ function! s:ku_common_action_Yank(item)
   call setreg('"', a:item.word, 'l')
 endfunction
 
+function! s:ku_metarw_git_action_checkout(item)
+  if a:item.ku__completed_p
+    let branch_name = matchstr(a:item.word, '^git:\zs[^:]\+\ze:')
+    let message = system('git checkout ' . shellescape(branch_name))
+    if v:shell_error == 0
+      echomsg 'git checkout' branch_name
+      return 0
+    else
+      return message
+    endif
+  else
+    return 'No such branch: ' . string(a:item.word)
+  endif
+endfunction
+
 
 call ku#custom_key('common', 'y', 'yank')
 call ku#custom_key('common', 'Y', 'Yank')
 call ku#custom_key('buffer', 'd', 'delete')
+call ku#custom_key('metarw/git', '/', 'checkout')
+call ku#custom_key('metarw/git', '?', 'checkout')
+
 
 call ku#custom_prefix('common', '.vim', expand('~/.vim'))
 call ku#custom_prefix('common', 'HOME', expand('~'))
@@ -1165,23 +1296,22 @@ call ku#custom_prefix('common', '~', expand('~'))
 nnoremap <silent> [Space]ka  :<C-u>Ku args<CR>
 nnoremap <silent> [Space]kb  :<C-u>Ku buffer<CR>
 nnoremap <silent> [Space]kf  :<C-u>Ku file<CR>
-nnoremap <silent> [Space]kg  :<C-u>Ku metarw/git<CR>
 nnoremap <silent> [Space]kh  :<C-u>Ku history<CR>
 nnoremap <silent> [Space]kk  :<C-u>call ku#restart()<CR>
 nnoremap <silent> [Space]kq  :<C-u>Ku quickfix<CR>
 nnoremap <silent> [Space]ks  :<C-u>Ku source<CR>
+
+nnoremap <silent> [Space]kg  :<C-u>Ku metarw/git<CR>
+nnoremap <silent> [Space]kw  :<C-u>Ku myproject<CR>
 
 nnoremap <silent> [Space]k/  :<C-u>Ku cmd_mru/search<CR>
 nnoremap <silent> [Space]k:  :<C-u>Ku cmd_mru/cmd<CR>
 nnoremap <silent> [Space]km  :<C-u>Ku file_mru<CR>
 
 
-if s:win_p
-  let g:ku_personal_runtime = expand('~/.vim')
-  let g:ku_file_mru_file = expand('~/.vim/info/ku/mru_win')
-else
-  let g:ku_file_mru_file = expand('~/.vim/info/ku/mru')
-endif
+let g:ku_personal_runtime = expand('~/.vim')
+let g:ku_file_mru_file = expand('~/.vim/info/ku/')
+\                      . (s:win_p ? 'mru_win' : 'mru')
 let g:ku_file_mru_limit = 200
 let g:ku_file_mru_ignore_pattern = '\v/$|^/cygdrive/|^/mnt/|^/media/|^//'
 
@@ -1201,7 +1331,6 @@ noremap <silent> [Space]xw  :<C-u>Widen<CR>
 imap <C-l>  <Plug>(neocomplcache_snippets_expand)
 smap <C-l>  <Plug>(neocomplcache_snippets_expand)
 
-
 let g:neocomplcache_disable_auto_complete = 1
 let g:neocomplcache_enable_at_startup = 1
 let g:neocomplcache_enable_auto_select = 0
@@ -1210,7 +1339,7 @@ let g:neocomplcache_enable_smart_case = 1
 let g:neocomplcache_auto_completion_start_length = 2
 let g:neocomplcache_manual_completion_start_length = 2
 
-let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*\|\[ku\]'
+let g:neocomplcache_lock_buffer_name_pattern = '[[*]\%(ku\|quickrun output\)[*]]'
 let g:neocomplcache_temporary_dir = expand('~/.vim/info/neocomplcache')
 
 
@@ -1225,36 +1354,39 @@ map _  <Plug>(operator-replace)
 
 " quickrun  "{{{2
 
-nnoremap <silent> <Leader>R  :<C-u>QuickRun >: -mode n<CR>
-vnoremap <silent> <Leader>R  :<C-u>QuickRun >: -mode v<CR>
-
-
 let g:loaded_quicklaunch = 1
 let g:quickrun_config = {
 \  '*': {
 \    'split': '{'.s:SID_PREFIX().'vertically() ? "vertical" : "" }',
 \  },
-\  'java': {
-\    'exec': ['javac %s', '%c %s:t:r %a'],
-\    'tempfile': '{fnamemodify(tempname(), ":p:h")}/{expand("%:t")}',
-\  },
+\  'haskell': s:cygwin_p ? {
+\    'exec': ['%c "`cygpath -w %s`"'],
+\  } : {},
+\  'java': s:cygwin_p ? {
+\    'exec': ['javac -J-Dfile.encoding=UTF-8 "`cygpath -w %s`"',
+\             '%c %s:t:r %a'],
+\  } : {},
 \  'javaapplet': {
+\    'command' : 'appletviewer',
 \    'exec': ['echo "<applet code=%s:t:r width=500 height=500></applet>" > %s:p:r.html',
-\             'appletviewer %s:p:r.html'],
-\    'tempfile': '{fnamemodify(tempname(), ":p:h")}/{expand("%:t")}',
+\             s:cygwin_p ?
+\             '%c `cygpath -w %s:p:r.html`' :
+\             '%c %s:p:r.html'],
 \  },
 \  'markdown': {
 \    'exec': ['markdown.pl %s | tee %s:p:r.html'],
 \  },
 \  'tex': {
-\    'exec': ['platex --kanji=utf8 -shell-escape -file-line-error -output-directory=%s:p:h %s',
-\             'pxdvi %s:p:r'],
-\    'runmode': 'simple',
+\    'command': executable('pxdvi') ? 'pxdvi' :
+\               executable('xdvi') ? 'xdvi' : '',
+\    'exec': ['platex -kanji=utf8 -interaction=nonstopmode -output-directory=%s:p:h %s',
+\             '%c %s:p:r.dvi'],
 \  },
 \  'xdefaults': {
-\    'exec': ['xrdb -remove', 'xrdb -merge %s:p:r', 'xrdb -query'],
+\    'exec': ['xrdb -remove', 'xrdb -merge %s', 'xrdb -query'],
 \  },
 \ }
+
 
 
 
@@ -1262,18 +1394,24 @@ let g:quickrun_config = {
 " ref  "{{{2
 
 autocmd MyAutoCmd FileType ref
-\   nmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
-\ | nmap <buffer> <silent> <C-j>  <Plug>(ref-forward)
-\ | nmap <buffer> <silent> <C-k>  <Plug>(ref-back)
-\ | nnoremap <buffer> q  <C-w>c
+\ call s:ref_my_keymappings()
 
-nnoremap <silent> <Leader>t  :<C-u>Ref alc <C-r><C-w><CR>
+function! s:ref_my_keymappings()
+  nmap <buffer> <C-]>  <Plug>(ref-keyword)
+  nmap <buffer> <C-j>  <Plug>(ref-forward)
+  nmap <buffer> <C-k>  <Plug>(ref-back)
+  nnoremap <buffer> q  <C-w>c
+endfunction
+
+
+nnoremap <silent> <Leader>t  :<C-u>call ref#jump('normal', 'alc')<CR>
+vnoremap <silent> <Leader>t  :<C-u>call ref#jump('visual', 'alc')<CR>
 
 AlterCommand ref  Ref
 
 
-let g:ref_no_default_key_mappings = 1
 let g:ref_cache_dir = expand('~/.vim/info/ref')
+let g:ref_no_default_key_mappings = 1
 let g:ref_open = 'Split'
 
 
@@ -1281,18 +1419,19 @@ let g:ref_open = 'Split'
 
 " scratch  "{{{2
 
-autocmd MyAutoCmd User PluginScratchInitializeAfter
-\   map <buffer> <CR>  <Plug>(scratch-evaluate)
-\ | map <buffer> <C-m>  <Plug>(scratch-evaluate)
-\ | map <buffer> q  <Plug>(scratch-close)
-
 nmap <Leader>s  <Plug>(scratch-open)
 
+autocmd MyAutoCmd User PluginScratchInitializeAfter
+\ call s:scratch_my_mappings()
 
-if s:win_p
-  let g:scratch_buffer_name = '[Scratch]'
-endif
+function! s:scratch_my_mappings()
+  map <buffer> <C-m>  <Plug>(scratch-evaluate)
+  map <buffer> q  <Plug>(scratch-close)
+endfunction
+
+
 let g:scratch_show_command = 'Split | hide buffer'
+
 
 
 
@@ -1309,19 +1448,29 @@ map ge  <Plug>(smartword-ge)
 " submode  "{{{2
 
 call submode#enter_with('scroll', 'n', '', '[Space]j')
-call submode#map('scroll', 'n', 'e', 'j', 'line(".") != line("$") ? "<C-d>" : ""')
-call submode#map('scroll', 'n', 'e', 'k', 'line(".") != 1         ? "<C-u>" : ""')
+call submode#map('scroll', 'n', 'e', 'j',
+\                'line(".") != line("$") ? "<C-d>" : ""')
+call submode#map('scroll', 'n', 'e', 'k',
+\                'line(".") != 1 ? "<C-u>" : ""')
 
-call submode#enter_with('window', 'n', '', '[Space]w')
-call submode#map('window', 'n', '', '<Space>', '<C-w>=')
-call submode#map('window', 'n', '', 'H', '<C-w>H')
-call submode#map('window', 'n', '', 'J', '<C-w>J')
-call submode#map('window', 'n', '', 'K', '<C-w>K')
-call submode#map('window', 'n', '', 'L', '<C-w>L')
-call submode#map('window', 'n', '', 'h', '<C-w><lt>')
-call submode#map('window', 'n', '', 'j', '<C-w>+')
-call submode#map('window', 'n', '', 'k', '<C-w>-')
-call submode#map('window', 'n', '', 'l', '<C-w>>')
+
+call submode#enter_with('winsize', 'n', '', '[Space]w',
+\                       ':<C-u>call '.s:SID_PREFIX().'submode_resize_window()<CR>')
+
+function! s:submode_resize_window()
+    let current = winnr()
+    wincmd j | let target1 = winnr() | execute current "wincmd w"
+    wincmd l | let target2 = winnr() | execute current "wincmd w"
+
+    execute printf("call submode#map('winsize', 'n', 'r', 'j', '<C-w>%s')",
+    \ current == target1 ? "-" : "+")
+    execute printf("call submode#map('winsize', 'n', 'r', 'k', '<C-w>%s')",
+    \ current == target1 ? "+" : "-")
+    execute printf("call submode#map('winsize', 'n', 'r', 'h', '<C-w>%s')",
+    \ current == target2 ? ">" : "<")
+    execute printf("call submode#map('winsize', 'n', 'r', 'l', '<C-w>%s')",
+    \ current == target2 ? "<" : ">")
+endfunction
 
 
 let g:submode_timeout = 0
@@ -1339,10 +1488,21 @@ nmap ss  <Plug>Yssurround
 
 
 
+" template  "{{{2
+
+autocmd MyAutoCmd User plugin-template-loaded
+\   silent %s/<%=\(.\{-}\)%>/\=eval(submatch(1))/ge
+\ | if search('<%|%>')
+\ |   execute 'normal! "_da>'
+\ | endif
+
+
+
+
 " vcsi  "{{{2
 
-let g:vcsi_diff_in_commit_buffer_p = 1
 let g:vcsi_open_command = 'Split | enew'
+let g:vcsi_diff_in_commit_buffer_p = 1
 let g:vcsi_use_native_message_p = 1
 
 
@@ -1350,16 +1510,14 @@ let g:vcsi_use_native_message_p = 1
 
 " vimfiler  "{{{2
 
-let g:vimfiler_as_default_explorer = 1
-let g:vimfiler_edit_command = 'tabedit'
-let g:vimfiler_split_command = 'Split'
-let g:vimfiler_trashbox_directory = expand('~/.trash')
+nmap <C-w>.  <Plug>(vimfiler_create)
+
 
 if executable('feh')
   call vimfiler#set_execute_file('bmp,gif,jpeg,jpg,png', 'feh')
 endif
-if executable('acroread')
-  call vimfiler#set_execute_file('pdf', 'acroread')
+if executable('evince')
+  call vimfiler#set_execute_file('pdf', 'evince')
 endif
 if executable('oobase')
   call vimfiler#set_execute_file('doc,odt,ott', 'oowriter')
@@ -1367,19 +1525,36 @@ if executable('oobase')
   call vimfiler#set_execute_file('odp,ppt', 'oodraw')
 endif
 
+let g:vimfiler_as_default_explorer = 1
+let g:vimfiler_edit_command = 'tabedit'
+let g:vimfiler_enable_clipboard = 1
+let g:vimfiler_split_command = 'Split'
+let g:vimfiler_trashbox_directory = expand('~/.trash')
+
 
 
 
 " vimshell  "{{{2
 
+map <C-@>  <Plug>(vimshell_split_switch)
+
+nnoremap !  :<C-u>VimShellInteractive<Space>
+nnoremap &  :<C-u>VimShellExecute<Space>
+
+
 autocmd MyAutoCmd FileType vimshell
-\   call vimshell#altercmd#define('l', 'll')
-\ | call vimshell#altercmd#define('la', 'ls -a')
-\ | call vimshell#altercmd#define('ll', 'ls -l')
-\ | call vimshell#altercmd#define('lla', 'ls -la')
+\   call vimshell#altercmd#define('ls', 'ls -F')
+\ | call vimshell#altercmd#define('la', 'ls -Fa')
+\ | call vimshell#altercmd#define('ll', 'ls -Fl')
+\ | call vimshell#altercmd#define('lla', 'ls -Fla')
+\ | call vimshell#altercmd#define('grep', 'grep -E')
 
 
-let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
+let g:vimshell_user_prompt  = s:win_p ? '$USERNAME' : '$USER'
+let g:vimshell_user_prompt .= '."@"'
+let g:vimshell_user_prompt .= '.hostname()'
+let g:vimshell_user_prompt .= '." "'
+let g:vimshell_user_prompt .= '.fnamemodify(getcwd(), ":p:~:h")'
 let g:vimshell_user_prompt .= '." "'
 let g:vimshell_user_prompt .= '.vimshell#vcs#info("[%s:%b]", "[%s:%b|%a]")'
 let g:vimshell_prompt = 'YUKI.N' . ($USER ==# 'root' ? '# ' : '> ')
