@@ -27,8 +27,10 @@ import XMonad.Util.Run
 import XMonad.Prompt
 import XMonad.Prompt.Shell
 
-import System.Exit
 import Data.List
+import System.Environment
+import System.Exit
+import System.IO.Unsafe
 
 import qualified Data.Map as M
 import qualified XMonad.StackSet as W
@@ -36,49 +38,81 @@ import qualified XMonad.StackSet as W
 
 
 
+-- Lauout  --{{{1
+
+myLayoutHook = avoidStruts $
+  smartBorders $
+  onWorkspace "5:gimp" gimpLayout $
+  toggleLayouts Full (hintedTile Wide ||| hintedTile Tall)
+  where
+    hintedTile = HintedTile 1 (3/100) (3/5) TopLeft
+    tabLayout  = tabbed shrinkText myTheme
+    gimpLayout = named "Gimp" $
+                 withIM (0.15) (Role "gimp-toolbox") $
+                 reflectHoriz $ withIM (0.20) (Role "gimp-dock") $
+                 reflectHoriz $ tabLayout
+
+
+
+
 -- Management  --{{{1
 
-myWorkspaces = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
-
 myManageHook = composeAll
-  [ className =? "MPlayer"               --> doCenterFloat
-  , className =? "Gnome-mplayer"         --> doCenterFloat
-  , className =? "Xmessage"              --> doCenterFloat
-  , className =? "feh"                   --> doCenterFloat
-  , className =? "rdesktop"              --> doCenterFloat
-  , className =? "XmBDFEdit"             --> doFloat
-  , className =? "fontforge"             --> doFloat
-  , className =? "Opera" <&&>
-    role `notContain` "opera-mainwindow" --> doFloat
-  , className =? "Gimp"                  --> doShiftAndGo "9"
+  [ className =? "stalonetray"   --> doIgnore
+  , className =? "MPlayer"       --> doCenterFloat
+  , className =? "Xmessage"      --> doCenterFloat
+  , className =? "feh"           --> doCenterFloat
+  , className =? "rdesktop"      --> doCenterFloat
+  , className =? "XFontSel"      --> doFloat
+  , className =? "Pidgin"        --> doFloat <+> doShiftAndGo "3:im"
+  , className =? "Skype"         --> doFloat <+> doShiftAndGo "3:im"
+  , className =? "XmBDFEdit"     --> doFloat <+> doShiftAndGo "4:gfx"
+  , className =? "fontforge"     --> doFloat <+> doShiftAndGo "4:gfx"
+  , className =? "Chrome"        --> doShiftAndGo "2:web"
+  , className =? "Opera"         --> doShiftAndGo "2:web"
+  , className =? "GQview"        --> doShiftAndGo "4:gfx"
+  , className =? "Inkscape"      --> doShiftAndGo "4:gfx"
+  , className =? "Gimp"          --> doShiftAndGo "5:gimp"
   , className =? "Gimp" <&&>
     role /=? "gimp-toolbox" <&&>
     role /=? "gimp-dock" <&&>
-    role /=? "gimp-image-window"         --> doCenterFloat
+    role /=? "gimp-image-window" --> doCenterFloat
   ]
   where
     doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
-    notContain q x = fmap (not . (isInfixOf x)) q
     role = stringProperty "WM_WINDOW_ROLE"
+
+
+
+
+-- Log  --{{{1
+
+myLogHook h = do
+  updatePointer (Relative 0.5 0.5)
+  dynamicLogWithPP $ defaultPP
+    { ppCurrent         = dzenColor "#ffffff" "#3366cc" . wrap (dzenIcon "square.xbm") " "
+    , ppHidden          = dzenColor "#cccccc" ""        . wrap (dzenIcon "square2.xbm") " "
+    , ppHiddenNoWindows = dzenColor "#666666" ""        . wrap "^p(8)" " "
+    , ppSep             = dzenColor "#666666" "" " | "
+    , ppWsSep           = ""
+    , ppTitle           = dzenEscape
+    , ppLayout          = \x -> case x of
+                          "Wide" -> dzenIcon "layout-mirror-bottom.xbm"
+                          "Tall" -> dzenIcon "layout-tall-right.xbm"
+                          "Full" -> dzenIcon "layout-full.xbm"
+                          "Gimp" -> dzenIcon "layout-im-tall.xbm"
+                          _      -> x
+    , ppOutput          = hPutStrLn h
+    }
+  where
+    dzenIcon = wrap ("^i(" ++ (unsafePerformIO $ getEnv "HOME") ++ "/.dzen/") ")"
 
 
 
 
 -- Theme  --{{{1
 
-myFont = "-xos4-terminus-medium-r-normal--12-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--12-*-*-*-*-*-*-*"
-
-myXPConfig = defaultXPConfig
-  { font              = myFont
-  , fgColor           = "#cccccc"
-  , fgHLight          = "#cccc00"
-  , bgColor           = "#000000"
-  , bgHLight          = "#000000"
-  , borderColor       = "#333333"
-  , promptBorderWidth = 0
-  , position          = Top
-  , height            = 16
-  }
+myFont = "-artwiz-snap-normal-r-normal--10-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--12-*-*-*-*-*-*-*"
 
 myTheme = defaultTheme
   { fontName            = myFont
@@ -91,41 +125,23 @@ myTheme = defaultTheme
   , decoHeight          = 18
   }
 
+myXPConfig = defaultXPConfig
+  { font              = myFont
+  , fgColor           = "#cccccc"
+  , fgHLight          = "#cccc00"
+  , bgColor           = "#000000"
+  , bgHLight          = "#000000"
+  , borderColor       = "#333333"
+  , promptBorderWidth = 0
+  , position          = Top
+  , height            = 18
+  , historyFilter     = deleteAllDuplicates
+  }
 
 
 
 
--- Lauout  --{{{1
-
-myLayoutHook = avoidStruts $
-  onWorkspace "9" gimpLayout $
-  toggleLayouts (noBorders Full) (hintedTile Wide ||| hintedTile Tall)
-  where
-    hintedTile = HintedTile 1 (3/100) (3/5) TopLeft
-    tabLayout  = tabbed shrinkText myTheme
-    gimpLayout = named "Gimp" $
-                 withIM (0.15) (Role "gimp-toolbox") $
-                 reflectHoriz $ withIM (0.20) (Role "gimp-dock") $
-                 reflectHoriz $ tabLayout
-
-
-
-
--- Hook  --{{{1
-
-myLogHook h = do
-  updatePointer (Relative 0.5 0.5)
-  dynamicLogWithPP $ xmobarPP
-    { ppOutput  = hPutStrLn h
-    , ppSep     = xmobarColor "#666666" "" " | "
-    , ppCurrent = xmobarColor "#cccc00" "" . wrap "[" "]"
-    , ppTitle   = xmobarColor "#00cc00" "" . trim
-    }
-
-
-
-
--- Keybinds  --{{{1
+-- Keys  --{{{1
 
 myKeys conf = mkKeymap conf $
   [ ("M-<Return>",   dwmpromote)
@@ -146,16 +162,18 @@ myKeys conf = mkKeymap conf $
   , ("M-,",          sendMessage $ IncMasterN 1)
   , ("M-.",          sendMessage $ IncMasterN (-1))
 
-  , ("M-p",          shellPrompt myXPConfig)
   , ("M-n",          refresh)
   , ("M-q",          spawn "xmonad --recompile && xmonad --restart")
   , ("M-S-q",        io $ exitWith ExitSuccess)
   , ("M-S-c",        kill)
 
-  , ("M-=",          spawn "amixer -q set Master 4dB+")
-  , ("M--",          spawn "amixer -q set Master 4dB-")
-  , ("M-<Esc>",      spawn "sleep 1; xset dpms force off")
+  , ("M-p",          shellPrompt myXPConfig)
 
+  , ("M-=",          spawn "amixer -q set Master 5%+")
+  , ("M--",          spawn "amixer -q set Master 5%-")
+  , ("M-S-<Esc>",    spawn "sleep 1; xset dpms force off")
+
+  , ("M-x c",        spawn "chromium-bin")
   , ("M-x e",        spawn "gvim")
   , ("M-x g",        spawn "gimp")
   , ("M-x o",        spawn "opera")
@@ -164,12 +182,14 @@ myKeys conf = mkKeymap conf $
   , ("M-\\",         spawn "ncmpcpp toggle")
   , ("M-[",          spawn "ncmpcpp prev")
   , ("M-]",          spawn "ncmpcpp next")
+
+  , ("<Print>",      spawn "scrot -e 'mv $f ~/Desktop' '%y%m%d-%H%M%S.png'")
   ]
   ++
 
   [(m ++ k, windows $ f w)
     | (w, k) <- zip (XMonad.workspaces conf) (map show [1..9])
-    , (m, f) <- [("M-",W.greedyView), ("M-S-",W.shift)]]
+    , (m, f) <- [("M-", W.greedyView), ("M-S-", W.shift)]]
 
 
 
@@ -177,22 +197,25 @@ myKeys conf = mkKeymap conf $
 -- Main  --{{{1
 
 main = do
-  statusPipe <- spawnPipe "xmobar"
+  statusPipe <- spawnPipe myStatusbar
   xmonad $ defaultConfig
     { terminal           = "urxvt"
-    , modMask            = mod4Mask
-    , borderWidth        = 2
     , normalBorderColor  = "#333333"
     , focusedBorderColor = "#3366cc"
+    , borderWidth        = 2
 
-    , workspaces         = myWorkspaces
+    , workspaces         = ["1:term", "2:web", "3:im", "4:gfx", "5:gimp"]
+    , modMask            = mod4Mask
     , keys               = myKeys
 
-    , startupHook        = setWMName "LG3D"
     , layoutHook         = myLayoutHook
-    , manageHook         = myManageHook
+    , manageHook         = manageDocks <+> myManageHook
     , logHook            = myLogHook statusPipe
+    , startupHook        = setWMName "LG3D"
     }
+  where
+    myStatusbar = "dzen2 -x 0 -y 0 -w 1280 -h 18 -ta l -fg '#cccccc' -bg '#000000' -fn '" ++ myFont ++
+                  "' -e 'onstart=lower'"
 
 
 
