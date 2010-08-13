@@ -393,6 +393,25 @@ endfunction
 
 
 
+" Toggle options  "{{{2
+
+function! s:toggle_colorcolumn()
+  if &colorcolumn == ''
+    set colorcolumn=+1
+  else
+    set colorcolumn=
+  endif
+  set colorcolumn?
+endfunction
+
+function! s:toggle_option(option_name)
+  execute 'setlocal' a:option_name.'!'
+  execute 'setlocal' a:option_name.'?'
+endfunction
+
+
+
+
 " Split nicely with  "{{{2
 
 command! -bar -bang -nargs=* -complete=file Split
@@ -474,14 +493,6 @@ function! s:get_region()  "{{{2
   endif
 
   return region  " return [] of string.
-endfunction
-
-
-
-
-function! s:toggle_option(option_name)  "{{{2
-  execute 'setlocal' a:option_name.'!'
-  execute 'setlocal' a:option_name.'?'
 endfunction
 
 
@@ -732,6 +743,7 @@ noremap [Space] <Nop>
 
 " Toggle option.
 nnoremap <silent> [Space]/  :<C-u>call <SID>toggle_option('hlsearch')<CR>
+nnoremap <silent> [Space]oc  :<C-u>call <SID>toggle_colorcolumn()<CR>
 nnoremap <silent> [Space]ol  :<C-u>call <SID>toggle_option('cursorline')<CR>
 nnoremap <silent> [Space]on  :<C-u>call <SID>toggle_option('number')<CR>
 nnoremap <silent> [Space]os  :<C-u>call <SID>toggle_option('spell')<CR>
