@@ -1,21 +1,27 @@
+app-admin/conky mpd lua
 app-editors/gvim gtk
 app-editors/vim X
 app-emulation/wine alsa jpeg png xml
 app-i18n/skk-jisyo cdb
 app-i18n/skk-jisyo-seiyu cdb
-app-i18n/uim -anthy X gtk xft
+app-i18n/uim -anthy X gtk xft linguas_ja
 app-misc/tmux cjkwidth
 app-text/acroread minimal linguas_ja
 app-text/poppler cairo cjk
 app-text/ptex X
-dev-lang/ghc binary
+dev-lang/ghc ghcquickbuild
+dev-libs/libxml2 python
 dev-vcs/git perl
 media-gfx/fontforge cairo cjk svg
 media-gfx/gimp exif jpeg png svg
 media-gfx/imagemagick X jpeg png
+media-libs/freetype X utils
+media-libs/gd jpeg png truetype
 media-libs/imlib2 X gif jpeg png
+media-libs/libsdl X alsa xv
 media-sound/ncmpcpp clock taglib
-media-video/mplayer xvmc
+media-video/ffmpeg alsa faac mp3 theora threads v4l2 vorbis x264 xvid
+media-video/mplayer v4l2 xvmc
 net-misc/rdesktop ao oss
 net-print/bjfilter ip3100
 net-print/cups samba
@@ -25,10 +31,11 @@ sys-devel/gcc -fortran
 sys-fs/udev extras
 sys-kernel/gentoo-sources symlink
 sys-kernel/vanilla-sources symlink
+www-client/opera gtk
 www-client/w3m linguas_ja
 x11-drivers/nvidia-drivers gtk
-x11-libs/cairo X svg
+x11-libs/cairo X lcdfilter svg
 x11-libs/gtk+ jpeg
 x11-libs/pango X
-x11-terms/mlterm gtk uim
+x11-libs/qt-gui dbus
 x11-terms/rxvt-unicode truetype xterm-color

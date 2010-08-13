@@ -1,4 +1,3 @@
 =app-arch/unzip-6.0*
-=www-client/opera-10.6*
 =x11-drivers/xf86-input-wacom-9999
 >app-i18n/skk-jisyo-9999
