@@ -5,15 +5,15 @@ Xft.antialias: 1
 Xft.autohint: 0
 Xft.hinting: 0
 Xft.hintstyle: hintnone
+Xft.lcdfilter: lcdlight
 Xft.rgba: rgb
-
 
 ! CURSOR
 Xcursor.theme: Vanilla-DMZ
 Xcursor.size: 24
 
 
-! FONT
+! RXVT
 Rxvt.font: \
   xft:Consolas:pixelsize=14:antialias=true, \
   xft:AXIS Std:pixelsize=14:antialias=true
@@ -31,8 +31,6 @@ Rxvt.imFont: \
   -sony-fixed-medium-r-normal--16-*-*-*-*-*-jisx0201.1976-0, \
   -jis-fixed-medium-r-normal--16-*-*-*-*-*-jisx0208.1983-0
 
-
-! COLOR
 Rxvt.foreground:   #cccccc
 Rxvt.background:   #222222
 Rxvt.cursorColor:  #009900
@@ -55,8 +53,6 @@ Rxvt.color13: #cc00cc
 Rxvt.color14: #00cccc
 Rxvt.color15: #ffffff
 
-
-! MISC
 Rxvt.externalBorder: 0
 Rxvt.geometry: 80x25
 Rxvt.internalBorder: 2
@@ -67,3 +63,24 @@ Rxvt.secondaryScreen: true
 Rxvt.secondaryScroll: true
 Rxvt.termName: rxvt-unicode256
 Rxvt.visualBell: false
+
+
+! FONTFORGE
+fontforge.FontView.FontFamily: hlv
+fontforge.CharView.InfoFamily: hlv
+
+Gdraw.GGadget.Popup.Font: 10pt hlv
+Gdraw.GGadget.Font: 10pt hlv
+Gdraw.GButton.Font: 10pt hlv
+Gdraw.GLabel.Font: 10pt hlv
+Gdraw.GRadio.Font: 10pt hlv
+Gdraw.GCheckBox.Font: 10pt hlv
+Gdraw.GTextField.Font: 10pt hlv
+Gdraw.GList.Font: 10pt hlv
+Gdraw.GScrollBar.Font: 10pt hlv
+Gdraw.GScrollBarThumb.Font: 10pt hlv
+Gdraw.GGroup.Font: 10pt hlv
+Gdraw.GLine.Font: 10pt hlv
+Gdraw.GMenu.Font: 10pt hlv
+Gdraw.GMenuBar.Font: 10pt hlv
+Gdraw.GTabSet.Font: 10pt hlv
