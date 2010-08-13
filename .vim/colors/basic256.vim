@@ -93,7 +93,6 @@ function! s:highlight_attributes(attributes)  "{{{2
   \ 'b': 'bold',
   \ 'c': 'undercurl',
   \ 'i': 'italic',
-  \ 'n': 'NONE',
   \ 'r': 'reverse',
   \ 's': 'standout',
   \ 'u': 'underline',
@@ -107,18 +106,18 @@ endfunction
 function! s:highlight(name, attr, ...)  "{{{2
   let _ = ['fg=', 'bg=', 'sp=']
   if s:gui_p
-    let args = a:000[0:2]
+    let args = a:000[:2]
     let prefix = 'gui'
     call map(args,
     \       'prefix . remove(_, 0) . (v:val > -1 ? s:gui_colors[v:val] : "NONE")')
   else
-    let args = a:000[0:1]
+    let args = a:000[:1]
     let prefix = 'cterm'
     call map(args,
     \       'prefix . remove(_, 0) . (v:val > -1 ? v:val : "NONE")')
   endif
   execute 'highlight' a:name
-  \        prefix . '=' . s:highlight_attributes(a:attr)
+  \        prefix . '=' . (a:attr != '' ? s:highlight_attributes(a:attr) : 'NONE')
   \        join(args)
 endfunction
 
@@ -134,78 +133,80 @@ if s:gui_p
   highlight lCursor  guifg=#000000 guibg=#009999
 endif
 
-call s:highlight('SpecialKey'   , 'n',  8, -1)
-call s:highlight('NonText'      , 'n',  4, -1)
-call s:highlight('Directory'    , 'n', 14, -1)
-call s:highlight('MatchParen'   , 'n', -1,  6)
-call s:highlight('LineNr'       , 'n',  8, -1)
-call s:highlight('Question'     , 'n', 10, -1)
-call s:highlight('VertSplit'    , 'n',  8, -1)
-call s:highlight('Title'        , 'n', 14, -1)
-call s:highlight('Visual'       , 'n', -1,  4)
-call s:highlight('VisualNOS'    , 'r', -1, -1)
-call s:highlight('WildMenu'     , 'n',  0, 11)
+call s:highlight('SpecialKey'   , ''  ,  8, -1)
+call s:highlight('NonText'      , ''  ,  4, -1)
+call s:highlight('Directory'    , ''  , 14, -1)
+call s:highlight('MatchParen'   , ''  , -1,  6)
+call s:highlight('LineNr'       , ''  ,  8, -1)
+call s:highlight('Question'     , ''  , 10, -1)
+call s:highlight('VertSplit'    , ''  ,  8, -1)
+call s:highlight('Title'        , ''  , 14, -1)
+call s:highlight('Visual'       , ''  , -1,  4)
+call s:highlight('VisualNOS'    , 'r' , -1, -1)
+call s:highlight('WildMenu'     , 'br', 11,  0)
 
-call s:highlight('ErrorMsg'     , 'n', -1,  1)
-call s:highlight('MoreMsg'      , 'n', -1,  2)
-call s:highlight('ModeMsg'      , 'n', -1,  4)
-call s:highlight('WarningMsg'   , 'n', 11, -1)
+call s:highlight('ErrorMsg'     , ''  , -1,  1)
+call s:highlight('MoreMsg'      , ''  , -1,  2)
+call s:highlight('ModeMsg'      , ''  , -1,  4)
+call s:highlight('WarningMsg'   , ''  , 11, -1)
 
-call s:highlight('IncSearch'    , 'r', -1, -1)
-call s:highlight('Search'       , 'n',  0, 11)
+call s:highlight('IncSearch'    , 'r' , -1, -1)
+call s:highlight('Search'       , ''  ,  0, 11)
 
-call s:highlight('StatusLine'   , 'r', -1,  0)
-call s:highlight('StatusLineNC' , 'r',  7,  0)
+call s:highlight('StatusLine'   , 'br', -1,  0)
+call s:highlight('StatusLineNC' , 'r' ,  7,  0)
 
-call s:highlight('Folded'       , 'n',  6, -1)
-call s:highlight('FoldColumn'   , 'n',  6, -1)
-call s:highlight('SignColumn'   , 'n', 14, -1)
+call s:highlight('Folded'       , ''  ,  6, -1)
+call s:highlight('FoldColumn'   , ''  ,  6, -1)
+call s:highlight('SignColumn'   , ''  , 14, -1)
+call s:highlight('Conceal'      , ''  , -1,  8)
 
-call s:highlight('DiffAdd'      , 'n', -1,  4)
-call s:highlight('DiffChange'   , 'n', -1,  5)
-call s:highlight('DiffDelete'   , 'n',  8, -1)
-call s:highlight('DiffText'     , 'n', -1,  5)
+call s:highlight('DiffAdd'      , ''  , -1,  4)
+call s:highlight('DiffChange'   , ''  , -1,  5)
+call s:highlight('DiffDelete'   , ''  ,  8, -1)
+call s:highlight('DiffText'     , ''  , -1,  5)
 
 if s:gui_p
-  call s:highlight('SpellBad'   , 'c', -1, -1,  9)
-  call s:highlight('SpellCap'   , 'c', -1, -1, 12)
-  call s:highlight('SpellRare'  , 'c', -1, -1, 13)
-  call s:highlight('SpellLocal' , 'c', -1, -1, 14)
+  call s:highlight('SpellBad'   , 'c' , -1, -1,  1)
+  call s:highlight('SpellCap'   , 'c' , -1, -1,  4)
+  call s:highlight('SpellRare'  , 'c' , -1, -1,  5)
+  call s:highlight('SpellLocal' , 'c' , -1, -1,  6)
 else
-  call s:highlight('SpellBad'   , 'n', -1,  1)
-  call s:highlight('SpellCap'   , 'n', -1,  4)
-  call s:highlight('SpellRare'  , 'n', -1,  5)
-  call s:highlight('SpellLocal' , 'n', -1,  6)
+  call s:highlight('SpellBad'   , ''  , -1,  1)
+  call s:highlight('SpellCap'   , ''  , -1,  4)
+  call s:highlight('SpellRare'  , ''  , -1,  5)
+  call s:highlight('SpellLocal' , ''  , -1,  6)
 endif
 
-call s:highlight('Pmenu'        , 'u', -1, -1)
-call s:highlight('PmenuSel'     , 'u',  0, 11)
-call s:highlight('PmenuSbar'    , 'n', -1, -1)
-call s:highlight('PmenuThumb'   , 'n', -1, 11)
+call s:highlight('Pmenu'        , 'u' , -1, -1)
+call s:highlight('PmenuSel'     , ''  ,  0, 11)
+call s:highlight('PmenuSbar'    , ''  , -1, -1)
+call s:highlight('PmenuThumb'   , ''  , -1, 11)
 
-call s:highlight('TabLine'      , 'r', -1,  0)
-call s:highlight('TabLineSel'   , 'n', 15, -1)
-call s:highlight('TabLineFill'  , 'r', -1,  0)
+call s:highlight('TabLine'      , 'r' , -1,  0)
+call s:highlight('TabLineSel'   , 'b' , -1, -1)
+call s:highlight('TabLineFill'  , 'r' , -1,  0)
 
-call s:highlight('CursorColumn' , 'n', -1,  0)
-call s:highlight('CursorLine'   , 'n', -1,  0)
+call s:highlight('CursorColumn' , ''  , -1,  0)
+call s:highlight('CursorLine'   , ''  , -1,  0)
+call s:highlight('ColorColumn'  , ''  , -1,  8)
 
 
 
 
 " Syntax highlighting  "{{{1
 
-call s:highlight('Comment'      , 'n', 14, -1)
-call s:highlight('Constant'     , 'n', 13, -1)
-call s:highlight('Special'      , 'n',  9, -1)
-call s:highlight('Identifier'   , 'b', 14, -1)
-call s:highlight('Statement'    , 'n', 11, -1)
-call s:highlight('PreProc'      , 'n', 12, -1)
-call s:highlight('Type'         , 'n', 10, -1)
-call s:highlight('Underlined'   , 'u', 12, -1)
-call s:highlight('Ignore'       , 'n',  0, -1)
-call s:highlight('Error'        , 'n', -1,  1)
-call s:highlight('Todo'         , 'n',  0, 11)
+call s:highlight('Comment'      , ''  ,  14, -1)
+call s:highlight('Constant'     , ''  ,  13, -1)
+call s:highlight('Special'      , ''  ,   9, -1)
+call s:highlight('Identifier'   , 'b' ,  14, -1)
+call s:highlight('Statement'    , ''  ,  11, -1)
+call s:highlight('PreProc'      , ''  ,  12, -1)
+call s:highlight('Type'         , ''  ,  10, -1)
+call s:highlight('Underlined'   , 'u' ,  12, -1)
+call s:highlight('Ignore'       , ''  ,   0, -1)
+call s:highlight('Error'        , ''  ,  -1,  1)
+call s:highlight('Todo'         , ''  ,   0, 11)
 
 hi link String         Constant
 hi link Character      Constant
