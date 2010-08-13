@@ -12,4 +12,4 @@ export GTK_IM_MODULE='uim'
 export QT_IM_MODULE='uim'
 uim-xim &
 
-exec xmonad
+dbus-launch --sh-syntax --exit-with-session xmonad
