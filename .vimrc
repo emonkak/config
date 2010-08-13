@@ -447,7 +447,8 @@ let s:INDENT_STYLES = {
 \  '8tab'  : 'setlocal noexpandtab tabstop=8 shiftwidth=8 softtabstop&',
 \ }
 
-command! -bar -complete=customlist,s:complete_indent_style -nargs=1 IndentStyle
+command! -bar -complete=customlist,s:complete_indent_style -nargs=1
+\ IndentStyle
 \ execute get(s:INDENT_STYLES, <f-args>, '')
 function! s:complete_indent_style(arglead, cmdline, cursorpos)
   return sort(filter(keys(s:INDENT_STYLES), 'v:val =~ "^".a:arglead'))
@@ -671,8 +672,8 @@ cnoremap <C-k>
 
 
 " escape Command-line mode if the command line is empty (like <C-h>)
-cnoremap <expr> <C-u>  getcmdline() == '' ? '<Esc>' : '<C-u>'
-cnoremap <expr> <C-w>  getcmdline() == '' ? '<Esc>' : '<C-w>'
+cnoremap <expr> <C-u>  getcmdline() == '' ? "\<Esc>" : "\<C-u>"
+cnoremap <expr> <C-w>  getcmdline() == '' ? "\<Esc>" : "\<C-w>"
 
 " Search slashes easily (too lazy to prefix backslashes to slashes)
 cnoremap <expr> /  getcmdtype() == '/' ? '\/' : '/'
@@ -694,7 +695,7 @@ inoremap <C-q>  <C-d>
 
 " Emacs like kill-line.
 " BUGS: Don't use <C-x><X-k> (keyword completion).
-inoremap <expr> <C-k>  col('.') == col('$') ? '<C-o>gJ' : '<C-o>D'
+inoremap <expr> <C-k>  col('.') == col('$') ? "\<C-o>gJ" : "\<C-o>D"
 
 
 " To be able to undo these types of deletion.
@@ -704,14 +705,14 @@ inoremap <C-u>  <C-g>u<C-u>
 
 " Complete or indent.
 inoremap <expr> <Tab>  pumvisible()
-                   \ ? '<C-n>'
+                   \ ? "\<C-n>"
                    \ : <SID>should_indent_rather_than_complete_p()
-                   \ ? '<C-i>'
+                   \ ? "\<C-i>"
                    \ : <SID>keys_to_complete()
 inoremap <expr> <S-Tab>  pumvisible()
-                     \ ? '<C-p>'
+                     \ ? "\<C-p>"
                      \ : <SID>should_indent_rather_than_complete_p()
-                     \ ? '<C-i>'
+                     \ ? "\<C-i>"
                      \ : <SID>keys_to_complete()
 
 function! s:should_indent_rather_than_complete_p()
@@ -758,13 +759,13 @@ nnoremap [Space]ft  :<C-u>set filetype=
 " Reload .vimrc
 nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
 
-nnoremap <silent> [Space]cd  :<C-u>CD<CR>
-nnoremap <silent> [Space]d  :<C-u>bdelete<CR>
-nnoremap <silent> [Space]D  :<C-u>bdelete!<CR>
-
 nnoremap <silent> [Space]m  :<C-u>marks<CR>
 nnoremap <silent> [Space]q  :<C-u>Help quickref<CR>
 nnoremap <silent> [Space]r  :<C-u>registers<CR>
+
+nnoremap <silent> [Space]cd  :<C-u>CD<CR>
+nnoremap <silent> [Space]d  :<C-u>bdelete<CR>
+nnoremap <silent> [Space]D  :<C-u>bdelete!<CR>
 
 
 " Open a fold.
@@ -852,11 +853,11 @@ noremap gj  j
 noremap gk  k
 
 " Delete a character with the black hole register.
-nnoremap X "_X
-nnoremap x "_x
+nnoremap X  "_X
+nnoremap x  "_x
 
 " "Y" to work from the cursor to the end of line.
-nnoremap Y y$
+nnoremap Y  y$
 
 
 " Jump list
@@ -1047,7 +1048,7 @@ function! s:on_FileType_java()
   setlocal cinoptions=:0,l1,g0,t0,(0,j1
   let &l:makeprg = s:cygwin_p
   \              ? ('javac -Xlint:unchecked -Xlint:deprecation'
-  \                .'-J-Dfile.encoding=UTF-8 "%"')
+  \                .' -J-Dfile.encoding=UTF-8 "%"')
   \              : 'javac -Xlint:unchecked -Xlint:deprecation "%"'
   let &l:errorformat = '%E%f:%l: %m,'
   \                  . '%C%\S%\+: %.%# %m,'
@@ -1147,10 +1148,10 @@ autocmd MyAutoCmd FileType tex,plaintex
 function! s:on_FileType_tex()
   IndentStyle 2space
   setlocal foldmarker=%{{{,%}}}
-  setlocal makeprg=platex\ -kanji=utf8\ -interaction=nonstopmode
-                  \\ -file-line-error
-                  \\ -output-directory=\"%:h\"\ \"%\"
-  setlocal errorformat=%f:%l:\ %m
+  let &l:makeprg = 'platex -kanji=utf8 -interaction=nonstopmode'
+  \              . ' -file-line-error'
+  \              . ' -output-directory="%:h" "%"'
+  let &l:errorformat = '%f:%l: %m'
 
   nnoremap <buffer> <silent> <LocalLeader>m  :<C-u>!dvipdfmx %:p:r.dvi<CR>
 endfunction
@@ -1406,9 +1407,9 @@ let g:quickrun_config = {
 " ref  "{{{2
 
 autocmd MyAutoCmd FileType ref
-\ call s:ref_my_keymappings()
+\ call s:ref_my_mappings()
 
-function! s:ref_my_keymappings()
+function! s:ref_my_mappings()
   nmap <buffer> <C-]>  <Plug>(ref-keyword)
   nmap <buffer> <C-j>  <Plug>(ref-forward)
   nmap <buffer> <C-k>  <Plug>(ref-back)
@@ -1474,13 +1475,13 @@ function! s:submode_resize_window()
     wincmd j | let target1 = winnr() | execute current "wincmd w"
     wincmd l | let target2 = winnr() | execute current "wincmd w"
 
-    execute printf("call submode#map('winsize', 'n', 'r', 'j', '<C-w>%s')",
+    execute printf('call submode#map("winsize", "n", "r", "j", "<C-w>%s")',
     \ current == target1 ? "-" : "+")
-    execute printf("call submode#map('winsize', 'n', 'r', 'k', '<C-w>%s')",
+    execute printf('call submode#map("winsize", "n", "r", "k", "<C-w>%s")',
     \ current == target1 ? "+" : "-")
-    execute printf("call submode#map('winsize', 'n', 'r', 'h', '<C-w>%s')",
+    execute printf('call submode#map("winsize", "n", "r", "h", "<C-w>%s")',
     \ current == target2 ? ">" : "<")
-    execute printf("call submode#map('winsize', 'n', 'r', 'l', '<C-w>%s')",
+    execute printf('call submode#map("winsize", "n", "r", "l", "<C-w>%s")',
     \ current == target2 ? "<" : ">")
 endfunction
 
