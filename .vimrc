@@ -70,7 +70,7 @@ endif
 if has('gui_running')
   set guicursor=a:blinkon0
   if s:win_p
-    set guifont=sumiko16:h12
+    set guifont=Consolas:h10.5
   else
     set guifont=Monospace\ 10.5
   endif
