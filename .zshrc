@@ -52,6 +52,13 @@ unsetopt beep
 unsetopt flow_control
 
 
+autoload -Uz select-word-style
+select-word-style default
+zstyle ':zle:*' word-chars " _-./;@"
+zstyle ':zle:*' word-style unspecified
+
+
+# Don't add "rm" and "rmdir" to history.
 zshaddhistory() {
   local -a args; args=(${(z)1})
   local cmd
@@ -60,7 +67,7 @@ zshaddhistory() {
   else
     cmd=$args[1]
   fi
-  [[ $cmd != (ch(grp|mod|own)|rm) ]]
+  [[ $cmd != rm(dir|) ]]
 }
 
 
@@ -104,14 +111,35 @@ zstyle ':vcs_info:*' actionformats '[%s:%b|%a]'
 zstyle ':vcs_info:*' formats '[%s:%b]'
 zstyle ':vcs_info:bzr:*' use-simple true
 
-case "$TERM" in
-xterm*|rxvt*|screen*)
+
+if [ "$WINDOW" ]; then  # is GNU screen
+  preexec() {
+    local -a cmd; cmd=(${(z)2})
+    case "$cmd[1]" in
+    sudo)
+      cmd=($cmd[2])
+      ;;
+    fg|%*)
+      local -A jt; jt=(${(kv)jobtexts})
+      cmd=(${(z)${(e):-\$jt$num}})
+      ;;
+    esac
+    print -Pn "\ek$cmd[1]:t\e\\"
+  }
   precmd() {
     vcs_info
-    print -Pn "\e]0;%m@%n:%~\a"
+    print -Pn "\ek$ZSH_NAME\e\\"
   }
-  ;;
-esac
+else
+  case "$TERM" in
+  xterm*|rxvt*|screen*)
+    precmd() {
+      vcs_info
+      print -Pn "\e]0;%m@%n:%~\a"
+    }
+    ;;
+  esac
+fi
 
 
 
@@ -128,7 +156,7 @@ alias mv='mv -i'
 alias rm='rm -i'
 
 alias diff='colordiff -u'
-alias grep='grep -E --line-number --color'
+alias grep='grep -E --color'
 alias lv='lv -c'
 alias pstree='pstree -A'
 
@@ -138,16 +166,18 @@ fi
 
 
 alias s='sudo '
-if [ "$OSTYPE" = 'cygwin' ]; then
-  alias v='vim'
-else
-  alias v='vim --servername VIM'
-fi
+alias v='vim'
+alias vim='vim --servername VIM'
 
 
 alias mount-cifs='sudo mount -t cifs -o defaults,noatime,user,iocharset=utf8,uid=$USER,gid=users,file_mode=0644,dir_mode=0755,username=$USER'
 alias untarbz2='tar -vxjf'
 alias untargz='tar -vxzf'
+
+if [ -n "$DISPLAY" ] && which mplayer &>/dev/null; then
+  alias mplayer-webcam='mplayer tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1:forceaudio:immediatemode=0:width=1280:height=720:fps=30'
+  alias mencoder-webcam='mencoder tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1:forceaudio:immediatemode=0:width=1280:height=720:fps=30 -ovc x264 -x264encopts bitrate=1000:threads=2 -oac faac -faacopts br=64 -vf scale=640:360,harddup -o'
+fi
 
 if [ -n "$DISPLAY" ] && which xsel &>/dev/null; then
   alias pbcopy='xsel --input --clipboard'
@@ -158,7 +188,6 @@ fi
 
 
 # Functions  #{{{1
-# MPlayer without DPMS  #{{{2
 
 if [ -n "$DISPLAY" ] && which mplayer &>/dev/null; then
   function __mplayer_wrapper() {
@@ -167,52 +196,6 @@ if [ -n "$DISPLAY" ] && which mplayer &>/dev/null; then
     xset +dpms
   }
   alias mplayer='__mplayer_wrapper'
-fi
-
-
-
-
-# mkpasswd  #{{{2
-
-if which apg &>/dev/null; then
-  function mkpasswd() {
-    local -A options
-    options[-M]='SNCL'
-    options[-n]=1
-
-    while getopts 'l:m:n:rh' OPTION; do
-      case $OPTION in
-      l)
-        options[-m]=$OPTARG
-        options[-x]=$OPTARG
-        ;;
-      m)
-        options[-M]=$OPTARG
-        ;;
-      n)
-        options[-n]=$OPTARG
-        ;;
-      r)
-        options[-a]=1
-        ;;
-      h|?)
-        echo "Usage: $0 [-l length] [-m mode] [-n num_of_pass] [-r] [-h]" >&2
-        echo "-l length       password length" >&2
-        echo "-m mode         new style password modes [SNCL]" >&2
-        echo "-n num_of_pass  generate num_of_pass passwords [1]" >&2
-        echo "-r              random character password generation" >&2
-        echo "-h              print this help screen" >&2
-        return 1
-        ;;
-      esac
-    done
-
-    local -a args
-    for key in ${(k)options}; do
-      args+=($key $options[$key])
-    done
-    apg $args
-  }
 fi
 
 
@@ -254,6 +237,7 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' menu select=1
 zstyle ':completion:*' use-cache true
 zstyle ':completion:*' verbose true
+zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
 
 autoload -U compinit
