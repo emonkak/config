@@ -3,16 +3,19 @@
 
 import XMonad hiding (Tall)
 
+import XMonad.Actions.CycleWS
 import XMonad.Actions.DwmPromote
-import XMonad.Actions.UpdatePointer
 
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
 
+import XMonad.Layout.Cross
 import XMonad.Layout.HintedTile
 import XMonad.Layout.IM
+import XMonad.Layout.LayoutHints
+import XMonad.Layout.MagicFocus
 import XMonad.Layout.Named
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
@@ -38,40 +41,42 @@ import qualified XMonad.StackSet as W
 
 
 
--- Lauout  --{{{1
+-- Hook  --{{{1
+-- Lauout  --{{{2
 
 myLayoutHook = avoidStruts $
-  smartBorders $
   onWorkspace "5:gimp" gimpLayout $
-  toggleLayouts Full (hintedTile Wide ||| hintedTile Tall)
+  toggleLayouts (noBorders Full) (hintedTile Wide ||| hintedTile Tall ||| crossLayout)
   where
-    hintedTile = HintedTile 1 (3/100) (3/5) TopLeft
-    tabLayout  = tabbed shrinkText myTheme
-    gimpLayout = named "Gimp" $
-                 withIM (0.15) (Role "gimp-toolbox") $
-                 reflectHoriz $ withIM (0.20) (Role "gimp-dock") $
-                 reflectHoriz $ tabLayout
+    hintedTile  = smartBorders . (HintedTile 1 (3/100) (3/5) TopLeft)
+    crossLayout = named "Cross" $ layoutHints $ Cross (4/5) (5/100)
+    tabLayout   = tabbed shrinkText myTheme
+    gimpLayout  = named "Gimp" $
+                  withIM (0.15) (Role "gimp-toolbox") $
+                  reflectHoriz $ withIM (0.20) (Role "gimp-dock") $
+                  reflectHoriz $ tabLayout
 
 
 
 
--- Management  --{{{1
+-- Manage  --{{{2
 
 myManageHook = composeAll
   [ className =? "stalonetray"   --> doIgnore
+  , className =? "Gnome-mplayer" --> doCenterFloat
   , className =? "MPlayer"       --> doCenterFloat
   , className =? "Xmessage"      --> doCenterFloat
   , className =? "feh"           --> doCenterFloat
   , className =? "rdesktop"      --> doCenterFloat
   , className =? "XFontSel"      --> doFloat
-  , className =? "Pidgin"        --> doFloat <+> doShiftAndGo "3:im"
-  , className =? "Skype"         --> doFloat <+> doShiftAndGo "3:im"
-  , className =? "XmBDFEdit"     --> doFloat <+> doShiftAndGo "4:gfx"
-  , className =? "fontforge"     --> doFloat <+> doShiftAndGo "4:gfx"
+  , className =? "XmBDFEdit"     --> doFloat <+> doShiftAndGo "3:gfx"
+  , className =? "fontforge"     --> doFloat <+> doShiftAndGo "3:gfx"
   , className =? "Chrome"        --> doShiftAndGo "2:web"
   , className =? "Opera"         --> doShiftAndGo "2:web"
-  , className =? "GQview"        --> doShiftAndGo "4:gfx"
-  , className =? "Inkscape"      --> doShiftAndGo "4:gfx"
+  , className =? "Pidgin"        --> doShiftAndGo "2:web"
+  , className =? "Skype"         --> doShiftAndGo "2:web"
+  , className =? "GQview"        --> doShiftAndGo "3:gfx"
+  , className =? "Inkscape"      --> doShiftAndGo "3:gfx"
   , className =? "Gimp"          --> doShiftAndGo "5:gimp"
   , className =? "Gimp" <&&>
     role /=? "gimp-toolbox" <&&>
@@ -85,10 +90,9 @@ myManageHook = composeAll
 
 
 
--- Log  --{{{1
+-- Log  --{{{2
 
 myLogHook h = do
-  updatePointer (Relative 0.5 0.5)
   dynamicLogWithPP $ defaultPP
     { ppCurrent         = dzenColor "#ffffff" "#3366cc" . wrap (dzenIcon "square.xbm") " "
     , ppHidden          = dzenColor "#cccccc" ""        . wrap (dzenIcon "square2.xbm") " "
@@ -110,9 +114,22 @@ myLogHook h = do
 
 
 
+-- Handle Event  --{{{2
+
+-- Don't focus follows mouse when Cross layout.
+myHandleEventHook = followOnlyIf $ fmap (\x -> case x of
+                      "Cross" -> False
+                      _       -> True
+                    ) curLayout
+  where
+    curLayout = withWindowSet $ return . description . W.layout . W.workspace . W.current
+
+
+
+
 -- Theme  --{{{1
 
-myFont = "-artwiz-snap-normal-r-normal--10-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--12-*-*-*-*-*-*-*"
+myFont = "-artwiz-glisp-medium-r-normal--11-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--12-*-*-*-*-*-*-*"
 
 myTheme = defaultTheme
   { fontName            = myFont
@@ -150,6 +167,9 @@ myKeys conf = mkKeymap conf $
   , ("M-S-<Space>",  setLayout $ XMonad.layoutHook conf)
   , ("M-f",          sendMessage ToggleLayout)
 
+  , ("M-<Tab>",      moveTo Next NonEmptyWS)
+  , ("M-S-<Tab>",    moveTo Prev NonEmptyWS)
+
   , ("M-j",          windows W.focusDown)
   , ("M-k",          windows W.focusUp)
   , ("M-m",          windows W.focusMaster)
@@ -159,8 +179,8 @@ myKeys conf = mkKeymap conf $
   , ("M-l",          sendMessage Expand)
 
   , ("M-t",          withFocused $ windows . W.sink)
-  , ("M-,",          sendMessage $ IncMasterN 1)
-  , ("M-.",          sendMessage $ IncMasterN (-1))
+  , ("M-.",          sendMessage $ IncMasterN 1)
+  , ("M-,",          sendMessage $ IncMasterN (-1))
 
   , ("M-n",          refresh)
   , ("M-q",          spawn "xmonad --recompile && xmonad --restart")
@@ -173,15 +193,15 @@ myKeys conf = mkKeymap conf $
   , ("M--",          spawn "amixer -q set Master 5%-")
   , ("M-S-<Esc>",    spawn "sleep 1; xset dpms force off")
 
+  , ("M-\\",         spawn "ncmpcpp toggle")
+  , ("M-[",          spawn "ncmpcpp prev")
+  , ("M-]",          spawn "ncmpcpp next")
+
   , ("M-x c",        spawn "chromium-bin")
   , ("M-x e",        spawn "gvim")
   , ("M-x g",        spawn "gimp")
   , ("M-x o",        spawn "opera")
   , ("M-x v",        spawn "gqview")
-
-  , ("M-\\",         spawn "ncmpcpp toggle")
-  , ("M-[",          spawn "ncmpcpp prev")
-  , ("M-]",          spawn "ncmpcpp next")
 
   , ("<Print>",      spawn "scrot -e 'mv $f ~/Desktop' '%y%m%d-%H%M%S.png'")
   ]
@@ -196,6 +216,10 @@ myKeys conf = mkKeymap conf $
 
 -- Main  --{{{1
 
+myStatusbar = "dzen2 -x 0 -y 0 -w 1280 -h 18 -ta l -fg '#cccccc' -bg '#000000' -fn '" ++ myFont ++
+              "' -e 'onstart=lower'"
+myWorkspaces = ["1:term", "2:web", "3:gfx", "4:misc", "5:gimp"]
+
 main = do
   statusPipe <- spawnPipe myStatusbar
   xmonad $ defaultConfig
@@ -204,7 +228,7 @@ main = do
     , focusedBorderColor = "#3366cc"
     , borderWidth        = 2
 
-    , workspaces         = ["1:term", "2:web", "3:im", "4:gfx", "5:gimp"]
+    , workspaces         = myWorkspaces
     , modMask            = mod4Mask
     , keys               = myKeys
 
@@ -212,10 +236,10 @@ main = do
     , manageHook         = manageDocks <+> myManageHook
     , logHook            = myLogHook statusPipe
     , startupHook        = setWMName "LG3D"
+    , handleEventHook    = myHandleEventHook
+
+    , focusFollowsMouse  = True
     }
-  where
-    myStatusbar = "dzen2 -x 0 -y 0 -w 1280 -h 18 -ta l -fg '#cccccc' -bg '#000000' -fn '" ++ myFont ++
-                  "' -e 'onstart=lower'"
 
 
 
