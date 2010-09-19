@@ -16,7 +16,6 @@ let g:colors_name = "basic256"
 
 " Variables  "{{{1
 
-let s:gui_p = has('gui_running')
 let s:gui_colors = [
 \  '#000000', '#990000', '#009900', '#999900',
 \  '#000099', '#990099', '#009999', '#999999',
@@ -88,7 +87,8 @@ let s:gui_colors = [
 
 
 " Utilities  "{{{1
-function! s:highlight_attributes(attributes)  "{{{2
+
+function! s:attributes(attr)
   let _ = {
   \ 'b': 'bold',
   \ 'c': 'undercurl',
@@ -97,36 +97,40 @@ function! s:highlight_attributes(attributes)  "{{{2
   \ 's': 'standout',
   \ 'u': 'underline',
   \ }
-  return join(map(split(a:attributes, '.\zs'), 'get(_, v:val, "")'), ',')
+  return a:attr == '' ? 'NONE' :
+  \      join(map(split(a:attr, '.\zs'), 'get(_, v:val, "")'), ',')
 endfunction
 
-
-
-
-function! s:highlight(name, attr, ...)  "{{{2
-  let _ = ['fg=', 'bg=', 'sp=']
-  if s:gui_p
+if has('gui_running')
+  function! s:highlight(name, attr, ...)
+    let _ = ['fg=', 'bg=', 'sp=']
     let args = a:000[:2]
     let prefix = 'gui'
     call map(args,
     \       'prefix . remove(_, 0) . (v:val > -1 ? s:gui_colors[v:val] : "NONE")')
-  else
+    execute 'highlight' a:name
+    \       prefix . '=' . s:attributes(a:attr)
+    \       join(args)
+  endfunction
+else
+  function! s:highlight(name, attr, ...)
+    let _ = ['fg=', 'bg=']
     let args = a:000[:1]
     let prefix = 'cterm'
     call map(args,
     \       'prefix . remove(_, 0) . (v:val > -1 ? v:val : "NONE")')
-  endif
-  execute 'highlight' a:name
-  \        prefix . '=' . (a:attr != '' ? s:highlight_attributes(a:attr) : 'NONE')
-  \        join(args)
-endfunction
+    execute 'highlight' a:name
+    \       prefix . '=' . s:attributes(a:attr)
+    \       join(args)
+  endfunction
+endif
 
 
 
 
 " General colors  "{{{1
 
-if s:gui_p
+if has('gui_running')
   highlight Normal   guifg=#cccccc guibg=#222222
   highlight Cursor   guifg=#000000 guibg=#009900
   highlight CursorIM guifg=#000000 guibg=#009999
@@ -166,7 +170,7 @@ call s:highlight('DiffChange'   , ''  , -1,  5)
 call s:highlight('DiffDelete'   , ''  ,  8, -1)
 call s:highlight('DiffText'     , ''  , -1,  5)
 
-if s:gui_p
+if has('gui_running')
   call s:highlight('SpellBad'   , 'c' , -1, -1,  1)
   call s:highlight('SpellCap'   , 'c' , -1, -1,  4)
   call s:highlight('SpellRare'  , 'c' , -1, -1,  5)
