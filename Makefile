@@ -13,9 +13,9 @@ all: update
 
 ALL_GROUPS=\
   DOTS \
+  GENTOO \
   LINUX \
   OPERA \
-  PORTAGE \
   VIM
 
 GROUP_DOTS_FILES=\
@@ -36,6 +36,17 @@ GROUP_DOTS_FILES=\
   .zshrc
 GROUP_DOTS_RULE=$(patsubst .%, $(HOME)/.%, $(1))
 
+GROUP_GENTOO_FILES=\
+  gentoo/X11/xorg.conf \
+  gentoo/portage/package.keywords \
+  gentoo/portage/package.mask \
+  gentoo/portage/package.unmask \
+  gentoo/portage/package.use \
+  gentoo/portage/profile/package.provided \
+  gentoo/fstab \
+  gentoo/make.conf
+GROUP_GENTOO_RULE=$(patsubst gentoo/%, /etc/%, $(1))
+
 GROUP_LINUX_FILES=\
   linux/.config
 GROUP_LINUX_RULE=$(patsubst linux/%, /usr/src/linux/%, $(1))
@@ -44,19 +55,11 @@ GROUP_OPERA_FILES=\
   .opera/keyboard/my-keyboard.ini \
   .opera/menu/my-menu.ini \
   .opera/mouse/my-mouse.ini \
-  .opera/search.ini \
   .opera/styles/google.css \
   .opera/styles/ldr.css \
-  .opera/styles/user.css
+  .opera/styles/user.css \
+  .opera/search.ini
 GROUP_OPERA_RULE=$(patsubst .opera/%, $(HOME)/.opera/%, $(1))
-
-GROUP_PORTAGE_FILES=\
-  portage/package.keywords \
-  portage/package.mask \
-  portage/package.unmask \
-  portage/package.use \
-  portage/profile/package.provided
-GROUP_PORTAGE_RULE=$(patsubst portage/%, /etc/portage/%, $(1))
 
 GROUP_VIM_FILES=\
   .vim/colors/basic256.vim
