@@ -15,17 +15,17 @@ Xcursor.size: 24
 
 ! RXVT
 Rxvt.font: \
-  xft:Consolas:pixelsize=14:antialias=true, \
-  xft:AXIS Std:pixelsize=14:antialias=true
+  xft:Menlo:pixelsize=13:antialias=true, \
+  xft:AXIS Std:pixelsize=13:antialias=true
 Rxvt.boldFont: \
-  xft:Consolas:pixelsize=14:bold, \
-  xft:AXIS Std:pixelsize=14:bold
+  xft:Menlo:pixelsize=13:bold, \
+  xft:AXIS Std:pixelsize=13:bold
 Rxvt.italicFont: \
-  xft:Consolas:pixelsize=14:italic, \
-  xft:AXIS Std:pixelsize=14:italic
+  xft:Menlo:pixelsize=13:italic, \
+  xft:AXIS Std:pixelsize=13:italic
 Rxvt.boldItalicFont: \
-  xft:Consolas:pixelsize=14:bold:italic, \
-  xft:AXIS Std:pixelsize=14:bold:italic
+  xft:Menloas:pixelsize=13:bold:italic, \
+  xft:AXIS Std:pixelsize=13:bold:italic
 Rxvt.imFont: \
   -sony-fixed-medium-r-normal--16-*-*-*-*-*-iso8859-1, \
   -sony-fixed-medium-r-normal--16-*-*-*-*-*-jisx0201.1976-0, \

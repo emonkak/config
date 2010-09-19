@@ -1,11 +1,6 @@
 # My zprofile
 
-export GOROOT="$HOME/go"
-export GOBIN="$GOROOT/bin"
-export GOOS='linux'
-export GOARCH='386'
-
-export PATH="$HOME/bin:$HOME/.cabal/bin:$HOME/.gem/ruby/1.8/bin:$GOBIN:$PATH"
+export PATH="$HOME/bin:$HOME/.cabal/bin:$HOME/.gem/ruby/1.8/bin:$PATH"
 
 export LANG='ja_JP.UTF-8'
 export LC_MESSAGES='C'
