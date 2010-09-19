@@ -3,7 +3,7 @@ a[target="_blank"] {
 }
 
 pre, tt, code, samp, kbd {
-  font-family: 'Consolas', monospace !important;
+  font-family: 'Menlo', 'Consolas', 'Courier New', monospace !important;
 }
 
 [class="ad"],

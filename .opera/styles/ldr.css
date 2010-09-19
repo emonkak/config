@@ -1,14 +1,71 @@
 @import url("user.css");
 
 * {
-  font-family: sans-serif !important;
+  font-family: 'Lucida Grande', 'Trebuchet MS', sans-serif !important;
 }
 
-.treeitem,
-.folderitem {
+pre,
+pre * {
+  font-family: 'Menlo', 'Consolas', 'Courier New', monospace !important;
+}
+
+blockquote,
+pre {
+  background: #f4f2ef !important;
+  border: 1px solid #808080 !important;
+  margin: 0.5em 0em !important;
+  padding: 0.5em !important;
+}
+
+blockquote p {
+  margin: 0px !important;
+}
+
+#left_container {
+  border-right: 1px solid #cccccc !important;
+}
+
+#right_container {
+  border-left-width: 0px !important;
+}
+
+#subs_container {
+  direction: ltr !important;
+}
+
+.flat .treeitem {
+  height: auto !important;
+}
+
+.folderitem,
+.treeitem {
   font-weight: bold !important;
 }
 
+.title {
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+}
+
+.channel,
+.channel_toolbar {
+  border-bottom: 1px solid #cccccc !important;
+  margin: 0px !important;
+}
+
+.item {
+  border-bottom: 1px solid #cccccc !important;
+  margin-left: 0px !important;
+  margin-right: 0px !important;
+}
+
+.padding {
+  border-width: 0px !important;
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+}
+
+.odd,
 .even {
   background-color: #ffffff !important;
 }
@@ -19,44 +76,6 @@
 
 .body img {
   max-width: 100% !important;
-}
-
-.body blockquote,
-.body pre {
-  background: #f4f2ef !important;
-  border: 1px solid #808080 !important;
-  margin: 0.5em 0  !important;
-  margin: 0.5em 0 !important;
-  padding: 0.5em !important;
-}
-
-.body blockquote > p {
-  margin: 0 !important;
-}
-
-.body blockquote,
-.body blockquote > p,
-.body pre,
-.body pre > p {
-  font-family: 'Consolas', monospace !important;
-}
-
-
-#header,
-#reader_logo,
-#ads_top,
-#up_button,
-#down_button,
-#myclip_button,
-#myfeed,
-#GuideHeadBox,
-.adsWrapper,
-.fontpad,
-.FullBox,
-.GuideNavigationWrapper,
-.HintAndRecommendBox,
-td[style^="width:260px;height:48px;"] {
-  display: none !important;
 }
 
 #control,
@@ -77,4 +96,22 @@ td[style^="width:260px;height:48px;"] {
 #menu {
   position: static !important;
   height: 30px !important;
+}
+
+#header,
+#reader_logo,
+#ads_top,
+#up_button,
+#down_button,
+#myclip_button,
+#myfeed,
+#GuideHeadBox,
+.adsWrapper,
+.fontpad,
+.item_buttons,
+.FullBox,
+.GuideNavigationWrapper,
+.HintAndRecommendBox,
+td[style^="width:260px;height:48px;"] {
+  display: none !important;
 }
