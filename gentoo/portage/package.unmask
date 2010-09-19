@@ -1,8 +1,6 @@
 =app-i18n/skk-jisyo-9999
 =sys-apps/portage-2.2*
-=www-client/chromium-bin-9999
+=x11-misc/dzen-9999
 app-admin/haskell-updater
 dev-lang/ghc
-media-video/nvidia-settings
 www-client/opera
-x11-drivers/nvidia-drivers

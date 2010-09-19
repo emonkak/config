@@ -1,15 +1,15 @@
 app-admin/conky mpd lua
 app-editors/gvim gtk
 app-editors/vim X
+app-emulation/qemu-kvm alsa
 app-emulation/wine alsa jpeg png xml
-app-i18n/skk-jisyo cdb
-app-i18n/skk-jisyo-seiyu cdb
 app-i18n/uim -anthy X gtk xft linguas_ja
-app-misc/tmux cjkwidth
+app-misc/tmux cjk
+app-portage/eix sqlite
 app-text/acroread minimal linguas_ja
-app-text/poppler cairo cjk
+app-text/poppler -abiword cairo cjk
 app-text/ptex X
-dev-lang/ghc ghcquickbuild
+dev-lang/python sqlite
 dev-libs/libxml2 python
 dev-vcs/git perl
 media-gfx/fontforge cairo cjk svg
@@ -18,14 +18,15 @@ media-gfx/imagemagick X jpeg png
 media-libs/freetype X utils
 media-libs/gd jpeg png truetype
 media-libs/imlib2 X gif jpeg png
+media-libs/libass enca
 media-libs/libsdl X alsa xv
 media-sound/ncmpcpp clock taglib
-media-video/ffmpeg alsa faac mp3 theora threads v4l2 vorbis x264 xvid
-media-video/mplayer v4l2 xvmc
+media-video/ffmpeg alsa faac mp3 theora v4l2 vorbis x264 xvid
+media-video/mplayer v4l2 vaapi xvmc
+media-video/vlc aac alsa dvd flac matroska mp3 mpeg ogg theora v4l2 vaapi vorbis x264 xv
 net-misc/rdesktop ao oss
 net-print/bjfilter ip3100
 net-print/cups samba
-sys-apps/portage python3
 sys-apps/smartmontools minimal
 sys-devel/gcc -fortran
 sys-fs/udev extras
