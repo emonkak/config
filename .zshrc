@@ -14,6 +14,19 @@ HISTSIZE=10000
 SAVEHIST=10000
 
 
+# Don't add "rm" and "rmdir" to history.
+zshaddhistory() {
+  local -a args; args=(${(z)1})
+  local cmd
+  if [[ $args[1] = s(udo|) ]]; then
+    cmd=$args[2]
+  else
+    cmd=$args[1]
+  fi
+  [[ $cmd != rm(|dir) ]]
+}
+
+
 
 
 # Options  #{{{1
@@ -52,28 +65,48 @@ unsetopt beep
 unsetopt flow_control
 
 
-autoload -Uz select-word-style
-select-word-style default
-zstyle ':zle:*' word-chars " _-./;@"
-zstyle ':zle:*' word-style unspecified
 
 
-# Don't add "rm" and "rmdir" to history.
-zshaddhistory() {
-  local -a args; args=(${(z)1})
-  local cmd
-  if [[ $args[1] = s(udo|) ]]; then
-    cmd=$args[2]
-  else
-    cmd=$args[1]
-  fi
-  [[ $cmd != rm(dir|) ]]
-}
+# Title  #{{{1
+
+if [ "$WINDOW" ]; then  # is GNU screen
+  preexec() {
+    local -a cmd; cmd=(${(z)2})
+    case "$cmd[1]" in
+    sudo)
+      cmd=$cmd[2]
+      ;;
+    fg|%*)
+      local -A jt; jt=(${(kv)jobtexts})
+      cmd=${(z)${(e):-\$jt$num}}
+      ;;
+    *)
+      cmd=$cmd[1]
+      ;;
+    esac
+    print -Pn "\ek$cmd:t\e\\"
+  }
+  precmd() {
+    print -Pn "\ek$ZSH_NAME\e\\"
+  }
+elif [[ "$TERM" == (xterm*|rxvt*|screen*) ]]; then
+  precmd() {
+    print -Pn "\e]0;%m@%n:%~\a"
+  }
+fi
 
 
 
 
 # Prompt  #{{{1
+
+autoload -Uz add-zsh-hook
+autoload -Uz vcs_info
+zstyle ':vcs_info:*' actionformats '[%s:%b|%a]'
+zstyle ':vcs_info:*' formats '[%s:%b]'
+zstyle ':vcs_info:bzr:*' use-simple true
+
+add-zsh-hook precmd vcs_info
 
 function prompt_setup() {
   local user
@@ -94,7 +127,8 @@ function prompt_setup() {
   local vcs='$vcs_info_msg_0_'
   local main=$'%{\e[0m%}YUKI.N%(!.#.>) '
 
-  PS1="$user@$host $cwd $vcs
+  PS1="
+$user@$host $cwd $vcs
 $main"
 }
 
@@ -102,44 +136,10 @@ prompt_setup
 unset -f prompt_setup
 
 
-
-
-# Title  #{{{1
-
-autoload -Uz vcs_info
-zstyle ':vcs_info:*' actionformats '[%s:%b|%a]'
-zstyle ':vcs_info:*' formats '[%s:%b]'
-zstyle ':vcs_info:bzr:*' use-simple true
-
-
-if [ "$WINDOW" ]; then  # is GNU screen
-  preexec() {
-    local -a cmd; cmd=(${(z)2})
-    case "$cmd[1]" in
-    sudo)
-      cmd=($cmd[2])
-      ;;
-    fg|%*)
-      local -A jt; jt=(${(kv)jobtexts})
-      cmd=(${(z)${(e):-\$jt$num}})
-      ;;
-    esac
-    print -Pn "\ek$cmd[1]:t\e\\"
-  }
-  precmd() {
-    vcs_info
-    print -Pn "\ek$ZSH_NAME\e\\"
-  }
-else
-  case "$TERM" in
-  xterm*|rxvt*|screen*)
-    precmd() {
-      vcs_info
-      print -Pn "\e]0;%m@%n:%~\a"
-    }
-    ;;
-  esac
-fi
+accept-line() {
+  zle .accept-line && region_highlight=("0 ${#BUFFER} bold")
+}
+zle -N accept-line
 
 
 
@@ -159,43 +159,31 @@ alias diff='colordiff -u'
 alias grep='grep -E --color'
 alias lv='lv -c'
 alias pstree='pstree -A'
-
-if which emerge &>/dev/null; then
-  alias emerge='emerge -a'
-fi
-
+alias vim='vim --servername VIM'
 
 alias s='sudo '
 alias v='vim'
-alias vim='vim --servername VIM'
 
 
 alias mount-cifs='sudo mount -t cifs -o defaults,noatime,user,iocharset=utf8,uid=$USER,gid=users,file_mode=0644,dir_mode=0755,username=$USER'
 alias untarbz2='tar -vxjf'
 alias untargz='tar -vxzf'
 
-if [ -n "$DISPLAY" ] && which mplayer &>/dev/null; then
-  alias mplayer-webcam='mplayer tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1:forceaudio:immediatemode=0:width=1280:height=720:fps=30'
-  alias mencoder-webcam='mencoder tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1:forceaudio:immediatemode=0:width=1280:height=720:fps=30 -ovc x264 -x264encopts bitrate=1000:threads=2 -oac faac -faacopts br=64 -vf scale=640:360,harddup -o'
-fi
 
 if [ -n "$DISPLAY" ] && which xsel &>/dev/null; then
   alias pbcopy='xsel --input --clipboard'
   alias pbpaste='xsel --output --clipboard'
 fi
 
-
-
-
-# Functions  #{{{1
-
 if [ -n "$DISPLAY" ] && which mplayer &>/dev/null; then
+  alias mplayer='__mplayer_wrapper'
+  alias mplayer-webcam='mplayer tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1:forceaudio:immediatemode=0:width=1280:height=720:fps=30'
+  alias mencoder-webcam='mencoder tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1:forceaudio:immediatemode=0:width=1280:height=720:fps=30 -ovc x264 -x264encopts bitrate=1000:threads=2 -oac faac -faacopts br=64 -vf scale=640:360,harddup -o'
   function __mplayer_wrapper() {
     xset -dpms
     /usr/bin/env mplayer $@
     xset +dpms
   }
-  alias mplayer='__mplayer_wrapper'
 fi
 
 
@@ -208,30 +196,32 @@ bindkey -e
 bindkey "^P" history-beginning-search-backward
 bindkey "^N" history-beginning-search-forward
 
-# Home / End
-bindkey "\e[1~" beginning-of-line
-bindkey "\e[4~" end-of-line
-bindkey "\e[7~" beginning-of-line
-bindkey "\e[8~" end-of-line
-bindkey "\e[H" beginning-of-line
-bindkey "\e[F" end-of-line
 
-# PageUp / PageDown
+bindkey "\e[1~" beginning-of-line
+bindkey "\e[2~" overwrite-mode
+bindkey "\e[3~" delete-char
+bindkey "\e[4~" end-of-line
 bindkey "\e[5~" history-search-backward
 bindkey "\e[6~" history-search-forward
+bindkey "\e[7~" beginning-of-line
+bindkey "\e[8~" end-of-line
+bindkey "\e[F" end-of-line
+bindkey "\e[H" beginning-of-line
 
-# Insert
-bindkey "\e[2~" overwrite-mode
 
-# Delete
-bindkey "\e[3~" delete-char
+autoload -Uz select-word-style
+select-word-style default
+zstyle ':zle:*' word-chars " _-./;@"
+zstyle ':zle:*' word-style unspecified
 
 
 
 
 # Completion  #{{{1
 
-zstyle ':completion:*' completer _expand _complete _ignored
+autoload -U compinit
+compinit
+zstyle ':completion:*' completer _oldlist _expand _complete _ignored
 zstyle ':completion:*' list-colors ''
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' menu select=1
@@ -239,9 +229,6 @@ zstyle ':completion:*' use-cache true
 zstyle ':completion:*' verbose true
 zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
-
-autoload -U compinit
-compinit
 
 
 
