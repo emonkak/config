@@ -4,6 +4,10 @@
   max-width: none !important;
 }
 
+#center_col > #tads,
+#center_col ~ #rhs {
+  display: none !important;
+}
 #leftnav {
   right: 0px !important;
 }
@@ -12,10 +16,14 @@
   border-left: none !important;
   border-right: 1px solid #d3e1f9 !important;
   margin-left: 0px !important;
-  margin-right: 169px !important;
+  margin-right: 155px !important;
 }
 
 #center_col > #tads,
-#center_col ~ #rhs {
+#center_col ~ #rhs,
+#vspb,
+.vspi,
+.vspib,
+.ws {
   display: none !important;
 }
