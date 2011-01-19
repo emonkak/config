@@ -7,14 +7,17 @@ usermodmap="$HOME/.Xmodmap"
 
 xset r rate 250 30
 
+export BROWSER="google-chrome"
+export GTK2_RC_FILES="$HOME/.gtkrc-2.0"
+
 export XMODIFIERS="@im=uim"
 export GTK_IM_MODULE="uim"
 export QT_IM_MODULE="uim"
 uim-xim &
 
-FG="#cccccc"
-BG="#000000"
-FONT="-artwiz-glisp-medium-r-normal--11-*-*-*-*-*-*-*"
-conky | dzen2 -x 680 -y 0 -w 600 -h 18 -ta r -fg "$FG" -bg "$BG" -fn "$FONT" -e "" &
+FG="#dcdccc"
+BG="#222222"
+FONT="-artwiz-gelly-medium-r-normal--10-*-*-*-*-*-*-*"
+conky | dzen2 -x 1320 -y 0 -w 600 -h 14 -ta r -fg "$FG" -bg "$BG" -fn "$FONT" -e "" &
 
-dbus-launch --sh-syntax --exit-with-session xmonad
+exec dbus-launch --sh-syntax --exit-with-session xmonad
