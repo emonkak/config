@@ -151,23 +151,28 @@ alias la='ls -a'
 alias ll='ls -l'
 alias lla='ls -la'
 
-alias cp='cp -i'
-alias mv='mv -i'
-alias rm='rm -i'
+alias cp='cp -iv'
+alias mv='mv -iv'
+alias rm='rm -Iv'
+
+autoload zmv
+alias zmv='noglob zmv'
 
 alias diff='colordiff -u'
-alias grep='grep -E --color'
+alias git='noglob git'
+alias grep='grep --color -E'
 alias lv='lv -c'
 alias pstree='pstree -A'
 alias vim='vim --servername VIM'
 
 alias s='sudo '
 alias v='vim'
+alias V='vim --remote-tab-silent'
 
 
 alias mount-cifs='sudo mount -t cifs -o defaults,noatime,user,iocharset=utf8,uid=$USER,gid=users,file_mode=0644,dir_mode=0755,username=$USER'
-alias untarbz2='tar -vxjf'
-alias untargz='tar -vxzf'
+alias untarbz2='tar vxjf'
+alias untargz='tar vxzf'
 
 
 if [ -n "$DISPLAY" ] && which xsel &>/dev/null; then
@@ -196,17 +201,20 @@ bindkey -e
 bindkey "^P" history-beginning-search-backward
 bindkey "^N" history-beginning-search-forward
 
+bindkey "\e\e[3~" delete-word  # <A-Delete>
+bindkey "\eh" backward-delete-word  # <A-h>
+bindkey '_^?' backward-delete-word  # <A-Backspace>
 
-bindkey "\e[1~" beginning-of-line
-bindkey "\e[2~" overwrite-mode
-bindkey "\e[3~" delete-char
-bindkey "\e[4~" end-of-line
-bindkey "\e[5~" history-search-backward
-bindkey "\e[6~" history-search-forward
-bindkey "\e[7~" beginning-of-line
-bindkey "\e[8~" end-of-line
-bindkey "\e[F" end-of-line
-bindkey "\e[H" beginning-of-line
+bindkey "\e[1~" beginning-of-line  # <Home>
+bindkey "\e[2~" overwrite-mode  # <Insert>
+bindkey "\e[3~" delete-char  # <Delete>
+bindkey "\e[4~" end-of-line  # <End>
+bindkey "\e[5~" history-search-backward  # <Up>
+bindkey "\e[6~" history-search-forward  # <Down>
+bindkey "\e[7~" beginning-of-line  # <Home>
+bindkey "\e[8~" end-of-line  # <End>
+bindkey "\e[F" end-of-line  # <End>
+bindkey "\e[H" beginning-of-line  # <Home>
 
 
 autoload -Uz select-word-style
