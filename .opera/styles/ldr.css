@@ -1,12 +1,12 @@
 @import url("user.css");
 
 * {
-  font-family: 'Lucida Grande', 'Trebuchet MS', sans-serif !important;
+  font-family: 'Droid Sans', 'Trebuchet MS', sans-serif !important;
 }
 
 pre,
 pre * {
-  font-family: 'Menlo', 'Consolas', 'Courier New', monospace !important;
+  font-family: 'TheSans Mono' ,'Consolas', monospace !important;
 }
 
 blockquote,
@@ -23,6 +23,7 @@ blockquote p {
 
 #left_container {
   border-right: 1px solid #cccccc !important;
+  z-index: 1 !important;
 }
 
 #right_container {
@@ -39,7 +40,7 @@ blockquote p {
 
 .folderitem,
 .treeitem {
-  font-weight: bold !important;
+  font-weight: bold;
 }
 
 .title {
@@ -53,14 +54,33 @@ blockquote p {
   margin: 0px !important;
 }
 
+.item_info {
+  text-indent: -3em !important;
+}
+
+.item_info > a {
+  visibility: hidden !important;
+}
+
+.item_info > a::after {
+  font-size: smaller !important;
+  visibility: visible !important;
+  content: attr(href) !important;
+}
+
+.category {
+  color: #717578 !important;
+}
+
 .item {
   border-bottom: 1px solid #cccccc !important;
   margin-left: 0px !important;
   margin-right: 0px !important;
+  word-wrap: break-word;
 }
 
 .padding {
-  border-width: 0px !important;
+  border: none !important;
   margin-top: 0px !important;
   margin-bottom: 0px !important;
 }
@@ -72,6 +92,7 @@ blockquote p {
 
 .hilight {
   background-color: #f5f5f5 !important;
+  border: none !important;
 }
 
 .body img {
@@ -88,14 +109,22 @@ blockquote p {
 
 #total_unread_count {
   position: fixed !important;
-  top: 6px !important;
-  right: 6px !important;
+  top: 14px !important;
+  right: 0px !important;
+  height: 14px !important;
+  margin-top: -7px !important;
+  padding: 0px 6px !important;
   z-index: 1 !important;
 }
 
 #menu {
   position: static !important;
   height: 30px !important;
+}
+
+.body > a[href^='http://rss.rssad.jp'],
+.body > a[href^='http://rss.rssad.jp'] + br {
+  display: none !important;
 }
 
 #header,
@@ -105,6 +134,7 @@ blockquote p {
 #down_button,
 #myclip_button,
 #myfeed,
+#right_top_navi,
 #GuideHeadBox,
 .adsWrapper,
 .fontpad,
