@@ -7,4 +7,4 @@ use_spacer none
 lua_load $HOME/.conky.lua
 
 TEXT
-${lua_parse dzen_cpu_graph 50} ${lua_parse dzen_mem_graph 50} ^fg(\#666666)|^fg() ${lua_parse dzen_net_monitor wlan0} ^fg(\#666666)|^fg() ${lua_parse dzen_mixer} ^fg(\#666666)|^fg() ${time %a %_d %b %H:%M:%S }
+${lua_parse dzen_cpu_graph 50} ${lua_parse dzen_mem_graph 50} ^fg(\#666666)|^fg() ${lua_parse dzen_net_monitor eth0} ^fg(\#666666)|^fg() ${lua_parse dzen_mixer} ^fg(\#666666)|^fg() ${time %a %_d %b %H:%M }
