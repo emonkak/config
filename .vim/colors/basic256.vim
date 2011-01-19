@@ -1,16 +1,36 @@
-" Vim colorscheme: basic
-" Copyright (C) 2010 emonkak <http://github.com/emonkak/>
-" Absolute  "{{{1
+" Vim colorscheme: basic256
+" Version: 0.0.0
+" Copyright (C) 2010 emonkak <emonkak@gmail.com>
+" License: MIT license  {{{
+"     Permission is hereby granted, free of charge, to any person obtaining
+"     a copy of this software and associated documentation files (the
+"     "Software"), to deal in the Software without restriction, including
+"     without limitation the rights to use, copy, modify, merge, publish,
+"     distribute, sublicense, and/or sell copies of the Software, and to
+"     permit persons to whom the Software is furnished to do so, subject to
+"     the following conditions:
+"
+"     The above copyright notice and this permission notice shall be included
+"     in all copies or substantial portions of the Software.
+"
+"     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+"     OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+"     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+"     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+"     CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+"     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+"     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+" }}}
+" Init  "{{{1
 
 highlight clear
 set background=dark
 
-if exists("syntax_on")
+if exists('syntax_on')
   syntax reset
 endif
 
-let g:colors_name = "basic256"
-
+let g:colors_name = 'basic256'
 
 
 
@@ -21,6 +41,8 @@ let s:gui_colors = [
 \  '#000099', '#990099', '#009999', '#999999',
 \  '#555555', '#cc6633', '#00cc00', '#cccc00',
 \  '#3366cc', '#cc00cc', '#00cccc', '#ffffff',
+\ ]
+let s:gui_colors += [
 \  '#000000', '#00005f', '#000087', '#0000af',
 \  '#0000d7', '#0000ff', '#005f00', '#005f5f',
 \  '#005f87', '#005faf', '#005fd7', '#005fff',
@@ -87,8 +109,7 @@ let s:gui_colors = [
 
 
 " Utilities  "{{{1
-
-function! s:attributes(attr)
+function! s:attributes(attr)  "{{{2
   let _ = {
   \ 'b': 'bold',
   \ 'c': 'undercurl',
@@ -101,37 +122,35 @@ function! s:attributes(attr)
   \      join(map(split(a:attr, '.\zs'), 'get(_, v:val, "")'), ',')
 endfunction
 
-if has('gui_running')
-  function! s:highlight(name, attr, ...)
-    let _ = ['fg=', 'bg=', 'sp=']
+
+
+
+function! s:highlight(name, attr, ...)  "{{{2
+  let _ = ['fg=', 'bg=', 'sp=']
+  if has('gui_running')
     let args = a:000[:2]
-    let prefix = 'gui'
+    let type = 'gui'
     call map(args,
-    \       'prefix . remove(_, 0) . (v:val > -1 ? s:gui_colors[v:val] : "NONE")')
-    execute 'highlight' a:name
-    \       prefix . '=' . s:attributes(a:attr)
-    \       join(args)
-  endfunction
-else
-  function! s:highlight(name, attr, ...)
-    let _ = ['fg=', 'bg=']
+    \       'type . remove(_, 0) . (v:val > -1 ? s:gui_colors[v:val % 255] : "NONE")')
+  else
     let args = a:000[:1]
-    let prefix = 'cterm'
+    let type = 'cterm'
     call map(args,
-    \       'prefix . remove(_, 0) . (v:val > -1 ? v:val : "NONE")')
-    execute 'highlight' a:name
-    \       prefix . '=' . s:attributes(a:attr)
-    \       join(args)
-  endfunction
-endif
+    \       'type . remove(_, 0) . (v:val > -1 ? v:val % &t_Co : "NONE")')
+  endif
+  execute 'highlight' a:name
+  \       type . '=' . s:attributes(a:attr)
+  \       join(args)
+endfunction
 
 
 
 
-" General colors  "{{{1
+" Highlighting  "{{{1
+" Basic  "{{{2
 
 if has('gui_running')
-  highlight Normal   guifg=#cccccc guibg=#222222
+  highlight Normal   guifg=#cccccc guibg=#111111
   highlight Cursor   guifg=#000000 guibg=#009900
   highlight CursorIM guifg=#000000 guibg=#009999
   highlight lCursor  guifg=#000000 guibg=#009999
@@ -158,7 +177,7 @@ call s:highlight('IncSearch'    , 'r' , -1, -1)
 call s:highlight('Search'       , ''  ,  0, 11)
 
 call s:highlight('StatusLine'   , 'br', -1,  0)
-call s:highlight('StatusLineNC' , 'r' ,  7,  0)
+call s:highlight('StatusLineNC' , ''  ,  0,  7)
 
 call s:highlight('Folded'       , ''  ,  6, -1)
 call s:highlight('FoldColumn'   , ''  ,  6, -1)
@@ -192,13 +211,13 @@ call s:highlight('TabLineSel'   , 'b' , -1, -1)
 call s:highlight('TabLineFill'  , 'r' , -1,  0)
 
 call s:highlight('CursorColumn' , ''  , -1,  0)
-call s:highlight('CursorLine'   , ''  , -1,  0)
+call s:highlight('CursorLine'   , 'u' , -1, -1)
 call s:highlight('ColorColumn'  , ''  , -1,  8)
 
 
 
 
-" Syntax highlighting  "{{{1
+" Syntax  "{{{2
 
 call s:highlight('Comment'      , ''  ,  14, -1)
 call s:highlight('Constant'     , ''  ,  13, -1)
