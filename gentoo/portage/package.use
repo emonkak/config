@@ -1,32 +1,49 @@
 app-admin/conky mpd lua
 app-editors/gvim gtk
 app-editors/vim X
-app-emulation/qemu-kvm alsa
-app-emulation/wine alsa jpeg png xml
-app-i18n/uim -anthy X gtk xft linguas_ja
+app-editors/yi gtk
+app-emulation/qemu-kvm alsa sdl
+app-emulation/wine alsa fontconfig jpeg mp3 png xml
+app-i18n/ibus X gtk python
+app-i18n/uim -anthy X gtk xft linguas_ja skk
+app-misc/mfiler3 migemo
 app-misc/tmux cjk
 app-portage/eix sqlite
+app-shells/saphire migemo
 app-text/acroread minimal linguas_ja
+app-text/asciidoc -vim-syntax
+app-text/ghostscript-gpl X gtk
+app-text/lcdf-typetools kpathsea
 app-text/poppler -abiword cairo cjk
 app-text/ptex X
+app-text/texlive X cjk
+app-text/texlive-core X cjk
+dev-lang/ghc ghcbootstrap
 dev-lang/python sqlite
+dev-libs/boost python
 dev-libs/libxml2 python
-dev-vcs/git perl
-media-gfx/fontforge cairo cjk svg
-media-gfx/gimp exif jpeg png svg
+dev-vcs/git cvs perl subversion
+dev-vcs/subversion -dso perl python
+media-fonts/terminus-font -psf -ru-g
+media-gfx/fontforge cairo cjk pango svg
+media-gfx/gimp dbus exif jpeg png svg
+media-gfx/graphviz gtk cairo
 media-gfx/imagemagick X jpeg png
 media-libs/freetype X utils
-media-libs/gd jpeg png truetype
+media-libs/gd fontconfig jpeg png truetype
 media-libs/imlib2 X gif jpeg png
 media-libs/libass enca
 media-libs/libsdl X alsa xv
+media-libs/mesa gles
 media-sound/ncmpcpp clock taglib
-media-video/ffmpeg alsa faac mp3 theora v4l2 vorbis x264 xvid
-media-video/mplayer v4l2 vaapi xvmc
+media-sound/sonata -trayicon taglib
+media-video/ffmpeg alsa faac mp3 theora v4l2 vaapi vorbis x264 xvid
+media-video/mplayer png v4l2 vaapi xvmc
 media-video/vlc aac alsa dvd flac matroska mp3 mpeg ogg theora v4l2 vaapi vorbis x264 xv
 net-misc/rdesktop ao oss
 net-print/bjfilter ip3100
 net-print/cups samba
+sys-apps/groff linguas_ja
 sys-apps/smartmontools minimal
 sys-devel/gcc -fortran
 sys-fs/udev extras
@@ -34,9 +51,10 @@ sys-kernel/gentoo-sources symlink
 sys-kernel/vanilla-sources symlink
 www-client/opera gtk
 www-client/w3m linguas_ja
-x11-drivers/nvidia-drivers gtk
-x11-libs/cairo X lcdfilter svg
+x11-libs/cairo X lcdfilter opengl svg
+x11-libs/gdk-pixbuf jpeg
 x11-libs/gtk+ jpeg
 x11-libs/pango X
-x11-libs/qt-gui dbus
-x11-terms/rxvt-unicode truetype xterm-color
+x11-libs/qt-gui dbus gtk
+x11-terms/evilvte savedconfig
+x11-terms/rxvt-unicode 256-color truetype

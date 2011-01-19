@@ -1,2 +1,5 @@
-net-wireless/b43-firmware **
+=sys-apps/portage-2.2* **
+dev-scheme/c-wrapper **
+dev-scheme/gambit **
 www-client/chromium-bin **
+www-client/google-chrome **
