@@ -4,24 +4,24 @@
 import XMonad hiding (Tall)
 
 import XMonad.Actions.CycleWS
-import XMonad.Actions.DwmPromote
+import XMonad.Actions.Promote
+import XMonad.Actions.FloatSnap
 
 import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.FadeInactive
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
 
-import XMonad.Layout.Cross
-import XMonad.Layout.HintedTile
 import XMonad.Layout.IM
-import XMonad.Layout.LayoutHints
-import XMonad.Layout.MagicFocus
 import XMonad.Layout.Named
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Reflect
+import XMonad.Layout.ResizableTile
 import XMonad.Layout.Tabbed
 import XMonad.Layout.ToggleLayouts
+import XMonad.Layout.TrackFloating
 
 import XMonad.Util.EZConfig
 import XMonad.Util.Loggers
@@ -45,43 +45,48 @@ import qualified XMonad.StackSet as W
 -- Lauout  --{{{2
 
 myLayoutHook = avoidStruts $
-  onWorkspace "5:gimp" gimpLayout $
-  toggleLayouts (noBorders Full) (hintedTile Wide ||| hintedTile Tall ||| crossLayout)
+  onWorkspace "gimp" gimpLayout $
+  toggleLayouts (noBorders Full) (smartBorders $ tallLayout ||| wideLayout)
   where
-    hintedTile  = smartBorders . (HintedTile 1 (3/100) (3/5) TopLeft)
-    crossLayout = named "Cross" $ layoutHints $ Cross (4/5) (5/100)
-    tabLayout   = tabbed shrinkText myTheme
-    gimpLayout  = named "Gimp" $
-                  withIM (0.15) (Role "gimp-toolbox") $
-                  reflectHoriz $ withIM (0.20) (Role "gimp-dock") $
-                  reflectHoriz $ tabLayout
+    resizeTall = ResizableTall 1 (3/100) (1/2) []
+    tallLayout = named "Tall" $ resizeTall
+    wideLayout = named "Wide" $ Mirror $ resizeTall
+    tabbedLayout = named "Tabbed" $ tabbed shrinkText myTheme
+    gimpLayout = named "Gimp" $ withIM (0.15) (Role "gimp-toolbox") $
+                 reflectHoriz $ withIM (0.20) (Role "gimp-dock") $
+                 reflectHoriz $ trackFloating $ tabbedLayout
 
 
 
 
 -- Manage  --{{{2
 
-myManageHook = composeAll
-  [ className =? "stalonetray"   --> doIgnore
-  , className =? "Gnome-mplayer" --> doCenterFloat
-  , className =? "MPlayer"       --> doCenterFloat
-  , className =? "Xmessage"      --> doCenterFloat
-  , className =? "feh"           --> doCenterFloat
-  , className =? "rdesktop"      --> doCenterFloat
-  , className =? "XFontSel"      --> doFloat
-  , className =? "XmBDFEdit"     --> doFloat <+> doShiftAndGo "3:gfx"
-  , className =? "fontforge"     --> doFloat <+> doShiftAndGo "3:gfx"
-  , className =? "Chrome"        --> doShiftAndGo "2:web"
-  , className =? "Opera"         --> doShiftAndGo "2:web"
-  , className =? "Pidgin"        --> doShiftAndGo "2:web"
-  , className =? "Skype"         --> doShiftAndGo "2:web"
-  , className =? "GQview"        --> doShiftAndGo "3:gfx"
-  , className =? "Inkscape"      --> doShiftAndGo "3:gfx"
-  , className =? "Gimp"          --> doShiftAndGo "5:gimp"
-  , className =? "Gimp" <&&>
-    role /=? "gimp-toolbox" <&&>
-    role /=? "gimp-dock" <&&>
-    role /=? "gimp-image-window" --> doCenterFloat
+myManageHook = composeOne
+  [ isFullscreen                         -?> doFullFloat
+  , isDialog                             -?> doCenterFloat
+  , appName    =? "messageconsoledialog" -?> doCenterFloat
+  , className  =? "Evince"               -?> doCenterFloat
+  , className  =? "MPlayer"              -?> doCenterFloat
+  , className  =? "Smplayer"             -?> doCenterFloat
+  , className  =? "XDvi"                 -?> doCenterFloat
+  , className  =? "XFontSel"             -?> doCenterFloat
+  , className  =? "Xmessage"             -?> doCenterFloat
+  , className  =? "feh"                  -?> doCenterFloat
+  , className  =? "qemu-system-x86_64"   -?> doCenterFloat
+  , className  =? "rdesktop"             -?> doCenterFloat
+  , className  =? "Gimp"
+    <&&> role /=? "gimp-toolbox"
+    <&&> role /=? "gimp-dock"
+    <&&> role /=? "gimp-image-window"    -?> doFloat
+  , className  =? "Pidgin"               -?> doFloat <+> doShiftAndGo "web"
+  , className  =? "Skype"                -?> doFloat <+> doShiftAndGo "web"
+  , className  =? "XmBDFEdit"            -?> doFloat <+> doShiftAndGo "media"
+  , className  =? "fontforge"            -?> doFloat <+> doShiftAndGo "media"
+  , className  =? "Google-chrome"        -?> doShiftAndGo "web"
+  , className  =? "Opera"                -?> doShiftAndGo "web"
+  , className  =? "GQview"               -?> doShiftAndGo "media"
+  , className  =? "Inkscape"             -?> doShiftAndGo "media"
+  , className  =? "Gimp"                 -?> doShiftAndGo "gimp"
   ]
   where
     doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
@@ -93,23 +98,23 @@ myManageHook = composeAll
 -- Log  --{{{2
 
 myLogHook h = do
+  home <- io $ getEnv "HOME"
+  floatp <- withWindowSet isFloat
+  let dzenIcon = wrap ("^i(" ++ home ++ "/.dzen/") ")"
   dynamicLogWithPP $ defaultPP
-    { ppCurrent         = dzenColor "#ffffff" "#3366cc" . wrap (dzenIcon "square.xbm") " "
-    , ppHidden          = dzenColor "#cccccc" ""        . wrap (dzenIcon "square2.xbm") " "
-    , ppHiddenNoWindows = dzenColor "#666666" ""        . wrap "^p(8)" " "
+    { ppCurrent         = dzenColor "#222222" "#63afaf" . wrap (dzenIcon "square.xbm") " "
+    , ppHidden          = dzenColor "#dcdccc" "" . wrap (dzenIcon "square3.xbm") " "
+    , ppHiddenNoWindows = wrap "^p(8)" " "
     , ppSep             = dzenColor "#666666" "" " | "
     , ppWsSep           = ""
-    , ppTitle           = dzenEscape
-    , ppLayout          = \x -> case x of
-                          "Wide" -> dzenIcon "layout-mirror-bottom.xbm"
-                          "Tall" -> dzenIcon "layout-tall-right.xbm"
-                          "Full" -> dzenIcon "layout-full.xbm"
-                          "Gimp" -> dzenIcon "layout-im-tall.xbm"
-                          _      -> x
+    , ppTitle           = if floatp then (dzenIcon "square.xbm" ++) . dzenEscape else dzenEscape
+    , ppLayout          = dzenColor "#63afaf" ""
     , ppOutput          = hPutStrLn h
     }
   where
-    dzenIcon = wrap ("^i(" ++ (unsafePerformIO $ getEnv "HOME") ++ "/.dzen/") ")"
+    isFloat ws = case W.peek ws of
+      Nothing -> return False
+      Just w  -> return $ M.member w $ W.floating ws
 
 
 
@@ -117,41 +122,41 @@ myLogHook h = do
 -- Handle Event  --{{{2
 
 -- Don't focus follows mouse when Cross layout.
-myHandleEventHook = followOnlyIf $ fmap (\x -> case x of
-                      "Cross" -> False
-                      _       -> True
-                    ) curLayout
-  where
-    curLayout = withWindowSet $ return . description . W.layout . W.workspace . W.current
+-- myHandleEventHook = followOnlyIf $ fmap (\x -> case x of
+--                       "Cross" -> False
+--                       _       -> True
+--                     ) currentLayout
+--   where
+--     currentLayout = withWindowSet $ return . description . W.layout . W.workspace . W.current
 
 
 
 
 -- Theme  --{{{1
 
-myFont = "-artwiz-glisp-medium-r-normal--11-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--12-*-*-*-*-*-*-*"
+myFont = "-artwiz-gelly-medium-r-normal--10-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--10-*-*-*-*-*-*-*"
 
 myTheme = defaultTheme
   { fontName            = myFont
-  , activeColor         = "#003366"
-  , activeBorderColor   = "#3366cc"
-  , activeTextColor     = "#cccccc"
-  , inactiveColor       = "#000000"
-  , inactiveBorderColor = "#333333"
-  , inactiveTextColor   = "#999999"
-  , decoHeight          = 18
+  , activeColor         = "#63afaf"
+  , activeBorderColor   = "#63afaf"
+  , activeTextColor     = "#222222"
+  , inactiveColor       = "#666666"
+  , inactiveBorderColor = "#666666"
+  , inactiveTextColor   = "#dcdccc"
+  , decoHeight          = 14
   }
 
 myXPConfig = defaultXPConfig
   { font              = myFont
-  , fgColor           = "#cccccc"
-  , fgHLight          = "#cccc00"
-  , bgColor           = "#000000"
-  , bgHLight          = "#000000"
-  , borderColor       = "#333333"
+  , fgColor           = "#dcdccc"
+  , bgColor           = "#222222"
+  , fgHLight          = "#63afaf"
+  , bgHLight          = "#222222"
+  , borderColor       = "#000000"
   , promptBorderWidth = 0
   , position          = Top
-  , height            = 18
+  , height            = 14
   , historyFilter     = deleteAllDuplicates
   }
 
@@ -161,10 +166,12 @@ myXPConfig = defaultXPConfig
 -- Keys  --{{{1
 
 myKeys conf = mkKeymap conf $
-  [ ("M-<Return>",   dwmpromote)
+  [ ("M-<Return>",   promote)
   , ("M-<Space>",    sendMessage NextLayout)
   , ("M-S-<Return>", spawn $ XMonad.terminal conf)
   , ("M-S-<Space>",  setLayout $ XMonad.layoutHook conf)
+
+  , ("M-b",          sendMessage ToggleStruts)
   , ("M-f",          sendMessage ToggleLayout)
 
   , ("M-<Tab>",      moveTo Next NonEmptyWS)
@@ -178,9 +185,12 @@ myKeys conf = mkKeymap conf $
   , ("M-h",          sendMessage Shrink)
   , ("M-l",          sendMessage Expand)
 
+  , ("M-S-h",        sendMessage MirrorExpand)
+  , ("M-S-l",        sendMessage MirrorShrink)
+
   , ("M-t",          withFocused $ windows . W.sink)
-  , ("M-.",          sendMessage $ IncMasterN 1)
-  , ("M-,",          sendMessage $ IncMasterN (-1))
+  , ("M-,",          sendMessage $ IncMasterN 1)
+  , ("M-.",          sendMessage $ IncMasterN (-1))
 
   , ("M-n",          refresh)
   , ("M-q",          spawn "xmonad --recompile && xmonad --restart")
@@ -189,54 +199,58 @@ myKeys conf = mkKeymap conf $
 
   , ("M-p",          shellPrompt myXPConfig)
 
-  , ("M-=",          spawn "amixer -q set Master 5%+")
-  , ("M--",          spawn "amixer -q set Master 5%-")
-  , ("M-S-<Esc>",    spawn "sleep 1; xset dpms force off")
+  , ("M-M1-j",       withFocused $ snapMove D Nothing)
+  , ("M-M1-k",       withFocused $ snapMove U Nothing)
+  , ("M-M1-h",       withFocused $ snapMove L Nothing)
+  , ("M-M1-l",       withFocused $ snapMove R Nothing)
 
-  , ("M-\\",         spawn "ncmpcpp toggle")
-  , ("M-[",          spawn "ncmpcpp prev")
-  , ("M-]",          spawn "ncmpcpp next")
+  , ("M-C-<Space>",  spawn "feh --bg-fill \"$(find ~/Pictures/wallpaper/anime -type f -name '*.jpg' -o -name '*.png' | shuf -n 1)\"")
 
-  , ("M-x c",        spawn "chromium-bin")
-  , ("M-x e",        spawn "gvim")
-  , ("M-x g",        spawn "gimp")
-  , ("M-x o",        spawn "opera")
-  , ("M-x v",        spawn "gqview")
+  , ("M-=",          safeSpawn "amixer" ["-q", "set", "Master", "5%+"])
+  , ("M--",          safeSpawn "amixer" ["-q", "set", "Master", "5%-"])
 
-  , ("<Print>",      spawn "scrot -e 'mv $f ~/Desktop' '%y%m%d-%H%M%S.png'")
+  , ("M-\\",         safeSpawn "ncmpcpp" ["toggle"])
+  , ("M-[",          safeSpawn "ncmpcpp" ["prev"])
+  , ("M-]",          safeSpawn "ncmpcpp" ["next"])
+
+  , ("M-x c",        safeSpawnProg "google-chrome")
+  , ("M-x e",        safeSpawnProg "gvim")
+  , ("M-x g",        safeSpawnProg "gimp")
+  , ("M-x o",        safeSpawnProg "opera")
+  , ("M-x v",        safeSpawnProg "gqview")
+
+  , ("M-<Print>",    safeSpawn "scrot" ["-e", "mv $f ~/Desktop", "%y%m%d-%H%M%S.png"])
   ]
   ++
-
-  [(m ++ k, windows $ f w)
-    | (w, k) <- zip (XMonad.workspaces conf) (map show [1..9])
-    , (m, f) <- [("M-", W.greedyView), ("M-S-", W.shift)]]
+  [ (m ++ k, windows $ f w)
+  | (w, k) <- zip (XMonad.workspaces conf) (map show [1..9])
+  , (m, f) <- [("M-", W.greedyView), ("M-S-", W.shift)]
+  ]
 
 
 
 
 -- Main  --{{{1
 
-myStatusbar = "dzen2 -x 0 -y 0 -w 1280 -h 18 -ta l -fg '#cccccc' -bg '#000000' -fn '" ++ myFont ++
-              "' -e 'onstart=lower'"
-myWorkspaces = ["1:term", "2:web", "3:gfx", "4:misc", "5:gimp"]
+myStatusbar = "dzen2 -x 0 -y 0 -w 1920 -h 14 -ta l -fg '#dcdccc' -bg '#222222'"
+              ++ " -fn '" ++ myFont ++ "' -e 'onstart=lower'"
 
 main = do
   statusPipe <- spawnPipe myStatusbar
   xmonad $ defaultConfig
     { terminal           = "urxvt"
-    , normalBorderColor  = "#333333"
-    , focusedBorderColor = "#3366cc"
+    , normalBorderColor  = "#666666"
+    , focusedBorderColor = "#63afaf"
     , borderWidth        = 2
 
-    , workspaces         = myWorkspaces
+    , workspaces         = ["work", "web", "misc", "media", "gimp"]
     , modMask            = mod4Mask
     , keys               = myKeys
 
     , layoutHook         = myLayoutHook
     , manageHook         = manageDocks <+> myManageHook
-    , logHook            = myLogHook statusPipe
+    , logHook            = fadeInactiveLogHook 0xdddddddd <+> myLogHook statusPipe
     , startupHook        = setWMName "LG3D"
-    , handleEventHook    = myHandleEventHook
 
     , focusFollowsMouse  = True
     }
