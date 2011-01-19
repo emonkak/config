@@ -24,6 +24,7 @@ GROUP_DOTS_FILES=\
   .conky.lua \
   .conkyrc \
   .fonts.conf \
+  .mfiler3/mfiler3.sa \
   .screenrc \
   .tmux.conf \
   .vimrc \

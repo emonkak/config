@@ -1,0 +1,621 @@
+# My mfiler3.sa
+# Parameters  #{{{1
+
+export HISTORY_FILE=$MF3HOME/history
+export HISTORY_SIZE=1000
+export TRASHBOX_DIR=$HOME/.trash/
+
+export PROMPT='print "mfiler3 $VERSION with saphire $SAPHIRE_VERSION"'
+
+export CMDLINE_COLOR=1
+export CMDLINE_ESCAPE_KEY_ENABLE=1
+
+export VIEW_ADD_STAR_EXE=1
+export VIEW_DIVIDE_EXTENSION=0
+export VIEW_FILE_SIZE=Normal
+export VIEW_FOCUSBACK=0
+export VIEW_GROUP=0
+export VIEW_MTIME=0
+export VIEW_NLINK=0
+export VIEW_OPTION=2pain
+export VIEW_OWNER=0
+export VIEW_PAGE=0
+export VIEW_PERMISSION=0
+export VIEW_SIZE=1
+
+export COLOR_DIR=$ma_cyan
+export COLOR_EXE=$ma_red
+export COLOR_LINK=$ma_magenta
+export COLOR_MARK=$ma_yellow
+
+export SORT_KIND=name
+export SORT_DIR_UP=1
+export SORT_MARK_UP=0
+
+
+
+
+# Functions  #{{{1
+def cursor {  #{{{2
+  file_name $(cursor_num)
+}
+
+
+
+
+def cursor_move_loop {  #{{{2
+  cursor_move $(( ($(file_num) * 2 + $(cursor_num) + $ARGV[0]) % $(file_num) ))
+}
+
+
+
+
+def extname_length {  #{{{2
+  ext=$(extname -nl $ARGV[0])
+  if([ "$ext" = '' ]) {
+    print 0
+  } else {
+    print $(( $(length -nl "$ext") + 1))
+  }
+}
+
+
+
+
+def find_file {  #{{{2
+  find . @@ARGV | scan './(.+)' | vd
+}
+
+
+
+
+def glob_mark {  #{{{2
+  for file in @@ARGV {
+    mark $file 1
+  }
+}
+
+
+
+
+def open_file {  #{{{2
+  if([ $ARGV[0] -re '\.(aac|avi|flv|mkv|mov|mp3|ogg|ogv|wav|webm|wma|wmv)$' ]) {
+    external -q "mplayer -quiet $ARGV[0]"
+  } elif([ $ARGV[0] -re '\.(mp4|mpe?g)$' ]) {
+    external -q "mplayer -quiet -vo vaapi -va vaapi $ARGV[0]"
+  } elif([ $ARGV[0] -re '\.(bmp|gif|jpe?g|png)$' ]) {
+    external -q "feh  $ARGV[0]"
+  } elif([ $ARGV[0] -re '\.html?$' ]) {
+    external -q "w3m $ARGV[0]"
+  } elif([ $ARGV[0] -re '\.pdf$' ]) {
+    external -q "evince $ARGV[0]"
+  } elif([ $ARGV[0] -re '\.7z$' ]) {
+    external -q "7z l $ARGV[0] | lv"
+  } elif([ $ARGV[0] -re '\.(tar\.gz|tgz)$' ]) {
+    external -q "tar tvfz $ARGV[0] | lv"
+  } elif([ $ARGV[0] -re '\.tar\.bz2$' ]) {
+    external -q "tar tvfj $ARGV[0] | lv"
+  } elif([ $ARGV[0] -re '\.tar\.xz$' ]) {
+    external -q "tar tvfJ $ARGV[0] | lv"
+  } elif([ $ARGV[0] -re '\.rar$' ]) {
+    external -q "unrar vb $ARGV[0] | lv"
+  } elif([ $ARGV[0] -re '\.zip$' ]) {
+    external -q "zipinfo $ARGV[0] | lv"
+  } else {
+    external -q "lv $ARGV[0]"
+  }
+}
+
+
+
+
+def pack {  #{{{2
+  format=$ARGV[0]
+  args=$ARGV[1]
+
+  if ([ $(length -nl -L @(markfiles)) = 0 ]) {
+    cmdline "$$args $$(quote $(path -d sdir)$(cursor).$format) $$(quote $(cursor))" -$(( 6 + $(length -nl $(cursor)$format)))
+  } else {
+    dirname=$(match $(path) '[^/]+/$' | del 2)
+    cmdline "$$args $$(quote $(path -d sdir)$dirname.$format) @@(markfiles)" -$(( 17 + $(length -nl $format) ))
+  }
+
+  reread -d all
+}
+
+
+
+
+def pack_each {  #{{{2
+  format=$ARGV[0]
+  args=$ARGV[1]
+
+  minitscr
+  for file in @@(markfiles) {
+    $$args $(path -d sdir)$file.$format $file
+  }
+  mendwin
+  mclear_immediately
+
+  reread -d all
+}
+
+
+
+
+def quote {  #{{{2
+  if ([ $ARGV_size = 0 ]) {
+    print "''"
+  } else {
+    foreach @@ARGV { | printf "'%s'" | pomch } | join ' ' | chomp
+  }
+}
+
+
+
+
+def regex_mark {  #{{{2
+  for file in * .* {
+    if([ $file -re $ARGV[0] ]) {
+      mark -t $file 1
+    }
+  }
+}
+
+
+
+
+def regex_rename {  #{{{2
+  for file in @@(markfiles) {
+    if([ $file -re $ARGV[-2] ]) {
+      puts "$$file -> $$(sub $file $$(quote @@ARGV))"
+    } else {
+      puts "$$file"
+    }
+  } | lv
+
+  minitscr
+  if([ $(mchoise "rename ok?" no yes) = yes ]) {
+    mendwin
+    mclear_immediately
+
+    for file in @@(markfiles) {
+      if([ $file -re $ARGV[-2] ]) {
+        mrename $file $(sub $file $$(quote @@ARGV))
+      }
+    }
+  }
+
+  mclear_immediately
+  reread
+}
+
+
+
+
+def scroll_left {  #{{{2
+  if([ $(row) != 0 ]) {
+    cursor_move -$(line_max)
+  }
+}
+
+
+
+
+def scroll_right {  #{{{2
+  if([ $(row) != $(( $(row_max) -1 )) ]) {
+    cursor_move +$(line_max)
+  }
+}
+
+
+
+
+def toggle {  #{{{2
+  if([ $ARGV[0] = 0 ]) {
+    print 1
+  } else {
+    print 0
+  }
+}
+
+
+
+def zmv_rename {  #{{{2
+  zmv_wrapper -n @@ARGV %> | lv
+
+  minitscr
+  if([ $(mchoise "rename ok?" no yes) = yes ]) {
+    mendwin
+    mclear_immediately
+
+    zmv_wrapper @@ARGV
+  }
+
+  mclear_immediately
+  reread
+}
+
+
+
+
+# Menu  #{{{1
+defmenu attribute  #{{{2
+addmenu attribute 'ch(m)od (permission)'              $key_m 'cmdline "chmod  @@(markfiles)" 6; mark -a 0'
+addmenu attribute 'ch(o)wn (owner)'                   $key_o 'cmdline "chown  @@(markfiles)" 6; mark -a 0'
+addmenu attribute 'ch(g)rp (group)'                   $key_g 'cmdline "chgrp  @@(markfiles)" 6; mark -a 0'
+addmenu attribute 'ch(M)od -R (permission recursive)' $key_M 'cmdline "chmod -R  @@(markfiles)" 9; mark -a 0'
+addmenu attribute 'ch(O)wn -R (owner recursive)'      $key_O 'cmdline "chown -R  @@(markfiles)" 9; mark -a 0'
+addmenu attribute 'ch(G)rp -R (group recursive)'      $key_G 'cmdline "chgrp -R  @@(markfiles)" 9; mark -a 0'
+addmenu attribute 'm(a)ttr (permission and date)'     $key_a 'mattr @@(markfiles); mark -a 0; reread -d adir'
+
+
+
+
+defmenu jump  #{{{2
+addmenu jump '(d)esktop'           $key_d "mcd $HOME/Desktop"
+addmenu jump 'D(o)cuments'         $key_o "mcd $HOME/Documents"
+addmenu jump 'Dow(n)loads'         $key_n "mcd $HOME/Downloads"
+addmenu jump '(m)usic'             $key_m "mcd $HOME/Music"
+addmenu jump '(p)ictures'          $key_p "mcd $HOME/Pictures"
+addmenu jump '(v)ideos'            $key_v "mcd $HOME/Videos"
+addmenu jump '(w)orking'           $key_w "mcd $HOME/working"
+addmenu jump '(l)ocal portage'     $key_l "mcd /usr/local/portage"
+addmenu jump '(e)tc'               $key_e "mcd /etc"
+addmenu jump 'mn(t)'               $key_t "mcd /mnt"
+addmenu jump '(u)sr'               $key_u "mcd /usr"
+addmenu jump 'v(a)r'               $key_a "mcd /var"
+
+
+
+
+defmenu pack  #{{{2
+addmenu pack '(z)ip'              $key_z 'pack zip "zip -r"'
+addmenu pack '(0)zip'             $key_0 'pack zip "zip -r -0"'
+addmenu pack '(7)z'               $key_7 'pack 7z "7z a"'
+addmenu pack 'tar.(g)z'           $key_g 'pack tar.gz "tar cvfz"'
+addmenu pack 'tar.(b)z2'          $key_b 'pack tar.bz2 "tar cvfj"'
+addmenu pack 'tar.(x)z'           $key_x 'pack tar.xz "tar cvfJ"'
+
+
+
+
+defmenu pack_each  #{{{2
+addmenu pack_each '(z)ip'              $key_z 'pack_each zip "zip -r"'
+addmenu pack_each '(0)zip'             $key_0 'pack_each zip "zip -r -0"'
+addmenu pack_each '(7)z'               $key_7 'pack_each 7z "7z a"'
+addmenu pack_each 'tar.(g)z'           $key_g 'pack_each tar.gz "tar cvfz"'
+addmenu pack_each 'tar.(b)z2'          $key_b 'pack_each tar.bz2 "tar cvfj"'
+addmenu pack_each 'tar.(x)z'           $key_x 'pack_each tar.xz "tar cvfJ"'
+
+
+
+
+defmenu sort_and_mask  #{{{2
+addmenu sort_and_mask '(n)ame'               $key_n 'export SORT_KIND=name; reread -d all'
+addmenu sort_and_mask '(N)ame reverse'       $key_N 'export SORT_KIND=name_rev; reread -d all'
+addmenu sort_and_mask '(e)xtension'          $key_e 'export SORT_KIND=ext; reread -d all'
+addmenu sort_and_mask '(E)xtension reverse'  $key_E 'export SORT_KIND=ext_rev; reread -d all'
+addmenu sort_and_mask '(s)ize'               $key_s 'export SORT_KIND=size; reread -d all'
+addmenu sort_and_mask '(S)ize reverse'       $key_S 'export SORT_KIND=size_rev; reread -d all'
+addmenu sort_and_mask '(t)ime'               $key_t 'export SORT_KIND=time; reread -d all'
+addmenu sort_and_mask '(T)ime reverse'       $key_T 'export SORT_KIND=time_rev; reread -d all'
+addmenu sort_and_mask '(u)ser'               $key_u 'export SORT_KIND=user; reread -d all'
+addmenu sort_and_mask '(U)ser reverse'       $key_U 'export SORT_KIND=user_rev; reread -d all'
+addmenu sort_and_mask '(g)roup'              $key_g 'export SORT_KIND=group; reread -d all'
+addmenu sort_and_mask '(G)roup reverse'      $key_G 'export SORT_KIND=group_rev; reread -d all'
+addmenu sort_and_mask '(p)ermission'         $key_p 'export SORT_KIND=perm; reread -d all'
+addmenu sort_and_mask '(P)ermission reverse' $key_P 'export SORT_KIND=perm_rev; reread -d all'
+addmenu sort_and_mask '(r)andom'             $key_r 'export SORT_KIND=random; reread -d all'
+addmenu sort_and_mask 'none (0)'             $key_0 'export SORT_KIND=none; reread -d all'
+addmenu sort_and_mask 'toggle (d)ir up'      $key_d 'export SORT_DIR_UP=$(toggle $SORT_DIR_UP); reread -d all'
+addmenu sort_and_mask 'toggle (m)ark up'     $key_m 'export SORT_MARK_UP=$(toggle $SORT_MARK_UP); reread -d all'
+addmenu sort_and_mask '(M)ask'               $key_M 'cmdline -q "mask -dotdir 0; mask $$(quote)" -2'
+
+
+
+
+defmenu sudo  #{{{2
+addmenu sudo 'sudo (c)opy'      $key_c 'cmdline "sudo cp -vr @@(markfiles) $(path -d sdir)" -1'
+addmenu sudo 'sudo (m)ove'      $key_m 'cmdline "sudo mv -v @@(markfiles) $(path -d sdir)" -1'
+addmenu sudo 'sudo (l)ink'      $key_l 'cmdline "sudo ln -vs @@(markfiles) $(path -d sdir)" -1'
+addmenu sudo 'sudo (d)elete'    $key_d 'cmdline "sudo rm -vr @@(markfiles)" -1'
+addmenu sudo 'sudo (r)ename'    $key_r 'cmdline "sudo mv -v $$(quote $(cursor)) $$(quote $(cursor))" -$(( $(extname_length $(cursor)) + 2 ))'
+addmenu sudo 'sudo m(k)dir'     $key_k 'cmdline "sudo mkdir -p $$(quote)" -2'
+addmenu sudo 'sudo (n)ewfile'   $key_n 'cmdline "sudo touch $$(quote)" -2'
+addmenu sudo 'sudo (a)ttribute' $key_a 'menu sudo_attribute'
+
+
+
+
+defmenu sudo_attribute  #{{{2
+addmenu sudo_attribute 'sudo ch(m)od (permission)'              $key_m 'cmdline "sudo chmod  @@(markfiles)" 11; mark -a 0'
+addmenu sudo_attribute 'sudo ch(o)wn (owner)'                   $key_o 'cmdline "sudo chown  @@(markfiles)" 11; mark -a 0'
+addmenu sudo_attribute 'sudo ch(g)rp (group)'                   $key_g 'cmdline "sudo chgrp  @@(markfiles)" 11; mark -a 0'
+addmenu sudo_attribute 'sudo ch(M)od -R (permission recursive)' $key_M 'cmdline "sudo chmod -R  @@(markfiles)" 14; mark -a 0'
+addmenu sudo_attribute 'sudo ch(O)wn -R (owner recursive)'      $key_O 'cmdline "sudo chown -R  @@(markfiles)" 14; mark -a 0'
+addmenu sudo_attribute 'sudo ch(G)rp -R (group recursive)'      $key_G 'cmdline "sudo chgrp -R  @@(markfiles)" 14; mark -a 0'
+addmenu sudo_attribute 'sudo m(a)ttr (permission and date)'     $key_a 'sudo mattr @@(markfiles); mark -a 0; reread -d adir'
+
+
+
+
+defmenu view  #{{{2
+addmenu view '2dir (a)ll'                     $key_a 'export VIEW_OPTION=2pain'
+addmenu view '1dir(1)'                        $key_1 'export VIEW_OPTION=1pain'
+addmenu view '1dir(2)'                        $key_2 'export VIEW_OPTION=1pain2'
+addmenu view '1dir(3)'                        $key_3 'export VIEW_OPTION=1pain3'
+addmenu view '1dir(5)'                        $key_5 'export VIEW_OPTION=1pain5'
+addmenu view 'toggle (s)ize'                  $key_s 'export VIEW_SIZE=$(toggle $VIEW_SIZE)'
+addmenu view 'toggle m(t)ime'                 $key_t 'export VIEW_MTIME=$(toggle $VIEW_MTIME)'
+addmenu view 'toggle (u)ser'                  $key_u 'export VIEW_OWNER=$(toggle $VIEW_OWNER)'
+addmenu view 'toggle (g)roup'                 $key_g 'export VIEW_GROUP=$(toggle $VIEW_GROUP)'
+addmenu view 'toggle nl(i)nk'                 $key_i 'export VIEW_NLINK=$(toggle $VIEW_NLINK)'
+addmenu view 'toggle (p)ermission'            $key_p 'export VIEW_PERMISSION=$(toggle $VIEW_PERMISSION)'
+addmenu view 'toggle fname (d)vide extension' $key_d 'export VIEW_DIVIDE_EXTENSION=$(toggle $VIEW_DIVIDE_EXTENSION)'
+addmenu view 'toggle fname (f)ocus back'      $key_f 'export VIEW_FOCUSBACK=$(toggle $VIEW_FOCUSBACK)'
+addmenu view 'toggle (P)age view way'         $key_P 'export VIEW_PAGE=$(toggle $VIEW_PAGE)'
+addmenu view 'fil(e) size view way Normal'    $key_e 'export VIEW_FILE_SIZE=Normal'
+addmenu view 'fil(E) size view way Human'     $key_E 'export VIEW_FILE_SIZE=Human'
+addmenu view 'file (S)ize view way Plane'     $key_P 'export VIEW_FILE_SIZE=Plane'
+
+
+
+
+# Keycommand  #{{{1
+
+keycommand 0 $key_up        '*' 'cursor_move_loop -1'
+keycommand 0 $key_down      '*' 'cursor_move_loop 1'
+keycommand 0 $key_k         '*' 'cursor_move_loop -1'
+keycommand 0 $key_j         '*' 'cursor_move_loop 1'
+keycommand 0 $key_ctrl_p    '*' 'cursor_move_loop -1'
+keycommand 0 $key_ctrl_n    '*' 'cursor_move_loop 1'
+
+keycommand 0 $key_enter     '.directory' 'mcd $(cursor)'
+keycommand 0 $key_enter     '.mark' 'if ([ -d $(cursor) ]) { mcd $(cursor) } else { open_file $(cursor) }'
+keycommand 0 $key_enter     '.link' 'if ([ -d $(cursor) ]) { mcd $(cursor) } else { open_file $(cursor) }'
+keycommand 0 $key_enter     '*' 'open_file $(cursor)'
+keycommand 0 $key_l         '.mark' 'if ([ -d $(cursor) ]) { mcd $(cursor) } else { open_file $(cursor) }'
+keycommand 0 $key_l         '.directory' 'mcd $(cursor)'
+keycommand 0 $key_l         '.link' 'if ([ -d $(cursor) ]) { mcd $(cursor) } else { open_file $(cursor) }'
+keycommand 0 $key_l         '*' 'open_file $(cursor)'
+
+keycommand 0 $key_x         '.execute' 'cmdline "./$(cursor) "  -1'
+keycommand 0 $key_x         '.exe' 'cmdline "wine ./$(cursor) " -1'
+keycommand 0 $key_x         '.hs' 'cmdline "runghc ./$(cursor) " -1'
+keycommand 0 $key_x         '.pl' 'cmdline "perl ./$(cursor) " -1'
+keycommand 0 $key_x         '.py' 'cmdline "python ./$(cursor) " -1'
+keycommand 0 $key_x         '.rb' 'cmdline "ruby ./$(cursor) " -1'
+keycommand 0 $key_x         '.scm' 'cmdline "gosh ./$(cursor) " -1'
+keycommand 0 $key_x         '.sh' 'cmdline "sh ./$(cursor) " -1'
+keycommand 0 $key_x         '*' 'cmdline " ./$(cursor) " 0'
+
+keycommand 0 $key_backspace '*' 'mcd ..'
+keycommand 0 $key_h         '*' 'mcd ..'
+keycommand 0 $key_tilda     '*' 'mcd ~'
+keycommand 0 $key_backslash '*' 'mcd /'
+
+keycommand 0 $key_t         '*' 'mcd $TRASHBOX_DIR'
+
+keycommand 0 $key_R         '*' 'cmdline -q "zmv_rename -w $$(quote) $$(quote)" -5'
+keycommand 0 $key_r         '.mark' 'cmdline -q "regex_rename $$(quote) $$(quote)" -5'
+keycommand 0 $key_r         '*' 'cmdline -q "mrename -c -r $$(quote $(cursor)) $$(quote $(cursor))" -$(( $(extname_length $(cursor)) + 2 ))'
+
+keycommand 0 $key_L         '*' 'mln $(path -d sdir)'
+keycommand 0 $key_b         '*' 'cmdline -q "mbackup -p $$(quote $(cursor))" -2'
+keycommand 0 $key_c         '*' 'mcp -p $(path -d sdir)'
+keycommand 0 $key_m         '*' 'mmv -p $(path -d sdir)'
+
+keycommand 0 $key_D         '.mark' 'if ([ $(mchoise "DELETE file ok?" yes no) = yes ]) { mrm }'
+keycommand 0 $key_d         '.mark' 'if ([ $(mchoise "move file to trashbox ok?" yes no) = yes ]) { mtrashbox -f }'
+
+keycommand 0 $key_i         '.mark' 'external "du -hs @@(markfiles)"'
+keycommand 0 $key_i         '*' 'external "du -hs $(cursor)"'
+
+keycommand 0 $key_u         '.7z' 'cmdline "7z x $$(quote $(cursor)) -o$$(quote $(path -d sdir))" -2'
+keycommand 0 $key_u         '.bz2' 'if (cursor | index -q tar.bz2) { cmdline "tar xvfj $$(quote $(cursor)) -C $$(quote $(path -d sdir))" -2 } else { cmdline "bzip2 -d $$(quote $(cursor))" -2 }'
+keycommand 0 $key_u         '.gz' 'if (cursor | index -q tar.gz) { cmdline "tar xvfz $$(quote $(cursor)) -C $$(quote $(path -d sdir))" -2 } else { cmdline "gzip -d $$(quote $(cursor))" -2 }'
+keycommand 0 $key_u         '.lzh' 'cmdline "lha x $$(quote $(cursor)) $$(quote $(path -d sdir))" -2'
+keycommand 0 $key_u         '.rar' 'cmdline "unrar x $$(quote $(cursor)) $$(quote $(path -d sdir))" -2'
+keycommand 0 $key_u         '.tgz' 'cmdline "tar xvfz $$(quote $(cursor)) -C $$(quote $(path -d sdir))" -2'
+keycommand 0 $key_u         '.xz' 'if (cursor | index -q tar.xz) { cmdline "tar xvfJ $$(quote $(cursor)) -C $$(quote $(path -d sdir))" -2 } else { cmdline "xz -d $$(quote $(cursor))" -2 }'
+keycommand 0 $key_u         '.zip' 'cmdline "unzip $$(quote $(cursor)) -d $$(quote $(path -d sdir))" -2'
+
+keycommand 0 $key_K         '*' 'cmdline "mkdir -p $$(quote)" -2'
+keycommand 0 $key_n         '*' 'cmdline "touch $$(quote)" -2'
+
+keycommand 0 $key_e         '*' 'external -q "vim --remote-tab-silent $(cursor)"'
+keycommand 0 $key_E         '*' 'external -q "gvim --remote-tab-silent $(cursor)"'
+keycommand 0 $key_v         '*' 'external -q "lv $(cursor)"'
+
+keycommand 0 $key_F         '*' 'cmdline -q "find_file -name $$(quote)" -2'
+keycommand 0 $key_f         '*' 'cmdline -q "mask -dotdir 0; mask $$(quote)" -2'
+
+keycommand 0 $key_G         '*' 'cursor_move $(file_num)'
+keycommand 0 $key_g         '*' 'cursor_move 0'
+
+keycommand 0 $key_ctrl_g    '*' 'external "puts $(cursor)"'
+
+keycommand 0 $key_Y         '*' 'external -q "print $(path)$(cursor) | xsel --input"'
+keycommand 0 $key_y         '*' 'external -q "print $(cursor) | xsel --input"'
+
+keycommand 0 $key_slash     '*' 'isearch'
+
+keycommand 0 $key_q         '*' 'if ([ $(mchoise quit\? yes no) = yes ]) { quit }'
+
+keycommand 0 $key_sharp     '*' 'menu sudo'
+keycommand 0 $key_J         '*' 'menu jump'
+keycommand 0 $key_V         '*' 'menu view'
+keycommand 0 $key_a         '*' 'menu attribute'
+keycommand 0 $key_p         '*' 'menu pack'
+keycommand 0 $key_P         '*' 'menu pack_each'
+keycommand 0 $key_s         '*' 'menu sort_and_mask'
+
+keycommand 0 $key_w         '*' 'adir=$(path); sdir=$(path -d sdir); mcd $sdir; mcd -d sdir $adir'
+keycommand 0 $key_O         '*' 'mcd $(path -d sdir)'
+keycommand 0 $key_o         '*' 'mcd -d sdir $(path)'
+
+keycommand 0 $key_escape    '*' 'mark -a 0'
+keycommand 0 $key_ctrl_c    '*' 'mark -a 0'
+
+keycommand 0 $key_pageup    '*' 'cursor_move -10'
+keycommand 0 $key_pagedown  '*' 'cursor_move +10'
+keycommand 0 $key_ctrl_d    '*' 'cursor_move +10'
+keycommand 0 $key_ctrl_u    '*' 'cursor_move -10'
+
+keycommand 0 $key_left      '*' 'if ([ $VIEW_OPTION = 2pain ]) { activate 0 } else { scroll_left }'
+keycommand 0 $key_right     '*' 'if ([ $VIEW_OPTION = 2pain ]) { activate 1 } else { scroll_right }'
+keycommand 0 $key_ctrl_b    '*' 'if ([ $VIEW_OPTION = 2pain ]) { activate 0 } else { scroll_left }'
+keycommand 0 $key_ctrl_f    '*' 'if ([ $VIEW_OPTION = 2pain ]) { activate 1 } else { scroll_right }'
+
+keycommand 0 $key_space     '*' 'mark -t -n $(cursor_num); cursor_move +1'
+
+keycommand 0 $key_ctrl_l    '*' 'mclear_immediately; reread -d 0; reread -d 1'
+
+keycommand 0 $key_colon     '*' 'cmdline'
+keycommand 0 $key_H         '*' 'external -q $SHELL'
+
+global DOT_MASK=0
+def toggle_dotmask {
+  if ([ $DOT_MASK = 0 ]) {
+    global DOT_MASK=1
+    mask -dotdir 1
+    mask -r '^[^.].*'
+  } else {
+    global DOT_MASK=0
+    mask -dotdir 0
+    mask -r ''
+  }
+}
+
+keycommand 0 $key_dot       '*' 'toggle_dotmask'
+
+keycommand 0 $key_lbrack    '*' 'MARK_RANGE_BEGIN=$(cursor_num)'
+keycommand 0 $key_rbrack    '*' 'if ([ $MARK_RANGE_BEGIN != -1 ]) { i=$MARK_RANGE_BEGIN; while([ $i -le $(cursor_num) ]){ mark -t -n $i; i=$(($i + 1)) } }'
+
+keycommand 0 $key_star      '*' 'mark -t -a'
+keycommand 0 $key_plus      '*' 'cmdline -q "regex_mark $$(quote)" -2'
+keycommand 0 $key_M         '*' 'cmdline -q "glob_mark *" -1'
+
+keycommand 0 $key_ctrl_k    '*' 'mcd -'
+keycommand 0 $key_ctrk_j    '*' 'mcd +'
+
+keycommand 0 $key_ctrl_t    '*' 'new_dir $(path)'
+keycommand 0 $key_ctrl_w    '*' 'if ([ $(dir_num) -gt 2 ]) { del_dir -d adir; activate 0 }'
+
+keycommand 0 $key_tab       '*' 'if ([ $(adir) = 0 ]) { activate 1 } else { activate 0 }'
+
+keycommand 0 $key_0         '*' 'activate 0'
+keycommand 0 $key_1         '*' 'activate 1'
+keycommand 0 $key_2         '*' 'activate 2'
+keycommand 0 $key_3         '*' 'activate 3'
+keycommand 0 $key_4         '*' 'activate 4'
+keycommand 0 $key_5         '*' 'activate 5'
+keycommand 0 $key_6         '*' 'activate 6'
+keycommand 0 $key_7         '*' 'activate 7'
+keycommand 0 $key_8         '*' 'activate 8'
+keycommand 0 $key_9         '*' 'activate 9'
+
+keycommand 0 $key_qmark     '*' 'external -q "lv $MF3DOCDIR/USAGE.ja.txt"'
+
+
+
+
+
+# Keymap  #{{{1
+
+keymap $key_up         27 91 65 -1 -1 -1 -1 -1 -1 -1
+keymap $key_up         27 79 65 -1 -1 -1 -1 -1 -1 -1
+keymap $key_down       27 91 66 -1 -1 -1 -1 -1 -1 -1
+keymap $key_down       27 79 66 -1 -1 -1 -1 -1 -1 -1
+keymap $key_right      27 91 67 -1 -1 -1 -1 -1 -1 -1
+keymap $key_right      27 79 67 -1 -1 -1 -1 -1 -1 -1
+keymap $key_left       27 91 68 -1 -1 -1 -1 -1 -1 -1
+keymap $key_left       27 79 68 -1 -1 -1 -1 -1 -1 -1
+keymap $key_insert     27 91 50 126 -1 -1 -1 -1 -1 -1
+keymap $key_delete     27 91 51 126 -1 -1 -1 -1 -1 -1
+keymap $key_backspace  127 -1 -1 -1 -1 -1 -1 -1 -1 -1
+keymap $key_home       27 79 72 -1 -1 -1 -1 -1 -1 -1
+keymap $key_home       27 91 72 -1 -1 -1 -1 -1 -1 -1
+keymap $key_home       27 91 55 126 -1 -1 -1 -1 -1 -1
+keymap $key_home       27 91 0 -1 -1 -1 -1 -1 -1 -1
+keymap $key_home       27 91 49 126 -1 -1 -1 -1 -1 -1
+keymap $key_end        27 79 70 -1 -1 -1 -1 -1 -1 -1
+keymap $key_end        27 91 70 -1 -1 -1 -1 -1 -1 -1
+keymap $key_end        27 91 56 126 -1 -1 -1 -1 -1 -1
+keymap $key_end        27 91 101 -1 -1 -1 -1 -1 -1 -1
+keymap $key_end        27 91 52 126 -1 -1 -1 -1 -1 -1
+keymap $key_pageup     27 91 53 126 -1 -1 -1 -1 -1 -1
+keymap $key_pageup     27 91 73 -1 -1 -1 -1 -1 -1 -1
+keymap $key_pagedown   27 91 54 126 -1 -1 -1 -1 -1 -1
+keymap $key_pagedown   27 91 71 -1 -1 -1 -1 -1 -1 -1
+keymap $key_f1         27 91 49 49 126 -1 -1 -1 -1 -1
+keymap $key_f1         27 79 80 -1 -1 -1 -1 -1 -1 -1
+keymap $key_f1         27 91 91 65 -1 -1 -1 -1 -1 -1
+keymap $key_f2         27 91 49 50 126 -1 -1 -1 -1 -1
+keymap $key_f2         27 79 81 -1 -1 -1 -1 -1 -1 -1
+keymap $key_f2         27 91 91 66 -1 -1 -1 -1 -1 -1
+keymap $key_f3         27 91 49 51 126 -1 -1 -1 -1 -1
+keymap $key_f3         27 79 82 -1 -1 -1 -1 -1 -1 -1
+keymap $key_f3         27 91 91 67 -1 -1 -1 -1 -1 -1
+keymap $key_f4         27 91 49 52 126 -1 -1 -1 -1 -1
+keymap $key_f4         27 79 83 -1 -1 -1 -1 -1 -1 -1
+keymap $key_f4         27 91 91 68 -1 -1 -1 -1 -1 -1
+keymap $key_f5         27 91 49 53 126 -1 -1 -1 -1 -1
+keymap $key_f5         27 91 91 69 -1 -1 -1 -1 -1 -1
+keymap $key_f6         27 91 49 55 126 -1 -1 -1 -1 -1
+keymap $key_f7         27 91 49 56 126 -1 -1 -1 -1 -1
+keymap $key_f8         27 91 49 57 126 -1 -1 -1 -1 -1
+keymap $key_f9         27 91 50 48 126 -1 -1 -1 -1 -1
+keymap $key_f10        27 91 50 49 126 -1 -1 -1 -1 -1
+keymap $key_f11        27 91 50 51 126 -1 -1 -1 -1 -1
+keymap $key_f12        27 91 50 52 126 -1 -1 -1 -1 -1
+keymap $key_meta_left  27 91 51 68 -1 -1 -1 -1 -1 -1 # gnome-terminal
+keymap $key_meta_left  27 91 49 59 51 68 -1 -1 -1 -1 # xterm
+keymap $key_meta_left  27 91 49 59 57 68 -1 -1 -1 -1 # mlterm
+keymap $key_meta_left  27 79 49 59 51 68 -1 -1 -1 -1 # screen
+keymap $key_meta_right 27 91 51 67 -1 -1 -1 -1 -1 -1 # gnome-terminal
+keymap $key_meta_right 27 91 49 59 51 67 -1 -1 -1 -1 # xterm
+keymap $key_meta_right 27 91 49 59 57 67 -1 -1 -1 -1 # mlterm
+keymap $key_meta_right 27 79 49 59 51 67 -1 -1 -1 -1 # screen
+keymap $key_meta_up    27 91 51 65 -1 -1 -1 -1 -1 -1 # gnome-terminal
+keymap $key_meta_up    27 91 49 59 51 65 -1 -1 -1 -1 # xterm
+keymap $key_meta_up    27 91 49 59 57 65 -1 -1 -1 -1 # mlterm
+keymap $key_meta_up    27 79 49 59 51 65 -1 -1 -1 -1 # screen
+keymap $key_meta_down  27 91 51 66 -1 -1 -1 -1 -1 -1 # gnome-terminal
+keymap $key_meta_down  27 91 49 59 51 66 -1 -1 -1 -1 # xterm
+keymap $key_meta_down  27 91 49 59 57 66 -1 -1 -1 -1 # mlterm
+keymap $key_meta_down  27 79 49 59 51 66 -1 -1 -1 -1 # screen
+
+
+
+
+# Hooks  #{{{1
+
+MARK_RANGE_BEGIN=-1
+def mcd_hook {
+  MARK_RANGE_BEGIN=-1
+}
+
+def activate_hook {
+  true
+}
+
+def cursor_move_hook {
+  true
+}
+
+def cmdline_hook {
+  true
+}
+
+def atexit_hook {
+  save_mfiler3_stat
+}
+
+
+
+
+# __END__  #{{{1
+# vim: expandtab softtabstop=2 shiftwidth=2
+# vim: foldmethod=marker
