@@ -1,51 +1,33 @@
 ! My Xresources
 
-! XFT
-Xft.antialias: 1
-Xft.autohint: 0
-Xft.hinting: 0
-Xft.hintstyle: hintnone
-Xft.lcdfilter: lcdlight
-Xft.rgba: rgb
-
 ! CURSOR
 Xcursor.theme: Vanilla-DMZ
 Xcursor.size: 24
 
 
 ! RXVT
-Rxvt.font: \
-  xft:Menlo:pixelsize=13:antialias=true, \
-  xft:AXIS Std:pixelsize=13:antialias=true
-Rxvt.boldFont: \
-  xft:Menlo:pixelsize=13:bold, \
-  xft:AXIS Std:pixelsize=13:bold
-Rxvt.italicFont: \
-  xft:Menlo:pixelsize=13:italic, \
-  xft:AXIS Std:pixelsize=13:italic
-Rxvt.boldItalicFont: \
-  xft:Menloas:pixelsize=13:bold:italic, \
-  xft:AXIS Std:pixelsize=13:bold:italic
-Rxvt.imFont: \
-  -sony-fixed-medium-r-normal--16-*-*-*-*-*-iso8859-1, \
-  -sony-fixed-medium-r-normal--16-*-*-*-*-*-jisx0201.1976-0, \
-  -jis-fixed-medium-r-normal--16-*-*-*-*-*-jisx0208.1983-0
+Rxvt.font: xft:TheSans Mono:pixelsize=13, xft:AXIS Std:pixelsize=13
+Rxvt.boldFont: xft:TheSans Mono:pixelsize=13:bold, xft:AXIS Std:pixelsize=13:bold
+Rxvt.imFont: -sony-fixed-medium-r-normal--16-*-*-*-*-*-iso8859-1, -sony-fixed-medium-r-normal--16-*-*-*-*-*-jisx0201.1976-0, -jis-fixed-medium-r-normal--16-*-*-*-*-*-jisx0208.1983-0
 
-Rxvt.foreground:   #cccccc
-Rxvt.background:   #222222
-Rxvt.cursorColor:  #009900
+Rxvt.inheritPixmap: true
+Rxvt.shading: 10
+
+Rxvt.foreground: #cccccc
+Rxvt.background: #111111
+Rxvt.cursorColor: #009900
 Rxvt.cursorColor2: #000000
 
-Rxvt.color0:  #000000
-Rxvt.color1:  #990000
-Rxvt.color2:  #009900
-Rxvt.color3:  #999900
-Rxvt.color4:  #000099
-Rxvt.color5:  #990099
-Rxvt.color6:  #009999
-Rxvt.color7:  #999999
-Rxvt.color8:  #555555
-Rxvt.color9:  #cc6633
+Rxvt.color0: #000000
+Rxvt.color1: #990000
+Rxvt.color2: #009900
+Rxvt.color3: #999900
+Rxvt.color4: #000099
+Rxvt.color5: #990099
+Rxvt.color6: #009999
+Rxvt.color7: #999999
+Rxvt.color8: #555555
+Rxvt.color9: #cc6633
 Rxvt.color10: #00cc00
 Rxvt.color11: #cccc00
 Rxvt.color12: #3366cc
@@ -61,26 +43,5 @@ Rxvt.saveLines: 1000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true
 Rxvt.secondaryScroll: true
-Rxvt.termName: rxvt-unicode256
+Rxvt.termName: rxvt-256color
 Rxvt.visualBell: false
-
-
-! FONTFORGE
-fontforge.FontView.FontFamily: hlv
-fontforge.CharView.InfoFamily: hlv
-
-Gdraw.GGadget.Popup.Font: 10pt hlv
-Gdraw.GGadget.Font: 10pt hlv
-Gdraw.GButton.Font: 10pt hlv
-Gdraw.GLabel.Font: 10pt hlv
-Gdraw.GRadio.Font: 10pt hlv
-Gdraw.GCheckBox.Font: 10pt hlv
-Gdraw.GTextField.Font: 10pt hlv
-Gdraw.GList.Font: 10pt hlv
-Gdraw.GScrollBar.Font: 10pt hlv
-Gdraw.GScrollBarThumb.Font: 10pt hlv
-Gdraw.GGroup.Font: 10pt hlv
-Gdraw.GLine.Font: 10pt hlv
-Gdraw.GMenu.Font: 10pt hlv
-Gdraw.GMenuBar.Font: 10pt hlv
-Gdraw.GTabSet.Font: 10pt hlv
