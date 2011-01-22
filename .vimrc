@@ -5,16 +5,6 @@
 let s:win_p = has('win32') || has('win64')
 
 
-if has('vim_starting')
-  set shiftwidth=4
-  set tabstop=4
-  if s:win_p
-    set fileformat=unix
-    set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
-  endif
-endif
-
-
 function! s:SID_PREFIX()
   return matchstr(expand('<sfile>'), '<SNR>\d\+_')
 endfunction
@@ -61,16 +51,24 @@ endif
 
 " Options  "{{{2
 
-if has('gui_running')
-  set guicursor=a:blinkon0
+if has('vim_starting')
+  set shiftwidth=4
+  set tabstop=4
   if s:win_p
-    set guifont=Consolas:h10.5
-    set linespace=0
-  else
-    set guifont=Monospace\ 10
-    set linespace=-2
+    set fileformat=unix
+    set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
   endif
-  set guioptions=AcgM
+  if has('gui_running')
+    set guicursor=a:blinkon0
+    if s:win_p
+      set guifont=Consolas:h10.5
+      set linespace=0
+    else
+      set guifont=Monospace
+      set linespace=0
+    endif
+    set guioptions=AcgM
+  endif
 endif
 
 if (1 < &t_Co || has('gui')) && has('syntax')
@@ -149,9 +147,9 @@ let &statusline .= ' %<%f %h%w'
 let &statusline .= '%{&fenc == "" || &fenc == &enc ? "" : "[" . &fenc . "]"}'
 let &statusline .= '%{&ff[0] == &ffs[0] ? "" : "[" . &ff . "]"}'
 let &statusline .= '    '
-let &statusline .= '%P (%l,%v)'
+let &statusline .= '%P %-10((%l,%v)%)'
 let &statusline .= '    '
-let &statusline .= '%-4(%{eskk#statusline("[%s]")}%)'
+let &statusline .= '%{eskk#statusline("[%s]")}'
 
 function! s:my_tabline()  "{{{
   let s = ''
@@ -401,6 +399,8 @@ function! s:cmd_SetFileEncoding_complete(arglead, cmdline, cursorpos)
   \  'iso-8859-13': 0,
   \  'iso-8859-14': 0,
   \  'iso-8859-15': 0,
+  \  'iso-8859-16': 0,
+  \  'iso-8859-1': 0,
   \  'iso-8859-2': 0,
   \  'iso-8859-3': 0,
   \  'iso-8859-4': 0,
@@ -532,9 +532,13 @@ command! -bang -bar -complete=file -nargs=? Iso2022jp
 command! -bang -bar -complete=file -nargs=? Utf8
 \ edit<bang> ++enc=utf-8 <args>
 command! -bang -bar -complete=file -nargs=? Utf16
+\ edit<bang> ++enc=utf-16 <args>
+command! -bang -bar -complete=file -nargs=? Utf16le
 \ edit<bang> ++enc=utf-16le <args>
-command! -bang -bar -complete=file -nargs=? Utf16be
-\ edit<bang> ++enc=utf-16be <args>
+command! -bang -bar -complete=file -nargs=? Utf32
+\ edit<bang> ++enc=utf-32 <args>
+command! -bang -bar -complete=file -nargs=? Utf32le
+\ edit<bang> ++enc=utf-32le <args>
 
 command! -bang -bar -complete=file -nargs=? Jis  Iso2022jp<bang> <args>
 command! -bang -bar -complete=file -nargs=? Sjis  Cp932<bang> <args>
@@ -616,8 +620,10 @@ function! s:cmd_Font_complete(arglead, cmdline, cursorpos)
     return []  " Not available.
   endif
   let _ = [
+  \   'Osaka 11.5',
   \   'Droid Sans Mono 10.5',
-  \   'M+ 1m 10.5',
+  \   'Menlo 10',
+  \   'Monaco 9.5',
   \   'TheSans Mono 10',
   \ ]
   return filter(_, 'stridx(v:val, a:arglead) == 0')
@@ -1868,7 +1874,7 @@ let g:eskk#statusline_mode_strings = {
 \  'ascii': 'A',
 \  'zenei': '英',
 \  'hankata': 'ｶﾅ',
-\  'abbrev': "/"
+\  'abbrev': '/',
 \ }
 let g:eskk#use_color_cursor = 0
 
@@ -1959,11 +1965,12 @@ call ku#custom_prefix('common', '~', expand('~'))
 
 nmap [Space]k  <Nop>
 nnoremap <silent> [Space]ka  :<C-u>Ku args<CR>
-nnoremap <silent> [Space]kB  :<C-u>Ku buffer<CR>
-nnoremap <silent> [Space]kb  :<C-u>Ku buffer/tab<CR>
+nnoremap <silent> [Space]kb  :<C-u>Ku buffer<CR>
+nnoremap <silent> [Space]kd  :<C-u>call ku#start('file', expand('%:p:h') . '/')<CR>
 nnoremap <silent> [Space]kf  :<C-u>Ku file<CR>
 nnoremap <silent> [Space]kg  :<C-u>Ku metarw/git<CR>
 nnoremap <silent> [Space]kh  :<C-u>Ku history<CR>
+nnoremap <silent> [Space]kj  :<C-u>Ku buffer/tab<CR>
 nnoremap <silent> [Space]kq  :<C-u>Ku quickfix<CR>
 nnoremap <silent> [Space]kr  :<C-u>Ku register<CR>
 nnoremap <silent> [Space]ks  :<C-u>Ku source<CR>
