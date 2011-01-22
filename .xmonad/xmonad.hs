@@ -216,6 +216,7 @@ myKeys conf = mkKeymap conf $
   , ("M-x c",        safeSpawnProg "google-chrome")
   , ("M-x e",        safeSpawnProg "gvim")
   , ("M-x g",        safeSpawnProg "gimp")
+  , ("M-x j",        safeSpawnProg "jd")
   , ("M-x o",        safeSpawnProg "opera")
   , ("M-x v",        safeSpawnProg "gqview")
 
