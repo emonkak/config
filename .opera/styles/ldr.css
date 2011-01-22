@@ -6,7 +6,7 @@
 
 pre,
 pre * {
-  font-family: 'TheSans Mono' ,'Consolas', monospace !important;
+  font-family: 'Menlo', 'Consolas', monospace !important;
 }
 
 blockquote,
@@ -80,7 +80,6 @@ blockquote p {
 }
 
 .padding {
-  border: none !important;
   margin-top: 0px !important;
   margin-bottom: 0px !important;
 }
@@ -92,7 +91,6 @@ blockquote p {
 
 .hilight {
   background-color: #f5f5f5 !important;
-  border: none !important;
 }
 
 .body img {
