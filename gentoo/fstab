@@ -18,4 +18,5 @@
 /dev/sda7   /var          ext4    noatime            0 1
 /dev/sda8   /home         ext4    noatime            0 1
 /dev/cdrom  /mnt/cdrom    auto    noauto,user        0 0
-tmpfs       /tmp          tmpfs   noatime,size=128m  0 0
+tmpfs       /var/tmp      tmpfs   noatime,size=2g    0 0
+tmpfs       /tmp          tmpfs   noatime,size=256m  0 0
