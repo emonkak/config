@@ -49,6 +49,7 @@ sys-devel/gcc -fortran
 sys-fs/udev extras
 sys-kernel/gentoo-sources symlink
 sys-kernel/vanilla-sources symlink
+www-client/jd migemo
 www-client/opera gtk
 www-client/w3m linguas_ja
 x11-libs/cairo X lcdfilter opengl svg
