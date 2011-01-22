@@ -91,6 +91,8 @@ def open_file {  #{{{2
     external -q "evince $ARGV[0]"
   } elif([ $ARGV[0] -re '\.7z$' ]) {
     external -q "7z l $ARGV[0] | lv"
+  } elif([ $ARGV[0] -re '\.lzh$' ]) {
+    external -q "lha l $ARGV[0] | lv"
   } elif([ $ARGV[0] -re '\.(tar\.gz|tgz)$' ]) {
     external -q "tar tvfz $ARGV[0] | lv"
   } elif([ $ARGV[0] -re '\.tar\.bz2$' ]) {
