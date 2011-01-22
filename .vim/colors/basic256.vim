@@ -159,7 +159,7 @@ endif
 call s:highlight('SpecialKey'   , ''  ,  8, -1)
 call s:highlight('NonText'      , ''  ,  4, -1)
 call s:highlight('Directory'    , ''  , 14, -1)
-call s:highlight('MatchParen'   , ''  , -1,  6)
+call s:highlight('MatchParen'   , 'b' , 14, -1)
 call s:highlight('LineNr'       , ''  ,  8, -1)
 call s:highlight('Question'     , ''  , 10, -1)
 call s:highlight('VertSplit'    , ''  ,  8, -1)
