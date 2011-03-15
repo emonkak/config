@@ -33,7 +33,9 @@ import XMonad.Prompt.Shell
 import Data.List
 import System.Environment
 import System.Exit
-import System.IO.Unsafe
+
+import Foreign.C.String (castCharToCChar)
+import Graphics.X11.Xlib.Extras (changeProperty8, propModeReplace)
 
 import qualified Data.Map as M
 import qualified XMonad.StackSet as W
@@ -54,7 +56,7 @@ myLayoutHook = avoidStrutsOn [U,R,L] $ smartBorders $
     wideLayout = named "Wide" $ Mirror basicLayout
     tabbedLayout = named "Tabbed" $ tabbed shrinkText myTheme
     webIM = reflectHoriz . withIM (0.15) ((ClassName "Pidgin" `And` Role "buddy_list") `Or`
-                                           ClassName "Skype") .
+                                          (ClassName "Skype" `And` Role "MainWindow")) .
             reflectHoriz . trackFloating
     gimpIM = named "Gimp" . withIM (0.15) (Role "gimp-toolbox") .
              reflectHoriz . withIM (0.20) (Role "gimp-dock") .
@@ -66,34 +68,40 @@ myLayoutHook = avoidStrutsOn [U,R,L] $ smartBorders $
 -- Manage  --{{{2
 
 myManageHook = composeOne
-  [ isDialog                                   -?> doFloat
-  , isFullscreen                               -?> doFullFloat
-  , className  =? "MPlayer"                    -?> doCenterFloat
-  , className  =? "Smplayer"                   -?> doCenterFloat
-  , className  =? "Vlc"                        -?> doCenterFloat
-  , className  =? "XFontSel"                   -?> doCenterFloat
-  , className  =? "Xmessage"                   -?> doCenterFloat
-  , className  =? "feh"                        -?> doCenterFloat
-  , className  =? "qemu-system-x86_64"         -?> doCenterFloat
-  , className  =? "rdesktop"                   -?> doCenterFloat
-  , className  =? "Pidgin"                     -?> doShiftAndGo "web"
+  [ isDialog                                -?> doFloat
+  , isFullscreen                            -?> doFullFloat
+  , className  =? "MPlayer"                 -?> doCenterFloat
+  , className  =? "Smplayer"                -?> doCenterFloat
+  , className  =? "Vlc"                     -?> doCenterFloat
+  , className  =? "XFontSel"                -?> doCenterFloat
+  , className  =? "Xmessage"                -?> doCenterFloat
+  , className  =? "feh"                     -?> doCenterFloat
+  , className  =? "qemu-system-x86_64"      -?> doCenterFloat
+  , className  =? "rdesktop"                -?> doCenterFloat
+  , className  =? "Pidgin"                  -?> doShiftAndGo "web"
   , className  =? "Skype"
-    <&&> fmap (not . isInfixOf "(Beta)") title -?> doFloat <+> doShiftAndGo "web"
-  , className  =? "Skype"                      -?> doShiftAndGo "web"
-  , className  =? "libreoffice-startcenter"    -?> doShiftAndGo "misc"
-  , className  =? "GQview"                     -?> doShiftAndGo "media"
-  , className  =? "Inkscape"                   -?> doShiftAndGo "media"
-  , className  =? "XmBDFEdit"                  -?> doFloat <+> doShiftAndGo "media"
-  , className  =? "fontforge"                  -?> doFloat <+> doShiftAndGo "media"
+    <&&> fmap (isInfixOf "(Beta)") title    -?> doShiftAndGo "web" <+> addProperty "WM_WINDOW_ROLE" "MainWindow"
+  , className  =? "Skype"                   -?> doShiftAndGo "web"
+  , className  =? "libreoffice-startcenter" -?> doShiftAndGo "misc"
+  , className  =? "GQview"                  -?> doShiftAndGo "media"
+  , className  =? "Inkscape"                -?> doShiftAndGo "media"
+  , className  =? "XmBDFEdit"               -?> doShiftAndGo "media" <+> doFloat
+  , className  =? "fontforge"               -?> doShiftAndGo "media" <+> doFloat
   , className  =? "Gimp"
     <&&> role /=? "gimp-toolbox"
     <&&> role /=? "gimp-dock"
-    <&&> role /=? "gimp-image-window"          -?> doFloat <+> doShiftAndGo "gimp"
-  , className  =? "Gimp"                       -?> doShiftAndGo "gimp"
+    <&&> role /=? "gimp-image-window"       -?> doShiftAndGo "gimp" <+> doFloat
+  , className  =? "Gimp"                    -?> doShiftAndGo "gimp"
   ]
   where
     doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
     role = stringProperty "WM_WINDOW_ROLE"
+    addProperty prop value = ask >>= \w -> do
+      liftX $ withDisplay $ \d -> do
+        a <- io $ internAtom d prop False
+        t <- io $ internAtom d "STRING" False
+        io $ changeProperty8 d w a t propModeReplace (map castCharToCChar value)
+      idHook
 
 
 
