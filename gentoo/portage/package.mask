@@ -1,5 +1,2 @@
 =app-arch/unzip-6.0*
-=app-misc/mfiler3-4.1.8
-=app-shells/saphire-1.2.0
-=media-video/mplayer-1.0_rc4_p20101219
-=sys-apps/groff-1.21
+=media-video/mplayer-1.0_rc4_p20110302

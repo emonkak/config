@@ -1,5 +1,4 @@
 =sys-apps/portage-2.2*
-=www-client/chromium-9999
 =x11-misc/dzen-9999
 =x11-wm/xmonad-9999
 =x11-wm/xmonad-contrib-9999
@@ -7,4 +6,7 @@ app-admin/haskell-updater
 app-text/ptex
 dev-haskell/cabal
 dev-lang/ghc
+dev-lang/ruby
+dev-ruby/bundler
+virtual/ruby-rdoc
 www-client/opera
