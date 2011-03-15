@@ -10,13 +10,11 @@
 #
 # See the manpage fstab(5) for more information.
 #
-# <fs>      <mountpoint>  <type>  <opts>             <dump/pass>
+# <fs>      <mountpoint>  <type>   <opts> <dump/pass>
 
-/dev/sda1   /boot         ext2    noauto,noatime     1 2
-/dev/sda5   none          swap    sw                 0 0
-/dev/sda6   /             ext4    noatime            0 1
-/dev/sda7   /var          ext4    noatime            0 1
-/dev/sda8   /home         ext4    noatime            0 1
-/dev/cdrom  /mnt/cdrom    auto    noauto,user        0 0
-tmpfs       /var/tmp      tmpfs   noatime,size=2g    0 0
-tmpfs       /tmp          tmpfs   noatime,size=256m  0 0
+/dev/sda1   /             ext4     discard,noatime 0 1
+/dev/sdb2   /mnt/win      ntfs-3g  noatime,uid=1000,gid=users,fmask=0113,dmask=0022,ignore_case,windows_names 0 0
+/dev/sdb3   /home         ext4     noatime 0 0
+/dev/cdrom  /mnt/cdrom    auto     noauto,user 0 0
+tmpfs       /var/tmp      tmpfs    noatime,size=2500m 0 0
+tmpfs       /tmp          tmpfs    noatime,size=256m 0 0
