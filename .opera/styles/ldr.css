@@ -1,12 +1,12 @@
 @import url("user.css");
 
 * {
-  font-family: 'Droid Sans', 'Trebuchet MS', sans-serif !important;
+  font-family: "Droid Sans", "Trebuchet MS", sans-serif !important;
 }
 
 pre,
 pre * {
-  font-family: 'Menlo', 'Consolas', monospace !important;
+  font-family: "Monaco", "Consolas", monospace !important;
 }
 
 blockquote,
@@ -120,8 +120,8 @@ blockquote p {
   height: 30px !important;
 }
 
-.body > a[href^='http://rss.rssad.jp'],
-.body > a[href^='http://rss.rssad.jp'] + br {
+.body > a[href^="http://rss.rssad.jp"],
+.body > a[href^="http://rss.rssad.jp"] + br {
   display: none !important;
 }
 
