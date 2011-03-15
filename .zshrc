@@ -10,8 +10,8 @@ stty -ixon -ixoff
 # Parameters  #{{{1
 
 HISTFILE="$HOME/.zsh_history"
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=100000
+SAVEHIST=100000
 
 
 # Don't add "rm" and "rmdir" to history.
@@ -151,9 +151,9 @@ alias la='ls -a'
 alias ll='ls -l'
 alias lla='ls -la'
 
-alias cp='cp -iv'
-alias mv='mv -iv'
-alias rm='rm -Iv'
+alias cp='cp -i'
+alias mv='mv -i'
+alias rm='rm -I'
 
 autoload zmv
 alias zmv='noglob zmv'
@@ -167,8 +167,8 @@ alias vim='vim --servername VIM'
 
 alias s='sudo '
 alias v='vim'
-alias V='vim --remote-tab-silent'
-
+alias vr='vim --remote-tab-silent'
+alias gr='gvim --remote-tab-silent'
 
 alias mount-cifs='sudo mount -t cifs -o defaults,noatime,user,iocharset=utf8,uid=$USER,gid=users,file_mode=0644,dir_mode=0755,username=$USER'
 alias untarbz2='tar vxjf'
@@ -181,14 +181,8 @@ if [ -n "$DISPLAY" ] && which xsel &>/dev/null; then
 fi
 
 if [ -n "$DISPLAY" ] && which mplayer &>/dev/null; then
-  alias mplayer='__mplayer_wrapper'
   alias mplayer-webcam='mplayer tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1:forceaudio:immediatemode=0:width=1280:height=720:fps=30'
   alias mencoder-webcam='mencoder tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1:forceaudio:immediatemode=0:width=1280:height=720:fps=30 -ovc x264 -x264encopts bitrate=1000:threads=2 -oac faac -faacopts br=64 -vf scale=640:360,harddup -o'
-  function __mplayer_wrapper() {
-    xset -dpms
-    /usr/bin/env mplayer $@
-    xset +dpms
-  }
 fi
 
 
@@ -200,6 +194,9 @@ bindkey -e
 
 bindkey "^P" history-beginning-search-backward
 bindkey "^N" history-beginning-search-forward
+
+bindkey "^R" history-incremental-pattern-search-backward
+bindkey "^S" history-incremental-pattern-search-forward
 
 bindkey "\e\e[3~" delete-word  # <A-Delete>
 bindkey "\eh" backward-delete-word  # <A-h>
@@ -229,7 +226,7 @@ zstyle ':zle:*' word-style unspecified
 
 autoload -U compinit
 compinit
-zstyle ':completion:*' completer _oldlist _expand _complete _ignored
+zstyle ':completion:*' completer _complete _expand _ignored _oldlist
 zstyle ':completion:*' list-colors ''
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' menu select=1
@@ -237,6 +234,22 @@ zstyle ':completion:*' use-cache true
 zstyle ':completion:*' verbose true
 zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
+
+
+
+
+# Source  #{{{1
+
+source ~/.zsh/zaw/zaw.zsh
+
+bindkey '^Xs' zaw
+bindkey '^X^S' zaw
+bindkey '^Xh' zaw-history
+bindkey '^X^H' zaw-history
+bindkey '^Xd' zaw-dirstack
+bindkey '^X^D' zaw-dirstack
+bindkey '^Xg' zaw-git-files
+bindkey '^X^G' zaw-git-files
 
 
 
