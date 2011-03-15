@@ -1,6 +1,6 @@
 " Vim colorscheme: basic256
 " Version: 0.0.0
-" Copyright (C) 2010 emonkak <emonkak@gmail.com>
+" Copyright (C) 2010-2011 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -34,13 +34,17 @@ let g:colors_name = 'basic256'
 
 
 
+
 " Variables  "{{{1
+
+let s:FALSE = 0
+let s:TRUE = !s:FALSE
 
 let s:gui_colors = [
 \  '#000000', '#990000', '#009900', '#999900',
 \  '#000099', '#990099', '#009999', '#999999',
-\  '#555555', '#cc6633', '#00cc00', '#cccc00',
-\  '#3366cc', '#cc00cc', '#00cccc', '#ffffff',
+\  '#555555', '#cc0000', '#00cc00', '#cccc00',
+\  '#3366ff', '#cc00cc', '#00cccc', '#ffffff',
 \ ]
 let s:gui_colors += [
 \  '#000000', '#00005f', '#000087', '#0000af',
@@ -118,29 +122,57 @@ function! s:attributes(attr)  "{{{2
   \ 's': 'standout',
   \ 'u': 'underline',
   \ }
-  return a:attr == '' ? 'NONE' :
-  \      join(map(split(a:attr, '.\zs'), 'get(_, v:val, "")'), ',')
+  let attrs = []
+  if &term ==# 'win32'
+    call remove(_, 'u')
+  end
+  for key in split(a:attr, '.\zs')
+    if has_key(_, key)
+      call insert(attrs, _[key])
+    endif
+  endfor
+  return empty(attrs) ? 'NONE' : join(attrs, ',')
 endfunction
 
 
 
 
-function! s:highlight(name, attr, ...)  "{{{2
-  let _ = ['fg=', 'bg=', 'sp=']
+function! s:color(color_number)  "{{{2
   if has('gui_running')
-    let args = a:000[:2]
-    let type = 'gui'
-    call map(args,
-    \       'type . remove(_, 0) . (v:val > -1 ? s:gui_colors[v:val % 255] : "NONE")')
+    return s:gui_colors[a:color_number % len(s:gui_colors)]
+  elseif &term ==# 'win32'
+    let _ = [0, 4, 2, 6, 1, 5, 3, 7, 8, 12, 10, 14, 9, 13, 11, 15]
+    return _[a:color_number % len(_)]
   else
-    let args = a:000[:1]
-    let type = 'cterm'
-    call map(args,
-    \       'type . remove(_, 0) . (v:val > -1 ? v:val % &t_Co : "NONE")')
+    return a:color_number % &t_Co
   endif
-  execute 'highlight' a:name
-  \       type . '=' . s:attributes(a:attr)
-  \       join(args)
+endfunction
+
+
+
+
+function! s:highlight(name, settings)  "{{{2
+  let _ = []
+  let type = has('gui_running') ? 'gui' : 'cterm'
+  let reversed_p = s:FALSE
+
+  if has_key(a:settings, 'attr')
+    if &term ==# 'win32' && a:settings['attr'] =~# 'r'
+      let reversed_p = s:TRUE
+    endif
+    call insert(_, ['', s:attributes(a:settings['attr'])])
+  endif
+  if has_key(a:settings, 'fg')
+    call insert(_, [reversed_p ? 'bg' : 'fg', s:color(a:settings['fg'])])
+  endif
+  if has_key(a:settings, 'bg')
+    call insert(_, [reversed_p ? 'fg' : 'bg', s:color(a:settings['bg'])])
+  endif
+  if has_key(a:settings, 'sp') && has('gui_running') 
+    call insert(_, ['sp', s:color(a:settings['sp'])])
+  endif
+
+  execute 'highlight' a:name 'NONE' join(map(_, 'type . join(v:val, "=")'))
 endfunction
 
 
@@ -150,111 +182,111 @@ endfunction
 " Basic  "{{{2
 
 if has('gui_running')
-  highlight Normal   guifg=#cccccc guibg=#111111
+  highlight Normal   guifg=#cccccc guibg=#191919
   highlight Cursor   guifg=#000000 guibg=#009900
   highlight CursorIM guifg=#000000 guibg=#009999
   highlight lCursor  guifg=#000000 guibg=#009999
 endif
 
-call s:highlight('SpecialKey'   , ''  ,  8, -1)
-call s:highlight('NonText'      , ''  ,  4, -1)
-call s:highlight('Directory'    , ''  , 14, -1)
-call s:highlight('MatchParen'   , 'b' , 14, -1)
-call s:highlight('LineNr'       , ''  ,  8, -1)
-call s:highlight('Question'     , ''  , 10, -1)
-call s:highlight('VertSplit'    , ''  ,  8, -1)
-call s:highlight('Title'        , ''  , 14, -1)
-call s:highlight('Visual'       , ''  , -1,  4)
-call s:highlight('VisualNOS'    , 'r' , -1, -1)
-call s:highlight('WildMenu'     , 'br', 11,  0)
+call s:highlight('SpecialKey'   , {'fg': 8})
+call s:highlight('NonText'      , {'fg': 12})
+call s:highlight('Directory'    , {'fg': 14})
+call s:highlight('MatchParen'   , {'bg': 6})
+call s:highlight('LineNr'       , {'fg': 8})
+call s:highlight('Question'     , {'fg': 10})
+call s:highlight('VertSplit'    , {'fg': 8})
+call s:highlight('Title'        , {'fg': 14})
+call s:highlight('Visual'       , {'bg': 4})
+call s:highlight('VisualNOS'    , {'attr': 'r'})
+call s:highlight('WildMenu'     , {'attr': 'br', 'fg': 11, 'bg': 0})
 
-call s:highlight('ErrorMsg'     , ''  , -1,  1)
-call s:highlight('MoreMsg'      , ''  , -1,  2)
-call s:highlight('ModeMsg'      , ''  , -1,  4)
-call s:highlight('WarningMsg'   , ''  , 11, -1)
+call s:highlight('ErrorMsg'     , {'bg': 1})
+call s:highlight('MoreMsg'      , {'bg': 2})
+call s:highlight('ModeMsg'      , {'bg': 4})
+call s:highlight('WarningMsg'   , {'fg': 11})
 
-call s:highlight('IncSearch'    , 'r' , -1, -1)
-call s:highlight('Search'       , ''  ,  0, 11)
+call s:highlight('IncSearch'    , {'attr': 'r'})
+call s:highlight('Search'       , {'fg': 0, 'bg': 11})
 
-call s:highlight('StatusLine'   , 'br', -1,  0)
-call s:highlight('StatusLineNC' , ''  ,  0,  7)
+call s:highlight('StatusLine'   , {'attr': 'rb', 'bg': 0})
+call s:highlight('StatusLineNC' , {'attr': 'r', 'fg': 7, 'bg': 0})
 
-call s:highlight('Folded'       , ''  ,  6, -1)
-call s:highlight('FoldColumn'   , ''  ,  6, -1)
-call s:highlight('SignColumn'   , ''  , 14, -1)
-call s:highlight('Conceal'      , ''  , -1,  8)
+call s:highlight('Folded'       , {'fg': 6})
+call s:highlight('FoldColumn'   , {'fg': 6})
+call s:highlight('SignColumn'   , {'fg': 14})
+call s:highlight('Conceal'      , {'bg': 8})
 
-call s:highlight('DiffAdd'      , ''  , -1,  4)
-call s:highlight('DiffChange'   , ''  , -1,  5)
-call s:highlight('DiffDelete'   , ''  ,  8, -1)
-call s:highlight('DiffText'     , ''  , -1,  5)
+call s:highlight('DiffAdd'      , {'bg': 4})
+call s:highlight('DiffChange'   , {'bg': 5})
+call s:highlight('DiffDelete'   , {'fg': 8})
+call s:highlight('DiffText'     , {'bg': 5})
 
 if has('gui_running')
-  call s:highlight('SpellBad'   , 'c' , -1, -1,  1)
-  call s:highlight('SpellCap'   , 'c' , -1, -1,  4)
-  call s:highlight('SpellRare'  , 'c' , -1, -1,  5)
-  call s:highlight('SpellLocal' , 'c' , -1, -1,  6)
+  call s:highlight('SpellBad'   , {'attr': 'c', 'sp': 1})
+  call s:highlight('SpellCap'   , {'attr': 'c', 'sp': 4})
+  call s:highlight('SpellRare'  , {'attr': 'c', 'sp': 5})
+  call s:highlight('SpellLocal' , {'attr': 'c', 'sp': 6})
 else
-  call s:highlight('SpellBad'   , ''  , -1,  1)
-  call s:highlight('SpellCap'   , ''  , -1,  4)
-  call s:highlight('SpellRare'  , ''  , -1,  5)
-  call s:highlight('SpellLocal' , ''  , -1,  6)
+  call s:highlight('SpellBad'   , {'bg': 1})
+  call s:highlight('SpellCap'   , {'bg': 4})
+  call s:highlight('SpellRare'  , {'bg': 5})
+  call s:highlight('SpellLocal' , {'bg': 6})
 endif
 
-call s:highlight('Pmenu'        , 'u' , -1, -1)
-call s:highlight('PmenuSel'     , ''  ,  0, 11)
-call s:highlight('PmenuSbar'    , ''  , -1, -1)
-call s:highlight('PmenuThumb'   , ''  , -1, 11)
+call s:highlight('Pmenu'        , {'attr': 'u'})
+call s:highlight('PmenuSel'     , {'fg': 0, 'bg': 11})
+call s:highlight('PmenuSbar'    , {})
+call s:highlight('PmenuThumb'   , {'bg': 11})
 
-call s:highlight('TabLine'      , 'r' , -1,  0)
-call s:highlight('TabLineSel'   , 'b' , -1, -1)
-call s:highlight('TabLineFill'  , 'r' , -1,  0)
+call s:highlight('TabLine'      , {'bg': 8})
+call s:highlight('TabLineSel'   , {'attr': 'bu', 'fg': 15, 'bg': 8})
+call s:highlight('TabLineFill'  , {'bg': 8})
 
-call s:highlight('CursorColumn' , ''  , -1,  0)
-call s:highlight('CursorLine'   , 'u' , -1, -1)
-call s:highlight('ColorColumn'  , ''  , -1,  8)
+call s:highlight('CursorColumn' , {'bg': 0})
+call s:highlight('CursorLine'   , {'attr': 'u'})
+call s:highlight('ColorColumn'  , {'bg': 8})
 
 
 
 
 " Syntax  "{{{2
 
-call s:highlight('Comment'      , ''  ,  14, -1)
-call s:highlight('Constant'     , ''  ,  13, -1)
-call s:highlight('Special'      , ''  ,   9, -1)
-call s:highlight('Identifier'   , 'b' ,  14, -1)
-call s:highlight('Statement'    , ''  ,  11, -1)
-call s:highlight('PreProc'      , ''  ,  12, -1)
-call s:highlight('Type'         , ''  ,  10, -1)
-call s:highlight('Underlined'   , 'u' ,  12, -1)
-call s:highlight('Ignore'       , ''  ,   0, -1)
-call s:highlight('Error'        , ''  ,  -1,  1)
-call s:highlight('Todo'         , ''  ,   0, 11)
+call s:highlight('Comment'      , {'fg': 14})
+call s:highlight('Constant'     , {'fg': 13})
+call s:highlight('Special'      , {'fg': 9})
+call s:highlight('Identifier'   , {'attr': 'b', 'fg': 14})
+call s:highlight('Statement'    , {'fg': 11})
+call s:highlight('PreProc'      , {'fg': 12})
+call s:highlight('Type'         , {'fg': 10})
+call s:highlight('Underlined'   , {'attr': 'u', 'fg': 12})
+call s:highlight('Ignore'       , {'fg': 0})
+call s:highlight('Error'        , {'bg': 1})
+call s:highlight('Todo'         , {'fg': 0, 'bg': 11})
 
-hi link String         Constant
-hi link Character      Constant
-hi link Number         Constant
-hi link Boolean        Constant
-hi link Float          Constant
-hi link Function       Identifier
-hi link Conditional    Statement
-hi link Repeat         Statement
-hi link Label          Statement
-hi link Operator       Statement
-hi link Keyword        Statement
-hi link Exception      Statement
-hi link Include        PreProc
-hi link Define         PreProc
-hi link Macro          PreProc
-hi link PreCondit      PreProc
-hi link StorageClass   Type
-hi link Structure      Type
-hi link Typedef        Type
-hi link Tag            Special
-hi link SpecialChar    Special
-hi link Delimiter      Special
-hi link SpecialComment Special
-hi link Debug          Special
+highlight link String         Constant
+highlight link Character      Constant
+highlight link Number         Constant
+highlight link Boolean        Constant
+highlight link Float          Constant
+highlight link Function       Identifier
+highlight link Conditional    Statement
+highlight link Repeat         Statement
+highlight link Label          Statement
+highlight link Operator       Statement
+highlight link Keyword        Statement
+highlight link Exception      Statement
+highlight link Include        PreProc
+highlight link Define         PreProc
+highlight link Macro          PreProc
+highlight link PreCondit      PreProc
+highlight link StorageClass   Type
+highlight link Structure      Type
+highlight link Typedef        Type
+highlight link Tag            Special
+highlight link SpecialChar    Special
+highlight link Delimiter      Special
+highlight link SpecialComment Special
+highlight link Debug          Special
 
 
 
