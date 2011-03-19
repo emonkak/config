@@ -61,7 +61,7 @@ if has('vim_starting')
     if s:win_p
       set guifont=Consolas:h10.5
     else
-      set guifont=Monospace\ 10
+      set guifont=TheSans\ Mono\ 10.5
       set guifontwide=AXIS\ Std\ 11
     endif
     set guioptions=AcgM
@@ -627,10 +627,11 @@ function! s:cmd_Font_complete(arglead, cmdline, cursorpos)
     return []  " Not available.
   endif
   let _ = [
-  \   'Droid Sans Mono 10.5',
-  \   'Menlo 10.5',
+  \   'Droid Sans Mono 10',
+  \   'Menlo 10',
   \   'Monaco 10',
   \   'Monospace 10',
+  \   'TheSans Mono 10.5',
   \ ]
   return filter(_, 'stridx(v:val, a:arglead) == 0')
 endfunction
