@@ -24,6 +24,7 @@ import XMonad.Layout.Tabbed
 import XMonad.Layout.ToggleLayouts
 import XMonad.Layout.TrackFloating
 
+import XMonad.Util.Cursor
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
 
@@ -34,7 +35,6 @@ import Data.List
 import System.Environment
 import System.Exit
 
-import Foreign.C.String (castCharToCChar)
 import Graphics.X11.Xlib.Extras (changeProperty8, propModeReplace)
 
 import qualified Data.Map as M
@@ -43,8 +43,7 @@ import qualified XMonad.StackSet as W
 
 
 
--- Hooks  --{{{1
--- Lauout  --{{{2
+-- Lauout  --{{{1
 
 myLayoutHook = avoidStrutsOn [U,R,L] $ smartBorders $
   onWorkspace "web" (toggleLayouts Full (webIM $ tallLayout ||| wideLayout)) $
@@ -65,14 +64,12 @@ myLayoutHook = avoidStrutsOn [U,R,L] $ smartBorders $
 
 
 
--- Manage  --{{{2
+-- Manage  --{{{1
 
 myManageHook = composeOne
   [ isDialog                                -?> doFloat
   , isFullscreen                            -?> doFullFloat
   , className  =? "MPlayer"                 -?> doCenterFloat
-  , className  =? "Smplayer"                -?> doCenterFloat
-  , className  =? "Vlc"                     -?> doCenterFloat
   , className  =? "XFontSel"                -?> doCenterFloat
   , className  =? "Xmessage"                -?> doCenterFloat
   , className  =? "feh"                     -?> doCenterFloat
@@ -82,11 +79,11 @@ myManageHook = composeOne
   , className  =? "Skype"
     <&&> fmap (isInfixOf "(Beta)") title    -?> doShiftAndGo "web" <+> addProperty "WM_WINDOW_ROLE" "MainWindow"
   , className  =? "Skype"                   -?> doShiftAndGo "web"
+  , className  =? "GQview"                  -?> doShiftAndGo "gfx"
+  , className  =? "Inkscape"                -?> doShiftAndGo "gfx"
+  , className  =? "XmBDFEdit"               -?> doShiftAndGo "gfx" <+> doFloat
+  , className  =? "fontforge"               -?> doShiftAndGo "gfx" <+> doFloat
   , className  =? "libreoffice-startcenter" -?> doShiftAndGo "misc"
-  , className  =? "GQview"                  -?> doShiftAndGo "media"
-  , className  =? "Inkscape"                -?> doShiftAndGo "media"
-  , className  =? "XmBDFEdit"               -?> doShiftAndGo "media" <+> doFloat
-  , className  =? "fontforge"               -?> doShiftAndGo "media" <+> doFloat
   , className  =? "Gimp"
     <&&> role /=? "gimp-toolbox"
     <&&> role /=? "gimp-dock"
@@ -94,19 +91,19 @@ myManageHook = composeOne
   , className  =? "Gimp"                    -?> doShiftAndGo "gimp"
   ]
   where
-    doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
     role = stringProperty "WM_WINDOW_ROLE"
+    doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
     addProperty prop value = ask >>= \w -> do
       liftX $ withDisplay $ \d -> do
         a <- io $ internAtom d prop False
         t <- io $ internAtom d "STRING" False
-        io $ changeProperty8 d w a t propModeReplace (map castCharToCChar value)
+        io $ changeProperty8 d w a t propModeReplace $ map (fromIntegral . fromEnum) value
       idHook
 
 
 
 
--- Log  --{{{2
+-- Log  --{{{1
 
 myLogHook h = do
   home <- io $ getEnv "HOME"
@@ -136,7 +133,7 @@ myLogHook h = do
 
 
 
--- Handle Event  --{{{2
+-- HandleEvent  --{{{1
 
 -- Don't focus follows mouse when Cross layout.
 -- myHandleEventHook = followOnlyIf $ fmap (\x -> case x of
@@ -261,14 +258,14 @@ main = do
     , focusedBorderColor = "#63afaf"
     , borderWidth        = 2
 
-    , workspaces         = ["work", "web", "misc", "media", "gimp"]
+    , workspaces         = ["work", "web", "gfx", "misc", "gimp"]
     , modMask            = mod4Mask
     , keys               = myKeys
 
     , layoutHook         = myLayoutHook
     , manageHook         = manageDocks <+> myManageHook
     , logHook            = myLogHook statusPipe
-    , startupHook        = setWMName "LG3D"
+    , startupHook        = setDefaultCursor xC_left_ptr <+> setWMName "LG3D"
 
     , focusFollowsMouse  = True
     }
