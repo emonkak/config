@@ -86,10 +86,8 @@ def open_file {  #{{{2
     return
   }
 
-  case $entries[-1] 'aac|avi|flv|mkv|mov|mp3|ogg|ogv|wav|webm|wma|wmv' {
-    external -q "mplayer -quiet -vo xv $ARGV[0]"; break
-  } 'mp4|mpe?g' {
-    external -q "mplayer -quiet -vo vaapi -va vaapi $ARGV[0]"; break
+  case $entries[-1] 'aac|avi|flv|mkv|mov|mp3|mp4|mpe?g|ogg|ogv|wav|webm|wma|wmv' {
+    external -q "mplayer -quiet $ARGV[0]"; break
   } 'bmp|gif|jpe?g|png' {
     external -q "feh  $ARGV[0]"; break
   } 'eps|pdf|ps' {
