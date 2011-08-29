@@ -55,18 +55,17 @@ if has('vim_starting')
     set fileformat=unix
     set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
   endif
+endif
 
-  if has('gui_running')
-    set guicursor=a:blinkon0
-    if s:win_p
-      set guifont=Consolas:h10.5
-    else
-      set guifont=TheSans\ Mono\ 10.5
-      set guifontwide=AXIS\ Std\ 11
-    endif
-    set guioptions=AcgM
-    set linespace=0
+if has('gui_running')
+  set guicursor=a:blinkon0
+  if s:win_p
+    set guifont=Consolas:h10.5
+  else
+    set guifont=Monospace\ 10.5
   endif
+  set guioptions=AcgM
+  set linespace=2
 endif
 
 if (1 < &t_Co || has('gui')) && has('syntax')
@@ -89,21 +88,26 @@ set nobackup
 if has('clientserver')
   set clipboard=autoselectml,exclude:cons\|linux
 endif
+set completeopt=menuone,longest
+set confirm
+set cursorline
 set diffopt=filler,vertical
 set directory=~/tmp,/tmp
 set fileformats=unix,dos,mac
 set hidden
-set history=100
+set history=1000
 if has('multi_byte_ime') || has('xim')
   set iminsert=0
   set imsearch=0
 endif
 set keywordprg=:help
+set nrformats=hex
 set nowritebackup
 if exists('+shellslash')
   set shellslash
 endif
 set spelllang=en_us
+set updatetime=1000
 set virtualedit=block
 
 set cmdheight=1
@@ -116,9 +120,10 @@ set linebreak
 set list
 let &listchars = "tab:\u00bb ,extends:<,trail:-"
 set pumheight=20
-set report=0
+set report=1
 set ruler
 set showcmd
+set showtabline=2
 set splitbelow
 set splitright
 set ttimeoutlen=50
@@ -147,8 +152,8 @@ let &statusline = ''
 let &statusline .= '%<%f %h%m%r%w'
 let &statusline .= '   %{eskk#statusline("[%s]")}'
 let &statusline .= '%='
-let &statusline .= '[%{&fileencoding == "" ? &encoding : &fileencoding}'
-let &statusline .= '%{&fileformat[0] == &fileformats[0] ? "" : "," . &fileformat}]'
+let &statusline .= '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
+let &statusline .= '%{&l:fileformat[0] == &fileformats[0] ? "" : "," . &l:fileformat}]'
 let &statusline .= '   %-14.(%l,%c%V%) %P'
 
 function! s:my_tabline()  "{{{
@@ -195,7 +200,8 @@ augroup MyAutoCmd
 augroup END
 
 call altercmd#load()
-call pathogen#runtime_append_all_bundles()
+call rtputil#bundle()
+call metarw#define_wrapper_commands(0)
 
 
 
@@ -213,7 +219,7 @@ let s:TRUE = !s:FALSE
 
 command! -complete=dir -nargs=* CD
 \   if <q-args> == ''
-\ |   execute 'cd' (expand('%') != '' ? '%:h' : '~')
+\ |   execute 'cd' (expand('%') == '' ? '~' : '%:p:h')
 \ | else
 \ |   cd <args>
 \ | endif
@@ -230,30 +236,11 @@ autocmd MyAutoCmd TabEnter *
 \ |   endif
 \ | endif
 
-autocmd MyAutoCmd BufReadPost *
-\   if !exists('t:cwd') && buflisted(bufnr('%'))
+autocmd MyAutoCmd BufEnter,BufReadPost ?*
+\   if !exists('t:cwd') && buflisted(bufnr('%')) && filereadable(expand('%'))
 \ |   cd %:p:h
 \ |   let t:cwd = getcwd()
 \ | endif
-
-
-
-
-" Capture - the output of commands are written buffer.  "{{{2
-
-command! -complete=command -nargs=+ Capture  call s:cmd_Capture(<q-args>)
-function! s:cmd_Capture(args)
-  redir => output
-  silent execute a:args
-  redir END
-  let output = substitute(output, '^\n\+', '', '')
-
-  Split
-  edit `=printf('[capture:%s]', a:args)`
-  nnoremap <buffer> q  <C-w>c
-  setlocal buftype=nofile bufhidden=unload noswapfile nobuflisted
-  call setline(1, split(output, '\n'))
-endfunction
 
 
 
@@ -275,27 +262,12 @@ endfunction
 
 
 
-" HelpTagsAll - :helptags to all doc/ in &runtimepath  "{{{2
+" Rename - rename file and buffer  "{{{2
 
-command! -bar -nargs=0 HelpTagsAll  call s:cmd_HelpTagsAll()
-function! s:cmd_HelpTagsAll()
-  for path in split(&runtimepath, ',')
-    let doc = path . '/doc'
-    if stridx(doc, $VIM) != 0 && isdirectory(doc) && filewritable(doc)
-      helptags `=doc`
-    endif
-  endfor
-endfunction
-
-
-
-
-" Rename - rename the current editing file.  "{{{2
-
-command! -nargs=1 -complete=file Rename  call s:cmd_Rename(<q-args>)
+command! -complete=file -nargs=1 Rename  call s:cmd_Rename(<q-args>)
 function! s:cmd_Rename(name)
   let current = expand('%')
-  if &readonly || !&modifiable || !filewritable(current)
+  if &l:readonly || !&l:modifiable || !filewritable(current)
     Hecho ErrorMsg 'This file cannot be changes.'
   elseif filereadable(a:name)
     Hecho ErrorMsg 'Renamed file already exists.'
@@ -311,32 +283,44 @@ endfunction
 
 
 
-" Scouter - measures battle power of a vimmer.  "{{{2
+" Scouter - measures battle power of a vimmer  "{{{2
 
-command! -bar -nargs=? -complete=file Scouter
+command! -bar -complete=file -nargs=? Scouter
 \ echo s:cmd_Scouter(<q-args> == '' ? $MYVIMRC : expand(<q-args>))
 function! s:cmd_Scouter(file)
   let pattern = '^\s*$\|^\s*"'
-  let lines = readfile(a:file)
-  let lines = split(substitute(join(lines, "\n"), '\n\s*\\', '', 'g'), "\n")
+  let lines = split(substitute(join(readfile(a:file), "\n"),
+  \                            '\n\s*\\', '', 'g'),
+  \                 "\n")
   return len(filter(lines,'v:val !~ pattern'))
 endfunction
 
 
 
 
-" Sequence - sequence number substitutions.  "{{{2
+" Sequence - sequence number substitutions  "{{{2
 "
 " :Sequence {pattern} [format] [first] [step]
 "
 "   Example: Print the line number in front of each line:
 "   Sequence ^ '%03d ' 1
 
-command! -nargs=+ -range Sequence
+command! -bar -range -nargs=+ Sequence
 \ <line1>,<line2>call s:cmd_Sequence(<q-args>)
 function! s:cmd_Sequence(args) range
   let args = vimproc#parser#split_args(a:args)
-  let incrementor = call(s:SID_PREFIX() . 'incrementor', args[1:])
+  let incrementor = {
+  \   'format': get(args, 1, '%d'),
+  \   'current': get(args, 2, 0),
+  \   'step': get(args, 3, 1)
+  \ }
+
+  function incrementor.call() dict
+    let next = printf(self.format, self.current)
+    let self.current += self.step
+    return next
+  endfunction
+
   execute printf('%d,%ds/%s/\=incrementor.call()/g',
   \              a:firstline,
   \              a:lastline,
@@ -346,7 +330,167 @@ endfunction
 
 
 
-" SetFileType, SetFileEncoding, SetFileFormat - with completion.  "{{{2
+" Source - wrapper of :source with echo  "{{{2
+
+command! -bar -complete=file -nargs=1 Source
+\   echo 'Sourcing ...' expand(<q-args>)
+\ | source <args>
+
+AlterCommand so[urce]  Source
+
+
+
+
+" SuspendWithAutomticCD  "{{{2
+
+command! -bar -nargs=0 SuspendWithAutomticCD
+\ call s:cmd_SuspendWithAutomticCd()
+function! s:cmd_SuspendWithAutomticCd()
+  let available_p = s:FALSE
+  let shell = split(&shell, '/')[-1]
+
+  if exists('$TMUX') || (has('gui_running') && executable('tmux'))
+    let windows = s:tmux_list_windows()
+    if !empty(windows)
+      let i = -1
+      for [index, title] in windows
+        if title ==# shell
+          let i = index
+          break
+        endif
+      endfor
+      silent execute '!tmux'
+      \              (i > -1 ? 'select-window -t '.i : 'new-window').'\;'
+      \              'send-keys C-u " cd \"'.getcwd().'\"" C-m'
+      redraw!
+      let available_p = (v:shell_error == 0)
+    endif
+  elseif exists('$WINDOW') || (has('gui_running') && executable('screen'))
+    silent execute '!screen -X eval'
+    \              '''select '.shell.''''
+    \              '''stuff "\025 cd \\"'.getcwd().'\\" \015"'''
+    redraw!
+    let available_p = (v:shell_error == 0)
+  endif
+
+  if !available_p
+    suspend
+  endif
+endfunction
+
+function! s:tmux_list_windows()
+  let _ = vimproc#system('tmux list-windows')
+  if vimproc#get_last_status() != 0
+    return []
+  endif
+  return map(split(_, '\n'),
+  \         'split(matchstr(v:val, "^\\d\\+:\\s\\S\\+"), ":\\s")')
+endfunction
+
+
+
+
+" TabpageTitle - name the current tabpage  "{{{2
+
+command! -bar -nargs=* TabpageTitle
+\   if <q-args> == ''
+\ |   let t:title = input("Set tabpage's title to: ", '')
+\ | else
+\ |   let t:title = <q-args>
+\ | endif
+\ | redraw!
+
+
+
+
+" Utf8 and others - :edit with specified 'fileencoding'  "{{{2
+
+command! -bang -bar -complete=file -nargs=? Cp932
+\ edit<bang> ++enc=cp932 <args>
+command! -bang -bar -complete=file -nargs=? Eucjp
+\ edit<bang> ++enc=euc-jp <args>
+command! -bang -bar -complete=file -nargs=? Iso2022jp
+\ edit<bang> ++enc=iso-2022-jp <args>
+command! -bang -bar -complete=file -nargs=? Utf8
+\ edit<bang> ++enc=utf-8 <args>
+command! -bang -bar -complete=file -nargs=? Utf16be
+\ edit<bang> ++enc=utf-16be <args>
+command! -bang -bar -complete=file -nargs=? Utf16
+\ edit<bang> ++enc=utf-16le <args>
+command! -bang -bar -complete=file -nargs=? Utf32be
+\ edit<bang> ++enc=utf-32be <args>
+command! -bang -bar -complete=file -nargs=? Utf32
+\ edit<bang> ++enc=utf-32le <args>
+
+command! -bang -bar -complete=file -nargs=? Jis  Iso2022jp<bang> <args>
+command! -bang -bar -complete=file -nargs=? Sjis  Cp932<bang> <args>
+command! -bang -bar -complete=file -nargs=? Unicode  Utf16<bang> <args>
+
+
+
+
+" Utilities  "{{{1
+" :grep wrappers  "{{{2
+
+command! -bar -complete=file -nargs=+ Grep  call s:grep('grep', [<f-args>])
+command! -bar -complete=file -nargs=+ Lgrep  call s:grep('lgrep', [<f-args>])
+function! s:grep(command, args)
+  let target = len(a:args) > 1 ? join(a:args[:-2]) : '**/*'
+  let grepprg = &l:grepprg == '' ? &grepprg : &l:grepprg
+
+  if grepprg ==# 'internal'
+    try
+      execute a:command '/'.escape(a:args[-1], '/ ').'/j' target
+    catch
+      redraw
+      Hecho ErrorMsg v:exception
+    endtry
+  else
+    execute a:command.'!' shellescape(a:args[-1]) target
+  endif
+
+  if a:command ==# 'grep'
+    if !empty(getqflist())
+      copen
+    endif
+  elseif !empty(getloclist())  " lgrep
+    lopen
+  endif
+endfunction
+
+AlterCommand gr[ep]  Grep
+AlterCommand lgr[ep]  Lgrep
+
+
+
+
+" :make wrappers  "{{{2
+
+command! -bar -complete=file -nargs=* Make  call s:make('make', [<f-args>])
+command! -bar -complete=file -nargs=* Lmake  call s:make('lmake', [<f-args>])
+function! s:make(command, args)
+  let current = winnr()
+  try
+    execute a:command.'!' join(a:args)
+  catch
+    Hecho ErrorMsg v:exception
+  endtry
+
+  if a:command ==# 'make'
+    cwindow
+  else  " lmake
+    lwindow
+  endif
+  execute current 'wincmd w'
+endfunction
+
+AlterCommand mak[e]  Make
+AlterCommand lmak[e]  Lmake
+
+
+
+
+" :setlocal stuffs  "{{{2
 
 command! -nargs=? -complete=filetype SetFileType
 \ setlocal filetype=<args> | silent! SkeletonLoad <args>
@@ -436,204 +580,52 @@ function! s:complete_fileencoding(arglead, cmdline, cursorpos)
   for encoding in split(&fileencodings, ',')
     let encodings[encoding] = 0
   endfor
-  return sort(filter(keys(encodings), 'stridx(v:val, a:arglead) == 0'))
+  return sort(filter(keys(encodings), 's:prefix_of_p(a:arglead, v:val)'))
 endfunction
-
 function! s:complete_fileformats(arglead, cmdline, cursorpos)
-  return sort(filter(split(&fileformats, ','), 'stridx(v:val, a:arglead) == 0'))
-endfunction
-
-AlterCommand setf[iletype]  SetFileType
-
-
-
-
-" Source - wrapper of :source with echo.  "{{{2
-
-command! -bar -complete=file -nargs=1 Source
-\   echo 'Sourcing ...' expand(<q-args>)
-\ | source <args>
-
-AlterCommand so[urce]  Source
-
-
-
-
-" SuspendWithAutomticCD  "{{{2
-
-command! -bar -nargs=0 SuspendWithAutomticCD
-\ call s:cmd_SuspendWithAutomticCd()
-function! s:cmd_SuspendWithAutomticCd()
-  let available_p = s:FALSE
-  let shell = split(&shell, '/')[-1]
-
-  if exists('$TMUX') || (has('gui_running') && executable('tmux'))
-    let windows = s:tmux_list_windows()
-    if !empty(windows)
-      let i = -1
-      for [index, title] in windows
-        if title ==# shell
-          let i = index
-          break
-        endif
-      endfor
-      silent execute '!tmux'
-      \              (i > -1 ? 'select-window -t '.i : 'new-window').'\;'
-      \              'send-keys C-u " cd \"'.getcwd().'\"" C-m'
-      redraw!
-      let available_p = (v:shell_error == 0)
-    endif
-  elseif exists('$WINDOW') || (has('gui_running') && executable('screen'))
-    silent execute '!screen -X eval'
-    \              '''select '.shell.''''
-    \              '''stuff "\025 cd \\"'.getcwd().'\\" \015"'''
-    redraw!
-    let available_p = (v:shell_error == 0)
-  endif
-
-  if !available_p
-    suspend
-  endif
-endfunction
-
-function! s:tmux_list_windows()
-  let _ = vimproc#system('tmux list-windows')
-  if vimproc#get_last_status() != 0
-    return []
-  endif
-  return map(split(_, '\n'),
-  \         'split(matchstr(v:val, "^\\d\\+:\\s\\S\\+"), ":\\s")')
+  return sort(filter(split(&fileformats, ','), 's:prefix_of_p(a:arglead, v:val)'))
 endfunction
 
 
-
-
-" TabpageTitle - name the current tabpage  "{{{2
-
-command! -bar -nargs=* TabpageTitle
-\   if <q-args> == ''
-\ |   let t:title = input("Set tabpage's title to: ", '')
-\ | else
-\ |   let t:title = <q-args>
-\ | endif
-\ | redraw!
-
-
-
-
-" Utf8 and others - :edit with specified 'fileencoding'  "{{{2
-
-command! -bang -bar -complete=file -nargs=? Cp932
-\ edit<bang> ++enc=cp932 <args>
-command! -bang -bar -complete=file -nargs=? Eucjp
-\ edit<bang> ++enc=euc-jp <args>
-command! -bang -bar -complete=file -nargs=? Iso2022jp
-\ edit<bang> ++enc=iso-2022-jp <args>
-command! -bang -bar -complete=file -nargs=? Utf8
-\ edit<bang> ++enc=utf-8 <args>
-command! -bang -bar -complete=file -nargs=? Utf16
-\ edit<bang> ++enc=utf-16 <args>
-command! -bang -bar -complete=file -nargs=? Utf16le
-\ edit<bang> ++enc=utf-16le <args>
-command! -bang -bar -complete=file -nargs=? Utf32
-\ edit<bang> ++enc=utf-32 <args>
-command! -bang -bar -complete=file -nargs=? Utf32le
-\ edit<bang> ++enc=utf-32le <args>
-
-command! -bang -bar -complete=file -nargs=? Jis  Iso2022jp<bang> <args>
-command! -bang -bar -complete=file -nargs=? Sjis  Cp932<bang> <args>
-command! -bang -bar -complete=file -nargs=? Unicode  Utf16<bang> <args>
-
-
-
-
-" Utilities  "{{{1
-" :grep wrappers  "{{{2
-
-command! -bar -complete=file -nargs=+ Grep  call s:grep('grep', <f-args>)
-command! -bar -complete=file -nargs=+ Lgrep  call s:grep('lgrep', <f-args>)
-function! s:grep(command, ...)
-  let target = a:0 > 1 ? join(a:000[:-2]) : '**/*'
-
-  if &grepprg ==# 'internal'
-    try
-      execute a:command '/'.escape(a:000[-1], '/\ ').'/j' target
-    catch /.*/
-      redraw
-      Hecho ErrorMsg v:exception
-    endtry
+command! -bar -nargs=1 SetIndent  call s:cmd_SetIndent(<q-args>)
+function! s:cmd_SetIndent(expr)
+  let _ = matchlist(a:expr, '^\(\d\+\)\(s\%[pace]\|t\%[ab]\)$')
+  if empty(_)
+    Hecho ErrorMsg 'Invalid indent pattren.'
   else
-    if s:win_p
-      set shell=sh.exe shellcmdflag=-c shellxquote=\""
-      execute a:command.'!' shellescape(a:000[-1]) target
-      set shell& shellcmdflag& shellxquote&
+    let width = str2nr(_[1])
+    let expandtab_p = (_[2] =~# '^s\%[pace]$')
+    if expandtab_p
+      execute 'setlocal'
+      \       printf('expandtab tabstop& shiftwidth=%d softtabstop=%d',
+      \              width, width)
     else
-      execute a:command.'!' shellescape(a:000[-1]) target
+      execute 'setlocal'
+      \       printf('noexpandtab tabstop=%d shiftwidth=%d softtabstop&',
+      \              width, width)
     endif
-  endif
-
-  if a:command ==# 'grep'
-    if !empty(getqflist())
-      copen
-    endif
-  elseif !empty(getloclist())  " lgrep
-    lopen
   endif
 endfunction
-
-AlterCommand gr[ep]  Grep
-AlterCommand lgr[ep]  Lgrep
-
-
-
-
-" :make wrappers  "{{{2
-
-command! -bar -complete=file -nargs=* Make  call s:make('make', <f-args>)
-command! -bar -complete=file -nargs=* Lmake  call s:make('lmake', <f-args>)
-function! s:make(command, ...)
-  let current = winnr()
-  try
-    execute a:command.'!' join(a:000)
-  catch /.*/
-    Hecho ErrorMsg v:exception
-  endtry
-
-  if a:command ==# 'make'
-    if !empty(filter(getqflist(), 'v:val.valid != 0'))
-      copen
-    endif
-  elseif !empty(filter(getloclist(), 'v:val.valid != 0'))  " lmake
-    lopen
-  endif
-  execute current 'wincmd w'
-endfunction
-
-AlterCommand mak[e]  Make
-AlterCommand lmak[e]  Lmake
 
 
 
 
 " Font selector  "{{{2
 
-if has('gui_running')
-  command! -complete=customlist,s:cmd_Font_complete -nargs=* Font
-  \ let &guifont = empty(<q-args>) ? '*' : <q-args>
-endif
-
+command! -complete=customlist,s:cmd_Font_complete -nargs=* Font
+\ let &guifont = <q-args> == '' ? '*' : <q-args>
 function! s:cmd_Font_complete(arglead, cmdline, cursorpos)
-  if !has('unix')
-    return []  " Not available.
+  let _ = []
+
+  if s:win_p && executable('fontinfo')
+    let _ = split(iconv(system('fontinfo'), 'utf-8', &encoding), "\n")
+  elseif executable('fc-list')
+    let _ = map(split(system('fc-list :spacing=mono'), "\n"),
+    \           'substitute(v:val, "[:,].*", "", "")')
+    call s:uniq(_)
   endif
-  let _ = [
-  \   'Droid Sans Mono 10',
-  \   'Menlo 10',
-  \   'Monaco 10',
-  \   'Monospace 10',
-  \   'TheSans Mono 10.5',
-  \ ]
-  return filter(_, 'stridx(v:val, a:arglead) == 0')
+
+  return sort(filter(_, 's:prefix_of_p(a:arglead, v:val)'))
 endfunction
 
 
@@ -672,23 +664,7 @@ function! s:close_help_window()
 endfunction
 
 
-
-
-" Indent styles  {{{2
-
-let s:INDENT_STYLES = {
-\  '2space': 'setlocal expandtab tabstop& shiftwidth=2 softtabstop=2',
-\  '4space': 'setlocal expandtab tabstop& shiftwidth=4 softtabstop=4',
-\  '4tab': 'setlocal noexpandtab tabstop=4 shiftwidth=4 softtabstop&',
-\  '8tab': 'setlocal noexpandtab tabstop=8 shiftwidth=8 softtabstop&',
-\ }
-
-command! -bar -complete=customlist,s:cmd_SetIndent_complete -nargs=1 SetIndent
-\ execute get(s:INDENT_STYLES, <q-args>, '')
-
-function! s:cmd_SetIndent_complete(arglead, cmdline, cursorpos)
-  return sort(filter(keys(s:INDENT_STYLES), 'stridx(v:val, a:arglead) == 0'))
-endfunction
+command! -bar -bang -nargs=0 HelpTagsAll  call rtputil#helptags(<bang>0)
 
 
 
@@ -737,32 +713,28 @@ endfunction
 
 
 
-" Split-related stuffs  "{{{2
+" Shuffle lines  "{{{2
 
-command! -bar -nargs=* -complete=file Split
-\ call s:vertical_with('split', <f-args>)
-command! -bar -nargs=* -complete=file SplitTop
-\ call s:vertical_with('topleft', 'split', <f-args>)
-command! -bar -nargs=* -complete=file SplitBottom
-\ call s:vertical_with('botright', 'split', <f-args>)
-command! -bar -nargs=* -complete=help Help
-\ call s:vertical_with('help', <f-args>)
-command! -bar -nargs=* -complete=file New
-\ call s:vertical_with('new', <f-args>)
+command! -bar -range -nargs=0 Shuffle
+\ call setline(<line1>, s:shuffle(getline(<line1>, <line2>)))
 
-function! s:vertically()
-  return winwidth(0) * 2 > winheight(0) * 8
+function! s:rand()
+  let lib = s:win_p ? 'msvcrt.dll' : ''
+  call libcallnr(lib, 'srand', localtime())
+  return libcallnr(lib, 'rand', -1)
 endfunction
 
-function! s:vertical_with(command, ...)
-  execute s:vertically() ? 'vertical' : ''
-  \       a:command
-  \       join(a:000)
-endfunction
+function! s:shuffle(xs)
+  let len = len(a:xs)
 
-AlterCommand sp[lit]  Split
-AlterCommand h[elp]  Help
-AlterCommand new  New
+  while len > 0
+    let i = s:rand() % len
+    call add(a:xs, remove(a:xs, i))
+    let len -= 1
+  endwhile
+
+  return a:xs
+endfunction
 
 
 
@@ -770,16 +742,16 @@ AlterCommand new  New
 " Toggle options  "{{{2
 
 function! s:toggle_colorcolumn()
-  if !exists('b:textwidth')
-    let b:textwidth = &l:textwidth
-    if &l:textwidth == 0
-      set textwidth=80
-    endif
-    setlocal colorcolumn=+1 colorcolumn?
-  else
+  if exists('b:textwidth')
     let &l:textwidth = b:textwidth
     unlet b:textwidth
     setlocal colorcolumn& colorcolumn?
+  else
+    let b:textwidth = &l:textwidth
+    if b:textwidth == 0
+      set textwidth=80
+    endif
+    setlocal colorcolumn=+1 colorcolumn?
   endif
 endfunction
 
@@ -790,10 +762,11 @@ function! s:toggle_grepprg(global_p)
 
   if a:global_p
     let &grepprg = VALUES[i]
+    set grepprg?
   else
     let &l:grepprg = VALUES[i]
+    setlocal grepprg?
   endif
-  set grepprg?
 endfunction
 if has('vim_starting')
   silent call s:toggle_grepprg(s:TRUE)
@@ -829,20 +802,87 @@ function! s:uri_extract(str, scheme_pattern)
 endfunction
 
 function! s:uri_open(uri)
-  if s:win_p
-    call vimproc#open(a:uri)
-  else
-    if exists('$BROWSER')
-      let browser = $BROWSER
-    elseif executable('google-chrome')
-      let browser = 'google-chrome'
-    elseif executable('opera')
-      let browser = 'opera'
-    else
-      echoerr 'Browser not found.'
-    endif
-    call vimproc#system_bg([browser, a:uri])
+  call vimproc#open(a:uri)
+endfunction
+
+
+
+
+" Vertical with commands  "{{{2
+
+let s:vertical_p = '(winwidth(0) * 2 > winheight(0) * 8)'
+
+function! s:vertical_with(command, args)
+  execute eval(s:vertical_p) ? 'vertical' : ''
+  \       a:command
+  \       join(a:args)
+endfunction
+
+command! -bar -nargs=* -complete=file Split
+\ call s:vertical_with('split', [<f-args>])
+command! -bar -nargs=* -complete=file SplitTop
+\ call s:vertical_with('topleft', ['split', <f-args>])
+command! -bar -nargs=* -complete=file SplitBottom
+\ call s:vertical_with('botright', ['split', <f-args>])
+command! -bar -nargs=* -complete=help Help
+\ call s:vertical_with('help', [<f-args>])
+command! -bar -nargs=* -complete=file New
+\ call s:vertical_with('new', [<f-args>])
+
+command! -bar -nargs=* -complete=file SplitLeft  SplitTop <args>
+command! -bar -nargs=* -complete=file SplitRight  SplitBottom <args>
+
+AlterCommand sp[lit]  Split
+AlterCommand h[elp]  Help
+AlterCommand new  New
+
+
+
+
+function! s:all_combinations(xs)  "{{{2
+  let cs = []
+
+  for r in range(1, len(a:xs))
+    call extend(cs, s:combinations(a:xs, r))
+  endfor
+
+  return cs
+endfunction
+
+
+
+
+function! s:combinations(pool, r)  "{{{2
+  let n = len(a:pool)
+  if n < a:r || a:r <= 0
+    return []
   endif
+
+  let result = []
+
+  let indices = range(a:r)
+  call add(result, join(map(copy(indices), 'a:pool[v:val]'), ''))
+
+  while s:TRUE
+    let broken_p = s:FALSE
+    for i in reverse(range(a:r))
+      if indices[i] != i + n - a:r
+        let broken_p = s:TRUE
+        break
+      endif
+    endfor
+    if !broken_p
+      break
+    endif
+
+    let indices[i] += 1
+    for j in range(i + 1, a:r - 1)
+      let indices[j] = indices[j-1] + 1
+    endfor
+    call add(result, join(map(copy(indices), 'a:pool[v:val]'), ''))
+  endwhile
+
+  return result
 endfunction
 
 
@@ -870,24 +910,6 @@ function! s:get_region(expr1, expr2)  "{{{2
   endif
 
   return region  " return [] of string.
-endfunction
-
-
-
-
-function! s:incrementor(...)  " {{{2
-  let incrementor = {}
-  let incrementor.format = get(a:000, 0, '%d')
-  let incrementor.value = get(a:000, 1, 0)
-  let incrementor.step = get(a:000, 2, 1)
-
-  function incrementor.call() dict
-    let val = printf(self.format, self.value)
-    let self.value += self.step
-    return val
-  endfunction
-
-  return incrementor
 endfunction
 
 
@@ -944,14 +966,40 @@ endfunction
 
 
 
+function! s:prefix_of_p(x, y)  "{{{2
+  return a:x ==# strpart(a:y, 0, len(a:x))
+endfunction
+
+
+
+
 function! s:strpart(src, start, ...)  "{{{2
-  let s = strpart(a:src, a:start)
+  let str = strpart(a:src, a:start)
   if a:0 > 0
-    let i = byteidx(strpart(s, a:1 - 1), 1) - 1
-    return i == -1 ? s : strpart(s, 0, a:1 + i)
+    let i = byteidx(strpart(str, a:1 - 1), 1) - 1
+    return i == -1 ? str : strpart(str, 0, a:1 + i)
   else
-    return s
+    return str
   endif
+endfunction
+
+
+
+
+function! s:uniq(xs)  "{{{2
+  let i = 0
+  let seen = {}
+
+  while i < len(a:xs)
+    if has_key(seen, '_' . a:xs[i])
+      call remove(a:xs, i)
+    else
+      let seen['_' . a:xs[i]] = 0
+      let i += 1
+    endif
+  endwhile
+
+  return a:xs
 endfunction
 
 
@@ -960,12 +1008,156 @@ endfunction
 " Mappings  "{{{1
 " Terminal-GUI interoperability  "{{{2
 
+" <M-{x}> => <Esc>x
+function! s:emulate_meta_esc_behavior_in_terminal()
+  " [key, acceptable-modifiers-except-meta]  "{{{
+  let keys = [
+  \   ['!', ''],
+  \   ['"', ''],
+  \   ['#', ''],
+  \   ['$', ''],
+  \   ['%', ''],
+  \   ['&', ''],
+  \   ['''', ''],
+  \   ['(', ''],
+  \   [')', ''],
+  \   ['*', ''],
+  \   ['+', ''],
+  \   [',', ''],
+  \   ['-', ''],
+  \   ['.', ''],
+  \   ['0', ''],
+  \   ['1', ''],
+  \   ['2', ''],
+  \   ['3', ''],
+  \   ['4', ''],
+  \   ['5', ''],
+  \   ['6', ''],
+  \   ['7', ''],
+  \   ['8', ''],
+  \   ['9', ''],
+  \   [':', ''],
+  \   [';', ''],
+  \   ['<BS>', 'CS'],
+  \   ['<Bar>', ''],
+  \   ['<Bslash>', 'C'],
+  \   ['<Del>', 'CS'],
+  \   ['<Down>', 'CS'],
+  \   ['<End>', 'CS'],
+  \   ['<Esc>', 'CS'],
+  \   ['<F10>', 'CS'],
+  \   ['<F11>', 'CS'],
+  \   ['<F12>', 'CS'],
+  \   ['<F1>', 'CS'],
+  \   ['<F2>', 'CS'],
+  \   ['<F3>', 'CS'],
+  \   ['<F4>', 'CS'],
+  \   ['<F5>', 'CS'],
+  \   ['<F6>', 'CS'],
+  \   ['<F7>', 'CS'],
+  \   ['<F9>', 'CS'],
+  \   ['<F9>', 'CS'],
+  \   ['<Home>', 'CS'],
+  \   ['<LT>', ''],
+  \   ['<Left>', 'CS'],
+  \   ['<PageDown>', 'CS'],
+  \   ['<PageUp>', 'CS'],
+  \   ['<Return>', 'CS'],
+  \   ['<Right>', 'CS'],
+  \   ['<Space>', 'CS'],
+  \   ['<Tab>', 'CS'],
+  \   ['<Up>', 'CS'],
+  \   ['=', ''],
+  \   ['>', ''],
+  \   ['@', 'C'],
+  \   ['A', ''],
+  \   ['B', ''],
+  \   ['C', ''],
+  \   ['D', ''],
+  \   ['E', ''],
+  \   ['F', ''],
+  \   ['G', ''],
+  \   ['H', ''],
+  \   ['I', ''],
+  \   ['J', ''],
+  \   ['K', ''],
+  \   ['L', ''],
+  \   ['M', ''],
+  \   ['N', ''],
+  \   ['O', ''],
+  \   ['P', ''],
+  \   ['Q', ''],
+  \   ['R', ''],
+  \   ['S', ''],
+  \   ['T', ''],
+  \   ['U', ''],
+  \   ['V', ''],
+  \   ['W', ''],
+  \   ['X', ''],
+  \   ['Y', ''],
+  \   ['Z', ''],
+  \   ['[', 'C'],
+  \   [']', 'C'],
+  \   ['^', 'C'],
+  \   ['_', 'C'],
+  \   ['`', ''],
+  \   ['a', 'C'],
+  \   ['b', 'C'],
+  \   ['c', 'C'],
+  \   ['d', 'C'],
+  \   ['e', 'C'],
+  \   ['f', 'C'],
+  \   ['g', 'C'],
+  \   ['h', 'C'],
+  \   ['i', 'C'],
+  \   ['j', 'C'],
+  \   ['k', 'C'],
+  \   ['l', 'C'],
+  \   ['m', 'C'],
+  \   ['n', 'C'],
+  \   ['o', 'C'],
+  \   ['p', 'C'],
+  \   ['q', 'C'],
+  \   ['r', 'C'],
+  \   ['s', 'C'],
+  \   ['t', 'C'],
+  \   ['u', 'C'],
+  \   ['v', 'C'],
+  \   ['w', 'C'],
+  \   ['x', 'C'],
+  \   ['y', 'C'],
+  \   ['z', 'C'],
+  \   ['{', ''],
+  \   ['}', ''],
+  \   ['~', ''],
+  \ ]
+  "}}}
+
+  for [key, modifiers] in keys
+    let k = matchstr(key, '^<\zs.*\ze>$\|.*')
+
+    for map in ['map', 'map!']
+      execute map '<M-'.k.'>'  '<Esc>'.key
+      for m in s:modifier_combinations(modifiers)
+        execute map '<M-'.m.k.'>'  '<Esc><'.m.k.'>'
+      endfor
+    endfor
+  endfor
+endfunction
+
+function! s:modifier_combinations(modifiers)
+  let prefixes = map(range(len(a:modifiers)), 'a:modifiers[v:val] . "-"')
+  return s:all_combinations(prefixes)
+endfunction
+
 if has('gui_running')
   " NUL
   map <C-Space>  <C-@>
   map! <C-Space>  <C-@>
 
   noremap! <S-Insert>  <C-r>*
+
+  call s:emulate_meta_esc_behavior_in_terminal()
 endif
 
 
@@ -994,6 +1186,10 @@ nnoremap <silent> [Tag]p  :tprevious<CR>
 nnoremap <silent> [Tag]P  :<C-u>tfirst<CR>
 nnoremap <silent> [Tag]N  :<C-u>tlast<CR>
 
+" additions, like Web browsers
+nnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
+vnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
+
 " addition, interactive use.
 nnoremap [Tag]<Space>  :<C-u>tag<Space>
 
@@ -1011,8 +1207,8 @@ nnoremap <silent> [Tag]'c  :<C-u>pclose<CR>
 
 " With :split  "{{{3
 
-nnoremap <silent> tst  :<c-u>call <SID>vertical_with('wincmd', ']')<CR>
-vnoremap <silent> tst  :<c-u>call <SID>vertical_with('wincmd', ']')<CR>
+nnoremap <silent> [Tag]st  :<c-u>call <SID>vertical_with('wincmd', [']'])<CR>
+vnoremap <silent> [Tag]st  :<c-u>call <SID>vertical_with('wincmd', [']'])<CR>
 
 
 
@@ -1106,9 +1302,9 @@ nmap <silent> [Tabbed]<C-Space>  <C-t><Space>
 " Moving around tabpages.  "{{{3
 
 nnoremap <silent> [Tabbed]j
-\        :<C-u>execute 'tabnext' 1 + (tabpagenr() + v:count1 - 1) % tabpagenr('$')<CR>
+\ :<C-u>execute 'tabnext' 1 + (tabpagenr() + v:count1 - 1) % tabpagenr('$')<CR>
 nnoremap <silent> [Tabbed]k
-\        :<C-u>execute 'tabprevious' v:count1 % tabpagenr('$')<CR>
+\ :<C-u>execute 'tabprevious' v:count1 % tabpagenr('$')<CR>
 nnoremap <silent> [Tabbed]K  :<C-u>tabfirst<CR>
 nnoremap <silent> [Tabbed]J  :<C-u>tablast<CR>
 
@@ -1127,9 +1323,9 @@ unlet i
 " Moving tabpages themselves.  "{{{3
 
 nnoremap <silent> [Tabbed]l
-\        :<C-u>execute 'tabmove' min([tabpagenr() + v:count1 - 1, tabpagenr('$')])<CR>
+\ :<C-u>execute 'tabmove' min([tabpagenr() + v:count1 - 1, tabpagenr('$')])<CR>
 nnoremap <silent> [Tabbed]h
-\        :<C-u>execute 'tabmove' max([tabpagenr() - v:count1 - 1, 0])<CR>
+\ :<C-u>execute 'tabmove' max([tabpagenr() - v:count1 - 1, 0])<CR>
 nnoremap <silent> [Tabbed]L  :<C-u>tabmove<CR>
 nnoremap <silent> [Tabbed]H  :<C-u>tabmove 0<CR>
 
@@ -1184,7 +1380,7 @@ cnoremap <Down>  <C-n>
 
 " Emacs like kill-line.
 cnoremap <C-k>
-\        <C-\>e getcmdpos() == 1 ? '' : getcmdline()[:getcmdpos()-2]<CR>
+\ <C-\>e getcmdpos() == 1 ? '' : getcmdline()[:getcmdpos()-2]<CR>
 
 
 " Escape Command-line mode if the command line is empty (like <C-h>)
@@ -1199,17 +1395,12 @@ cnoremap <expr> /  getcmdtype() == '/' ? '\/' : '/'
 
 " Command-line window  "{{{2
 
-nnoremap g:  q:
-xnoremap g:  q:
-
 autocmd MyAutoCmd CmdwinEnter *
 \ call s:on_CmdwinEnter()
 
 function! s:on_CmdwinEnter()
-  nnoremap <buffer> <Esc><Esc>  <C-c><C-c>
-  inoremap <buffer> <Esc><Esc>  <C-c><C-c>
-
-  inoremap <buffer> <expr> <C-c>  pumvisible() ? "\<Esc>" : "\<C-c>"
+  nnoremap <buffer> q  <C-w>q
+  inoremap <buffer> <expr> <C-c>  pumvisible() ? "\<Esc>" : "\<C-c>\<C-c>"
   inoremap <buffer> <expr> <BS>
   \        getline('.') == '' ? "\<C-c>\<C-c>" : col('.') == 1 ? '' : "\<BS>"
   inoremap <buffer> <expr> <C-w>
@@ -1253,7 +1444,7 @@ inoremap <expr> <Tab>  pumvisible()
                    \ ? "\<C-i>"
                    \ : <SID>keys_to_complete()
 inoremap <expr> <S-Tab>  pumvisible()
-                     \ ? "\<C-n>"
+                     \ ? "\<C-p>"
                      \ : <SID>should_indent_rather_than_complete_p()
                      \ ? "\<C-i>"
                      \ : <SID>keys_to_complete()
@@ -1280,9 +1471,8 @@ nnoremap [Space]fe  :<C-u>SetFileEncoding<Space>
 nnoremap [Space]ff  :<C-u>SetFileFormat<Space>
 nnoremap [Space]fi  :<C-u>SetIndent<Space>
 nnoremap [Space]ft  :<C-u>SetFileType<Space>
-
 nnoremap <silent> [Space]fs
-\        :<C-u>setlocal filetype? fileencoding? fileformat?<CR>
+\ :<C-u>setlocal filetype? fileencoding? fileformat?<CR>
 
 nnoremap [Space]o  <Nop>
 nnoremap <silent> [Space]oc  :<C-u>call <SID>toggle_colorcolumn()<CR>
@@ -1327,6 +1517,11 @@ nnoremap [Space]P  "+P
 vnoremap [Space]P  "+P
 
 
+" Enter command-line window.
+nnoremap [Space]:  q:
+xnoremap [Space]:  q:
+
+
 
 
 " Section jumping  "{{{2
@@ -1362,7 +1557,7 @@ nnoremap <C-w>#  :<C-u>Split \| normal! #<CR>
 " This {lhs} overrides the default action (Move cursor to top-left window).
 " But I rarely use its {lhs}s, so this mapping is not problematic.
 nnoremap <silent> <C-w>t
-\        :call <SID>move_window_into_tabpage(<SID>ask_tabpage_number())<CR>
+\ :call <SID>move_window_into_tabpage(<SID>ask_tabpage_number())<CR>
 function! s:ask_tabpage_number()
   echon 'Which tabpage to move this window into? '
 
@@ -1403,7 +1598,7 @@ vnoremap ir  i]
 
 
 " Select the last selected text.
-onoremap gv  :<C-u>normal! gv<CR>
+onoremap <silent> gv  :<C-u>normal! gv<CR>
 
 
 
@@ -1415,9 +1610,9 @@ function! s:operator_sort(motion_wiseness)
   if a:motion_wiseness == 'char'
     let reg_u = [@", getregtype('"')]
 
-    let @" = join(map(s:get_region("'[", "']"), 'join(sort(split(v:val)))'),
-    \             "\n")
-    normal! `[v`]p
+    let @" = join(map(s:get_region("'[", "']"),
+    \                 'join(sort(split(v:val)))'))
+    normal! `[v`]P`[
 
     call setreg('"', reg_u[0], reg_u[1])
   else  " line or block
@@ -1455,12 +1650,13 @@ vmap go  <Plug>(operator-my-open-uri)
 " Misc.  "{{{2
 
 if has('unix') && executable('sudo')
-  nnoremap <silent> <Leader>#  :<C-u>w sudo:%<CR>
+  nnoremap <silent> <Leader>w  :<C-u>w sudo:%<CR>
 endif
+
 nnoremap <silent> <Leader><Leader>  :<C-u>update<CR>
 
 nnoremap <C-h>  :<C-u>Help<Space>
-nnoremap <C-o>  :<C-u>edit<Space>
+nnoremap <C-o>  :<C-u>Edit<Space>
 
 
 " Expand with 'l' if the cursor on the holded text.
@@ -1522,9 +1718,9 @@ endfunction
 
 " Search for the selected text.
 vnoremap <silent> *
-\        :<C-u>call <SID>search_the_selected_text_literaly('n')<CR>
+\ :<C-u>call <SID>search_the_selected_text_literaly('n')<CR>
 vnoremap <silent> #
-\        :<C-u>call <SID>search_the_selected_text_literaly('N')<CR>
+\ :<C-u>call <SID>search_the_selected_text_literaly('N')<CR>
 
 function! s:search_the_selected_text_literaly(search_command)
   let region = join(map(s:get_region("'<", "'>"), 'escape(v:val, "\\/")'),
@@ -1606,7 +1802,7 @@ endfunction
 
 " Fix 'fileencoding' to use 'encoding'.
 autocmd MyAutoCmd BufReadPost *
-\   if &modifiable && !search('[^\x00-\x7F]', 'cnw')
+\   if &l:modifiable && !search('[^\x00-\x7F]', 'cnw')
 \ |   setlocal fileencoding=
 \ | endif
 
@@ -1618,14 +1814,6 @@ autocmd MyAutoCmd BufReadPost *
 
 " Unset 'paste' automatically.
 autocmd MyAutoCmd InsertLeave *  set nopaste
-
-
-
-
-" c, c++  "{{{2
-
-autocmd MyAutoCmd FileType c,cpp
-\ SetIndent 4tab
 
 
 
@@ -1683,13 +1871,8 @@ autocmd MyAutoCmd FileType haskell
 " java  "{{{2
 
 autocmd MyAutoCmd FileType java
-\   call s:on_FileType_java()
+\   setlocal cinoptions=:0,l1,g0,t0,(0,j1
 \ | compiler javac
-
-function! s:on_FileType_java()
-  SetIndent 4tab
-  setlocal cinoptions=:0,l1,g0,t0,(0,j1
-endfunction
 
 
 
@@ -1713,8 +1896,7 @@ autocmd MyAutoCmd FileType lua
 " perl  "{{{2
 
 autocmd MyAutoCmd FileType perl
-\   SetIndent 2space
-\ | setlocal include=
+\ SetIndent 2space
 
 
 
@@ -1722,9 +1904,17 @@ autocmd MyAutoCmd FileType perl
 " python  "{{{2
 
 autocmd MyAutoCmd FileType python
-\ SetIndent 4space
+\ SetIndent 2space
 
 let g:python_highlight_all = 1
+
+
+
+
+" quickfix  "{{{2
+
+autocmd MyAutoCmd FileType qf
+\ setlocal nobuflisted nowrap
 
 
 
@@ -1740,7 +1930,6 @@ autocmd MyAutoCmd FileType ruby
 " scheme  "{{{2
 
 let g:is_gauche = 1
-let g:scheme_rainbow = 0
 
 
 
@@ -1804,17 +1993,27 @@ endfunction
 
 
 " Plugins  "{{{1
+" altr  "{{{2
+
+" So that now I use altr instead of <C-^>.
+nmap <F1>  <Plug>(altr-back)
+nmap <F2>  <Plug>(altr-forward)
+
+
+
+
 " caw  "{{{2
 
 " fallback
 map [Space]c  <Nop>
+map [Space]cu  <Nop>
 
 map [Space]ci  <Plug>(caw:i:comment)
 map [Space]cI  <Plug>(caw:I:comment)
 map [Space]ca  <Plug>(caw:a:comment)
 map [Space]cw  <Plug>(caw:wrap:comment)
 
-map [Space]cuu  <Plug>(caw:uncomment) 
+map [Space]cuu  <Plug>(caw:uncomment)
 map [Space]cui  <Plug>(caw:i:uncomment)
 map [Space]cua  <Plug>(caw:a:uncomment)
 map [Space]cuw  <Plug>(caw:w:uncomment)
@@ -1869,8 +2068,15 @@ let g:eskk#use_color_cursor = 0
 
 " exjumplist  "{{{2
 
-nmap <C-S-j>  <Plug>(exjumplist-next-buffer)
-nmap <C-S-k>  <Plug>(exjumplist-previous-buffer)
+nmap <Esc><C-j>  <Plug>(exjumplist-next-buffer)
+nmap <Esc><C-k>  <Plug>(exjumplist-previous-buffer)
+
+
+
+
+" gist  "{{{2
+
+let g:gist_open_browser_after_post = 1
 
 
 
@@ -1896,10 +2102,13 @@ function! s:on_FileType_ku()
   imap <buffer> <Esc><Esc>  <Plug>(ku-cancel)
 
   imap <buffer> <expr> <Plug>(ku-%-cancel-if-empty)
-  \    getline('.') == '>' ? '<Plug>(ku-cancel)' : ''
-  inoremap <buffer> <Plug>(ku-%-delete-backword-char)  <BS>
-  inoremap <buffer> <Plug>(ku-%-delete-backword-word)  <C-w>
-  inoremap <buffer> <Plug>(ku-%-delete-backword-line)  <C-u>
+  \    col('$') <= 2 ? '<Plug>(ku-cancel)' : ''
+  inoremap <buffer> <expr> <Plug>(ku-%-delete-backword-char)
+  \        (pumvisible() ? "\<C-e>" : '') . "\<BS>"
+  inoremap <buffer> <expr> <Plug>(ku-%-delete-backword-word)
+  \        (pumvisible() ? "\<C-e>" : '') . "\<C-w>"
+  inoremap <buffer> <expr> <Plug>(ku-%-delete-backword-line)
+  \        (pumvisible() ? "\<C-e>" : '') . "\<C-u>"
 
   imap <buffer> <BS>
   \    <Plug>(ku-%-cancel-if-empty)<Plug>(ku-%-delete-backword-char)
@@ -1966,8 +2175,7 @@ call ku#custom_prefix('common', '~', expand('~'))
 nmap [Space]k  <Nop>
 nnoremap <silent> [Space]ka  :<C-u>Ku args<CR>
 nnoremap <silent> [Space]kb  :<C-u>Ku buffer<CR>
-nnoremap <silent> [Space]kd
-\        :<C-u>call ku#start('file', expand('%:p:h') . '/')<CR>
+nnoremap <silent> [Space]kc  :<C-u>Ku file/current<CR>
 nnoremap <silent> [Space]kf  :<C-u>Ku file<CR>
 nnoremap <silent> [Space]kg  :<C-u>Ku metarw/git<CR>
 nnoremap <silent> [Space]kh  :<C-u>Ku history<CR>
@@ -1986,7 +2194,7 @@ nnoremap <silent> [Space]kk  :<C-u>call ku#restart()<CR>
 
 let g:ku_personal_runtime = expand('~/.vim')
 let g:ku_file_mru_file = expand('~/.vim/info/ku/mru')
-let g:ku_file_mru_ignore_pattern = '\v/$|^//|^/cygdrive/|^/mnt/|^/media/|^/tmp/'
+let g:ku_file_mru_ignore_pattern = '\v/$|/\.git/|^/%(/|mnt|media|tmp)/'
 let g:ku_file_mru_limit = 200
 
 
@@ -2035,12 +2243,21 @@ map _  <Plug>(operator-replace)
 
 
 
+" operator-camelize  "{{{2
+
+map <Leader>c  <Plug>(operator-camelize)
+map <Leader>C  <Plug>(operator-decamelize)
+
+
+
+
 " quickrun  "{{{2
 
-let g:loaded_quicklaunch = 1
+command! -complete=command -nargs=+ Capture  QuickRun vim -src <q-args>
+
 let g:quickrun_config = {
-\  '*': {
-\    'split': '{'.s:SID_PREFIX().'vertically() ? "vertical" : ""}',
+\  '_': {
+\    'split': printf('%%{%s ? "vertical" : ""}', s:vertical_p),
 \  },
 \  'dot': {
 \    'exec': ['%c -Tps:cairo -o %s:p:r.ps %s'],
@@ -2055,10 +2272,11 @@ let g:quickrun_config = {
 \    'tempfile': '{fnamemodify(tempname(), ":h")}/{expand("%:t")}',
 \  },
 \  'tex': {
-\    'command': executable('pxdvi') ? 'pxdvi' :
-\               executable('xdvi') ? 'xdvi' : '',
+\    'type': executable('platex') ? 'ptex' : '',
+\  },
+\  'tex/ptex': {
 \    'exec': ['platex -kanji=utf8 -interaction=nonstopmode -shell-escape -output-directory=%s:p:h %s',
-\             '%c %s:p:r.dvi'],
+\             'pxdvi %s:p:r.dvi'],
 \  },
 \  'xdefaults': {
 \    'exec': ['xrdb -remove', 'xrdb -merge %s', 'xrdb -query'],
@@ -2095,6 +2313,7 @@ let g:ref_open = 'Split'
 let g:ref_perldoc_complete_head = 1
 
 AlterCommand ref  Ref
+AlterCommand man  Ref\ man
 
 
 
@@ -2113,6 +2332,30 @@ endfunction
 
 
 let g:scratch_show_command = 'SplitTop | hide buffer'
+
+
+
+
+" shadow  "{{{2
+
+command! -complete=file -nargs=1 Shadow  call s:cmd_Shadow(<f-args>)
+function! s:cmd_Shadow(fname)
+  let _ = {
+  \   'css': 'sass',
+  \   'html': 'haml',
+  \   'js': 'coffee',
+  \ }
+  let shadow = a:fname
+  let extension = fnamemodify(a:fname, ':e')
+  if !filereadable(shadow)
+    call writefile([], shadow)
+  endif
+  edit `=a:fname`
+  if has_key(_, extension)
+    let &l:filetype = _[extension]
+    silent execute 'SkeletonLoad' _[extension]
+  endif
+endfunction
 
 
 
@@ -2264,9 +2507,9 @@ nmap <C-w>.  <Plug>(vimfiler_create)
 
 
 let g:vimfiler_as_default_explorer = 1
-let g:vimfiler_edit_command = 'tabedit'
+let g:vimfiler_edit_command = 'edit'
 let g:vimfiler_enable_clipboard = 1
-let g:vimfiler_safe_mode_by_default = 1
+let g:vimfiler_safe_mode_by_default = 0
 let g:vimfiler_split_command = 'Split'
 let g:vimfiler_trashbox_directory = expand('~/.trash')
 
