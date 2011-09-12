@@ -6,39 +6,53 @@ Xcursor.size: 24
 
 
 ! RXVT
-Rxvt.font: xft:TheSans Mono:size=10.5,xft:AXIS Std:pixelsize=14
-Rxvt.boldFont: xft:TheSans Mono:size=10.5:bold,xft:AXIS Std:pixelsize=14:bold
-Rxvt.imFont: -sony-fixed-medium-r-normal--16-*-*-*-*-*-iso8859-1,-sony-fixed-medium-r-normal--16-*-*-*-*-*-jisx0201.1976-0,-jis-fixed-medium-r-normal--16-*-*-*-*-*-jisx0208.1983-0
+Rxvt.font: \
+  xft:TheSans Mono:size=10.5, \
+  xft:AXIS Std:pixelsize=15
+Rxvt.boldfont: \
+  xft:TheSans Mono:size=10.5:bold, \
+  xft:AXIS Std:pixelsize=15:bold
+Rxvt.imFont: \
+  -sony-fixed-medium-r-normal--16-*-*-*-*-*-iso8859-1, \
+  -sony-fixed-medium-r-normal--16-*-*-*-*-*-jisx0201.1976-0, \
+  -jis-fixed-medium-r-normal--16-*-*-*-*-*-jisx0208.1983-0
 
-Rxvt.foreground: #cccccc
-Rxvt.background: #191919
-Rxvt.cursorColor: #009900
-Rxvt.cursorColor2: #000000
+Rxvt.inheritPixmap: true
+Rxvt.fading: 80
+Rxvt.shading: 20
 
-Rxvt.color0: #000000
-Rxvt.color1: #990000
-Rxvt.color2: #009900
-Rxvt.color3: #999900
-Rxvt.color4: #000099
-Rxvt.color5: #990099
-Rxvt.color6: #009999
-Rxvt.color7: #999999
-Rxvt.color8: #555555
-Rxvt.color9: #cc0000
-Rxvt.color10: #00cc00
-Rxvt.color11: #cccc00
-Rxvt.color12: #3366ff
-Rxvt.color13: #cc00cc
-Rxvt.color14: #00cccc
-Rxvt.color15: #ffffff
+Rxvt.foreground: rgb:cc/cc/cc
+Rxvt.background: rgb:00/00/00
+Rxvt.cursorColor: rgb:00/99/00
+
+Rxvt.color0: rgb:00/00/00
+Rxvt.color1: rgb:99/00/00
+Rxvt.color2: rgb:00/99/00
+Rxvt.color3: rgb:99/99/00
+Rxvt.color4: rgb:00/00/99
+Rxvt.color5: rgb:99/00/99
+Rxvt.color6: rgb:00/99/99
+Rxvt.color7: rgb:99/99/99
+Rxvt.color8: rgb:55/55/55
+Rxvt.color9: rgb:cc/00/00
+Rxvt.color10: rgb:00/cc/00
+Rxvt.color11: rgb:cc/cc/00
+Rxvt.color12: rgb:33/66/ff
+Rxvt.color13: rgb:cc/00/cc
+Rxvt.color14: rgb:00/cc/cc
+Rxvt.color15: rgb:ff/ff/ff
+
+Rxvt.matcher.button: 1
+Rxvt.perl-ext-common: default,matcher
+Rxvt.urlLauncher: google-chrome
 
 Rxvt.externalBorder: 0
 Rxvt.internalBorder: 2
-Rxvt.lineSpace: 0
+Rxvt.lineSpace: 3
 Rxvt.saveLines: 1000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true
 Rxvt.secondaryScroll: true
 Rxvt.termName: rxvt-256color
-Rxvt.visualBell: false
 Rxvt.urgentOnBell: true
+Rxvt.visualBell: false
