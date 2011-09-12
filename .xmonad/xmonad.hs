@@ -29,12 +29,10 @@ import XMonad.Util.WorkspaceCompare
 
 import qualified XMonad.StackSet as W
 
-import Control.Monad (void)
-import Data.List (foldl1', isInfixOf)
-import Data.Maybe (fromMaybe)
-import Graphics.X11.Xlib.Extras (changeProperty8, propModeReplace, getWMNormalHints)
+import Data.List (isInfixOf)
+import Graphics.X11.Xlib.Extras (changeProperty8, propModeReplace)
 import System.Directory (getHomeDirectory)
-import System.Exit (exitWith, ExitCode (..))
+import System.Exit (exitWith, ExitCode(..))
 import Text.Printf (printf)
 
 import qualified Data.Map as M
@@ -54,9 +52,9 @@ myLayoutHook = avoidStrutsOn [U,R,L] $ smartBorders $
     tabbedLayout = named "Tabbed" $ tabbed shrinkText myTheme
     imLayout = reflectHoriz . withIM 0.15 imWindows
              . reflectHoriz . trackFloating
-    imWindows = foldl1' Or [ ClassName "Pidgin" `And` Role "buddy_list"
-                           , ClassName "Skype" `And` Role "MainWindow"
-                           ]
+    imWindows = foldr1 Or [ ClassName "Pidgin" `And` Role "buddy_list"
+                          , ClassName "Skype" `And` Role "MainWindow"
+                          ]
     gimpIM = named "Gimp" . withIM 0.15 (Role "gimp-toolbox")
            . reflectHoriz . withIM 0.20 (Role "gimp-dock")
            . reflectHoriz . trackFloating
@@ -130,19 +128,6 @@ myLogHook h = do
     isFloat ws = return $ case W.peek ws of
       Nothing -> False
       Just w  -> M.member w $ W.floating ws
-
-
-
-
--- HandleEvent  --{{{1
-
--- Don't focus follows mouse when Cross layout.
--- myHandleEventHook = followOnlyIf $ fmap (\x -> case x of
---                       "Cross" -> False
---                       _       -> True
---                     ) currentLayout
---   where
---     currentLayout = withWindowSet $ return . description . W.layout . W.workspace . W.current
 
 
 
@@ -249,17 +234,6 @@ myKeys conf = mkKeymap conf $
   | (w, k) <- zip (XMonad.workspaces conf) (map show [1..9])
   , (m, f) <- [("M-", W.greedyView), ("M-S-", W.shift)]
   ]
-
--- promoteWorkspace :: X ()
--- promoteWorkspace = windows $ \s ->
---   case tail $ W.workspaces s of
---     ts@(t:_) -> W.greedyView (W.tag $ fromMaybe t $ find ts) s
---     []       -> s
---   where
---     find []       = Nothing
---     find (t:ts) = case W.stack t of
---       Just _  -> Just t
---       Nothing -> find ts
 
 
 
