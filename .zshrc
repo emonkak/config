@@ -2,16 +2,16 @@
 # Misc.  #{{{1
 
 ulimit -c 0
-stty -ixon -ixoff
-
+stty stop undef
+stty start undef
 
 
 
 # Parameters  #{{{1
 
 HISTFILE="$HOME/.zsh_history"
-HISTSIZE=100000
-SAVEHIST=100000
+HISTSIZE=10000
+SAVEHIST=10000
 
 
 # Don't add "rm" and "rmdir" to history.
@@ -69,7 +69,7 @@ unsetopt flow_control
 
 # Title  #{{{1
 
-if [ "$WINDOW" ]; then  # is GNU screen
+if [ -n "$WINDOW" ]; then  # is GNU screen
   preexec() {
     local -a cmd; cmd=(${(z)2})
     case "$cmd[1]" in
@@ -89,7 +89,12 @@ if [ "$WINDOW" ]; then  # is GNU screen
   precmd() {
     print -Pn "\ek$ZSH_NAME\e\\"
   }
-elif [[ "$TERM" == (xterm*|rxvt*|screen*) ]]; then
+elif [[ -n "$TMUX" ]]; then
+  precmd() {
+    print -Pn "\e]0;%m@%n:%~\a"
+    print -n "\a"
+  }
+elif [[ "$TERM" == (xterm*|rxvt*) ]]; then
   precmd() {
     print -Pn "\e]0;%m@%n:%~\a"
   }
@@ -146,14 +151,14 @@ zle -N accept-line
 
 # Aliases  #{{{1
 
-alias ls='ls -F --color=auto'
+alias ls='ls -F --show-control-chars --color=auto'
 alias la='ls -a'
 alias ll='ls -l'
 alias lla='ls -la'
 
-alias cp='cp -i'
-alias mv='mv -i'
-alias rm='rm -I'
+alias cp='cp -iv'
+alias mv='mv -iv'
+alias rm='rm -Iv'
 
 autoload zmv
 alias zmv='noglob zmv'
@@ -163,17 +168,13 @@ alias git='noglob git'
 alias grep='grep --color -E'
 alias lv='lv -c'
 alias pstree='pstree -A'
-alias vim='vim --servername VIM'
+alias sudo='sudo '
 
-alias s='sudo '
+alias g='git'
+alias s='sudo'
 alias v='vim'
-alias vr='vim --remote-tab-silent'
-alias gr='gvim --remote-tab-silent'
 
 alias mount-cifs='sudo mount -t cifs -o defaults,noatime,user,iocharset=utf8,uid=$USER,gid=users,file_mode=0644,dir_mode=0755,username=$USER'
-alias untarbz2='tar vxjf'
-alias untargz='tar vxzf'
-
 
 if [ -n "$DISPLAY" ] && which xsel &>/dev/null; then
   alias pbcopy='xsel --input --clipboard'
@@ -198,9 +199,7 @@ bindkey "^N" history-beginning-search-forward
 bindkey "^R" history-incremental-pattern-search-backward
 bindkey "^S" history-incremental-pattern-search-forward
 
-bindkey "\e\e[3~" delete-word  # <A-Delete>
 bindkey "\eh" backward-delete-word  # <A-h>
-bindkey '_^?' backward-delete-word  # <A-Backspace>
 
 bindkey "\e[1~" beginning-of-line  # <Home>
 bindkey "\e[2~" overwrite-mode  # <Insert>
@@ -242,14 +241,9 @@ zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/s
 
 source ~/.zsh/zaw/zaw.zsh
 
-bindkey '^Xs' zaw
-bindkey '^X^S' zaw
 bindkey '^Xh' zaw-history
-bindkey '^X^H' zaw-history
-bindkey '^Xd' zaw-dirstack
-bindkey '^X^D' zaw-dirstack
+bindkey '^Xc' zaw-dirstack
 bindkey '^Xg' zaw-git-files
-bindkey '^X^G' zaw-git-files
 
 
 
