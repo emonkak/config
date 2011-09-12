@@ -61,7 +61,19 @@ GROUP_OPERA_FILES=\
 GROUP_OPERA_RULE=$(patsubst .opera/%, $(HOME)/.opera/%, $(1))
 
 GROUP_VIM_FILES=\
-  .vim/colors/basic256.vim
+  .vim/after/plugin/metarw/http.vim \
+  .vim/autoload/ku/colorscheme.vim \
+  .vim/autoload/ku/register.vim \
+  .vim/autoload/metarw/http.vim \
+  .vim/autoload/metarw/sudo.vim \
+  .vim/autoload/ref/hayoo.vim \
+  .vim/colors/basic256.vim \
+  .vim/compiler/ghc.vim \
+  .vim/compiler/javac.vim \
+  .vim/compiler/tex.vim \
+  .vim/syntax/int-ghci.vim \
+  .vim/syntax/int-gosh.vim \
+  .vim/syntax/ref-hoogle.vim
 GROUP_VIM_RULE=$(patsubst .vim/%, $(HOME)/.vim/%, $(1))
 
 
