@@ -1,6 +1,6 @@
-=media-video/ffmpeg-9999 **
 =sys-apps/portage-2.2* **
+=sys-devel/gcc-4.6* **
+=sys-devel/gcc-config-1.5* **
 dev-scheme/c-wrapper **
 dev-scheme/gambit **
 www-client/chromium-bin **
-www-client/google-chrome **

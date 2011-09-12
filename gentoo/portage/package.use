@@ -1,71 +1,87 @@
 app-admin/conky mpd lua
+app-arch/unzip natspec
 app-editors/gvim gtk
-app-editors/vim X
 app-editors/yi gtk
-app-emulation/qemu-kvm alsa sdl
-app-emulation/wine alsa fontconfig jpeg mp3 png xml
-app-i18n/ibus X gtk python
-app-i18n/uim -anthy X gtk libnotify linguas_ja skk xft
-app-misc/mfiler3 migemo
-app-misc/tmux cjk
+app-emulation/qemu-kvm alsa qemu-ifup sdl
+app-emulation/wine alsa dbus fontconfig hardened jpeg mp3 png xml
+app-i18n/ibus gtk python
+app-i18n/ibus-mozc -ibus uim qt4
+app-i18n/uim -anthy gtk gtk3 libnotify linguas_ja skk xft
+app-misc/mfiler3 boehm-gc migemo
 app-office/libreoffice-bin linguas_ja
+app-office/libreoffice-l10n linguas_ja
 app-portage/eix sqlite
-app-shells/saphire migemo
+app-shells/saphire boehm-gc migemo
 app-text/acroread minimal linguas_ja
 app-text/asciidoc -vim-syntax
-app-text/ghostscript-gpl X gtk
+app-text/ghostscript-gpl gtk
 app-text/lcdf-typetools kpathsea
-app-text/poppler -abiword cairo cjk
-app-text/ptex X
-app-text/texlive X cjk
-app-text/texlive-core X cjk
-dev-haskell/criterion chart
-dev-lang/ghc ghcbootstrap
+app-text/poppler -abiword
+dev-lang/ghc ghcbootstrap llvm
+dev-lang/perl ithreads
 dev-lang/python sqlite
 dev-libs/boost python
 dev-libs/libxml2 python
 dev-vcs/git cvs perl subversion
 dev-vcs/subversion -dso perl python
-media-fonts/artwiz-latin1 X
-media-fonts/terminus-font -psf -ru-g
-media-fonts/terminus-font X
-media-gfx/fontforge cairo cjk pango svg
-media-gfx/gimp dbus exif jpeg png svg
-media-gfx/graphviz gtk cairo
-media-gfx/imagemagick X jpeg png
-media-libs/freetype X utils
+media-gfx/fontforge pango svg
+media-gfx/gimp dbus exif jpeg pdf png python svg
+media-gfx/graphviz gtk
+media-gfx/imagemagick jpeg png
+media-libs/freetype utils
 media-libs/gd fontconfig jpeg png truetype
-media-libs/imlib2 X gif jpeg png
+media-libs/imlib2 gif jpeg png
 media-libs/lcms python
 media-libs/libass enca
-media-libs/libsdl X alsa xv
+media-libs/libpng apng
+media-libs/libsdl alsa xv
 media-libs/mesa gles
+media-libs/speex ogg
+media-plugins/gst-plugins-meta alsa
+media-sound/ario dbus taglib
+media-sound/easytag flac mp3 mp4 speex vorbis wavpack
 media-sound/mpd lame ogg vorbis
 media-sound/ncmpcpp clock taglib
-media-sound/sonata -trayicon taglib
-media-video/ffmpeg alsa faac mp3 theora v4l2 vaapi vorbis x264 xvid
-media-video/mplayer png v4l2 vaapi xvmc
-media-video/vlc aac alsa dvd flac fontconfig matroska mp3 mpeg ogg theora v4l2 vaapi vorbis x264 xv
+media-sound/sonata dbus lyrics taglib trayicon
+media-tv/xawtv xv
+media-video/ffmpeg alsa faac mp3 rtmp theora v4l2 vaapi vorbis x264 xvid
+media-video/gnome-mplayer dbus
+media-video/libav alsa faac mp3 rtmp theora v4l2 vaapi vorbis x264 xvid
+media-video/mplayer libmpeg2 png v4l2 vaapi xvmc
+media-video/vlc aac alsa dvd flac fontconfig matroska mp3 mpeg ogg png stream theora v4l2 vaapi vorbis x264 xv
+net-analyzer/wireshark gtk
+net-im/instantbird -system-libpurple
+net-im/pidgin gstreamer
 net-im/skype4pidgin dbus
+net-irc/irssi perl
 net-misc/rdesktop alsa
 net-print/bjfilter ip3100
 net-print/cups samba
-sci-visualization/gnuplot X cairo
+net-proxy/tinyproxy minimal
 sys-apps/groff linguas_ja
 sys-apps/smartmontools minimal
 sys-block/gparted fat ntfs
-sys-devel/gcc -fortran
+sys-devel/gcc go -fortran
 sys-fs/udev extras
+sys-kernel/ck-sources symlink
 sys-kernel/gentoo-sources symlink
 sys-kernel/vanilla-sources symlink
+virtual/ffmpeg x264 vaapi mp3 theora
+www-client/google-chrome linguas_ja
 www-client/jd migemo
+www-client/luakit luajit
 www-client/opera gtk
+www-client/opera-next gtk
 www-client/w3m linguas_ja
 www-plugins/adobe-flash -32bit
-x11-libs/cairo X lcdfilter opengl svg
+www-plugins/gnash gstreamer gtk nsplugin opengl openvg vaapi
+www-servers/nginx nginx_modules_http_headers_more
+x11-libs/cairo lcdfilter opengl svg
 x11-libs/gdk-pixbuf jpeg
 x11-libs/gtk+ jpeg
-x11-libs/pango X
-x11-libs/qt-gui dbus gtk
+x11-libs/libva opengl
+x11-libs/qt-gui dbus gtkstyle
+x11-plugins/purple-plugin_pack gtk
 x11-terms/evilvte savedconfig
-x11-terms/rxvt-unicode 256-color truetype
+x11-terms/rxvt-unicode -vanilla 256-color alt-font-width force-hints perl truetype
+x11-themes/gtk-engines-murrine -themes

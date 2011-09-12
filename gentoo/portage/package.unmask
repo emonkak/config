@@ -1,12 +1,15 @@
+=dev-haskell/reactive-banana-9999
+=dev-lang/ghc-7.2*
 =sys-apps/portage-2.2*
+=sys-devel/gcc-4.6*
+=sys-kernel/gentoo-sources-3.0
 =x11-misc/dzen-9999
 =x11-wm/xmonad-9999
 =x11-wm/xmonad-contrib-9999
-app-admin/haskell-updater
 app-text/ptex
 dev-haskell/cabal
-dev-lang/ghc
 dev-lang/ruby
 dev-ruby/bundler
 virtual/ruby-rdoc
 www-client/opera
+www-client/opera-next
