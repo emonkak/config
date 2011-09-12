@@ -37,96 +37,96 @@ let g:colors_name = 'basic256'
 
 " Variables  "{{{1
 
-let s:FALSE = 0
-let s:TRUE = !s:FALSE
-
 let s:gui_colors = [
-\  '#000000', '#990000', '#009900', '#999900',
-\  '#000099', '#990099', '#009999', '#999999',
-\  '#555555', '#cc0000', '#00cc00', '#cccc00',
-\  '#3366ff', '#cc00cc', '#00cccc', '#ffffff',
-\ ]
-let s:gui_colors += [
-\  '#000000', '#00005f', '#000087', '#0000af',
-\  '#0000d7', '#0000ff', '#005f00', '#005f5f',
-\  '#005f87', '#005faf', '#005fd7', '#005fff',
-\  '#008700', '#00875f', '#008787', '#0087af',
-\  '#0087d7', '#0087ff', '#00af00', '#00af5f',
-\  '#00af87', '#00afaf', '#00afd7', '#00afff',
-\  '#00d700', '#00d75f', '#00d787', '#00d7af',
-\  '#00d7d7', '#00d7ff', '#00ff00', '#00ff5f',
-\  '#00ff87', '#00ffaf', '#00ffd7', '#00ffff',
-\  '#5f0000', '#5f005f', '#5f0087', '#5f00af',
-\  '#5f00d7', '#5f00ff', '#5f5f00', '#5f5f5f',
-\  '#5f5f87', '#5f5faf', '#5f5fd7', '#5f5fff',
-\  '#5f8700', '#5f875f', '#5f8787', '#5f87af',
-\  '#5f87d7', '#5f87ff', '#5faf00', '#5faf5f',
-\  '#5faf87', '#5fafaf', '#5fafd7', '#5fafff',
-\  '#5fd700', '#5fd75f', '#5fd787', '#5fd7af',
-\  '#5fd7d7', '#5fd7ff', '#5fff00', '#5fff5f',
-\  '#5fff87', '#5fffaf', '#5fffd7', '#5fffff',
-\  '#870000', '#87005f', '#870087', '#8700af',
-\  '#8700d7', '#8700ff', '#875f00', '#875f5f',
-\  '#875f87', '#875faf', '#875fd7', '#875fff',
-\  '#878700', '#87875f', '#878787', '#8787af',
-\  '#8787d7', '#8787ff', '#87af00', '#87af5f',
-\  '#87af87', '#87afaf', '#87afd7', '#87afff',
-\  '#87d700', '#87d75f', '#87d787', '#87d7af',
-\  '#87d7d7', '#87d7ff', '#87ff00', '#87ff5f',
-\  '#87ff87', '#87ffaf', '#87ffd7', '#87ffff',
-\  '#af0000', '#af005f', '#af0087', '#af00af',
-\  '#af00d7', '#af00ff', '#af5f00', '#af5f5f',
-\  '#af5f87', '#af5faf', '#af5fd7', '#af5fff',
-\  '#af8700', '#af875f', '#af8787', '#af87af',
-\  '#af87d7', '#af87ff', '#afaf00', '#afaf5f',
-\  '#afaf87', '#afafaf', '#afafd7', '#afafff',
-\  '#afd700', '#afd75f', '#afd787', '#afd7af',
-\  '#afd7d7', '#afd7ff', '#afff00', '#afff5f',
-\  '#afff87', '#afffaf', '#afffd7', '#afffff',
-\  '#d70000', '#d7005f', '#d70087', '#d700af',
-\  '#d700d7', '#d700ff', '#d75f00', '#d75f5f',
-\  '#d75f87', '#d75faf', '#d75fd7', '#d75fff',
-\  '#d78700', '#d7875f', '#d78787', '#d787af',
-\  '#d787d7', '#d787ff', '#d7af00', '#d7af5f',
-\  '#d7af87', '#d7afaf', '#d7afd7', '#d7afff',
-\  '#d7d700', '#d7d75f', '#d7d787', '#d7d7af',
-\  '#d7d7d7', '#d7d7ff', '#d7ff00', '#d7ff5f',
-\  '#d7ff87', '#d7ffaf', '#d7ffd7', '#d7ffff',
-\  '#ff0000', '#ff005f', '#ff0087', '#ff00af',
-\  '#ff00d7', '#ff00ff', '#ff5f00', '#ff5f5f',
-\  '#ff5f87', '#ff5faf', '#ff5fd7', '#ff5fff',
-\  '#ff8700', '#ff875f', '#ff8787', '#ff87af',
-\  '#ff87d7', '#ff87ff', '#ffaf00', '#ffaf5f',
-\  '#ffaf87', '#ffafaf', '#ffafd7', '#ffafff',
-\  '#ffd700', '#ffd75f', '#ffd787', '#ffd7af',
-\  '#ffd7d7', '#ffd7ff', '#ffff00', '#ffff5f',
-\  '#ffff87', '#ffffaf', '#ffffd7', '#ffffff',
-\  '#080808', '#121212', '#1c1c1c', '#262626',
-\  '#303030', '#3a3a3a', '#444444', '#4e4e4e',
-\  '#585858', '#626262', '#6c6c6c', '#767676',
-\  '#808080', '#8a8a8a', '#949494', '#9e9e9e',
-\  '#a8a8a8', '#b2b2b2', '#bcbcbc', '#c6c6c6',
-\  '#d0d0d0', '#dadada', '#e4e4e4', '#eeeeee',
+\   '#000000', '#990000', '#009900', '#999900',
+\   '#000099', '#990099', '#009999', '#999999',
+\   '#555555', '#cc0000', '#00cc00', '#cccc00',
+\   '#3366ff', '#cc00cc', '#00cccc', '#ffffff',
+\ ] + [
+\   '#000000', '#00005f', '#000087', '#0000af',
+\   '#0000d7', '#0000ff', '#005f00', '#005f5f',
+\   '#005f87', '#005faf', '#005fd7', '#005fff',
+\   '#008700', '#00875f', '#008787', '#0087af',
+\   '#0087d7', '#0087ff', '#00af00', '#00af5f',
+\   '#00af87', '#00afaf', '#00afd7', '#00afff',
+\   '#00d700', '#00d75f', '#00d787', '#00d7af',
+\   '#00d7d7', '#00d7ff', '#00ff00', '#00ff5f',
+\   '#00ff87', '#00ffaf', '#00ffd7', '#00ffff',
+\   '#5f0000', '#5f005f', '#5f0087', '#5f00af',
+\   '#5f00d7', '#5f00ff', '#5f5f00', '#5f5f5f',
+\   '#5f5f87', '#5f5faf', '#5f5fd7', '#5f5fff',
+\   '#5f8700', '#5f875f', '#5f8787', '#5f87af',
+\   '#5f87d7', '#5f87ff', '#5faf00', '#5faf5f',
+\   '#5faf87', '#5fafaf', '#5fafd7', '#5fafff',
+\   '#5fd700', '#5fd75f', '#5fd787', '#5fd7af',
+\   '#5fd7d7', '#5fd7ff', '#5fff00', '#5fff5f',
+\   '#5fff87', '#5fffaf', '#5fffd7', '#5fffff',
+\   '#870000', '#87005f', '#870087', '#8700af',
+\   '#8700d7', '#8700ff', '#875f00', '#875f5f',
+\   '#875f87', '#875faf', '#875fd7', '#875fff',
+\   '#878700', '#87875f', '#878787', '#8787af',
+\   '#8787d7', '#8787ff', '#87af00', '#87af5f',
+\   '#87af87', '#87afaf', '#87afd7', '#87afff',
+\   '#87d700', '#87d75f', '#87d787', '#87d7af',
+\   '#87d7d7', '#87d7ff', '#87ff00', '#87ff5f',
+\   '#87ff87', '#87ffaf', '#87ffd7', '#87ffff',
+\   '#af0000', '#af005f', '#af0087', '#af00af',
+\   '#af00d7', '#af00ff', '#af5f00', '#af5f5f',
+\   '#af5f87', '#af5faf', '#af5fd7', '#af5fff',
+\   '#af8700', '#af875f', '#af8787', '#af87af',
+\   '#af87d7', '#af87ff', '#afaf00', '#afaf5f',
+\   '#afaf87', '#afafaf', '#afafd7', '#afafff',
+\   '#afd700', '#afd75f', '#afd787', '#afd7af',
+\   '#afd7d7', '#afd7ff', '#afff00', '#afff5f',
+\   '#afff87', '#afffaf', '#afffd7', '#afffff',
+\   '#d70000', '#d7005f', '#d70087', '#d700af',
+\   '#d700d7', '#d700ff', '#d75f00', '#d75f5f',
+\   '#d75f87', '#d75faf', '#d75fd7', '#d75fff',
+\   '#d78700', '#d7875f', '#d78787', '#d787af',
+\   '#d787d7', '#d787ff', '#d7af00', '#d7af5f',
+\   '#d7af87', '#d7afaf', '#d7afd7', '#d7afff',
+\   '#d7d700', '#d7d75f', '#d7d787', '#d7d7af',
+\   '#d7d7d7', '#d7d7ff', '#d7ff00', '#d7ff5f',
+\   '#d7ff87', '#d7ffaf', '#d7ffd7', '#d7ffff',
+\   '#ff0000', '#ff005f', '#ff0087', '#ff00af',
+\   '#ff00d7', '#ff00ff', '#ff5f00', '#ff5f5f',
+\   '#ff5f87', '#ff5faf', '#ff5fd7', '#ff5fff',
+\   '#ff8700', '#ff875f', '#ff8787', '#ff87af',
+\   '#ff87d7', '#ff87ff', '#ffaf00', '#ffaf5f',
+\   '#ffaf87', '#ffafaf', '#ffafd7', '#ffafff',
+\   '#ffd700', '#ffd75f', '#ffd787', '#ffd7af',
+\   '#ffd7d7', '#ffd7ff', '#ffff00', '#ffff5f',
+\   '#ffff87', '#ffffaf', '#ffffd7', '#ffffff',
+\   '#080808', '#121212', '#1c1c1c', '#262626',
+\   '#303030', '#3a3a3a', '#444444', '#4e4e4e',
+\   '#585858', '#626262', '#6c6c6c', '#767676',
+\   '#808080', '#8a8a8a', '#949494', '#9e9e9e',
+\   '#a8a8a8', '#b2b2b2', '#bcbcbc', '#c6c6c6',
+\   '#d0d0d0', '#dadada', '#e4e4e4', '#eeeeee',
 \ ]
 
 
 
 
 " Utilities  "{{{1
-function! s:attributes(attr)  "{{{2
-  let _ = {
-  \ 'b': 'bold',
-  \ 'c': 'undercurl',
-  \ 'i': 'italic',
-  \ 'r': 'reverse',
-  \ 's': 'standout',
-  \ 'u': 'underline',
-  \ }
-  let attrs = []
+function! s:attributes(expr)  "{{{2
   if &term ==# 'win32'
-    call remove(_, 'u')
-  end
-  for key in split(a:attr, '.\zs')
+    let _ = {
+    \ 'r': 'reverse',
+    \ 's': 'standout',
+    \ }
+  else
+    let _ = {
+    \ 'b': 'bold',
+    \ 'c': 'undercurl',
+    \ 'i': 'italic',
+    \ 'r': 'reverse',
+    \ 's': 'standout',
+    \ 'u': 'underline',
+    \ }
+  endif
+  let attrs = []
+  for key in split(a:expr, '.\zs')
     if has_key(_, key)
       call insert(attrs, _[key])
     endif
@@ -137,14 +137,16 @@ endfunction
 
 
 
-function! s:color(color_number)  "{{{2
-  if has('gui_running')
-    return s:gui_colors[a:color_number % len(s:gui_colors)]
+function! s:color(color)  "{{{2
+  if type(a:color) == type('')
+    return a:color
+  elseif has('gui_running')
+    return s:gui_colors[a:color % len(s:gui_colors)]
   elseif &term ==# 'win32'
     let _ = [0, 4, 2, 6, 1, 5, 3, 7, 8, 12, 10, 14, 9, 13, 11, 15]
-    return _[a:color_number % len(_)]
+    return _[a:color % len(_)]
   else
-    return a:color_number % &t_Co
+    return a:color % &t_Co
   endif
 endfunction
 
@@ -154,11 +156,11 @@ endfunction
 function! s:highlight(name, settings)  "{{{2
   let _ = []
   let type = has('gui_running') ? 'gui' : 'cterm'
-  let reversed_p = s:FALSE
+  let reversed_p = 0
 
   if has_key(a:settings, 'attr')
     if &term ==# 'win32' && a:settings['attr'] =~# 'r'
-      let reversed_p = s:TRUE
+      let reversed_p = 1
     endif
     call insert(_, ['', s:attributes(a:settings['attr'])])
   endif
@@ -168,7 +170,7 @@ function! s:highlight(name, settings)  "{{{2
   if has_key(a:settings, 'bg')
     call insert(_, [reversed_p ? 'fg' : 'bg', s:color(a:settings['bg'])])
   endif
-  if has_key(a:settings, 'sp') && has('gui_running') 
+  if has_key(a:settings, 'sp') && has('gui_running')
     call insert(_, ['sp', s:color(a:settings['sp'])])
   endif
 
@@ -179,26 +181,31 @@ endfunction
 
 
 " Highlighting  "{{{1
-" Basic  "{{{2
+" Specialized-GUI  "{{{2
 
 if has('gui_running')
-  highlight Normal   guifg=#cccccc guibg=#191919
-  highlight Cursor   guifg=#000000 guibg=#009900
-  highlight CursorIM guifg=#000000 guibg=#009999
-  highlight lCursor  guifg=#000000 guibg=#009999
+  call s:highlight('Normal',   {'fg': '#cccccc', 'bg': '#222222'})
+  call s:highlight('Cursor',   {'fg': 'bg', 'bg': '#009900'})
+  call s:highlight('CursorIM', {'fg': 'bg', 'bg': '#009900'})
+  call s:highlight('lCursor',  {'fg': 'bg', 'bg': '#009900'})
 endif
+
+
+
+
+" Basic  "{{{2
 
 call s:highlight('SpecialKey'   , {'fg': 8})
 call s:highlight('NonText'      , {'fg': 12})
 call s:highlight('Directory'    , {'fg': 14})
-call s:highlight('MatchParen'   , {'bg': 6})
+call s:highlight('MatchParen'   , {'attr': 'b', 'bg': 4})
 call s:highlight('LineNr'       , {'fg': 8})
 call s:highlight('Question'     , {'fg': 10})
-call s:highlight('VertSplit'    , {'fg': 8})
+call s:highlight('VertSplit'    , {'attr': 'r'})
 call s:highlight('Title'        , {'fg': 14})
 call s:highlight('Visual'       , {'bg': 4})
 call s:highlight('VisualNOS'    , {'attr': 'r'})
-call s:highlight('WildMenu'     , {'attr': 'br', 'fg': 11, 'bg': 0})
+call s:highlight('WildMenu'     , {'attr': 'br', 'fg': 11})
 
 call s:highlight('ErrorMsg'     , {'bg': 1})
 call s:highlight('MoreMsg'      , {'bg': 2})
@@ -206,10 +213,10 @@ call s:highlight('ModeMsg'      , {'bg': 4})
 call s:highlight('WarningMsg'   , {'fg': 11})
 
 call s:highlight('IncSearch'    , {'attr': 'r'})
-call s:highlight('Search'       , {'fg': 0, 'bg': 11})
+call s:highlight('Search'       , {'attr': 'r', 'fg': 11})
 
-call s:highlight('StatusLine'   , {'attr': 'rb', 'bg': 0})
-call s:highlight('StatusLineNC' , {'attr': 'r', 'fg': 7, 'bg': 0})
+call s:highlight('StatusLine'   , {'attr': 'rb', 'fg': 15})
+call s:highlight('StatusLineNC' , {'attr': 'r'})
 
 call s:highlight('Folded'       , {'fg': 6})
 call s:highlight('FoldColumn'   , {'fg': 6})
@@ -234,7 +241,7 @@ else
 endif
 
 call s:highlight('Pmenu'        , {'attr': 'u'})
-call s:highlight('PmenuSel'     , {'fg': 0, 'bg': 11})
+call s:highlight('PmenuSel'     , {'attr': 'r', 'fg': 11})
 call s:highlight('PmenuSbar'    , {})
 call s:highlight('PmenuThumb'   , {'bg': 11})
 
@@ -243,7 +250,7 @@ call s:highlight('TabLineSel'   , {'attr': 'bu', 'fg': 15, 'bg': 8})
 call s:highlight('TabLineFill'  , {'bg': 8})
 
 call s:highlight('CursorColumn' , {'bg': 0})
-call s:highlight('CursorLine'   , {'attr': 'u'})
+call s:highlight('CursorLine'   , {'bg': 0})
 call s:highlight('ColorColumn'  , {'bg': 8})
 
 
@@ -261,7 +268,7 @@ call s:highlight('Type'         , {'fg': 10})
 call s:highlight('Underlined'   , {'attr': 'u', 'fg': 12})
 call s:highlight('Ignore'       , {'fg': 0})
 call s:highlight('Error'        , {'bg': 1})
-call s:highlight('Todo'         , {'fg': 0, 'bg': 11})
+call s:highlight('Todo'         , {'attr': 'u', 'fg': 11})
 
 highlight link String         Constant
 highlight link Character      Constant
