@@ -24,6 +24,7 @@ GROUP_DOTS_FILES=\
   .conky.lua \
   .conkyrc \
   .fonts.conf \
+  .ghci \
   .mfiler3/mfiler3.sa \
   .screenrc \
   .tmux.conf \
@@ -71,6 +72,7 @@ GROUP_VIM_FILES=\
   .vim/compiler/ghc.vim \
   .vim/compiler/javac.vim \
   .vim/compiler/tex.vim \
+  .vim/syntax/dmesg.vim \
   .vim/syntax/int-ghci.vim \
   .vim/syntax/int-gosh.vim \
   .vim/syntax/ref-hoogle.vim
