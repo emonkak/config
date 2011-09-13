@@ -253,6 +253,21 @@ autocmd MyAutoCmd BufEnter,BufReadPost ?*
 
 
 
+" Dmesg - human readable dmesg  --{{{2
+
+command! -nargs=0 Dmesg  call s:cmd_Dmesg()
+function! s:cmd_Dmesg()
+  Split [Dmesg]
+  setlocal filetype=dmesg buftype=nofile bufhidden=delete nobuflisted
+  let uptime = localtime() - split(readfile('/proc/uptime')[0])[0]
+  silent read !dmesg
+  0delete
+  silent %s/^\[\zs\s*[0-9.]\+/\=strftime('%Y-%m-%d %T', uptime + submatch(0))/
+endfunction
+
+
+
+
 " Hecho, Hechon, Hechomsg - various :echo with highlight specification  "{{{2
 
 command! -bar -nargs=+ Hecho  call s:cmd_Hecho('echo', [<f-args>])
