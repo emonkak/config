@@ -158,7 +158,11 @@ alias lla='ls -la'
 
 alias cp='cp -iv'
 alias mv='mv -iv'
-alias rm='rm -Iv'
+if which safe-rm &>/dev/null; then
+  alias rm='safe-rm -Iv'
+else
+  alias rm='rm -Iv'
+fi
 
 autoload zmv
 alias zmv='noglob zmv'
@@ -169,6 +173,7 @@ alias grep='grep --color -E'
 alias lv='lv -c'
 alias pstree='pstree -A'
 alias sudo='sudo '
+alias vim='vim --servername VIM'
 
 alias g='git'
 alias s='sudo'
