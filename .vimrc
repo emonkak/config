@@ -349,13 +349,12 @@ endfunction
 
 command! -complete=filetype -nargs=1 Shadowize  call s:cmd_Shadowize(<q-args>)
 function! s:cmd_Shadowize(filetype)
-  let &l:filetype = a:filetype
-  silent execute 'SkeletonLoad' a:filetype
+  execute 'SetFileType' a:filetype
   let shadow = expand('%') . '.shd'
   if !filereadable(shadow)
     call writefile(getline(1, '$'), shadow)
-    edit!
   endif
+  edit!
 endfunction
 
 
@@ -1489,9 +1488,9 @@ onoremap <silent> gv  :<C-u>normal! gv<CR>
 
 
 " Operators  "{{{2
-" Sort  "{{{3
+" sort  "{{{3
 
-call operator#user#define('my-sort', s:SID_PREFIX() . 'operator_sort')
+call operator#user#define('sort', s:SID_PREFIX() . 'operator_sort')
 function! s:operator_sort(motion_wiseness)
   if a:motion_wiseness == 'char'
     let reg_u = [@", getregtype('"')]
@@ -1505,15 +1504,15 @@ function! s:operator_sort(motion_wiseness)
   endif
 endfunction
 
-nmap [Space]s  <Plug>(operator-my-sort)
-vmap [Space]s  <Plug>(operator-my-sort)
-nmap [Space]S  <Plug>(operator-my-sort)$
-vmap [Space]S  <Plug>(operator-my-sort)$
+nmap [Space]s  <Plug>(operator-sort)
+vmap [Space]s  <Plug>(operator-sort)
+nmap [Space]S  <Plug>(operator-sort)$
+vmap [Space]S  <Plug>(operator-sort)$
 
 
-" Open URI   "{{{3
+" open-uri   "{{{3
 
-call operator#user#define('my-open-uri', s:SID_PREFIX() . 'operator_open_uri')
+call operator#user#define('open-uri', s:SID_PREFIX() . 'operator_open_uri')
 function! s:operator_open_uri(motion_wiseness)
   for line in s:get_region("'[", "']")
     for uri in s:uri_extract(line, 'https\?')
@@ -1522,13 +1521,13 @@ function! s:operator_open_uri(motion_wiseness)
   endfor
 endfunction
 
-nmap go  <Plug>(operator-my-open-uri)iW
-vmap go  <Plug>(operator-my-open-uri)
+nmap go  <Plug>(operator-open-uri)iW
+vmap go  <Plug>(operator-open-uri)
 
 
-" Comment  "{{{3
+" comment  "{{{3
 
-call operator#user#define('my-comment', s:SID_PREFIX() . 'operator_comment')
+call operator#user#define('comment', s:SID_PREFIX() . 'operator_comment')
 function! s:operator_comment(motion_wiseness)
   let reg_u = [@", getregtype('"')]
 
@@ -1569,7 +1568,7 @@ function! s:operator_comment(motion_wiseness)
   call setreg('"', reg_u[0], reg_u[1])
 endfunction
 
-map ;  <Plug>(operator-my-comment)
+map ;  <Plug>(operator-comment)
 
 
 
@@ -1577,6 +1576,7 @@ map ;  <Plug>(operator-my-comment)
 " Misc.  "{{{2
 
 nnoremap <silent> <Leader><Leader>  :<C-u>update<CR>
+
 if has('unix') && executable('sudo')
   nnoremap <silent> <Leader>w  :<C-u>w sudo:%<CR>
 endif
@@ -1691,7 +1691,7 @@ endfunction
 
 
 " Echo the name of the syntax item under the cursor.
-nnoremap <silent> gs  :<C-u>echo <SID>syntax_name_under_the_cursor()<CR>
+nnoremap <silent> gs  :<C-u>echo join(<SID>syntax_name_under_the_cursor(), '/')<CR>
 function! s:syntax_name_under_the_cursor()
   return map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
 endfunction
