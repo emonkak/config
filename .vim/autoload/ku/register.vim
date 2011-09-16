@@ -38,17 +38,13 @@ endfunction
 
 function! ku#register#on_source_enter(source_name_ext)  "{{{2
   let _ = []
-  let max_width = winwidth(0) - 10
-  let registers = '"*+0123456789abcdefghijklmnopqrstuvwxyz'
+  let registers = '/:"#%*+.0123456789abcdefghijklmnopqrstuvwxyz'
   for reg in split(registers, '.\zs')
     let type = s:getregtype(reg)
     if type != ''
       call add(_, {
-      \   'menu': printf('%s %-5s', reg, type),
-      \   'word': s:strpartwidth(strtrans(getreg(reg)), max_width),
-      \   'dup': 1,
-      \   'ku_register': reg,
-      \   'ku__sort_priority': char2nr(reg),
+      \   'menu': printf('[%s] %s', type, getreg(reg)),
+      \   'word': reg,
       \ })
     endif
   endfor
@@ -96,7 +92,7 @@ function! s:getregtype(regname)  "{{{2
     return 'char'
   elseif type ==# 'V'
     return 'line'
-  elseif type ==# "\<C-v>"
+  elseif type =~# "^\<C-v>"
     return 'block'
   else
     return ''
@@ -106,23 +102,10 @@ endfunction
 
 
 
-function! s:strpartwidth(str, width)  "{{{2
-  let s = a:str[:byteidx(a:str, a:width)]
-  let width = strwidth(s)
-  let chars = split(s, '.\zs')
-  while width > a:width
-    let width -= strwidth(remove(chars, -1))
-  endwhile
-  return join(chars, '')
-endfunction
-
-
-
-
 " Actions  "{{{2
 function! ku#register#action_delete(item)  "{{{3
   if a:item.ku__completed_p
-    call setreg(a:item.ku_register, '')
+    call setreg(a:item.word, '')
     return 0
   else
     return 'Nothing in register: ' . string(a:item.word)
@@ -132,7 +115,7 @@ endfunction
 
 function! ku#register#action_Put(item)  "{{{3
   if a:item.ku__completed_p
-    execute 'normal! "' . a:item.ku_register . 'P'
+    execute 'normal! "' . a:item.word . 'P'
     return 0
   else
     return 'Nothing in register: ' . string(a:item.word)
@@ -142,7 +125,7 @@ endfunction
 
 function! ku#register#action_put(item)  "{{{3
   if a:item.ku__completed_p
-    execute 'normal! "' . a:item.ku_register . 'p'
+    execute 'normal! "' . a:item.word . 'p'
     return 0
   else
     return 'Nothing in register: ' . string(a:item.word)
