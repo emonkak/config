@@ -13,7 +13,6 @@ app-office/libreoffice-l10n linguas_ja
 app-portage/eix sqlite
 app-shells/saphire boehm-gc migemo
 app-text/acroread minimal linguas_ja
-app-text/asciidoc -vim-syntax
 app-text/ghostscript-gpl gtk
 app-text/lcdf-typetools kpathsea
 app-text/poppler -abiword
