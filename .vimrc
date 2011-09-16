@@ -191,6 +191,7 @@ augroup MyAutoCmd
 augroup END
 
 call altercmd#load()
+call arpeggio#load()
 call rtputil#bundle()
 
 
@@ -790,25 +791,22 @@ endfunction
 
 
 
-function! s:get_region(expr1, expr2)  "{{{2
+function! s:get_region(expr1, expr2, visual_commnad)  "{{{2
   let [lnum1, col1] = getpos(a:expr1)[1:2]
   let [lnum2, col2] = getpos(a:expr2)[1:2]
-
   let region = getline(lnum1, lnum2)
-  let visualmode = visualmode()
 
-  if visualmode == "\<C-v>"
-    call map(region, 's:strpart(v:val, col1 - 1, col2 - (col1 - 1))')
-  else
+  if a:visual_commnad ==# "v"  " char
     if lnum1 == lnum2  " single line
       let region[0] = s:strpart(region[-1], col1 - 1, col2 - (col1 - 1))
     else  " multi line
       let region[0] = s:strpart(region[0], col1 - 1)
       let region[-1] = s:strpart(region[-1], 0, col2)
     endif
-    if visualmode ==# 'V'
-      let region += ['']
-    endif
+  elseif a:visual_commnad ==# "V"  " line
+    let region += ['']
+  else  " block
+    call map(region, 's:strpart(v:val, col1 - 1, col2 - (col1 - 1))')
   endif
 
   return region
@@ -863,6 +861,96 @@ function! s:move_window_into_tabpage(target_tabpagenr)  "{{{2
   endif
 
   execute target_tabpagenr 'tabnext'
+endfunction
+
+
+
+
+function! s:operator_comment(motion_wiseness)  "{{{2
+  let reg_u = [@", getregtype('"')]
+
+  let [comment_begin, comment_end] = split(&l:commentstring, '\s*%s\s*', 1)
+  let comment_multi_line_p = comment_end != ''
+
+  let [lnum1, col1] = getpos("'[")[1:2]
+  let [lnum2, col2] = getpos("']")[1:2]
+
+  let lines = range(lnum1, lnum2)
+  if a:motion_wiseness ==# "line"
+    call map(lines, '[v:val, 1]')
+  elseif a:motion_wiseness ==# 'block'
+    call map(lines, '[v:val, col1]')
+  else  " char
+    call map(lines, '[v:val, 1]')
+    let lines[0] = [lnum1, col1]
+  endif
+
+  if comment_multi_line_p
+    call cursor(lines[-1][0], col2)
+    if a:motion_wiseness ==# 'line'
+      normal! $
+    endif
+    let @" = (col('$') > 1 ? ' ' : '') . comment_end
+    normal! p`[
+    call cursor(lines[0])
+    let @" = comment_begin . (col('$') > 1 ? ' ' : '')
+    normal! P`[
+  else
+    for [lnum, col] in lines
+      call cursor(lnum, col)
+      let @" = comment_begin . (col('$') > 1 ? ' ' : '')
+      normal! P`[
+    endfor
+  endif
+
+  call setreg('"', reg_u[0], reg_u[1])
+endfunction
+
+
+
+
+
+function! s:operator_open_uri(motion_wiseness)  "{{{2
+  let mode = operator#user#visual_command_from_wise_name(a:motion_wiseness)
+  for line in s:get_region("'[", "']", mode)
+    for uri in s:uri_extract(line, 'https\?')
+      call s:uri_open(uri)
+    endfor
+  endfor
+endfunction
+
+
+
+
+function! s:operator_sort(motion_wiseness)  "{{{2
+  if a:motion_wiseness == 'char'
+    let reg_u = [@", getregtype('"')]
+    let mode = operator#user#visual_command_from_wise_name(a:motion_wiseness)
+
+    let @" = join(map(s:get_region("'[", "']", mode),
+    \             'join(sort(split(v:val)))'))
+    normal! `[v`]P`[
+
+    call setreg('"', reg_u[0], reg_u[1])
+  else  " line or block
+    '[,']sort
+  endif
+endfunction
+
+
+
+
+function! s:operator_translate(motion_wiseness)  "{{{2
+  let api = 'http://ajax.googleapis.com/ajax/services/language/translate'
+  let mode = operator#user#visual_command_from_wise_name(a:motion_wiseness)
+  let query = join(s:get_region("'[", "']", mode), "\n")
+
+  let response = http#get(api, {'v': '1.0', 'q': query, 'langpair': 'en|ja'})
+  let json = json#decode(response.content)
+
+  if json.responseStatus == 200
+    echo html#decodeEntityReference(json.responseData.translatedText)
+  endif
 endfunction
 
 
@@ -1057,48 +1145,44 @@ endif
 " Fallback  "{{{3
 
 " the prefix key.
-nmap t  [Tag]
-vmap t  [Tag]
-
-" fallback
-noremap [Tag]  <Nop>
+nnoremap <Plug>(arpeggio-default:t)  <Nop>
 
 
 " Basic  "{{{3
 
-nnoremap [Tag]t  <C-]>
-vnoremap [Tag]t  <C-]>
-nnoremap <silent> [Tag]j  :tag<CR>
-nnoremap <silent> [Tag]k  :pop<CR>
-nnoremap <silent> [Tag]l  :<C-u>tags<CR>
-nnoremap <silent> [Tag]n  :tnext<CR>
-nnoremap <silent> [Tag]p  :tprevious<CR>
-nnoremap <silent> [Tag]P  :<C-u>tfirst<CR>
-nnoremap <silent> [Tag]N  :<C-u>tlast<CR>
+nnoremap tt  <C-]>
+vnoremap tt  <C-]>
+nnoremap <silent> tj  :tag<CR>
+nnoremap <silent> tk  :pop<CR>
+nnoremap <silent> tl  :<C-u>tags<CR>
+nnoremap <silent> tn  :tnext<CR>
+nnoremap <silent> tp  :tprevious<CR>
+nnoremap <silent> tP  :<C-u>tfirst<CR>
+nnoremap <silent> tN  :<C-u>tlast<CR>
 
 " additions, like Web browsers
 nnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
 vnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
 
 " addition, interactive use.
-nnoremap [Tag]<Space>  :<C-u>tag<Space>
+nnoremap t<Space>  :<C-u>tag<Space>
 
 
 " With the preview window  "{{{3
 
-nnoremap [Tag]'t  <C-w>}
-vnoremap [Tag]'t  <C-w>}
-nnoremap <silent> [Tag]'n  :ptnext<CR>
-nnoremap <silent> [Tag]'p  :ptprevious<CR>
-nnoremap <silent> [Tag]'P  :<C-u>ptfirst<CR>
-nnoremap <silent> [Tag]'N  :<C-u>ptlast<CR>
-nnoremap <silent> [Tag]'c  :<C-u>pclose<CR>
+nnoremap t't  <C-w>}
+vnoremap t't  <C-w>}
+nnoremap <silent> t'n  :ptnext<CR>
+nnoremap <silent> t'p  :ptprevious<CR>
+nnoremap <silent> t'P  :<C-u>ptfirst<CR>
+nnoremap <silent> t'N  :<C-u>ptlast<CR>
+nnoremap <silent> t'c  :<C-u>pclose<CR>
 
 
 " With :split  "{{{3
 
-nnoremap <silent> [Tag]st  :<c-u>call <SID>vertical_with('wincmd', [']'])<CR>
-vnoremap <silent> [Tag]st  :<c-u>call <SID>vertical_with('wincmd', [']'])<CR>
+nnoremap <silent> tst  :<c-u>call <SID>vertical_with('wincmd', [']'])<CR>
+vnoremap <silent> tst  :<c-u>call <SID>vertical_with('wincmd', [']'])<CR>
 
 
 
@@ -1107,10 +1191,7 @@ vnoremap <silent> [Tag]st  :<c-u>call <SID>vertical_with('wincmd', [']'])<CR>
 " Fallback  "{{{3
 
 " The prefix key.
-nmap q  [Quickfix]
-
-" fallback
-noremap [Quickfix]  <Nop>
+noremap q  <Nop>
 
 " Alternative key for the original action.
 nnoremap Q  q
@@ -1118,44 +1199,44 @@ nnoremap Q  q
 
 " For quickfix list  "{{{3
 
-nnoremap <silent> [Quickfix]j  :cnext<CR>
-nnoremap <silent> [Quickfix]k  :cprevious<CR>
-nnoremap <silent> [Quickfix]r  :<C-u>crewind<CR>
-nnoremap <silent> [Quickfix]K  :<C-u>cfirst<CR>
-nnoremap <silent> [Quickfix]J  :<C-u>clast<CR>
-nnoremap <silent> [Quickfix]fj  :<C-u>cnfile<CR>
-nnoremap <silent> [Quickfix]fk  :<C-u>cpfile<CR>
-nnoremap <silent> [Quickfix]l  :<C-u>clist<CR>
-nnoremap <silent> [Quickfix]q  :<C-u>cc<CR>
-nnoremap <silent> [Quickfix]o  :<C-u>copen<CR>
-nnoremap <silent> [Quickfix]c  :<C-u>cclose<CR>
-nnoremap <silent> [Quickfix]p  :<C-u>colder<CR>
-nnoremap <silent> [Quickfix]n  :<C-u>cnewer<CR>
-nnoremap <silent> [Quickfix]m  :<C-u>Make<CR>
-nnoremap [Quickfix]M  :<C-u>Make<Space>
-nnoremap [Quickfix]<Space>  :<C-u>Make<Space>
-nnoremap [Quickfix]g  :<C-u>Grep<Space>
+nnoremap <silent> qj  :cnext<CR>
+nnoremap <silent> qk  :cprevious<CR>
+nnoremap <silent> qr  :<C-u>crewind<CR>
+nnoremap <silent> qK  :<C-u>cfirst<CR>
+nnoremap <silent> qJ  :<C-u>clast<CR>
+nnoremap <silent> qfj  :<C-u>cnfile<CR>
+nnoremap <silent> qfk  :<C-u>cpfile<CR>
+nnoremap <silent> ql  :<C-u>clist<CR>
+nnoremap <silent> qq  :<C-u>cc<CR>
+nnoremap <silent> qo  :<C-u>copen<CR>
+nnoremap <silent> qc  :<C-u>cclose<CR>
+nnoremap <silent> qp  :<C-u>colder<CR>
+nnoremap <silent> qn  :<C-u>cnewer<CR>
+nnoremap <silent> qm  :<C-u>Make<CR>
+nnoremap qM  :<C-u>Make<Space>
+nnoremap q<Space>  :<C-u>Make<Space>
+nnoremap qg  :<C-u>Grep<Space>
 
 
 " For location list (mnemonic: Quickfix list for the current Window)  "{{{3
 
-nnoremap <silent> [Quickfix]wj  :lnext<CR>
-nnoremap <silent> [Quickfix]wk  :lprevious<CR>
-nnoremap <silent> [Quickfix]wr  :<C-u>lrewind<CR>
-nnoremap <silent> [Quickfix]wK  :<C-u>lfirst<CR>
-nnoremap <silent> [Quickfix]wJ  :<C-u>llast<CR>
-nnoremap <silent> [Quickfix]wfj  :<C-u>lnfile<CR>
-nnoremap <silent> [Quickfix]wfk  :<C-u>lpfile<CR>
-nnoremap <silent> [Quickfix]wl  :<C-u>llist<CR>
-nnoremap <silent> [Quickfix]wq  :<C-u>ll<CR>
-nnoremap <silent> [Quickfix]wo  :<C-u>lopen<CR>
-nnoremap <silent> [Quickfix]wc  :<C-u>close<CR>
-nnoremap <silent> [Quickfix]wp  :<C-u>lolder<CR>
-nnoremap <silent> [Quickfix]wn  :<C-u>lnewer<CR>
-nnoremap <silent> [Quickfix]wm  :<C-u>Lmake<CR>
-nnoremap [Quickfix]wM  :<C-u>Lmake<Space>
-nnoremap [Quickfix]w<Space>  :<C-u>Lmake<Space>
-nnoremap [Quickfix]wg  :<C-u>Lgrep<Space>
+nnoremap <silent> qwj  :lnext<CR>
+nnoremap <silent> qwk  :lprevious<CR>
+nnoremap <silent> qwr  :<C-u>lrewind<CR>
+nnoremap <silent> qwK  :<C-u>lfirst<CR>
+nnoremap <silent> qwJ  :<C-u>llast<CR>
+nnoremap <silent> qwfj  :<C-u>lnfile<CR>
+nnoremap <silent> qwfk  :<C-u>lpfile<CR>
+nnoremap <silent> qwl  :<C-u>llist<CR>
+nnoremap <silent> qwq  :<C-u>ll<CR>
+nnoremap <silent> qwo  :<C-u>lopen<CR>
+nnoremap <silent> qwc  :<C-u>close<CR>
+nnoremap <silent> qwp  :<C-u>lolder<CR>
+nnoremap <silent> qwn  :<C-u>lnewer<CR>
+nnoremap <silent> qwm  :<C-u>Lmake<CR>
+nnoremap qwM  :<C-u>Lmake<Space>
+nnoremap qw<Space>  :<C-u>Lmake<Space>
+nnoremap qwg  :<C-u>Lgrep<Space>
 
 
 
@@ -1164,63 +1245,60 @@ nnoremap [Quickfix]wg  :<C-u>Lgrep<Space>
 " Fallback  "{{{3
 
 " the prefix key.
-nmap <C-t>  [Tabbed]
-
-" fallback
-noremap [Tabbed]  <Nop>
+noremap <C-t>  <Nop>
 
 
 " Basic  "{{{3
 
 " Move new tabpage at the last.
-nnoremap <silent> [Tabbed]n  :<C-u>tabnew \| :tabmove<CR>
-nnoremap <silent> [Tabbed]c  :<C-u>tabclose<CR>
-nnoremap <silent> [Tabbed]o  :<C-u>tabonly<CR>
-nnoremap <silent> [Tabbed]i  :<C-u>tabs<CR>
+nnoremap <silent> <C-t>n  :<C-u>tabnew \| :tabmove<CR>
+nnoremap <silent> <C-t>c  :<C-u>tabclose<CR>
+nnoremap <silent> <C-t>o  :<C-u>tabonly<CR>
+nnoremap <silent> <C-t>i  :<C-u>tabs<CR>
 
-nmap [Tabbed]<C-n>  <C-t>n
-nmap [Tabbed]<C-c>  <C-t>c
-nmap [Tabbed]<C-o>  <C-t>o
-nmap [Tabbed]<C-i>  <C-t>i
+nmap <C-t><C-n>  <C-t>n
+nmap <C-t><C-c>  <C-t>c
+nmap <C-t><C-o>  <C-t>o
+nmap <C-t><C-i>  <C-t>i
 
-nnoremap <silent> [Tabbed]<Space>  :<C-u>TabpageTitle<CR>
+nnoremap <silent> <C-t><Space>  :<C-u>TabpageTitle<CR>
 
-nmap <silent> [Tabbed]<C-@>  <C-t><Space>
-nmap <silent> [Tabbed]<C-Space>  <C-t><Space>
+nmap <silent> <C-t><C-@>  <C-t><Space>
+nmap <silent> <C-t><C-Space>  <C-t><Space>
 
 
 " Moving around tabpages.  "{{{3
 
-nnoremap <silent> [Tabbed]j
+nnoremap <silent> <C-t>j
 \ :<C-u>execute 'tabnext' 1 + (tabpagenr() + v:count1 - 1) % tabpagenr('$')<CR>
-nnoremap <silent> [Tabbed]k
+nnoremap <silent> <C-t>k
 \ :<C-u>execute 'tabprevious' v:count1 % tabpagenr('$')<CR>
-nnoremap <silent> [Tabbed]K  :<C-u>tabfirst<CR>
-nnoremap <silent> [Tabbed]J  :<C-u>tablast<CR>
+nnoremap <silent> <C-t>K  :<C-u>tabfirst<CR>
+nnoremap <silent> <C-t>J  :<C-u>tablast<CR>
 
-nmap [Tabbed]<C-j>  <C-t>j
-nmap [Tabbed]<C-k>  <C-t>k
-nmap [Tabbed]<C-t>  <C-t>j
+nmap <C-t><C-j>  <C-t>j
+nmap <C-t><C-k>  <C-t>k
+nmap <C-t><C-t>  <C-t>j
 
 " GNU screen like mappings.
 " Note that the numbers in {lhs}s are 0-origin.  See also 'tabline'.
 for i in range(10)
-  execute 'nnoremap <silent>' ('[Tabbed]'.(i))  ((i+1).'gt')
+  execute 'nnoremap <silent>' ('<C-t>'.(i))  ((i+1).'gt')
 endfor
 unlet i
 
 
 " Moving tabpages themselves.  "{{{3
 
-nnoremap <silent> [Tabbed]l
+nnoremap <silent> <C-t>l
 \ :<C-u>execute 'tabmove' min([tabpagenr() + v:count1 - 1, tabpagenr('$')])<CR>
-nnoremap <silent> [Tabbed]h
+nnoremap <silent> <C-t>h
 \ :<C-u>execute 'tabmove' max([tabpagenr() - v:count1 - 1, 0])<CR>
-nnoremap <silent> [Tabbed]L  :<C-u>tabmove<CR>
-nnoremap <silent> [Tabbed]H  :<C-u>tabmove 0<CR>
+nnoremap <silent> <C-t>L  :<C-u>tabmove<CR>
+nnoremap <silent> <C-t>H  :<C-u>tabmove 0<CR>
 
-nmap [Tabbed]<C-l>  <C-t>l
-nmap [Tabbed]<C-h>  <C-t>h
+nmap <C-t><C-l>  <C-t>l
+nmap <C-t><C-h>  <C-t>h
 
 
 
@@ -1228,29 +1306,26 @@ nmap [Tabbed]<C-h>  <C-t>h
 " Argument list  "{{{2
 
 " the prefix key.
-nmap <C-g>  [Argument]
-
-" fallback
-noremap [Argument] <Nop>
+noremap <C-g> <Nop>
 
 
-nnoremap [Argument]<Space>  :<C-u>args<Space>
-nnoremap <silent> [Argument]l  :args<CR>
-nnoremap <silent> [Argument]j  :next<CR>
-nnoremap <silent> [Argument]k  :previous<CR>
-nnoremap <silent> [Argument]J  :last<CR>
-nnoremap <silent> [Argument]K  :first<CR>
-nnoremap <silent> [Argument]wj  :wnext<CR>
-nnoremap <silent> [Argument]wk  :wprevious<CR>
+nnoremap <silent> <C-g>l  :args<CR>
+nnoremap <silent> <C-g>j  :next<CR>
+nnoremap <silent> <C-g>k  :previous<CR>
+nnoremap <silent> <C-g>J  :last<CR>
+nnoremap <silent> <C-g>K  :first<CR>
+nnoremap <silent> <C-g>wj  :wnext<CR>
+nnoremap <silent> <C-g>wk  :wprevious<CR>
+nnoremap <C-g><Space>  :<C-u>args<Space>
 
-nmap [Argument]<C-l>  <C-g>l
-nmap [Argument]<C-j>  <C-g>j
-nmap [Argument]<C-k>  <C-g>k
-nmap [Argument]<C-w><C-j>  <C-g>wj
-nmap [Argument]<C-w><C-k>  <C-g>wk
+nmap <C-g><C-l>  <C-g>l
+nmap <C-g><C-j>  <C-g>j
+nmap <C-g><C-k>  <C-g>k
+nmap <C-g><C-w><C-j>  <C-g>wj
+nmap <C-g><C-w><C-k>  <C-g>wk
 
-nmap [Argument]<C-@>  <C-g><Space>
-nmap [Argument]<C-Space>  <C-g><Space>
+nmap <C-g><C-@>  <C-g><Space>
+nmap <C-g><C-Space>  <C-g><Space>
 
 
 
@@ -1268,7 +1343,7 @@ cnoremap <C-n>  <Down>
 cnoremap <Up>  <C-p>
 cnoremap <Down>  <C-n>
 
-" Emacs like kill-line.
+" Like emacs kill-line.
 cnoremap <C-k>
 \ <C-\>e getcmdpos() == 1 ? '' : getcmdline()[:getcmdpos()-2]<CR>
 
@@ -1307,7 +1382,7 @@ endfunction
 
 " Insert mode  "{{{2
 
-" Emacs like mappings.
+" Like emacs mappings.
 inoremap <C-b>  <Left>
 inoremap <C-f>  <Right>
 inoremap <C-a>  <Home>
@@ -1386,19 +1461,6 @@ nnoremap [Space]h  zc
 
 " Close all folds but including the cursor.
 nnoremap [Space]v  zMzv
-
-
-" Yank to clipboard.
-nnoremap [Space]y  "+y
-vnoremap [Space]y  "+y
-nnoremap [Space]Y  "+y$
-vnoremap [Space]Y  "+y$
-
-" Put in clipboard.
-nnoremap [Space]p  "+p
-vnoremap [Space]p  "+p
-nnoremap [Space]P  "+P
-vnoremap [Space]P  "+P
 
 
 " Enter command-line window.
@@ -1488,87 +1550,29 @@ onoremap <silent> gv  :<C-u>normal! gv<CR>
 
 
 " Operators  "{{{2
-" sort  "{{{3
+
+Arpeggio map oy  "+y
+Arpeggio map oy  "+y
+
 
 call operator#user#define('sort', s:SID_PREFIX() . 'operator_sort')
-function! s:operator_sort(motion_wiseness)
-  if a:motion_wiseness == 'char'
-    let reg_u = [@", getregtype('"')]
-
-    let @" = join(map(s:get_region("'[", "']"), 'join(sort(split(v:val)))'))
-    normal! `[v`]P`[
-
-    call setreg('"', reg_u[0], reg_u[1])
-  else  " line or block
-    '[,']sort
-  endif
-endfunction
-
 nmap [Space]s  <Plug>(operator-sort)
 vmap [Space]s  <Plug>(operator-sort)
 nmap [Space]S  <Plug>(operator-sort)$
 vmap [Space]S  <Plug>(operator-sort)$
 
 
-" open-uri   "{{{3
-
 call operator#user#define('open-uri', s:SID_PREFIX() . 'operator_open_uri')
-function! s:operator_open_uri(motion_wiseness)
-  for line in s:get_region("'[", "']")
-    for uri in s:uri_extract(line, 'https\?')
-      call s:uri_open(uri)
-    endfor
-  endfor
-endfunction
+Arpeggio nmap og  <Plug>(operator-open-uri)iW
+Arpeggio vmap og  <Plug>(operator-open-uri)
 
-nmap go  <Plug>(operator-open-uri)iW
-vmap go  <Plug>(operator-open-uri)
-
-
-" comment  "{{{3
 
 call operator#user#define('comment', s:SID_PREFIX() . 'operator_comment')
-function! s:operator_comment(motion_wiseness)
-  let reg_u = [@", getregtype('"')]
+Arpeggio map oc  <Plug>(operator-comment)
 
-  let [comment_begin, comment_end] = split(&l:commentstring, '\s*%s\s*', 1)
-  let comment_multi_line_p = comment_end != ''
 
-  let [lnum1, col1] = getpos("'[")[1:2]
-  let [lnum2, col2] = getpos("']")[1:2]
-
-  let lines = range(lnum1, lnum2)
-  if a:motion_wiseness ==# "line"
-    call map(lines, '[v:val, 1]')
-  elseif a:motion_wiseness ==# 'block'
-    call map(lines, '[v:val, col1]')
-  else  " char
-    call map(lines, '[v:val, 1]')
-    let lines[0] = [lnum1, col1]
-  endif
-
-  if comment_multi_line_p
-    call cursor(lines[-1][0], col2)
-    if a:motion_wiseness ==# 'line'
-      normal! $
-    endif
-    let @" = (col('$') > 1 ? ' ' : '') . comment_end
-    normal! p`[
-    call cursor(lines[0])
-    let @" = comment_begin . (col('$') > 1 ? ' ' : '')
-    normal! P`[
-  else
-    for [lnum, col] in lines
-      call cursor(lnum, col)
-      let @" = comment_begin . (col('$') > 1 ? ' ' : '')
-      normal! P`[
-    endfor
-  endif
-
-  call setreg('"', reg_u[0], reg_u[1])
-endfunction
-
-map ;  <Plug>(operator-comment)
+call operator#user#define('translate', s:SID_PREFIX() . 'operator_translate')
+Arpeggio map ot  <Plug>(operator-translate)
 
 
 
@@ -1627,8 +1631,10 @@ noremap <LocalLeader>  <Nop>
 
 
 " Like o/O, but insert additional [count] blank lines.
-nnoremap <expr> o  <SID>start_insert_mode_with_blank_lines('o')
-nnoremap <expr> O  <SID>start_insert_mode_with_blank_lines('O')
+nnoremap <expr> <Plug>(arpeggio-default:o)
+\        <SID>start_insert_mode_with_blank_lines('o')
+nnoremap <expr> O
+\        <SID>start_insert_mode_with_blank_lines('O')
 function! s:start_insert_mode_with_blank_lines(command)
   if v:count != v:count1
     return a:command  " Behave the same as the default commands.
@@ -1648,7 +1654,8 @@ vnoremap <silent> *
 vnoremap <silent> #
 \ :<C-u>call <SID>search_the_selected_text_literaly('N')<CR>
 function! s:search_the_selected_text_literaly(search_command)
-  let region = join(map(s:get_region("'<", "'>"), 'escape(v:val, "\\/")'),
+  let region = join(map(s:get_region("'<", "'>", visualmode()),
+  \                     'escape(v:val, "\\/")'),
   \                 '\n')
 
   let @/ = '\V' . region
@@ -2088,19 +2095,6 @@ let g:ku_file_mru_limit = 200
 
 
 
-" narrow  "{{{2
-
-" fallback
-noremap [Space]x  <Nop>
-
-call operator#user#define_ex_command('narrow', 'Narrow')
-map [Space]xn  <Plug>(operator-narrow)
-
-noremap <silent> [Space]xw  :<C-u>Widen<CR>
-
-
-
-
 " neocomplcache  "{{{2
 
 imap <C-l>  <Plug>(neocomplcache_snippets_expand)
@@ -2117,6 +2111,12 @@ let g:neocomplcache_enable_smart_case = 1
 
 let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*\|\[ku\]\|\[quickrun output\]'
 let g:neocomplcache_temporary_dir = expand('~/.vim/info/neocon')
+
+if !exists('g:neocomplcache_omni_patterns')
+  let g:neocomplcache_omni_patterns = {}
+endif
+let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
+
 
 
 
@@ -2187,6 +2187,14 @@ let g:ref_cache_dir = expand('~/.vim/info/ref')
 let g:ref_no_default_key_mappings = 1
 let g:ref_open = 'Split'
 let g:ref_perldoc_complete_head = 1
+
+
+
+
+" rsense  "{{{2
+
+let g:rsenseHome = '/opt/rsense'
+let g:rsenseUseOmniFunc = 1
 
 
 
@@ -2265,9 +2273,9 @@ map ge  <Plug>(smartword-ge)
 
 call submode#enter_with('scroll', 'nv', '', '[Space]j')
 call submode#map('scroll', 'nv', 'e', 'j',
-\                'line(".") != line("$") ? "<C-d>z." : ""')
+\                'line(".") != line("$") ? "<C-d>" : ""')
 call submode#map('scroll', 'nv', 'e', 'k',
-\                'line(".") != 1 ? "<C-u>z." : ""')
+\                'line(".") != 1 ? "<C-u>" : ""')
 
 
 call submode#enter_with('undo/redo', 'n', '', 'g-', 'g-')
