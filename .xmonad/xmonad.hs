@@ -42,7 +42,7 @@ import qualified Data.Map as M
 
 -- Lauout  --{{{1
 
-myLayoutHook = avoidStrutsOn [U,R,L] $ smartBorders $
+myLayoutHook = avoidStruts $ smartBorders $
   onWorkspace "gimp" (toggleLayouts Full $ gimpIM tabbedLayout) $
   toggleLayouts Full $ imLayout $ tallLayout ||| wideLayout
   where
@@ -189,7 +189,6 @@ myKeys conf = mkKeymap conf $
   , ("M-,",          sendMessage $ IncMasterN 1)
   , ("M-.",          sendMessage $ IncMasterN (-1))
 
-  , ("M-b",          sendMessage $ ToggleStrut D)
   , ("M-f",          sendMessage ToggleLayout)
 
   , ("M-S-c",        kill)
@@ -215,7 +214,7 @@ myKeys conf = mkKeymap conf $
   , ("M-<Esc> s",    spawn "sleep 1; xset dpms force off")
   , ("M-<Esc> y",    do home <- io getHomeDirectory
                         safeSpawn "scrot"
-                                  ["-e", printf "mv $f %s/Desktop" home, "%y%m%d-%H%M%S.png"])
+                                  ["-e", printf "mv $f %s/Desktop" home, "%Y-%m-%d_%H-%M-%S.png"])
   ]
   ++
   [ ("M-x " ++ m ++ k, safeSpawnProg a)
