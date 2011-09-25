@@ -52,7 +52,7 @@ if has('gui_running')
   set guicursor=a:blinkon0
   if has('gui_gtk2')
     set guifont=Monospace\ 10.5
-    set linespace=4
+    set linespace=3
   elseif has('gui_win32')
     set guifont=Consolas:h10.5
   endif
@@ -103,6 +103,10 @@ set updatetime=1000
 set virtualedit=block
 
 set cmdheight=1
+if has('conceal')
+  set concealcursor=nc
+  set conceallevel=2
+endif
 set display=lastline
 set noequalalways
 set foldmethod=marker
@@ -250,21 +254,6 @@ autocmd MyAutoCmd BufEnter,BufReadPost ?*
 \ |   cd %:p:h
 \ |   let t:cwd = getcwd()
 \ | endif
-
-
-
-
-" Dmesg - human readable dmesg  --{{{2
-
-command! -nargs=0 Dmesg  call s:cmd_Dmesg()
-function! s:cmd_Dmesg()
-  Split [Dmesg]
-  setlocal filetype=dmesg buftype=nofile bufhidden=delete nobuflisted
-  let uptime = localtime() - split(readfile('/proc/uptime')[0])[0]
-  silent read !dmesg
-  0delete
-  silent %s/^\[\zs\s*[0-9.]\+/\=strftime('%Y-%m-%d %T', uptime + submatch(0))/
-endfunction
 
 
 
@@ -591,6 +580,21 @@ function! s:complete_fileencoding(arglead, cmdline, cursorpos)
 endfunction
 function! s:complete_fileformats(arglead, cmdline, cursorpos)
   return sort(filter(split(&fileformats, ','), 's:prefix_of_p(a:arglead, v:val)'))
+endfunction
+
+
+
+
+" Human readable dmesg   --{{{2
+
+command! -nargs=0 Dmesg  call s:cmd_Dmesg()
+function! s:cmd_Dmesg()
+  Split [Dmesg]
+  setlocal filetype=dmesg buftype=nofile bufhidden=delete nobuflisted
+  let uptime = localtime() - split(readfile('/proc/uptime')[0])[0]
+  silent read !dmesg
+  0delete
+  silent %s/^\[\zs\s*[0-9.]\+/\=strftime('%Y-%m-%d %T', uptime + submatch(0))/
 endfunction
 
 
@@ -926,9 +930,11 @@ function! s:operator_sort(motion_wiseness)  "{{{2
   if a:motion_wiseness == 'char'
     let reg_u = [@", getregtype('"')]
     let mode = operator#user#visual_command_from_wise_name(a:motion_wiseness)
+    let separator = nr2char(getchar())
 
-    let @" = join(map(s:get_region("'[", "']", mode),
-    \             'join(sort(split(v:val)))'))
+    let @" = join(sort(split(join(s:get_region("'[", "']", mode)),
+    \                        separator)),
+    \             separator)
     normal! `[v`]P`[
 
     call setreg('"', reg_u[0], reg_u[1])
@@ -946,10 +952,11 @@ function! s:operator_translate(motion_wiseness)  "{{{2
   let query = join(s:get_region("'[", "']", mode), "\n")
 
   let response = http#get(api, {'v': '1.0', 'q': query, 'langpair': 'en|ja'})
-  let json = json#decode(response.content)
-
-  if json.responseStatus == 200
-    echo html#decodeEntityReference(json.responseData.translatedText)
+  if response.header[0] ==# 'HTTP/1.1 200 OK'
+    let json = json#decode(response.content)
+    if json.responseStatus == 200
+      echo html#decodeEntityReference(json.responseData.translatedText)
+    endif
   endif
 endfunction
 
@@ -1306,7 +1313,7 @@ nmap <C-t><C-h>  <C-t>h
 " Argument list  "{{{2
 
 " the prefix key.
-noremap <C-g> <Nop>
+noremap <C-g>  <Nop>
 
 
 nnoremap <silent> <C-g>l  :args<CR>
@@ -2015,6 +2022,8 @@ call ku#custom_action('common', 'yank',
 \                     s:SID_PREFIX().'ku_common_action_yank')
 call ku#custom_action('file', 'open-sudo',
 \                     s:SID_PREFIX().'ku_file_action_open_sudo')
+call ku#custom_action('file/current', 'open-sudo',
+\                     s:SID_PREFIX().'ku_file_action_open_sudo')
 call ku#custom_action('metarw/git', 'checkout',
 \                     s:SID_PREFIX().'ku_metarw_git_action_checkout')
 
@@ -2057,6 +2066,7 @@ call ku#custom_key('common', 'y', 'yank')
 call ku#custom_key('common', 'Y', 'Yank')
 call ku#custom_key('buffer', 'd', 'delete')
 call ku#custom_key('file', 's', 'open-sudo')
+call ku#custom_key('file/current', 's', 'open-sudo')
 call ku#custom_key('metarw/git', '/', 'checkout')
 call ku#custom_key('metarw/git', '?', 'checkout')
 
@@ -2089,7 +2099,7 @@ nnoremap <silent> [Space]kk  :<C-u>call ku#restart()<CR>
 
 let g:ku_personal_runtime = expand('~/.vim')
 let g:ku_file_mru_file = expand('~/.vim/info/ku/mru')
-let g:ku_file_mru_ignore_pattern = '\v/$|/\.git/|^/%(/|mnt|tmp)/'
+let g:ku_file_mru_ignore_pattern = '/$\|/\.git/\|^/\(/\|mnt\|tmp\)'
 let g:ku_file_mru_limit = 200
 
 
@@ -2122,7 +2132,7 @@ let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
 
 " operator-replece  "{{{2
 
-map _  <Plug>(operator-replace)
+Arpeggio map or  <Plug>(operator-replace)
 
 
 
@@ -2178,16 +2188,15 @@ endfunction
 nmap <silent> K  <Plug>(ref-keyword)
 vmap <silent> K  <Plug>(ref-keyword)
 
-nnoremap <silent> <Leader>a  :<C-u>call ref#jump('normal', 'alc')<CR>
-vnoremap <silent> <Leader>a  :<C-u>call ref#jump('visual', 'alc')<CR>
+nnoremap <silent> <Leader>a  :<C-u>call ref#jump('normal', 'alc2')<CR>
+vnoremap <silent> <Leader>a  :<C-u>call ref#jump('visual', 'alc2')<CR>
 
 
-let g:ref_alc_start_linenumber = 36
 let g:ref_cache_dir = expand('~/.vim/info/ref')
 let g:ref_no_default_key_mappings = 1
 let g:ref_open = 'Split'
 let g:ref_perldoc_complete_head = 1
-
+let g:ref_wikipedia_lang = 'ja'
 
 
 
@@ -2223,20 +2232,16 @@ autocmd MyAutoCmd User plugin-skeleton-detect
 
 function! s:on_User_plugin_skeleton_detect()
   let _ = split(expand('%:p'), '/')
-  let extension = matchstr(_[-1], '^[^.]*\.\zs[0-9A-Za-z.]\+')
+  let extensions = split(_[-1], '\.', 1)
   let directories = _[:-2]
   let type = directories[-1]
 
-  if extension ==# 'vim'
-  \  && type =~# '\v^(autoload|colors|compiler|ftplugin|indent|plugin|syntax)'
+  if extensions[-1] ==# 'vim'
+  \  && type =~# '^\v(autoload|colors|compiler|ftplugin|indent|plugin|syntax)'
     let after_p = directories[-2] == 'after'
-
-    if after_p
-      execute 'SkeletonLoad' 'vim-additional-' . type
-    else
-      execute 'SkeletonLoad' 'vim-' . type
-    endif
-  elseif extension ==# 'user.js'
+    execute 'SkeletonLoad'
+    \       (after_p ? 'vim-additional-' : 'vim-') . type
+  elseif extensions[-2:-1] ==# ['user', 'js']
     SkeletonLoad userjs
   endif
 endfunction
@@ -2311,8 +2316,6 @@ let g:submode_timeout = 0
 
 " surround  "{{{2
 
-" The default mapping ys for <Plug>Ysurround is not consistent with
-" the default mappings of vi -- y is for yank.
 nmap S  <Plug>Ysurround$
 nmap s  <Plug>Ysurround
 nmap ss  <Plug>Yssurround
