@@ -198,7 +198,7 @@ endif
 call s:highlight('SpecialKey'   , {'fg': 8})
 call s:highlight('NonText'      , {'fg': 12})
 call s:highlight('Directory'    , {'fg': 14})
-call s:highlight('MatchParen'   , {'attr': 'b', 'fg': 8, 'bg': 14})
+call s:highlight('MatchParen'   , {'attr': 'b', 'fg': 0, 'bg': 14})
 call s:highlight('LineNr'       , {'fg': 8})
 call s:highlight('Question'     , {'fg': 10})
 call s:highlight('VertSplit'    , {'attr': 'r'})
