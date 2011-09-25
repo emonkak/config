@@ -8,10 +8,12 @@ Xcursor.size: 24
 ! RXVT
 Rxvt.font: \
   xft:TheSans Mono:size=10.5, \
-  xft:AXIS Std:pixelsize=15
+  xft:AXIS Std:pixelsize=15, \
+  xft:Droid Sans Fallback:pixelsize=15
 Rxvt.boldfont: \
   xft:TheSans Mono:size=10.5:bold, \
-  xft:AXIS Std:pixelsize=15:bold
+  xft:AXIS Std:pixelsize=15:bold, \
+  xft:Droid Sans Fallback:pixelsize=15:bold
 Rxvt.imFont: \
   -sony-fixed-medium-r-normal--16-*-*-*-*-*-iso8859-1, \
   -sony-fixed-medium-r-normal--16-*-*-*-*-*-jisx0201.1976-0, \
