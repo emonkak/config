@@ -42,24 +42,20 @@ function! metarw#sudo#read(fakepath)  "{{{2
   let scheme = fragments[0]
   let path = fnamemodify(fragments[1], ':p')
   if isdirectory(path)
-    let directory = substitute(path, '[^/]\ze$', '/', '')
-    let result = [{
-    \   'label': '../',
-    \   'fakepath': printf('%s:%s',
-    \                      scheme,
-    \                      fnamemodify(simplify(directory . '..'), ':p')),
-    \ }]
-    for file_name in split(globpath(path, '{.,}*'), "\n")
-      call add(result, {
-      \   'label': matchstr(file_name, '[^/]\+/\?$'),
-      \   'fakepath': scheme . ':' . file_name,
-      \ })
+    let result = []
+    for name in split(globpath(path, '.*') . "\n" . globpath(path, '*'), '\n')
+      if name =~ '/\.$'
+        continue
+      else
+        call add(result, {
+        \   'label': fnamemodify(name, ':t') . (isdirectory(name) ? '/' : ''),
+        \   'fakepath': scheme . ':' . fnamemodify(simplify(name), ':p'),
+        \ })
+      endif
     endfor
     return ['browse', result]
-  elseif glob(path) != ''
-    return ['read', '!sudo cat ' . shellescape(path)]
   else
-    return ['error', 'Invalid path']
+    return ['read', '!sudo cat ' . shellescape(path)]
   endif
 endfunction
 
