@@ -53,6 +53,7 @@ net-im/instantbird -system-libpurple
 net-im/pidgin gstreamer
 net-im/skype4pidgin dbus
 net-irc/irssi perl
+net-irc/weechat perl python ruby
 net-misc/rdesktop alsa
 net-print/bjfilter ip3100
 net-print/cups samba

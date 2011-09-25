@@ -10,6 +10,9 @@ app-text/ptex
 dev-haskell/cabal
 dev-lang/ruby
 dev-ruby/bundler
+media-gfx/gimp
+virtual/jdk
+virtual/jre
 virtual/ruby-rdoc
 www-client/opera
 www-client/opera-next

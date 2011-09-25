@@ -1,3 +1,2 @@
-=www-client/google-chrome-14*
 =x11-themes/gtk-engines-unico-1.0*
 sys-kernel/gentoo-sources
