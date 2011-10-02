@@ -109,7 +109,7 @@ function! operator#comment#uncomment(motion_wiseness)  "{{{2
         continue
       endif
       normal! v
-      call search('\s', 'W', line('.'))
+      call search('\V' . comment[0] . '\+\s\?', 'We', line('.'))
       normal! "_d$
     endwhile
   endif
