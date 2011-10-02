@@ -51,7 +51,7 @@ endif
 if has('gui_running')
   set guicursor=a:blinkon0
   if has('gui_gtk2')
-    set guifont=Monospace\ 10.5
+    set guifont=Consolas\ 10.5
     set linespace=3
   elseif has('gui_win32')
     set guifont=Consolas:h10.5
@@ -93,7 +93,6 @@ if has('multi_byte_ime') || has('xim')
 endif
 set keywordprg=:help
 set nrformats=hex
-set modelines=2
 set nowritebackup
 if exists('+shellslash')
   set shellslash
@@ -116,7 +115,6 @@ set linebreak
 set list
 let &listchars = "tab:\u00bb ,extends:<,trail:-"
 set pumheight=20
-set report=1
 set ruler
 set showcmd
 set showtabline=2
@@ -216,13 +214,13 @@ command! -bang -nargs=0 BufferCleaner  call s:cmd_BufferCleaner(<bang>0)
 function! s:cmd_BufferCleaner(banged_p)
   let _ = range(1, bufnr('$'))
   call filter(_, 'bufexists(v:val) &&
-                \ buflisted(v:val) &&
-                \ bufname(v:val) == "" &&
-                \ (a:banged_p || !getbufvar(v:val, "&modified"))')
+  \               buflisted(v:val) &&
+  \               bufname(v:val) == "" &&
+  \               (a:banged_p || !getbufvar(v:val, "&modified"))')
   for bufnr in _
     silent execute bufnr 'bdelete'
   endfor
-  echo len(_) 'buffer cleaned'
+  echo len(_) 'buffer deleted'
 endfunction
 
 
@@ -231,7 +229,7 @@ endfunction
 " CD - wrapper of :cd to keep cwd for each tabpage  "{{{2
 
 command! -complete=dir -nargs=* CD
-\   if <q-args> == ''
+\   if <q-args> == '' && expand('%') != ''
 \ |   cd %:p:h
 \ | else
 \ |   cd <args>
@@ -441,16 +439,27 @@ function! s:grep(command, args)
 
   if grepprg ==# 'internal'
     execute a:command '/'.escape(a:args[-1], '/ ').'/j' target
+  elseif has('win32') || has('win64')
+    try
+      let errorformat = &l:errorformat
+      let &l:errorformat = &l:grepformat
+      let result = vimproc#system(grepprg . " " . a:args[-1] . " " . target)
+      if a:command ==# 'grep'
+        cgetexpr result
+      else  " lgrep
+        lgetexpr result
+      endif
+    finally
+      let &l:errorformat = errorformat
+    endtry
   else
     execute a:command.'!' shellescape(a:args[-1]) target
   endif
 
   if a:command ==# 'grep'
-    if !empty(getqflist())
-      copen
-    endif
-  elseif !empty(getloclist())  " lgrep
-    lopen
+    cwindow
+  else  " lgrep
+    lwindow
   endif
 endfunction
 
@@ -593,7 +602,7 @@ function! s:cmd_Dmesg()
   setlocal filetype=dmesg buftype=nofile bufhidden=delete nobuflisted
   let uptime = localtime() - split(readfile('/proc/uptime')[0])[0]
   silent read !dmesg
-  0delete
+  silent 0 delete
   silent %s/^\[\zs\s*[0-9.]\+/\=strftime('%Y-%m-%d %T', uptime + submatch(0))/
 endfunction
 
@@ -687,34 +696,6 @@ endfunction
 
 
 
-" URI-related stuffs  "{{{2
-
-function! s:uri_regexp(scheme_pattern)
-  let scheme = '\(' . a:scheme_pattern . '\m\)'
-  return scheme . '://\([0-9A-Za-z!#$&''()*+,-./:;=?@_~]\|%\d\{2}\)\+'
-endfunction
-
-function! s:uri_extract(str, scheme_pattern)
-  let uris = []
-  let pattern = s:uri_regexp(a:scheme_pattern)
-
-  let begin = match(a:str, pattern)
-  while begin > -1
-    let end = matchend(a:str, pattern, begin)
-    call add(uris, strpart(a:str, begin, end))
-    let begin = match(a:str, pattern, end)
-  endwhile
-
-  return uris
-endfunction
-
-function! s:uri_open(uri)
-  call vimproc#open(a:uri)
-endfunction
-
-
-
-
 " Vertical with  "{{{2
 
 let s:vertical_p = '(winwidth(0) * 2 > winheight(0) * 8)'
@@ -754,6 +735,28 @@ function! s:all_combinations(xs)  "{{{2
   endfor
 
   return cs
+endfunction
+
+
+
+
+function! s:close_temporary_windows()  "{{{2
+  let _ = range(1, winnr('$'))
+  let pattern = '^nofile\|quickfix\|help'
+  call filter(_, '!buflisted(winbufnr(v:val)) &&
+  \               getbufvar(winbufnr(v:val), "&buftype") =~# pattern')
+
+  let current_winnr = winnr()
+  if len(_) == winnr('$')
+    call filter(_, 'current_winnr != v:val')
+  endif
+
+  for winnr in _
+    execute winnr 'wincmd w'
+    wincmd c
+  endfor
+  execute (current_winnr - len(filter(_, 'v:val < current_winnr')))
+  \       'wincmd w'
 endfunction
 
 
@@ -870,69 +873,14 @@ endfunction
 
 
 
-function! s:operator_comment(motion_wiseness)  "{{{2
-  let reg_u = [@", getregtype('"')]
-
-  let [comment_begin, comment_end] = split(&l:commentstring, '\s*%s\s*', 1)
-  let comment_multi_line_p = comment_end != ''
-
-  let [lnum1, col1] = getpos("'[")[1:2]
-  let [lnum2, col2] = getpos("']")[1:2]
-
-  let lines = range(lnum1, lnum2)
-  if a:motion_wiseness ==# "line"
-    call map(lines, '[v:val, 1]')
-  elseif a:motion_wiseness ==# 'block'
-    call map(lines, '[v:val, col1]')
-  else  " char
-    call map(lines, '[v:val, 1]')
-    let lines[0] = [lnum1, col1]
-  endif
-
-  if comment_multi_line_p
-    call cursor(lines[-1][0], col2)
-    if a:motion_wiseness ==# 'line'
-      normal! $
-    endif
-    let @" = (col('$') > 1 ? ' ' : '') . comment_end
-    normal! p`[
-    call cursor(lines[0])
-    let @" = comment_begin . (col('$') > 1 ? ' ' : '')
-    normal! P`[
-  else
-    for [lnum, col] in lines
-      call cursor(lnum, col)
-      let @" = comment_begin . (col('$') > 1 ? ' ' : '')
-      normal! P`[
-    endfor
-  endif
-
-  call setreg('"', reg_u[0], reg_u[1])
-endfunction
-
-
-
-
-
-function! s:operator_open_uri(motion_wiseness)  "{{{2
-  let mode = operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  for line in s:get_region("'[", "']", mode)
-    for uri in s:uri_extract(line, 'https\?')
-      call s:uri_open(uri)
-    endfor
-  endfor
-endfunction
-
-
-
-
 function! s:operator_sort(motion_wiseness)  "{{{2
   if a:motion_wiseness == 'char'
     let reg_u = [@", getregtype('"')]
-    let mode = operator#user#visual_command_from_wise_name(a:motion_wiseness)
+    let visual_commnad =
+    \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
     let separator = nr2char(getchar())
 
-    let @" = join(sort(split(join(s:get_region("'[", "']", mode)),
+    let @" = join(sort(split(join(s:get_region("'[", "']", visual_commnad)),
     \                        separator)),
     \             separator)
     normal! `[v`]P`[
@@ -948,8 +896,9 @@ endfunction
 
 function! s:operator_translate(motion_wiseness)  "{{{2
   let api = 'http://ajax.googleapis.com/ajax/services/language/translate'
-  let mode = operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  let query = join(s:get_region("'[", "']", mode), "\n")
+  let visual_commnad =
+  \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
+  let query = join(s:get_region("'[", "']", visual_commnad), "\n")
 
   let response = http#get(api, {'v': '1.0', 'q': query, 'langpair': 'en|ja'})
   if response.header[0] ==# 'HTTP/1.1 200 OK'
@@ -958,6 +907,15 @@ function! s:operator_translate(motion_wiseness)  "{{{2
       echo html#decodeEntityReference(json.responseData.translatedText)
     endif
   endif
+endfunction
+
+
+
+
+function! s:operator_yank_clipboard(motion_wiseness)  "{{{2
+  let visual_commnad =
+  \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
+  execute 'normal!' '`['.visual_commnad.'`]"+y'
 endfunction
 
 
@@ -1371,6 +1329,7 @@ autocmd MyAutoCmd CmdwinEnter *
 \ call s:on_CmdwinEnter()
 
 function! s:on_CmdwinEnter()
+  nnoremap <buffer> <Esc><Esc>  <Esc><C-w>q
   inoremap <buffer> <Esc><Esc>  <Esc><C-w>q
   inoremap <buffer> <expr> <C-c>  pumvisible() ? "\<Esc>" : "\<C-c>\<C-c>"
   inoremap <buffer> <expr> <BS>
@@ -1452,6 +1411,8 @@ nnoremap <silent> [Space]os  :<C-u>call <SID>toggle_option('spell')<CR>
 nnoremap <silent> [Space]ow  :<C-u>call <SID>toggle_option('wrap')<CR>
 
 nnoremap <silent> [Space]/  :<C-u>call <SID>toggle_option('hlsearch')<CR>
+
+nnoremap <silent> [Space]c  :<C-u>call <SID>close_temporary_windows()<CR>
 
 nnoremap <silent> [Space]q  :<C-u>Help quickref<CR>
 nnoremap <silent> [Space]m  :<C-u>marks<CR>
@@ -1558,8 +1519,10 @@ onoremap <silent> gv  :<C-u>normal! gv<CR>
 
 " Operators  "{{{2
 
-Arpeggio map oy  "+y
-Arpeggio map oy  "+y
+call operator#user#define('yank-clipboard',
+\                         s:SID_PREFIX() . 'operator_yank_clipboard')
+Arpeggio map oy  <Plug>(operator-yank-clipboard)
+Arpeggio map oy  <Plug>(operator-yank-clipboard)
 
 
 call operator#user#define('sort', s:SID_PREFIX() . 'operator_sort')
@@ -1567,15 +1530,6 @@ nmap [Space]s  <Plug>(operator-sort)
 vmap [Space]s  <Plug>(operator-sort)
 nmap [Space]S  <Plug>(operator-sort)$
 vmap [Space]S  <Plug>(operator-sort)$
-
-
-call operator#user#define('open-uri', s:SID_PREFIX() . 'operator_open_uri')
-Arpeggio nmap og  <Plug>(operator-open-uri)iW
-Arpeggio vmap og  <Plug>(operator-open-uri)
-
-
-call operator#user#define('comment', s:SID_PREFIX() . 'operator_comment')
-Arpeggio map oc  <Plug>(operator-comment)
 
 
 call operator#user#define('translate', s:SID_PREFIX() . 'operator_translate')
@@ -1704,9 +1658,10 @@ function! s:search_forward_p()
 endfunction
 
 
-" Echo the name of the syntax item under the cursor.
-nnoremap <silent> gs  :<C-u>echo join(<SID>syntax_name_under_the_cursor(), '/')<CR>
-function! s:syntax_name_under_the_cursor()
+" Show the syntax name under the cursor.
+nnoremap <silent> gs
+\ :<C-u>echo join(<SID>syntax_name_the_cursor(), '/')<CR>
+function! s:syntax_name_the_cursor()
   return map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
 endfunction
 
@@ -1854,6 +1809,15 @@ autocmd MyAutoCmd FileType lua
 
 
 
+" ocaml  "{{{2
+
+autocmd MyAutoCmd FileType ocaml
+\   call s:set_short_indent()
+\ | setlocal commentstring=(*%s*)
+
+
+
+
 " perl  "{{{2
 
 autocmd MyAutoCmd FileType perl
@@ -1868,6 +1832,14 @@ autocmd MyAutoCmd FileType python
 \ call s:set_short_indent()
 
 let g:python_highlight_all = 1
+
+
+
+
+" quickfix  "{{{2
+
+autocmd MyAutoCmd FileType qf
+\ setlocal nobuflisted nocursorline
 
 
 
@@ -1953,7 +1925,6 @@ endfunction
 " Plugins  "{{{1
 " altr  "{{{2
 
-" So that now I use altr instead of <C-^>.
 nmap <F1>  <Plug>(altr-back)
 nmap <F2>  <Plug>(altr-forward)
 
@@ -2130,6 +2101,14 @@ let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
 
 
 
+" operator-comment  "{{{2
+
+Arpeggio map oc  <Plug>(operator-comment)
+map _  <Plug>(operator-uncomment)
+
+
+
+
 " operator-replece  "{{{2
 
 Arpeggio map or  <Plug>(operator-replace)
@@ -2179,7 +2158,9 @@ autocmd MyAutoCmd FileType ref
 
 function! s:on_FileType_ref()
   nmap <buffer> <silent> <CR>  <Plug>(ref-keyword)
+  vmap <buffer> <silent> <CR>  <Plug>(ref-keyword)
   nmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
+  vmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
   nmap <buffer> <silent> <C-j>  <Plug>(ref-forward)
   nmap <buffer> <silent> <C-k>  <Plug>(ref-back)
   nnoremap <buffer> q  <C-w>c
@@ -2197,6 +2178,7 @@ let g:ref_no_default_key_mappings = 1
 let g:ref_open = 'Split'
 let g:ref_perldoc_complete_head = 1
 let g:ref_wikipedia_lang = 'ja'
+
 
 
 
