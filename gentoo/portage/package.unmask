@@ -1,4 +1,3 @@
-=dev-haskell/reactive-banana-9999
 =dev-lang/ghc-7.2*
 =sys-apps/portage-2.2*
 =sys-devel/gcc-4.6*
