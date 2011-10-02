@@ -38,7 +38,7 @@ endfunction
 
 function! ku#register#on_source_enter(source_name_ext)  "{{{2
   let _ = []
-  let registers = '"*+.0123456789abcdefghijklmnopqrstuvwxyz'
+  let registers = '"*+0123456789abcdefghijklmnopqrstuvwxyz'
   for reg in split(registers, '.\zs')
     let type = s:getregtype(reg)
     if type != ''
