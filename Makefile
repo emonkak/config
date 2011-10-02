@@ -67,11 +67,13 @@ GROUP_VIM_FILES=\
   .vim/autoload/ku/register.vim \
   .vim/autoload/metarw/http.vim \
   .vim/autoload/metarw/sudo.vim \
+  .vim/autoload/operator/comment.vim \
   .vim/autoload/ref/hayoo.vim \
   .vim/colors/basic256.vim \
   .vim/compiler/ghc.vim \
   .vim/compiler/javac.vim \
   .vim/compiler/tex.vim \
+  .vim/plugin/operator/comment.vim \
   .vim/syntax/dmesg.vim \
   .vim/syntax/int-ghci.vim \
   .vim/syntax/int-gosh.vim \
