@@ -19,6 +19,4 @@ BG='#222222'
 FONT='-artwiz-glisp-medium-r-normal--*-*-*-*-*-*-*-*'
 conky | dzen2 -x 1320 -y 0 -w 600 -h 14 -ta r -fg "$FG" -bg "$BG" -fn "$FONT" -dock -e '' &
 
-trayer --edge bottom --align right --widthtype request --heighttype pixel --SetDockType true --SetPartialStrut true --transparent true --height 18 --tint 0x000000 &
-
 exec dbus-launch --exit-with-session xmonad

@@ -54,6 +54,8 @@ end
 
 function conky_dzen_cpu_graph(width)
   local usage = tonumber(conky_parse('${cpu}')) or 0
+  local temp1 = tonumber(conky_parse('${hwmon 0/device temp 2}')) or 0
+  local temp2 = tonumber(conky_parse('${hwmon 0/device temp 4}')) or 0
   local icon = color(icon('xbm8x8/cpu.xbm'), '#7f9f7f', '')
   local graph = hsgraph(usage, {
     width = tonumber(width),
@@ -63,7 +65,8 @@ function conky_dzen_cpu_graph(width)
     fg = '#7f9f7f',
     bg = '#666666',
   })
-  return string.format('%s %3d%% %s', icon, usage, graph)
+  return string.format('%s %3d%% %s %2d/%2dC',
+                       icon, usage, graph, temp1, temp2)
 end
 
 function conky_dzen_mem_graph(width)
