@@ -47,7 +47,7 @@ function! operator#comment#comment(motion_wiseness)  "{{{2
       normal! $
     endif
     let @" = (col('$') > 1 ? ' ' : '') . comment[1]
-    normal! p`[
+    normal! p
     call cursor(lines[0])
     let @" = comment[0] . (col('$') > 1 ? ' ' : '')
     normal! P`[
@@ -79,9 +79,10 @@ function! operator#comment#uncomment(motion_wiseness)  "{{{2
       let begin_pos = searchpos('\V' . comment[0], 'Wc', lnum2)
       if begin_pos == [0, 0]
         break
-      endif
-      if !s:comment_the_cursor_p()
-        call search('.')
+      elseif !s:comment_the_cursor_p()
+        if search('.', 'W') == 0
+          break
+        endif
         continue
       endif
 
@@ -90,12 +91,12 @@ function! operator#comment#uncomment(motion_wiseness)  "{{{2
         break
       endif
       normal! v
-      let end_pos = searchpos('\V' . comment[1], 'We', lnum2)
+      let end_pos = searchpos('\V' . comment[1], 'We')
       normal! "_d
 
       call cursor(begin_pos)
       normal! v
-      call search('\V' . comment[0] . '\s\?', 'We', line('.'))
+      call search('\V' . comment[0] . '\+\s\?', 'We')
       normal! "_d
       call cursor(end_pos)
     endwhile
@@ -103,13 +104,15 @@ function! operator#comment#uncomment(motion_wiseness)  "{{{2
     while line('.') <= lnum2 || col('.') <= col2
       if search('\V' . comment[0], 'Wc', lnum2) == 0
         break
-      endif
-      if !s:comment_the_cursor_p()
-        call search('.')
+      elseif !s:comment_the_cursor_p()
+        if search('.', 'W') == 0
+          break
+        endif
         continue
       endif
+
       normal! v
-      call search('\V' . comment[0] . '\+\s\?', 'We', line('.'))
+      call search('\V' . comment[0] . '\+\s\?', 'We')
       normal! "_d$
     endwhile
   endif
