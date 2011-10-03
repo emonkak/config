@@ -91,12 +91,12 @@ function! operator#comment#uncomment(motion_wiseness)  "{{{2
         break
       endif
       normal! v
-      let end_pos = searchpos('\V' . comment[1], 'We')
+      let end_pos = searchpos('\V' . comment[1], 'We', lnum2)
       normal! "_d
 
       call cursor(begin_pos)
       normal! v
-      call search('\V' . comment[0] . '\+\s\?', 'We')
+      call search('\V' . comment[0] . '\+\s\?', 'We', line('.'))
       normal! "_d
       call cursor(end_pos)
     endwhile
@@ -112,7 +112,7 @@ function! operator#comment#uncomment(motion_wiseness)  "{{{2
       endif
 
       normal! v
-      call search('\V' . comment[0] . '\+\s\?', 'We')
+      call search('\V' . comment[0] . '\+\s\?', 'We', line('.'))
       normal! "_d$
     endwhile
   endif
