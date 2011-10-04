@@ -73,6 +73,8 @@ GROUP_VIM_FILES=\
   .vim/compiler/ghc.vim \
   .vim/compiler/javac.vim \
   .vim/compiler/tex.vim \
+  .vim/dict/java.dict \
+  .vim/dict/javascript.dict \
   .vim/plugin/operator/comment.vim \
   .vim/syntax/dmesg.vim \
   .vim/syntax/int-ghci.vim \
