@@ -67,7 +67,6 @@ GROUP_VIM_FILES=\
   .vim/autoload/ku/register.vim \
   .vim/autoload/metarw/http.vim \
   .vim/autoload/metarw/sudo.vim \
-  .vim/autoload/operator/comment.vim \
   .vim/autoload/ref/hayoo.vim \
   .vim/colors/basic256.vim \
   .vim/compiler/ghc.vim \
@@ -75,7 +74,6 @@ GROUP_VIM_FILES=\
   .vim/compiler/tex.vim \
   .vim/dict/java.dict \
   .vim/dict/javascript.dict \
-  .vim/plugin/operator/comment.vim \
   .vim/syntax/dmesg.vim \
   .vim/syntax/int-ghci.vim \
   .vim/syntax/int-gosh.vim \
