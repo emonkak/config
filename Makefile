@@ -26,11 +26,9 @@ GROUP_DOTS_FILES=\
   .fonts.conf \
   .ghci \
   .mfiler3/mfiler3.sa \
-  .screenrc \
   .tmux.conf \
   .vimrc \
   .xinitrc \
-  .xmobarrc \
   .xmonad/xmonad.hs \
   .zprofile \
   .zshrc
