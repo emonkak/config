@@ -21,7 +21,6 @@ ALL_GROUPS=\
 GROUP_DOTS_FILES=\
   .Xmodmap \
   .Xresources \
-  .conky.lua \
   .conkyrc \
   .fonts.conf \
   .ghci \

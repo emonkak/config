@@ -5,7 +5,19 @@ total_run_times 0
 update_interval 1.0
 use_spacer none
 
-lua_load $HOME/.conky.lua
+template0 ^fg(\1)^i($HOME/.dzen/xbm8x8/\2)^fg()
+template1 ^fg(\\\\#818181)${alignr}^fg()
 
 TEXT
-${lua_parse dzen_cpu_graph 50} ${lua_parse dzen_mem_graph 50} ^fg(\#666666)|^fg() ${lua_parse dzen_net_monitor eth0} ^fg(\#666666)|^fg() ${lua_parse dzen_mixer} ^fg(\#666666)|^fg() ${time %Y-%m-%d %a %H:%M }
+${template0 \\#dd429a note.xbm} ${if_mpd_playing}${mpd_smart 100}${else}No Playing${endif} \
+${template1} \
+${template0 \\#ffdc4c cpu.xbm} ${cpu}% \
+${template0 \\#9fee00 mem.xbm} ${memperc}% \
+${template0 \\#37bbbb fs_01.xbm} ${fs_used_perc /home}% \
+${template0 \\#ff614c net_up_01.xbm} ${upspeedf eth0}K \
+${template0 \\#4581c4 net_down_01.xbm} ${downspeedf eth0}K \
+${template1} \
+${template0 \\#ffd24c clock.xbm} ${time %m/%d %a %H:%M} \
+${if_mixer_mute}\
+${template0 \\#9fee00 spkr_02.xbm}${else}\
+${template0 \\#9fee00 spkr_01.xbm}${endif} ${mixer}%
