@@ -1,29 +1,26 @@
 @import url("user.css");
 
-#cnt {
-  max-width: none !important;
-}
-
-#center_col > #tads,
-#center_col ~ #rhs {
-  display: none !important;
-}
-#leftnav {
+.lhshdr {
   right: 0px !important;
 }
 
-#center_col {
-  border-left: none !important;
-  border-right: 1px solid #d3e1f9 !important;
-  margin-left: 0px !important;
-  margin-right: 155px !important;
+#leftnav {
+  width: 160px !important;
+  right: 0px !important;
+  padding-right: 0px !important;
 }
 
-#center_col > #tads,
-#center_col ~ #rhs,
+#center_col, #foot {
+  margin-left: 0px !important;
+  margin-right: 160px !important;
+}
+
+#rhscol,
+#tads,
+#bottomads,
 #vspb,
+.hd,
 .vspi,
-.vspib,
-.ws {
+.vspib {
   display: none !important;
 }
