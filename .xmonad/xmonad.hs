@@ -17,7 +17,6 @@ import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Reflect
 import XMonad.Layout.ResizableTile
-import XMonad.Layout.Tabbed
 import XMonad.Layout.ToggleLayouts
 import XMonad.Layout.TrackFloating
 import XMonad.Prompt
@@ -40,24 +39,52 @@ import qualified Data.Map as M
 
 
 
+-- Config  --{{{1
+
+myFont = "-mplus-fxd-medium-r-normal--10-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--10-*-*-*-*-*-*-*"
+
+myBorderWidth = 2
+myStatusbarHeight = 12
+
+myNormalBorderColor = "#474747"
+myNormalFGColor = "#e2e2e2"
+myNormalBGColor = "#171717"
+myFocusedBorderColor = "#4580c3"
+myFocusedBGColor = "#4580c3"
+myFocusedFGColor = "#171717"
+
+myStatusbar = printf "dzen2 -x 0 -y 0 -w 960 -h %d -ta l -fg '%s' -bg '%s' -fn '%s' -dock -e 'onstart=lower'"
+                     myStatusbarHeight myNormalFGColor myNormalBGColor myFont
+
+myXPConfig = defaultXPConfig
+  { font              = myFont
+  , fgColor           = myNormalFGColor
+  , bgColor           = myNormalBGColor
+  , fgHLight          = myFocusedBGColor
+  , bgHLight          = myNormalBGColor
+  , borderColor       = myNormalBorderColor
+  , promptBorderWidth = 0
+  , position          = Top
+  , height            = myStatusbarHeight
+  , historyFilter     = deleteAllDuplicates
+  }
+
+
+
+
 -- Lauout  --{{{1
 
 myLayoutHook = avoidStruts $ smartBorders $
-  onWorkspace "gimp" (toggleLayouts Full $ gimpIM tabbedLayout) $
   toggleLayouts Full $ imLayout $ tallLayout ||| wideLayout
   where
     basicLayout = ResizableTall 1 (2/100) (1/2) []
     tallLayout = named "Tall" $ basicLayout
     wideLayout = named "Wide" $ Mirror basicLayout
-    tabbedLayout = named "Tabbed" $ tabbed shrinkText myTheme
     imLayout = reflectHoriz . withIM 0.15 imWindows
              . reflectHoriz . trackFloating
     imWindows = foldr1 Or [ ClassName "Pidgin" `And` Role "buddy_list"
                           , ClassName "Skype" `And` Role "MainWindow"
                           ]
-    gimpIM = named "Gimp" . withIM 0.15 (Role "gimp-toolbox")
-           . reflectHoriz . withIM 0.20 (Role "gimp-dock")
-           . reflectHoriz . trackFloating
 
 
 
@@ -76,21 +103,20 @@ myManageHook = composeOne
   , className =? "XFontSel"                -?> doCenterFloat
   , className =? "Xmessage"                -?> doCenterFloat
   , className =? "feh"                     -?> doCenterFloat
-  , className =? "GQview"                  -?> doShiftAndGo "misc"
-  , className =? "Inkscape"                -?> doShiftAndGo "misc"
-  , className =? "fontforge"               -?> doShiftAndGo "misc" <+> doFloat
-  , className =? "libreoffice-startcenter" -?> doShiftAndGo "misc"
-  , className =? "Gimp"
+  , className =? "Geeqie"                  -?> doShiftEmptyAndGo
+  , className =? "Inkscape"                -?> doShiftEmptyAndGo
+  , className =? "fontforge"               -?> doShiftEmptyAndGo <+> doFloat
+  , className =? "libreoffice-startcenter" -?> doShiftEmptyAndGo
+  , className =? "Gimp-2.7"
     <&&> role /=? "gimp-toolbox"
     <&&> role /=? "gimp-dock"
-    <&&> role /=? "gimp-image-window"      -?> doShiftAndGo "gimp" <+> doFloat
-  , className =? "Gimp"                    -?> doShiftAndGo "gimp"
+    <&&> role /=? "gimp-image-window"      -?> doShiftEmptyAndGo <+> doFloat
+  , className =? "Gimp-2.7"                 -?> doShiftEmptyAndGo
   , className =? "Skype"
     <&&> fmap (isInfixOf "(Beta)") title   -?> addProperty "WM_WINDOW_ROLE" "MainWindow"
   ]
   where
     role = stringProperty "WM_WINDOW_ROLE"
-    doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
     addProperty prop value = do
       d <- liftX $ asks display
       w <- ask
@@ -98,6 +124,10 @@ myManageHook = composeOne
       t <- io $ internAtom d "STRING" False
       io $ changeProperty8 d w a t propModeReplace $ map (fromIntegral . fromEnum) value
       idHook
+    doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
+    doShiftEmptyAndGo = do
+      ws <- liftX $ findWorkspace getSortByIndex Next EmptyWS 1
+      doShiftAndGo ws
 
 
 
@@ -106,59 +136,30 @@ myManageHook = composeOne
 
 myLogHook h = do
   home  <- io getHomeDirectory
-  float <- withWindowSet isFloat
-  let dzenIcon     = wrap ("^i(" ++ home ++ "/.dzen/") ")"
+  floated <- withWindowSet isFloat
+  let dzenIcon     = wrap ("^i(" ++ home ++ "/.dzen/xmonad/") ")"
       layoutIcon x = case last $ words x of
         "Tall" -> dzenIcon "layout-tall-black.xbm"
         "Wide" -> dzenIcon "layout-mirror-black.xbm"
         "Full" -> dzenIcon "layout-full-black.xbm"
         _      -> x
   dynamicLogWithPP $ defaultPP
-    { ppCurrent         = dzenColor "#222222" "#63afaf" . wrap (dzenIcon "square.xbm") " "
-    , ppHidden          = dzenColor "#dcdccc" "" . wrap (dzenIcon "square3.xbm") " "
+    { ppCurrent         = dzenColor myFocusedFGColor myFocusedBGColor
+                        . wrap (dzenIcon "square.xbm") " "
+    , ppHidden          = wrap (dzenIcon "square3.xbm") " "
     , ppHiddenNoWindows = wrap "^p(8)" " "
-    , ppUrgent          = dzenColor "#222222" "#cc9393" . wrap (dzenIcon "square3.xbm") " "
-    , ppSep             = dzenColor "#666666" "" " | "
+    , ppUrgent          = dzenColor myNormalBGColor myNormalFGColor
+                        . wrap (dzenIcon "square3.xbm") " "
+    , ppSep             = dzenColor myNormalBorderColor "" " \x01 "
     , ppWsSep           = ""
-    , ppTitle           = if float then (dzenIcon "square.xbm" ++) . dzenEscape else dzenEscape
-    , ppLayout          = dzenColor "#63afaf" "" . layoutIcon
+    , ppTitle           = if floated then (dzenIcon "square.xbm" ++) . dzenEscape else dzenEscape
+    , ppLayout          = dzenColor myFocusedBGColor "" . layoutIcon
     , ppOutput          = hPutStrLn h
     }
   where
     isFloat ws = return $ case W.peek ws of
       Nothing -> False
       Just w  -> M.member w $ W.floating ws
-
-
-
-
--- Theme  --{{{1
-
-myFont = "-artwiz-glisp-medium-r-normal--*-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--10-*-*-*-*-*-*-*"
-
-myTheme = defaultTheme
-  { fontName            = myFont
-  , activeColor         = "#63afaf"
-  , activeBorderColor   = "#63afaf"
-  , activeTextColor     = "#222222"
-  , inactiveColor       = "#666666"
-  , inactiveBorderColor = "#666666"
-  , inactiveTextColor   = "#dcdccc"
-  , decoHeight          = 14
-  }
-
-myXPConfig = defaultXPConfig
-  { font              = myFont
-  , fgColor           = "#dcdccc"
-  , bgColor           = "#222222"
-  , fgHLight          = "#63afaf"
-  , bgHLight          = "#222222"
-  , borderColor       = "#000000"
-  , promptBorderWidth = 0
-  , position          = Top
-  , height            = 14
-  , historyFilter     = deleteAllDuplicates
-  }
 
 
 
@@ -211,8 +212,9 @@ myKeys conf = mkKeymap conf $
   , ("M-[",          safeSpawn "ncmpcpp" ["prev"])
   , ("M-]",          safeSpawn "ncmpcpp" ["next"])
 
-  , ("M-<Esc> s",    spawn "sleep 1; xset dpms force off")
-  , ("M-<Esc> y",    do home <- io getHomeDirectory
+  , ("M-<Esc>",      safeSpawnProg "keytray")
+  , ("M-C-l",        spawn "sleep 1; xset dpms force off")
+  , ("M-C-y",        do home <- io getHomeDirectory
                         safeSpawn "scrot"
                                   ["-e", printf "mv $f %s/Desktop" home, "%Y-%m-%d_%H-%M-%S.png"])
   ]
@@ -224,7 +226,7 @@ myKeys conf = mkKeymap conf $
               , ("g", "gimp")
               , ("j", "jd")
               , ("o", "opera-next")
-              , ("v", "gqview")
+              , ("v", "geeqie")
               ]
   , m <- [ "", "M-"]
   ]
@@ -256,17 +258,14 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList
 
 -- Main  --{{{1
 
-myStatusbar = "dzen2 -x 0 -y 0 -w 1920 -h 14 -ta l -fg '#dcdccc' -bg '#222222'"
-              ++ " -fn '" ++ myFont ++ "' -dock -e 'onstart=lower'"
-
 main = do
   statusPipe <- spawnPipe myStatusbar
   xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-    { borderWidth        = 2
-    , workspaces         = ["main", "another", "misc", "gimp"]
+    { borderWidth        = myBorderWidth
+    , workspaces         = map show [1..9]
     , terminal           = "urxvt"
-    , normalBorderColor  = "#666666"
-    , focusedBorderColor = "#63afaf"
+    , normalBorderColor  = myNormalBorderColor
+    , focusedBorderColor = myFocusedBorderColor
 
     , modMask            = mod4Mask
     , keys               = myKeys
