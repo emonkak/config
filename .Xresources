@@ -1,48 +1,52 @@
 ! My Xresources
 
 ! CURSOR
+
 Xcursor.theme: Vanilla-DMZ
 Xcursor.size: 24
 
 
 ! RXVT
-Rxvt.font: \
-  xft:Consolas:size=10.5, \
-  xft:AXIS Std:pixelsize=14, \
-  xft:Droid Sans Fallback:pixelsize=14
-Rxvt.boldfont: \
-  xft:Consolas:size=10.5:bold, \
-  xft:AXIS Std:pixelsize=14:bold, \
-  xft:Droid Sans Fallback:pixelsize=14:bold
-Rxvt.imFont: \
-  -sony-fixed-medium-r-normal--16-*-*-*-*-*-iso8859-1, \
-  -sony-fixed-medium-r-normal--16-*-*-*-*-*-jisx0201.1976-0, \
-  -jis-fixed-medium-r-normal--16-*-*-*-*-*-jisx0208.1983-0
 
-Rxvt.inheritPixmap: true
-Rxvt.fading: 80
-Rxvt.shading: 20
-
-Rxvt.foreground: rgb:cc/cc/cc
-Rxvt.background: rgb:00/00/00
-Rxvt.cursorColor: rgb:00/99/00
-
-Rxvt.color0: rgb:00/00/00
-Rxvt.color1: rgb:99/00/00
-Rxvt.color2: rgb:00/99/00
-Rxvt.color3: rgb:99/99/00
-Rxvt.color4: rgb:00/00/99
-Rxvt.color5: rgb:99/00/99
-Rxvt.color6: rgb:00/99/99
-Rxvt.color7: rgb:99/99/99
-Rxvt.color8: rgb:55/55/55
-Rxvt.color9: rgb:cc/00/00
-Rxvt.color10: rgb:00/cc/00
-Rxvt.color11: rgb:cc/cc/00
-Rxvt.color12: rgb:33/66/ff
-Rxvt.color13: rgb:cc/00/cc
-Rxvt.color14: rgb:00/cc/cc
+Rxvt.background: rgb:17/17/17
+Rxvt.foreground: rgb:e2/e2/e2
+! Black
+Rxvt.color0: rgb:29/29/29
+Rxvt.color8: rgb:47/47/47
+! Red
+Rxvt.color1: rgb:c4/17/00
+Rxvt.color9: rgb:ff/61/4c
+! Green
+Rxvt.color2: rgb:67/9b/00
+Rxvt.color10: rgb:b9/f7/3e
+! Yellow
+Rxvt.color3: rgb:c4/93/00
+Rxvt.color11: rgb:ff/d2/4c
+! Blue
+Rxvt.color4: rgb:07/40/80
+Rxvt.color12: rgb:45/81/c4
+! Magenta
+Rxvt.color5: rgb:9d/00/59
+Rxvt.color13: rgb:dd/42/9a
+! Cyan
+Rxvt.color6: rgb:00/76/76
+Rxvt.color14: rgb:37/bb/bb
+! White
+Rxvt.color7: rgb:81/81/81
 Rxvt.color15: rgb:ff/ff/ff
+
+Rxvt.font: \
+  -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \
+  -mplus-gothic-medium-r-normal--12-120-75-75-c-60-jisx0201.1976-0, \
+  -mplus-gothic-medium-r-normal--12-120-75-75-c-120-jisx0208.1990-0
+Rxvt.boldfont: \
+  -envy-code_b-bold-r-normal--14-130-75-75-c-70-iso8859-1, \
+  -mplus-gothic-medium-r-normal--12-120-75-75-c-60-jisx0201.1976-0, \
+  -mplus-gothic-medium-r-bold--12-120-75-75-c-120-jisx0208.1990-0
+Rxvt.imFont: \
+  -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \
+  -mplus-gothic-medium-r-normal--12-120-75-75-c-60-jisx0201.1976-0, \
+  -mplus-gothic-medium-r-normal--12-120-75-75-c-120-jisx0208.1990-0
 
 Rxvt.matcher.button: 1
 Rxvt.perl-ext-common: default,matcher
@@ -50,7 +54,7 @@ Rxvt.urlLauncher: google-chrome
 
 Rxvt.externalBorder: 0
 Rxvt.internalBorder: 2
-Rxvt.lineSpace: 3
+Rxvt.lineSpace: 4
 Rxvt.saveLines: 1000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true
