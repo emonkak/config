@@ -1,17 +1,18 @@
-app-admin/conky mpd lua
+app-admin/conky mpd lua vim-syntax
 app-arch/unzip natspec
 app-editors/gvim gtk
+app-editors/vim gtk python
 app-editors/yi gtk
 app-emulation/qemu-kvm alsa qemu-ifup sdl
 app-emulation/wine alsa dbus fontconfig hardened jpeg mp3 png xml
 app-i18n/ibus gtk python
 app-i18n/ibus-mozc -ibus uim qt4
 app-i18n/uim -anthy gtk gtk3 libnotify linguas_ja skk xft
-app-misc/mfiler3 boehm-gc migemo
+app-misc/mfiler3 migemo
 app-office/libreoffice-bin linguas_ja
 app-office/libreoffice-l10n linguas_ja
 app-portage/eix sqlite
-app-shells/saphire boehm-gc migemo
+app-shells/saphire migemo
 app-text/acroread minimal linguas_ja
 app-text/ghostscript-gpl gtk
 app-text/lcdf-typetools kpathsea
@@ -38,9 +39,11 @@ media-libs/mesa gles
 media-libs/speex ogg
 media-plugins/gst-plugins-meta alsa
 media-sound/ario dbus taglib
+media-sound/pulseaudio system-wide
 media-sound/easytag flac mp3 mp4 speex vorbis wavpack
 media-sound/mpd lame ogg vorbis
 media-sound/ncmpcpp clock taglib
+media-sound/pulseaudio gnome
 media-sound/sonata dbus lyrics taglib trayicon
 media-tv/xawtv xv
 media-video/ffmpeg alsa faac mp3 rtmp theora v4l2 vaapi vorbis x264 xvid
@@ -61,11 +64,12 @@ net-proxy/tinyproxy minimal
 sys-apps/groff linguas_ja
 sys-apps/smartmontools minimal
 sys-block/gparted fat ntfs
-sys-devel/gcc go -fortran
+sys-devel/gcc go
 sys-fs/udev extras
 sys-kernel/ck-sources symlink
 sys-kernel/gentoo-sources symlink
 sys-kernel/vanilla-sources symlink
+sys-libs/zlib minizip
 virtual/ffmpeg x264 vaapi mp3 theora
 www-client/google-chrome linguas_ja
 www-client/jd migemo

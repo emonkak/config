@@ -16,5 +16,5 @@
 /dev/sdb2   /mnt/windows  ntfs-3g  noatime,uid=1000,gid=users,fmask=0113,dmask=0022,windows_names 0 0
 /dev/sdb3   /home         ext4     noatime 0 0
 /dev/cdrom  /mnt/cdrom    auto     noauto,user 0 0
-tmpfs       /var/tmp      tmpfs    noatime,size=2560m 0 0
-tmpfs       /tmp          tmpfs    noatime,size=512m 0 0
+tmpfs       /var/tmp      tmpfs    noatime,size=6g 0 0
+tmpfs       /tmp          tmpfs    noatime,size=1g 0 0
