@@ -144,6 +144,7 @@ endif
 
 let &statusline = ''
 let &statusline .= '%<%f %h%m%r%w'
+let &statusline .= '   %{eskk#statusline("[%s]")}'
 let &statusline .= '%='
 let &statusline .= '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
 let &statusline .= '%{&l:fileformat[0] == &fileformats[0] ? "" : "," . &l:fileformat}]'
@@ -333,21 +334,6 @@ endfunction
 
 
 
-" Shadowize - shadowize current buffer  "{{{2
-
-command! -complete=filetype -nargs=1 Shadowize  call s:cmd_Shadowize(<q-args>)
-function! s:cmd_Shadowize(filetype)
-  execute 'SetFileType' a:filetype
-  let shadow = expand('%') . '.shd'
-  if !filereadable(shadow)
-    call writefile(getline(1, '$'), shadow)
-  endif
-  edit!
-endfunction
-
-
-
-
 " Source - wrapper of :source with echo  "{{{2
 
 command! -bar -complete=file -nargs=1 Source
@@ -498,7 +484,7 @@ AlterCommand lmak[e]  Lmake
 " :setlocal wrappers  "{{{2
 
 command! -nargs=? -complete=filetype SetFileType
-\ setlocal filetype=<args> | silent SkeletonLoad <args>
+\ setlocal filetype=<args> | silent! SkeletonLoad <args>
 command! -nargs=? -complete=customlist,s:complete_fileencoding SetFileEncoding
 \ setlocal fileencoding=<args>
 command! -nargs=? -complete=customlist,s:complete_fileformats SetFileFormat
@@ -589,21 +575,6 @@ function! s:complete_fileencoding(arglead, cmdline, cursorpos)
 endfunction
 function! s:complete_fileformats(arglead, cmdline, cursorpos)
   return sort(filter(split(&fileformats, ','), 's:prefix_of_p(a:arglead, v:val)'))
-endfunction
-
-
-
-
-" Human readable dmesg   --{{{2
-
-command! -nargs=0 Dmesg  call s:cmd_Dmesg()
-function! s:cmd_Dmesg()
-  Split [Dmesg]
-  setlocal filetype=dmesg buftype=nofile bufhidden=delete nobuflisted
-  let uptime = localtime() - split(readfile('/proc/uptime')[0])[0]
-  silent read !dmesg
-  silent 0 delete
-  silent %s/^\[\zs\s*[0-9.]\+/\=strftime('%Y-%m-%d %T', uptime + submatch(0))/
 endfunction
 
 
@@ -928,8 +899,9 @@ endfunction
 
 
 
-function! s:set_short_indent()  "{{{2
-  setlocal expandtab softtabstop=2 shiftwidth=2
+function! s:set_short_indent(...)  "{{{2
+  let _ = a:0 ? a:1 : 2
+  let [&l:expandtab, &l:softtabstop, &l:shiftwidth] = [1, _, _]
 endfunction
 
 
@@ -1548,7 +1520,7 @@ endif
 
 nnoremap <C-h>  :<C-u>Help<Space>
 nnoremap <C-o>  :<C-u>edit<Space>
-nnoremap <C-w>. :<C-u>edit .<CR>
+nnoremap <C-w>.  :<C-u>edit .<CR>
 
 
 " Expand with 'l' if the cursor on the holded text.
@@ -1748,7 +1720,7 @@ let g:changelog_username  = 'emonkak <emonkak@gmail.com>'
 
 " css  "{{{2
 
-autocmd MyAutoCmd FileType css
+autocmd MyAutoCmd FileType css,sass
 \ call s:set_short_indent()
 
 
@@ -1796,6 +1768,9 @@ autocmd MyAutoCmd FileType java
 " javascript  "{{{2
 
 autocmd MyAutoCmd FileType javascript
+\ call s:set_short_indent(4)
+
+autocmd MyAutoCmd FileType coffee
 \ call s:set_short_indent()
 
 
@@ -1829,7 +1804,7 @@ autocmd MyAutoCmd FileType perl
 " python  "{{{2
 
 autocmd MyAutoCmd FileType python
-\ call s:set_short_indent()
+\ call s:set_short_indent(4)
 
 let g:python_highlight_all = 1
 
@@ -1846,7 +1821,7 @@ autocmd MyAutoCmd FileType qf
 
 " ruby  "{{{2
 
-autocmd MyAutoCmd FileType ruby
+autocmd MyAutoCmd FileType ruby,yaml
 \ call s:set_short_indent()
 
 
@@ -1909,6 +1884,9 @@ let g:vim_indent_cont = 0
 autocmd MyAutoCmd FileType docbk,html,xhtml,xml,xslt
 \ call s:on_FileType_xml()
 
+autocmd MyAutoCmd FileType haml
+\ call s:on_FileType_xml()
+
 function! s:on_FileType_xml()
   call s:set_short_indent()
 
@@ -1931,17 +1909,53 @@ nmap <F2>  <Plug>(altr-forward)
 
 
 
+" eskk  "{{{2
+
+autocmd MyAutoCmd User eskk-initialize-pre
+\ call s:on_User_eskk_initial_pre()
+
+function! s:on_User_eskk_initial_pre()
+  for mode in ['hira', 'kata']
+    let table_name = 'rom_to_' . mode
+    let table = eskk#table#new(table_name . '*', table_name)
+    call table.add_map('~', "\uff5e")
+    call table.add_map('(', "\uff08")
+    call table.add_map(')', "\uff09")
+    call eskk#register_mode_table(mode, table)
+  endfor
+endfunction
+
+let g:eskk#dictionary = {
+\  'path': expand('~/.skk-eskk-jisyo'),
+\  'sorted': 0,
+\  'encoding': 'utf-8',
+\ }
+let g:eskk#large_dictionary = {
+\  'path': expand('~/.skk/SKK-JISYO.L'),
+\  'sorted': 1,
+\  'encoding': 'euc-jp',
+\ }
+
+let g:eskk#directory = expand('~/.vim/info/eskk')
+let g:eskk#egg_like_newline = 1
+let g:eskk#enable_completion = 1
+let g:eskk#statusline_mode_strings = {
+\  'hira': "\u3042",
+\  'kata': "\u30a2",
+\  'ascii': 'A',
+\  'zenei': "\u82f1",
+\  'hankata': "\uff76\uff85",
+\  'abbrev': '/',
+\ }
+let g:eskk#use_color_cursor = 0
+
+
+
+
 " exjumplist  "{{{2
 
 nmap <Esc><C-j>  <Plug>(exjumplist-next-buffer)
 nmap <Esc><C-k>  <Plug>(exjumplist-previous-buffer)
-
-
-
-
-" gist  "{{{2
-
-let g:gist_open_browser_after_post = 1
 
 
 
@@ -2000,9 +2014,9 @@ call ku#custom_action('metarw/git', 'checkout',
 
 function! s:ku_common_action_my_cd(item)
   if isdirectory(a:item.word)
-    execute 'CD' a:item.word
+    CD `=a:item.word`
   else  " treat a:item as a file name
-    execute 'CD' fnamemodify(a:item.word, ':h')
+    CD `=fnamemodify(a:item.word, ':h')`
   endif
 endfunction
 
@@ -2090,6 +2104,8 @@ let g:neocomplcache_enable_at_startup = 1
 let g:neocomplcache_enable_prefetch = 1
 let g:neocomplcache_enable_smart_case = 1
 
+let g:neocomplcache_clang_library_path = '/usr/lib/llvm'
+let g:neocomplcache_clang_use_library = 1
 let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*\|\[ku\]\|\[quickrun output\]'
 let g:neocomplcache_temporary_dir = expand('~/.vim/info/neocon')
 
@@ -2104,7 +2120,7 @@ let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
 " operator-comment  "{{{2
 
 Arpeggio map oc  <Plug>(operator-comment)
-map _  <Plug>(operator-uncomment)
+Arpeggio map od  <Plug>(operator-uncomment)
 
 
 
@@ -2135,6 +2151,13 @@ let g:quickrun_config = {
 \    'exec': ['echo "<applet code=%s:t:r width=500 height=500></applet>" > %s:p:r.html',
 \             'appletviewer %s:p:r.html'],
 \    'tempfile': '{fnamemodify(tempname(), ":h")}/{expand("%:t")}',
+\  },
+\  'javascript': {
+\    'type': 'javascript/v8',
+\  },
+\  'javascript/v8': {
+\    'command': executable('d8') ? 'd8' : 'v8',
+\    'tempfile': '%{tempname()}.js',
 \  },
 \  'tex': {
 \    'type': executable('platex') ? 'platex' : '',
