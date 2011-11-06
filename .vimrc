@@ -844,6 +844,21 @@ endfunction
 
 
 
+function! s:operator_search(motion_wiseness)  "{{{2
+  let visual_commnad =
+  \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
+  let search_command = v:searchforward ? 'n' : 'N'
+  let region = join(map(s:get_region("'[", "']", visual_commnad),
+  \                     'escape(v:val, "\\/")'),
+  \                 '\n')
+  let @/ = '\V' . region
+  call histadd('/', '\V' . region)
+  execute 'normal!' search_command
+endfunction
+
+
+
+
 function! s:operator_sort(motion_wiseness)  "{{{2
   if a:motion_wiseness == 'char'
     let reg_u = [@", getregtype('"')]
@@ -1553,10 +1568,14 @@ vnoremap )  t)
 
 " Operators  "{{{2
 
-call operator#user#define('yank-clipboard',
-\                         s:SID_PREFIX() . 'operator_yank_clipboard')
-Arpeggio map oy  <Plug>(operator-yank-clipboard)
-Arpeggio map oy  <Plug>(operator-yank-clipboard)
+call operator#user#define('search-forward',
+\                         s:SID_PREFIX() . 'operator_search',
+\                         'let v:searchforward = 1')
+call operator#user#define('search-backward',
+\                         s:SID_PREFIX() . 'operator_search',
+\                         'let v:searchforward = 0')
+vmap *  <Plug>(operator-search-forward)
+vmap #  <Plug>(operator-search-backward)
 
 
 call operator#user#define('sort', s:SID_PREFIX() . 'operator_sort')
@@ -1568,6 +1587,12 @@ vmap [Space]S  <Plug>(operator-sort)$
 
 call operator#user#define('translate', s:SID_PREFIX() . 'operator_translate')
 Arpeggio map ot  <Plug>(operator-translate)
+
+
+call operator#user#define('yank-clipboard',
+\                         s:SID_PREFIX() . 'operator_yank_clipboard')
+Arpeggio map oy  <Plug>(operator-yank-clipboard)
+Arpeggio map oy  <Plug>(operator-yank-clipboard)
 
 
 
@@ -1640,24 +1665,6 @@ function! s:start_insert_mode_with_blank_lines(command)
   else  " a:command ==# 'O'
     return "\<Esc>O" . repeat("\<CR>\<Up>", v:count - 1) . "\<Esc>S"
   endif
-endfunction
-
-
-" Search for the selected text.
-vnoremap <silent> *
-\ :<C-u>call <SID>search_the_selected_text_literaly('n')<CR>
-vnoremap <silent> #
-\ :<C-u>call <SID>search_the_selected_text_literaly('N')<CR>
-function! s:search_the_selected_text_literaly(search_command)
-  let region = join(map(s:get_region("'<", "'>", visualmode()),
-  \                     'escape(v:val, "\\/")'),
-  \                 '\n')
-
-  let @/ = '\V' . region
-  call histadd('/', '\V' . region)
-  execute 'normal!' a:search_command
-
-  let v:searchforward = a:search_command ==# 'n'
 endfunction
 
 
@@ -1747,6 +1754,33 @@ function! s:on_FileType_any()
 
   " Disable auto wrap.
   setlocal formatoptions-=t formatoptions-=c
+
+  " Universal undo for indent scripts.
+  if exists('b:undo_indent')
+    let b:undo_indent .= ' | '
+  else
+    let b:undo_indent = ''
+  endif
+  let b:undo_indent .= 'setlocal
+  \ autoindent<
+  \ cindent<
+  \ cinkeys<
+  \ cinoptions<
+  \ cinwords<
+  \ copyindent<
+  \ expandtab<
+  \ indentexpr<
+  \ indentkeys<
+  \ lisp<
+  \ lispwords<
+  \ preserveindent<
+  \ shiftround<
+  \ shiftwidth<
+  \ smartindent<
+  \ smarttab<
+  \ softtabstop<
+  \ tabstop<
+  \ '
 endfunction
 
 
@@ -2151,11 +2185,13 @@ let g:ku_file_mru_limit = 200
 
 " neocomplcache  "{{{2
 
-imap <C-l>  <Plug>(neocomplcache_snippets_expand)
-smap <C-l>  <Plug>(neocomplcache_snippets_expand)
+if exists('g:loaded_neocomplcache')
+  imap <C-l>  <Plug>(neocomplcache_snippets_expand)
+  smap <C-l>  <Plug>(neocomplcache_snippets_expand)
 
-inoremap <expr> <BS>  neocomplcache#smart_close_popup() . "\<C-h>"
-inoremap <expr> <C-h>  neocomplcache#smart_close_popup() . "\<C-h>"
+  inoremap <expr> <BS>  neocomplcache#smart_close_popup() . "\<C-h>"
+  inoremap <expr> <C-h>  neocomplcache#smart_close_popup() . "\<C-h>"
+endif
 
 
 let g:neocomplcache_disable_auto_complete = 0
@@ -2303,8 +2339,7 @@ function! s:on_User_plugin_skeleton_detect()
   if extensions[-1] ==# 'vim'
   \  && type =~# '^\v(autoload|colors|compiler|ftplugin|indent|plugin|syntax)'
     let after_p = directories[-2] == 'after'
-    execute 'SkeletonLoad'
-    \       (after_p ? 'vim-additional-' : 'vim-') . type
+    execute 'SkeletonLoad' (after_p ? 'vim-additional-' : 'vim-') . type
   elseif extensions[-2:-1] ==# ['user', 'js']
     SkeletonLoad userjs
   endif
