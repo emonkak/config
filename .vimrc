@@ -847,13 +847,20 @@ endfunction
 function! s:operator_sort(motion_wiseness)  "{{{2
   if a:motion_wiseness == 'char'
     let reg_u = [@", getregtype('"')]
+
     let visual_commnad =
     \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-    let separator = nr2char(getchar())
+    let region = join(s:get_region("'[", "']", visual_commnad), "\n")
+    let separater = escape(nr2char(getchar()), '\')
+    let [xs, ys] = s:partition(region, '\V\[\n ]\*' . separater . '\[\n ]\*')
 
-    let @" = join(sort(split(join(s:get_region("'[", "']", visual_commnad)),
-    \                        separator)),
-    \             separator)
+    let sorter = {}
+    function! sorter.compare(x, y) dict
+      return a:x == '' || a:y == '' ? 0 : a:x > a:y ? 1 : -1
+    endfunction
+    call sort(xs, sorter.compare, sorter)
+
+    let @" = join(map(s:transpose([xs, ys]), 'join(v:val, "")'), '')
     normal! `[v`]P`[
 
     call setreg('"', reg_u[0], reg_u[1])
@@ -866,18 +873,24 @@ endfunction
 
 
 function! s:operator_translate(motion_wiseness)  "{{{2
-  let api = 'http://ajax.googleapis.com/ajax/services/language/translate'
   let visual_commnad =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   let query = join(s:get_region("'[", "']", visual_commnad), "\n")
 
-  let response = http#get(api, {'v': '1.0', 'q': query, 'langpair': 'en|ja'})
+  let api = 'http://translate.google.com/translate_a/t'
+  let response = http#get(api, {
+  \   'client': 'o',
+  \   'hl': 'en',
+  \   'sl': 'en',
+  \   'tl': 'ja',
+  \   'text': query
+  \ }, {'User-Agent': 'Mozilla/5.0'})
   if response.header[0] ==# 'HTTP/1.1 200 OK'
-    let json = json#decode(response.content)
-    if json.responseStatus == 200
-      echo html#decodeEntityReference(json.responseData.translatedText)
-    endif
-  endif
+    let result = json#decode(response.content)
+    echo join(map(result.sentences, 'v:val.trans'))
+  else
+    echoerr response.header[0]
+  end
 endfunction
 
 
@@ -887,6 +900,31 @@ function! s:operator_yank_clipboard(motion_wiseness)  "{{{2
   let visual_commnad =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   execute 'normal!' '`['.visual_commnad.'`]"+y'
+endfunction
+
+
+
+
+function! s:partition(expr, pattern)  "{{{2
+  let xs = []
+  let ys = []
+  let p = 0
+  let m = match(a:expr, a:pattern)
+
+  while m > -1
+    call add(xs, strpart(a:expr, p, m - p))
+    let p = m
+    let m = matchend(a:expr, a:pattern, p)
+    call add(ys, strpart(a:expr, p, m - p))
+    let p = m
+    let m = match(a:expr, a:pattern, p)
+  endwhile
+
+  if p < len(a:expr)
+    call add(xs, strpart(a:expr, p))
+  endif
+
+  return [xs, ys]
 endfunction
 
 
@@ -915,6 +953,24 @@ function! s:strpart(src, start, ...)  "{{{2
   else
     return str
   endif
+endfunction
+
+
+
+
+function! s:transpose(xss)  "{{{2
+  let _ = []
+
+  for x in a:xss[0]
+    call add(_, [x])
+  endfor
+  for xs in a:xss[1:]
+    for i in range(min([len(_), len(xs)]))
+      call add(_[i], xs[i])
+    endfor
+  endfor
+
+  return _
 endfunction
 
 
@@ -1487,6 +1543,12 @@ vnoremap ir  i]
 onoremap <silent> gv  :<C-u>normal! gv<CR>
 
 
+onoremap (  t(
+vnoremap (  t(
+onoremap )  t)
+vnoremap )  t)
+
+
 
 
 " Operators  "{{{2
@@ -1767,10 +1829,7 @@ autocmd MyAutoCmd FileType java
 
 " javascript  "{{{2
 
-autocmd MyAutoCmd FileType javascript
-\ call s:set_short_indent(4)
-
-autocmd MyAutoCmd FileType coffee
+autocmd MyAutoCmd FileType coffee,javascript
 \ call s:set_short_indent()
 
 
@@ -1804,7 +1863,7 @@ autocmd MyAutoCmd FileType perl
 " python  "{{{2
 
 autocmd MyAutoCmd FileType python
-\ call s:set_short_indent(4)
+\ call s:set_short_indent()
 
 let g:python_highlight_all = 1
 
