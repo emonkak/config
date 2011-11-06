@@ -36,13 +36,13 @@ Rxvt.color7: rgb:81/81/81
 Rxvt.color15: rgb:ff/ff/ff
 
 Rxvt.font: \
-  -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \
-  -mplus-gothic-medium-r-normal--12-120-75-75-c-60-jisx0201.1976-0, \
-  -mplus-gothic-medium-r-normal--12-120-75-75-c-120-jisx0208.1990-0
-Rxvt.boldfont: \
-  -envy-code_b-bold-r-normal--14-130-75-75-c-70-iso8859-1, \
-  -mplus-gothic-medium-r-normal--12-120-75-75-c-60-jisx0201.1976-0, \
-  -mplus-gothic-medium-r-bold--12-120-75-75-c-120-jisx0208.1990-0
+  xft:Consolas:size=10.5, \
+  xft:AXIS Std:pixelsize=14, \
+  xft:Droid Sans Fallback:pixelsize=14
+!Rxvt.font: \
+!  -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \
+!  -mplus-gothic-medium-r-normal--12-120-75-75-c-60-jisx0201.1976-0, \
+!  -mplus-gothic-medium-r-normal--12-120-75-75-c-120-jisx0208.1990-0
 Rxvt.imFont: \
   -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \
   -mplus-gothic-medium-r-normal--12-120-75-75-c-60-jisx0201.1976-0, \
@@ -54,7 +54,7 @@ Rxvt.urlLauncher: google-chrome
 
 Rxvt.externalBorder: 0
 Rxvt.internalBorder: 2
-Rxvt.lineSpace: 4
+Rxvt.lineSpace: 3
 Rxvt.saveLines: 1000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true
