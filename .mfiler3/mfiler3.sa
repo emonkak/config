@@ -3,7 +3,7 @@
 
 print $(export MF3HOME)/history | export HISTORY_FILE
 print 1000 | export HISTORY_SIZE
-print $(export HOME)/.trash/ | export TRASHBOX_DIR
+print $(export HOME)/.Trash/ | export TRASHBOX_DIR
 
 print 'print "mfiler3 $(export VERSION) with saphire $(export SAPHIRE_VERSION)"' | export PROMPT
 
