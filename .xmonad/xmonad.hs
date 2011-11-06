@@ -41,10 +41,11 @@ import qualified Data.Map as M
 
 -- Config  --{{{1
 
-myFont = "-mplus-fxd-medium-r-normal--10-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--10-*-*-*-*-*-*-*"
+myFont = "-nil-profont-medium-r-normal--11-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--10-*-*-*-*-*-*-*"
 
 myBorderWidth = 2
-myStatusbarHeight = 12
+myStatusbarHeight = 14
+myWorkspaces = ["main", "another", "work", "misc"]
 
 myNormalBorderColor = "#474747"
 myNormalFGColor = "#e2e2e2"
@@ -103,15 +104,15 @@ myManageHook = composeOne
   , className =? "XFontSel"                -?> doCenterFloat
   , className =? "Xmessage"                -?> doCenterFloat
   , className =? "feh"                     -?> doCenterFloat
-  , className =? "Geeqie"                  -?> doShiftEmptyAndGo
-  , className =? "Inkscape"                -?> doShiftEmptyAndGo
-  , className =? "fontforge"               -?> doShiftEmptyAndGo <+> doFloat
-  , className =? "libreoffice-startcenter" -?> doShiftEmptyAndGo
-  , className =? "Gimp-2.7"
+  , className =? "Geeqie"                  -?> doShiftAndGo "work"
+  , className =? "Inkscape"                -?> doShiftAndGo "work"
+  , className =? "fontforge"               -?> doShiftAndGo "work" <+> doFloat
+  , className =? "libreoffice-startcenter" -?> doShiftAndGo "work"
+  , className =? "Gimp"
     <&&> role /=? "gimp-toolbox"
     <&&> role /=? "gimp-dock"
-    <&&> role /=? "gimp-image-window"      -?> doShiftEmptyAndGo <+> doFloat
-  , className =? "Gimp-2.7"                 -?> doShiftEmptyAndGo
+    <&&> role /=? "gimp-image-window"      -?> doShiftAndGo "work" <+> doFloat
+  , className =? "Gimp"                    -?> doShiftAndGo "work"
   , className =? "Skype"
     <&&> fmap (isInfixOf "(Beta)") title   -?> addProperty "WM_WINDOW_ROLE" "MainWindow"
   ]
@@ -125,9 +126,6 @@ myManageHook = composeOne
       io $ changeProperty8 d w a t propModeReplace $ map (fromIntegral . fromEnum) value
       idHook
     doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
-    doShiftEmptyAndGo = do
-      ws <- liftX $ findWorkspace getSortByIndex Next EmptyWS 1
-      doShiftAndGo ws
 
 
 
@@ -150,7 +148,7 @@ myLogHook h = do
     , ppHiddenNoWindows = wrap "^p(8)" " "
     , ppUrgent          = dzenColor myNormalBGColor myNormalFGColor
                         . wrap (dzenIcon "square3.xbm") " "
-    , ppSep             = dzenColor myNormalBorderColor "" " \x01 "
+    , ppSep             = dzenColor myNormalBorderColor "" " ^p(;2)^r(1x8)^p() "
     , ppWsSep           = ""
     , ppTitle           = if floated then (dzenIcon "square.xbm" ++) . dzenEscape else dzenEscape
     , ppLayout          = dzenColor myFocusedBGColor "" . layoutIcon
@@ -262,7 +260,7 @@ main = do
   statusPipe <- spawnPipe myStatusbar
   xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
     { borderWidth        = myBorderWidth
-    , workspaces         = map show [1..9]
+    , workspaces         = myWorkspaces
     , terminal           = "urxvt"
     , normalBorderColor  = myNormalBorderColor
     , focusedBorderColor = myFocusedBorderColor
