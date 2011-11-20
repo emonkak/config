@@ -209,17 +209,17 @@ let s:TRUE = !s:FALSE
 
 
 
-" BufferCleanr - clean unnecessary buffer  "{{{2
+" BufferCleanr - delete unnecessary buffer  "{{{2
 
 command! -bang -nargs=0 BufferCleaner  call s:cmd_BufferCleaner(<bang>0)
 function! s:cmd_BufferCleaner(banged_p)
   let _ = range(1, bufnr('$'))
   call filter(_, 'bufexists(v:val) &&
   \               buflisted(v:val) &&
-  \               bufname(v:val) == "" &&
+  \               (bufname(v:val) == "" || !filereadable(bufname(v:val))) &&
   \               (a:banged_p || !getbufvar(v:val, "&modified"))')
   for bufnr in _
-    silent execute bufnr 'bdelete'
+    silent execute bufnr 'bdelete'.(a:banged_p ? '!' : '')
   endfor
   echo len(_) 'buffer deleted'
 endfunction
@@ -379,7 +379,7 @@ endfunction
 
 command! -bar -nargs=* TabpageTitle
 \   if <q-args> == ''
-\ |   let t:title = input("Set tabpage's title to: ", '')
+\ |   let t:title = input("Set tabpage's title to: ", get(t:, 'title', ''))
 \ | else
 \ |   let t:title = <q-args>
 \ | endif
@@ -769,30 +769,6 @@ endfunction
 
 
 
-function! s:get_region(expr1, expr2, visual_commnad)  "{{{2
-  let [lnum1, col1] = getpos(a:expr1)[1:2]
-  let [lnum2, col2] = getpos(a:expr2)[1:2]
-  let region = getline(lnum1, lnum2)
-
-  if a:visual_commnad ==# "v"  " char
-    if lnum1 == lnum2  " single line
-      let region[0] = s:strpart(region[-1], col1 - 1, col2 - (col1 - 1))
-    else  " multi line
-      let region[0] = s:strpart(region[0], col1 - 1)
-      let region[-1] = s:strpart(region[-1], 0, col2)
-    endif
-  elseif a:visual_commnad ==# "V"  " line
-    let region += ['']
-  else  " block
-    call map(region, 's:strpart(v:val, col1 - 1, col2 - (col1 - 1))')
-  endif
-
-  return region
-endfunction
-
-
-
-
 function! s:keys_to_complete()  "{{{2
   if &l:completefunc != ''
     return "\<C-x>\<C-u>"
@@ -848,7 +824,7 @@ function! s:operator_search(motion_wiseness)  "{{{2
   let visual_commnad =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   let search_command = v:searchforward ? 'n' : 'N'
-  let region = join(map(s:get_region("'[", "']", visual_commnad),
+  let region = join(map(s:region("'[", "']", visual_commnad),
   \                     'escape(v:val, "\\/")'),
   \                 '\n')
   let @/ = '\V' . region
@@ -859,38 +835,10 @@ endfunction
 
 
 
-function! s:operator_sort(motion_wiseness)  "{{{2
-  if a:motion_wiseness == 'char'
-    let reg_u = [@", getregtype('"')]
-
-    let visual_commnad =
-    \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-    let region = join(s:get_region("'[", "']", visual_commnad), "\n")
-    let separater = escape(nr2char(getchar()), '\')
-    let [xs, ys] = s:partition(region, '\V\[\n ]\*' . separater . '\[\n ]\*')
-
-    let sorter = {}
-    function! sorter.compare(x, y) dict
-      return a:x == '' || a:y == '' ? 0 : a:x > a:y ? 1 : -1
-    endfunction
-    call sort(xs, sorter.compare, sorter)
-
-    let @" = join(map(s:transpose([xs, ys]), 'join(v:val, "")'), '')
-    normal! `[v`]P`[
-
-    call setreg('"', reg_u[0], reg_u[1])
-  else  " line or block
-    '[,']sort
-  endif
-endfunction
-
-
-
-
 function! s:operator_translate(motion_wiseness)  "{{{2
   let visual_commnad =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  let query = join(s:get_region("'[", "']", visual_commnad), "\n")
+  let query = join(s:region("'[", "']", visual_commnad), "\n")
 
   let api = 'http://translate.google.com/translate_a/t'
   let response = http#get(api, {
@@ -920,33 +868,32 @@ endfunction
 
 
 
-function! s:partition(expr, pattern)  "{{{2
-  let xs = []
-  let ys = []
-  let p = 0
-  let m = match(a:expr, a:pattern)
-
-  while m > -1
-    call add(xs, strpart(a:expr, p, m - p))
-    let p = m
-    let m = matchend(a:expr, a:pattern, p)
-    call add(ys, strpart(a:expr, p, m - p))
-    let p = m
-    let m = match(a:expr, a:pattern, p)
-  endwhile
-
-  if p < len(a:expr)
-    call add(xs, strpart(a:expr, p))
-  endif
-
-  return [xs, ys]
+function! s:prefix_of_p(x, y)  "{{{2
+  return a:x ==# strpart(a:y, 0, len(a:x))
 endfunction
 
 
 
 
-function! s:prefix_of_p(x, y)  "{{{2
-  return a:x ==# strpart(a:y, 0, len(a:x))
+function! s:region(expr1, expr2, visual_commnad)  "{{{2
+  let [lnum1, col1] = getpos(a:expr1)[1:2]
+  let [lnum2, col2] = getpos(a:expr2)[1:2]
+  let region = getline(lnum1, lnum2)
+
+  if a:visual_commnad ==# "v"  " char
+    if lnum1 == lnum2  " single line
+      let region[0] = s:strpart(region[-1], col1 - 1, col2 - (col1 - 1))
+    else  " multi line
+      let region[0] = s:strpart(region[0], col1 - 1)
+      let region[-1] = s:strpart(region[-1], 0, col2)
+    endif
+  elseif a:visual_commnad ==# "V"  " line
+    let region += ['']
+  else  " block
+    call map(region, 's:strpart(v:val, col1 - 1, col2 - (col1 - 1))')
+  endif
+
+  return region
 endfunction
 
 
@@ -968,24 +915,6 @@ function! s:strpart(src, start, ...)  "{{{2
   else
     return str
   endif
-endfunction
-
-
-
-
-function! s:transpose(xss)  "{{{2
-  let _ = []
-
-  for x in a:xss[0]
-    call add(_, [x])
-  endfor
-  for xs in a:xss[1:]
-    for i in range(min([len(_), len(xs)]))
-      call add(_[i], xs[i])
-    endfor
-  endfor
-
-  return _
 endfunction
 
 
@@ -1578,13 +1507,6 @@ vmap *  <Plug>(operator-search-forward)
 vmap #  <Plug>(operator-search-backward)
 
 
-call operator#user#define('sort', s:SID_PREFIX() . 'operator_sort')
-nmap [Space]s  <Plug>(operator-sort)
-vmap [Space]s  <Plug>(operator-sort)
-nmap [Space]S  <Plug>(operator-sort)$
-vmap [Space]S  <Plug>(operator-sort)$
-
-
 call operator#user#define('translate', s:SID_PREFIX() . 'operator_translate')
 Arpeggio map ot  <Plug>(operator-translate)
 
@@ -1612,13 +1534,6 @@ nnoremap <C-w>.  :<C-u>edit .<CR>
 
 " Expand with 'l' if the cursor on the holded text.
 nnoremap <expr> l  foldclosed(line('.')) != -1 ? 'zo' : 'l'
-
-
-" Move cursor by display lines when wrapping.
-noremap j  gj
-noremap k  gk
-noremap gj  j
-noremap gk  k
 
 
 " Delete a character with the black hole register.
@@ -1877,6 +1792,15 @@ autocmd MyAutoCmd FileType lua
 
 
 
+" objc  "{{{2
+
+autocmd MyAutoCmd FileType objc
+\   call s:set_short_indent()
+\ | setlocal commentstring=//%s
+
+
+
+
 " ocaml  "{{{2
 
 autocmd MyAutoCmd FileType ocaml
@@ -1889,7 +1813,8 @@ autocmd MyAutoCmd FileType ocaml
 " perl  "{{{2
 
 autocmd MyAutoCmd FileType perl
-\ call s:set_short_indent()
+\   call s:set_short_indent()
+\ | setlocal include=
 
 
 
@@ -1995,6 +1920,8 @@ endfunction
 
 " Plugins  "{{{1
 " altr  "{{{2
+
+call altr#define('%.m', '%.h')
 
 nmap <F1>  <Plug>(altr-back)
 nmap <F2>  <Plug>(altr-forward)
@@ -2185,13 +2112,11 @@ let g:ku_file_mru_limit = 200
 
 " neocomplcache  "{{{2
 
-if exists('g:loaded_neocomplcache')
-  imap <C-l>  <Plug>(neocomplcache_snippets_expand)
-  smap <C-l>  <Plug>(neocomplcache_snippets_expand)
+imap <C-l>  <Plug>(neocomplcache_snippets_expand)
+smap <C-l>  <Plug>(neocomplcache_snippets_expand)
 
-  inoremap <expr> <BS>  neocomplcache#smart_close_popup() . "\<C-h>"
-  inoremap <expr> <C-h>  neocomplcache#smart_close_popup() . "\<C-h>"
-endif
+inoremap <expr> <BS>  neocomplcache#smart_close_popup() . "\<C-h>"
+inoremap <expr> <C-h>  neocomplcache#smart_close_popup() . "\<C-h>"
 
 
 let g:neocomplcache_disable_auto_complete = 0
@@ -2200,7 +2125,9 @@ let g:neocomplcache_enable_prefetch = 1
 let g:neocomplcache_enable_smart_case = 1
 
 let g:neocomplcache_clang_library_path = '/usr/lib/llvm'
-let g:neocomplcache_clang_use_library = 1
+if has('python')
+  let g:neocomplcache_clang_use_library = 1
+endif
 let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*\|\[ku\]\|\[quickrun output\]'
 let g:neocomplcache_temporary_dir = expand('~/.vim/info/neocon')
 
@@ -2223,6 +2150,16 @@ Arpeggio map od  <Plug>(operator-uncomment)
 " operator-replece  "{{{2
 
 Arpeggio map or  <Plug>(operator-replace)
+
+
+
+
+" operator-sort  "{{{2
+
+nmap [Space]s  <Plug>(operator-sort)
+vmap [Space]s  <Plug>(operator-sort)
+nmap [Space]S  <Plug>(operator-sort)$
+vmap [Space]S  <Plug>(operator-sort)$
 
 
 
@@ -2253,6 +2190,11 @@ let g:quickrun_config = {
 \  'javascript/v8': {
 \    'command': executable('d8') ? 'd8' : 'v8',
 \    'tempfile': '%{tempname()}.js',
+\  },
+\  'objc': {
+\    'command': 'gcc',
+\    'exec': ['%c %o %s -o %s:p:r', '%s:p:r %a'],
+\    'tempfile': '%{tempname()}.m',
 \  },
 \  'tex': {
 \    'type': executable('platex') ? 'platex' : '',
@@ -2424,10 +2366,11 @@ nmap ss  <Plug>Yssurround
 
 " tohtml  "{{{2
 
-let g:html_use_css = 1
-let g:html_no_pre = 1
 let g:html_ignore_folding = 1
+let g:html_no_pre = 0
 let g:html_number_lines = 0
+let g:html_use_css = 1
+let g:use_xhtml = 1
 
 
 
