@@ -110,21 +110,17 @@ let s:gui_colors = [
 
 " Utilities  "{{{1
 function! s:attributes(expr)  "{{{2
-  if &term ==# 'win32'
-    let _ = {
-    \ 'r': 'reverse',
-    \ 's': 'standout',
-    \ }
-  else
-    let _ = {
-    \ 'b': 'bold',
-    \ 'c': 'undercurl',
-    \ 'i': 'italic',
-    \ 'r': 'reverse',
-    \ 's': 'standout',
-    \ 'u': 'underline',
-    \ }
-  endif
+  let _ = &term ==# 'win32' ? {
+  \ 'r': 'reverse',
+  \ 's': 'standout',
+  \ } : {
+  \ 'b': 'bold',
+  \ 'c': 'undercurl',
+  \ 'i': 'italic',
+  \ 'r': 'reverse',
+  \ 's': 'standout',
+  \ 'u': 'underline',
+  \ }
   let attrs = []
   for key in split(a:expr, '.\zs')
     if has_key(_, key)
