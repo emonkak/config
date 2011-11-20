@@ -38,13 +38,16 @@ endfunction
 
 function! ku#register#on_source_enter(source_name_ext)  "{{{2
   let _ = []
-  let registers = '"*+0123456789abcdefghijklmnopqrstuvwxyz'
-  for reg in split(registers, '.\zs')
-    let type = s:getregtype(reg)
+  let registers = split('"*+0123456789abcdefghijklmnopqrstuvwxyz', '.\zs')
+  for i in range(0, len(registers) - 1)
+    let type = s:getregtype(registers[i])
     if type != ''
+      let content = getreg(registers[i])
       call add(_, {
-      \   'menu': printf('[%s] %s', type, getreg(reg)),
-      \   'word': reg,
+      \   'abbr': printf('%s [%s] %s', registers[i], type, content),
+      \   'word': content,
+      \   'ku_register': registers[i],
+      \   'ku__sort_priority': i,
       \ })
     endif
   endfor
@@ -105,30 +108,30 @@ endfunction
 " Actions  "{{{2
 function! ku#register#action_delete(item)  "{{{3
   if a:item.ku__completed_p
-    call setreg(a:item.word, '')
+    call setreg(a:item.ku_register, '')
     return 0
   else
-    return 'Nothing in register: ' . string(a:item.word)
+    return 'Nothing in register: ' . string(a:item.ku_register)
   endif
 endfunction
 
 
 function! ku#register#action_Put(item)  "{{{3
   if a:item.ku__completed_p
-    execute 'normal! "' . a:item.word . 'P'
+    execute 'normal! "' . a:item.ku_register . 'P'
     return 0
   else
-    return 'Nothing in register: ' . string(a:item.word)
+    return 'Nothing in register: ' . string(a:item.ku_register)
   endif
 endfunction
 
 
 function! ku#register#action_put(item)  "{{{3
   if a:item.ku__completed_p
-    execute 'normal! "' . a:item.word . 'p'
+    execute 'normal! "' . a:item.ku_register . 'p'
     return 0
   else
-    return 'Nothing in register: ' . string(a:item.word)
+    return 'Nothing in register: ' . string(a:item.ku_register)
   endif
 endfunction
 
