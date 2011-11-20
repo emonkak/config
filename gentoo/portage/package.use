@@ -14,6 +14,7 @@ app-office/libreoffice-l10n linguas_ja
 app-portage/eix sqlite
 app-shells/saphire migemo
 app-text/acroread minimal linguas_ja
+app-text/asciidoc graphviz highlight
 app-text/ghostscript-gpl gtk
 app-text/lcdf-typetools kpathsea
 app-text/poppler -abiword
@@ -39,11 +40,11 @@ media-libs/mesa gles
 media-libs/speex ogg
 media-plugins/gst-plugins-meta alsa
 media-sound/ario dbus taglib
-media-sound/pulseaudio system-wide
 media-sound/easytag flac mp3 mp4 speex vorbis wavpack
 media-sound/mpd lame ogg vorbis
 media-sound/ncmpcpp clock taglib
 media-sound/pulseaudio gnome
+media-sound/pulseaudio system-wide
 media-sound/sonata dbus lyrics taglib trayicon
 media-tv/xawtv xv
 media-video/ffmpeg alsa faac mp3 rtmp theora v4l2 vaapi vorbis x264 xvid

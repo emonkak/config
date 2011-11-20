@@ -1,1 +1,2 @@
+=sys-boot/grub-1.99*
 sys-kernel/gentoo-sources
