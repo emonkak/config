@@ -135,7 +135,7 @@ def open_file {  #{{{2
   } '^zip$' {
     external -q "zipinfo -O cp932 $(ary ARGV 0) | $$(export PAGER)"
     break
-  } '^(aac|asf|avi|flv|mkv|mov|mp3|mp4|mpe?g|ogg|ogv|ts|wav|webm|wma|wmv)$' {
+  } '^(aac|asf|avi|flv|mkv|mov|mp3|mp4|mpe?g|ogg|ogv|rm|ts|wav|webm|wma|wmv)$' {
     external -q "mplayer -quiet $(ary ARGV 0)"
     break
   } '^(bmp|gif|jpe?g|png)$' {
