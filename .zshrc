@@ -242,7 +242,9 @@ zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/s
 
 
 
-# Source  #{{{1
+# Additional  #{{{1
+
+autoload zargs
 
 source ~/.zsh/zaw/zaw.zsh
 
