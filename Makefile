@@ -19,63 +19,61 @@ ALL_GROUPS=\
   VIM
 
 GROUP_DOTS_FILES=\
-  .Xmodmap \
-  .Xresources \
-  .conkyrc \
-  .fonts.conf \
-  .ghci \
-  .mfiler3/mfiler3.sa \
-  .tmux.conf \
-  .vimrc \
-  .xinitrc \
-  .xmonad/xmonad.hs \
-  .zprofile \
-  .zshrc
-GROUP_DOTS_RULE=$(patsubst .%, $(HOME)/.%, $(1))
+  dotfiles/dot.Xmodmap \
+  dotfiles/dot.Xresources \
+  dotfiles/dot.conkyrc \
+  dotfiles/dot.fonts.conf \
+  dotfiles/dot.ghci \
+  dotfiles/dot.mfiler3/mfiler3.sa \
+  dotfiles/dot.tmux.conf \
+  dotfiles/dot.xinitrc \
+  dotfiles/dot.xmonad/xmonad.hs \
+  dotfiles/dot.zprofile \
+  dotfiles/dot.zshrc
+GROUP_DOTS_RULE=$(patsubst dotfiles/dot.%, $(HOME)/.%, $(1))
 
 GROUP_GENTOO_FILES=\
   gentoo/X11/xorg.conf \
+  gentoo/fstab \
+  gentoo/make.conf \
   gentoo/portage/package.keywords \
   gentoo/portage/package.mask \
   gentoo/portage/package.unmask \
   gentoo/portage/package.use \
-  gentoo/portage/profile/package.provided \
-  gentoo/fstab \
-  gentoo/make.conf
+  gentoo/portage/profile/package.provided
 GROUP_GENTOO_RULE=$(patsubst gentoo/%, /etc/%, $(1))
 
 GROUP_LINUX_FILES=\
-  linux/.config
-GROUP_LINUX_RULE=$(patsubst linux/%, /usr/src/linux/%, $(1))
+  linux/dot.config
+GROUP_LINUX_RULE=$(patsubst linux/dot.%, /usr/src/linux/.%, $(1))
 
 GROUP_OPERA_FILES=\
-  .opera/keyboard/my-keyboard.ini \
-  .opera/menu/my-menu.ini \
-  .opera/mouse/my-mouse.ini \
-  .opera/styles/google.css \
-  .opera/styles/ldr.css \
-  .opera/styles/user.css \
-  .opera/search.ini
-GROUP_OPERA_RULE=$(patsubst .opera/%, $(HOME)/.opera/%, $(1))
+  opera/keyboard/my-keyboard.ini \
+  opera/menu/my-menu.ini \
+  opera/mouse/my-mouse.ini \
+  opera/search.ini \
+  opera/styles/google.css \
+  opera/styles/ldr.css \
+  opera/styles/user.css
+GROUP_OPERA_RULE=$(patsubst opera/%, $(HOME)/.opera/%, $(1))
 
 GROUP_VIM_FILES=\
-  .vim/after/plugin/metarw/http.vim \
-  .vim/autoload/ku/colorscheme.vim \
-  .vim/autoload/ku/register.vim \
-  .vim/autoload/metarw/http.vim \
-  .vim/autoload/metarw/sudo.vim \
-  .vim/autoload/ref/hayoo.vim \
-  .vim/colors/basic256.vim \
-  .vim/compiler/ghc.vim \
-  .vim/compiler/javac.vim \
-  .vim/compiler/tex.vim \
-  .vim/dict/java.dict \
-  .vim/dict/javascript.dict \
-  .vim/syntax/dmesg.vim \
-  .vim/syntax/int-ghci.vim \
-  .vim/syntax/int-gosh.vim \
-  .vim/syntax/ref-hoogle.vim
-GROUP_VIM_RULE=$(patsubst .vim/%, $(HOME)/.vim/%, $(1))
+  vim/dot.vim/after/plugin/metarw/http.vim \
+  vim/dot.vim/autoload/metarw/http.vim \
+  vim/dot.vim/autoload/metarw/sudo.vim \
+  vim/dot.vim/autoload/ref/hayoo.vim \
+  vim/dot.vim/colors/basic256.vim \
+  vim/dot.vim/compiler/ghc.vim \
+  vim/dot.vim/compiler/javac.vim \
+  vim/dot.vim/compiler/tex.vim \
+  vim/dot.vim/dict/java.dict \
+  vim/dot.vim/dict/javascript.dict \
+  vim/dot.vim/syntax/dmesg.vim \
+  vim/dot.vim/syntax/int-ghci.vim \
+  vim/dot.vim/syntax/int-gosh.vim \
+  vim/dot.vim/syntax/ref-hoogle.vim \
+  vim/dot.vimrc
+GROUP_VIM_RULE=$(patsubst vim/dot.%, $(HOME)/.%, $(1))
 
 
 
