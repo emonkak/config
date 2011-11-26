@@ -33,15 +33,17 @@ GROUP_DOTS_FILES=\
 GROUP_DOTS_RULE=$(patsubst dotfiles/dot.%, $(HOME)/.%, $(1))
 
 GROUP_GENTOO_FILES=\
-  gentoo/X11/xorg.conf \
-  gentoo/fstab \
-  gentoo/make.conf \
-  gentoo/portage/package.keywords \
-  gentoo/portage/package.mask \
-  gentoo/portage/package.unmask \
-  gentoo/portage/package.use \
-  gentoo/portage/profile/package.provided
-GROUP_GENTOO_RULE=$(patsubst gentoo/%, /etc/%, $(1))
+  gentoo/boot/grub/grub.conf \
+  gentoo/etc/X11/xorg.conf \
+  gentoo/etc/fstab \
+  gentoo/etc/make.conf \
+  gentoo/etc/portage/package.keywords \
+  gentoo/etc/portage/package.mask \
+  gentoo/etc/portage/package.unmask \
+  gentoo/etc/portage/package.use \
+  gentoo/etc/portage/profile/package.provided \
+  gentoo/var/lib/portage/world
+GROUP_GENTOO_RULE=$(patsubst gentoo/%, /%, $(1))
 
 GROUP_LINUX_FILES=\
   linux/dot.config
