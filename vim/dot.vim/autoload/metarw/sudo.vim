@@ -43,15 +43,13 @@ function! metarw#sudo#read(fakepath)  "{{{2
   let path = fnamemodify(fragments[1], ':p')
   if isdirectory(path)
     let result = []
-    for name in split(globpath(path, '.*') . "\n" . globpath(path, '*'), '\n')
-      if name =~ '/\.$'
-        continue
-      else
+    for wildcard in ['.?*', '*']
+      for name in split(globpath(path, wildcard), "\n")
         call add(result, {
         \   'label': fnamemodify(name, ':t') . (isdirectory(name) ? '/' : ''),
         \   'fakepath': scheme . ':' . fnamemodify(simplify(name), ':p'),
         \ })
-      endif
+      endfor
     endfor
     return ['browse', result]
   else
@@ -65,12 +63,8 @@ endfunction
 function! metarw#sudo#write(fakepath, line1, line2, append_p)  "{{{2
   let path = split(a:fakepath, ':', !0)[1]
   setlocal nomodified
-  return ['write', '!sudo tee >/dev/null ' . shellescape(path)]  " FIXME: error case
+  return ['write', '!sudo tee >/dev/null ' . shellescape(path)]
 endfunction
-
-
-
-
 
 
 

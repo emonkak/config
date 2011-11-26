@@ -43,9 +43,5 @@ endfunction
 
 
 
-
-
-
-
 " __END__  "{{{1
 " vim: foldmethod=marker
