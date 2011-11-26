@@ -427,7 +427,7 @@ function! s:grep(command, args)
     execute a:command '/'.escape(a:args[-1], '/ ').'/j' target
   elseif has('win32') || has('win64')
     try
-      let errorformat = &l:errorformat
+      let original_errorformat = &l:errorformat
       let &l:errorformat = &l:grepformat
       let result = vimproc#system(grepprg . " " . a:args[-1] . " " . target)
       if a:command ==# 'grep'
@@ -436,7 +436,7 @@ function! s:grep(command, args)
         lgetexpr result
       endif
     finally
-      let &l:errorformat = errorformat
+      let &l:errorformat = original_errorformat
     endtry
   else
     execute a:command.'!' shellescape(a:args[-1]) target
@@ -829,7 +829,7 @@ function! s:operator_search(motion_wiseness)  "{{{2
   \                 '\n')
   let @/ = '\V' . region
   call histadd('/', '\V' . region)
-  execute 'normal!' search_command
+  silent execute 'normal!' search_command
 endfunction
 
 
@@ -1921,6 +1921,7 @@ endfunction
 " Plugins  "{{{1
 " altr  "{{{2
 
+call altr#reset()
 call altr#define('%.m', '%.h')
 
 nmap <F1>  <Plug>(altr-back)
@@ -1946,26 +1947,26 @@ function! s:on_User_eskk_initial_pre()
 endfunction
 
 let g:eskk#dictionary = {
-\  'path': expand('~/.skk-eskk-jisyo'),
-\  'sorted': 0,
-\  'encoding': 'utf-8',
+\   'path': expand('~/.skk-eskk-jisyo'),
+\   'sorted': 0,
+\   'encoding': 'utf-8',
 \ }
 let g:eskk#large_dictionary = {
-\  'path': expand('~/.skk/SKK-JISYO.L'),
-\  'sorted': 1,
-\  'encoding': 'euc-jp',
+\   'path': expand('~/.skk/SKK-JISYO.L'),
+\   'sorted': 1,
+\   'encoding': 'euc-jp',
 \ }
 
 let g:eskk#directory = expand('~/.vim/info/eskk')
 let g:eskk#egg_like_newline = 1
 let g:eskk#enable_completion = 1
 let g:eskk#statusline_mode_strings = {
-\  'hira': "\u3042",
-\  'kata': "\u30a2",
-\  'ascii': 'A',
-\  'zenei': "\u82f1",
-\  'hankata': "\uff76\uff85",
-\  'abbrev': '/',
+\   'hira': "\u3042",
+\   'kata': "\u30a2",
+\   'ascii': 'A',
+\   'zenei': "\u82f1",
+\   'hankata': "\uff76\uff85",
+\   'abbrev': '/',
 \ }
 let g:eskk#use_color_cursor = 0
 
@@ -2089,6 +2090,7 @@ nnoremap <silent> [Space]kc  :<C-u>Ku colorscheme<CR>
 nnoremap <silent> [Space]kf  :<C-u>Ku file<CR>
 nnoremap <silent> [Space]kg  :<C-u>Ku metarw/git<CR>
 nnoremap <silent> [Space]kh  :<C-u>Ku history<CR>
+nnoremap <silent> [Space]kl  :<C-u>Ku file_rec<CR>
 nnoremap <silent> [Space]kq  :<C-u>Ku quickfix<CR>
 nnoremap <silent> [Space]kr  :<C-u>Ku register<CR>
 nnoremap <silent> [Space]ks  :<C-u>Ku source<CR>
@@ -2156,10 +2158,9 @@ Arpeggio map or  <Plug>(operator-replace)
 
 " operator-sort  "{{{2
 
+nmap [Space]S  <Plug>(operator-sort)$
 nmap [Space]s  <Plug>(operator-sort)
 vmap [Space]s  <Plug>(operator-sort)
-nmap [Space]S  <Plug>(operator-sort)$
-vmap [Space]S  <Plug>(operator-sort)$
 
 
 
