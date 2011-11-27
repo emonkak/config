@@ -26,6 +26,7 @@ GROUP_DOTS_FILES=\
   dotfiles/dot.ghci \
   dotfiles/dot.mfiler3/mfiler3.sa \
   dotfiles/dot.tmux.conf \
+  dotfiles/dot.uim \
   dotfiles/dot.xinitrc \
   dotfiles/dot.xmonad/xmonad.hs \
   dotfiles/dot.zprofile \

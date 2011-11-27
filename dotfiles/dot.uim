@@ -1,0 +1,13 @@
+(require "japanese.scm")
+(use srfi-1)
+
+(define ja-rk-rule-basic
+  (append '(((("z" " ") . ()) ("¡¡" "¡¡" "¡¡"))
+            ((("z" "w") . ("z")) ("£÷" "£÷" "£÷"))
+            ((("z" "{") . ()) ("¡Ú" "¡Ú" "¡Ú"))
+            ((("z" "}") . ()) ("¡Û" "¡Û" "¡Û")))
+          ja-rk-rule-basic))
+
+(define ja-rk-rule-additional
+  (filter (lambda (x) (not (equal? (caaar x) "z")))
+          ja-rk-rule-additional))
