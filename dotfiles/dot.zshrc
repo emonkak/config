@@ -246,11 +246,12 @@ zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/s
 
 autoload zargs
 
-source ~/.zsh/zaw/zaw.zsh
-
-bindkey '^Xh' zaw-history
-bindkey '^Xc' zaw-dirstack
-bindkey '^Xg' zaw-git-files
+if [ -f "$HOME/.zsh/zaw/zaw.zsh" ]; then
+  source ~/.zsh/zaw/zaw.zsh
+  bindkey '^Xh' zaw-history
+  bindkey '^Xc' zaw-dirstack
+  bindkey '^Xg' zaw-git-files
+fi
 
 
 
