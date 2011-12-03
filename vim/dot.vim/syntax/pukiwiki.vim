@@ -119,12 +119,12 @@ highlight default link pukiwikiCSVTableMarker  Statement
 highlight default link pukiwikiHeadline  Title
 highlight default link pukiwikiBlockPlugin  Identifier
 highlight default link pukiwikiAlignMarker  Statement
-highlight default link pukiwikiHorizon PreProc
+highlight default link pukiwikiHorizon  PreProc
 
 highlight default link pukiwikiLineBreak  Statement
-highlight default link pukiwikiBold  Statement
-highlight default link pukiwikiItalic  Statement
-highlight default link pukiwikiAnnotation  Special
+highlight default link pukiwikiBold  Special
+highlight default link pukiwikiItalic  Special
+highlight default link pukiwikiAnnotation  PreProc
 highlight default link pukiwikiStrike  NonText
 
 highlight default link pukiwikiInlinePlugin  PreProc
