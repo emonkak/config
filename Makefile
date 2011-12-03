@@ -74,6 +74,7 @@ GROUP_VIM_FILES=\
   vim/dot.vim/syntax/dmesg.vim \
   vim/dot.vim/syntax/int-ghci.vim \
   vim/dot.vim/syntax/int-gosh.vim \
+  vim/dot.vim/syntax/pukiwiki.vim \
   vim/dot.vim/syntax/ref-hoogle.vim \
   vim/dot.vimrc
 GROUP_VIM_RULE=$(patsubst vim/dot.%, $(HOME)/.%, $(1))
