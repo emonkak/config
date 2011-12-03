@@ -209,6 +209,112 @@ let s:TRUE = !s:FALSE
 
 
 
+" :setlocal ... wrappers  "{{{2
+
+command! -nargs=? -complete=filetype SetFileType
+\ setlocal filetype=<args> | silent! SkeletonLoad <args>
+command! -nargs=? -complete=customlist,s:complete_fileencoding SetFileEncoding
+\ setlocal fileencoding=<args>
+command! -nargs=? -complete=customlist,s:complete_fileformats SetFileFormat
+\ setlocal fileformat=<args>
+
+function! s:complete_fileencoding(arglead, cmdline, cursorpos)
+  " {encoding: 0} see :help encoding-values.  "{{{
+  let _ = {
+  \  'ansi': 0,
+  \  'big5': 0,
+  \  'chinese': 0,
+  \  'cp1250': 0,
+  \  'cp1251': 0,
+  \  'cp1253': 0,
+  \  'cp1254': 0,
+  \  'cp1255': 0,
+  \  'cp1256': 0,
+  \  'cp1257': 0,
+  \  'cp1258': 0,
+  \  'cp437': 0,
+  \  'cp737': 0,
+  \  'cp775': 0,
+  \  'cp850': 0,
+  \  'cp852': 0,
+  \  'cp855': 0,
+  \  'cp857': 0,
+  \  'cp860': 0,
+  \  'cp861': 0,
+  \  'cp862': 0,
+  \  'cp863': 0,
+  \  'cp865': 0,
+  \  'cp866': 0,
+  \  'cp869': 0,
+  \  'cp874': 0,
+  \  'cp932': 0,
+  \  'cp936': 0,
+  \  'cp949': 0,
+  \  'cp950': 0,
+  \  'default': 0,
+  \  'euc-cn': 0,
+  \  'euc-jp': 0,
+  \  'euc-kr': 0,
+  \  'euc-tw': 0,
+  \  'iso-8859-10': 0,
+  \  'iso-8859-11': 0,
+  \  'iso-8859-12': 0,
+  \  'iso-8859-13': 0,
+  \  'iso-8859-14': 0,
+  \  'iso-8859-15': 0,
+  \  'iso-8859-16': 0,
+  \  'iso-8859-1': 0,
+  \  'iso-8859-2': 0,
+  \  'iso-8859-3': 0,
+  \  'iso-8859-4': 0,
+  \  'iso-8859-5': 0,
+  \  'iso-8859-6': 0,
+  \  'iso-8859-7': 0,
+  \  'iso-8859-8': 0,
+  \  'iso-8859-9': 0,
+  \  'japan': 0,
+  \  'koi8-r': 0,
+  \  'koi8-u': 0,
+  \  'korea': 0,
+  \  'latin1': 0,
+  \  'macroman': 0,
+  \  'prc': 0,
+  \  'sjis': 0,
+  \  'taiwan': 0,
+  \  'ucs-2': 0,
+  \  'ucs-2be': 0,
+  \  'ucs-2le': 0,
+  \  'ucs-4': 0,
+  \  'ucs-4be': 0,
+  \  'ucs-4le': 0,
+  \  'ucs2be': 0,
+  \  'unicode': 0,
+  \  'utf-16': 0,
+  \  'utf-16le': 0,
+  \  'utf-32': 0,
+  \  'utf-32le': 0,
+  \  'utf-8': 0,
+  \  'utf8': 0,
+  \ }  " }}}
+  for encoding in split(&fileencodings, ',')
+    let _[encoding] = 0
+  endfor
+  return sort(filter(keys(_), 's:prefix_of_p(a:arglead, v:val)'))
+endfunction
+function! s:complete_fileformats(arglead, cmdline, cursorpos)
+  return sort(filter(split(&fileformats, ','), 's:prefix_of_p(a:arglead, v:val)'))
+endfunction
+
+command! -bar -bang -nargs=1 SetIndent
+\   if <bang>0
+\ |   setlocal noexpandtab tabstop=<args> softtabstop< shiftwidth=<args>
+\ | else
+\ |   setlocal expandtab tabstop< softtabstop=<args> shiftwidth=<args>
+\ | endif
+
+
+
+
 " BufferCleanr - delete unnecessary buffer  "{{{2
 
 command! -bang -nargs=0 BufferCleaner  call s:cmd_BufferCleaner(<bang>0)
@@ -313,19 +419,19 @@ command! -range -nargs=+ Sequence
 \ <line1>,<line2>call s:cmd_Sequence(<q-args>)
 function! s:cmd_Sequence(args) range
   let args = vimproc#parser#split_args(a:args)
-  let incrementor = {
+  let incrementer = {
   \   'format': get(args, 1, '%d'),
   \   'current': get(args, 2, 0),
   \   'step': get(args, 3, 1)
   \ }
 
-  function incrementor.call() dict
+  function incrementer.call() dict
     let next = printf(self.format, self.current)
     let self.current += self.step
     return next
   endfunction
 
-  execute printf('%d,%ds/%s/\=incrementor.call()/g',
+  execute printf('%d,%ds/%s/\=incrementer.call()/g',
   \              a:firstline,
   \              a:lastline,
   \              escape(args[0], '/'))
@@ -477,105 +583,6 @@ endfunction
 
 AlterCommand mak[e]  Make
 AlterCommand lmak[e]  Lmake
-
-
-
-
-" :setlocal wrappers  "{{{2
-
-command! -nargs=? -complete=filetype SetFileType
-\ setlocal filetype=<args> | silent! SkeletonLoad <args>
-command! -nargs=? -complete=customlist,s:complete_fileencoding SetFileEncoding
-\ setlocal fileencoding=<args>
-command! -nargs=? -complete=customlist,s:complete_fileformats SetFileFormat
-\ setlocal fileformat=<args>
-
-function! s:complete_fileencoding(arglead, cmdline, cursorpos)
-  " {encoding: 0} see :help encoding-values.  "{{{
-  let _ = {
-  \  'ansi': 0,
-  \  'big5': 0,
-  \  'chinese': 0,
-  \  'cp1250': 0,
-  \  'cp1251': 0,
-  \  'cp1253': 0,
-  \  'cp1254': 0,
-  \  'cp1255': 0,
-  \  'cp1256': 0,
-  \  'cp1257': 0,
-  \  'cp1258': 0,
-  \  'cp437': 0,
-  \  'cp737': 0,
-  \  'cp775': 0,
-  \  'cp850': 0,
-  \  'cp852': 0,
-  \  'cp855': 0,
-  \  'cp857': 0,
-  \  'cp860': 0,
-  \  'cp861': 0,
-  \  'cp862': 0,
-  \  'cp863': 0,
-  \  'cp865': 0,
-  \  'cp866': 0,
-  \  'cp869': 0,
-  \  'cp874': 0,
-  \  'cp932': 0,
-  \  'cp936': 0,
-  \  'cp949': 0,
-  \  'cp950': 0,
-  \  'default': 0,
-  \  'euc-cn': 0,
-  \  'euc-jp': 0,
-  \  'euc-kr': 0,
-  \  'euc-tw': 0,
-  \  'iso-8859-10': 0,
-  \  'iso-8859-11': 0,
-  \  'iso-8859-12': 0,
-  \  'iso-8859-13': 0,
-  \  'iso-8859-14': 0,
-  \  'iso-8859-15': 0,
-  \  'iso-8859-16': 0,
-  \  'iso-8859-1': 0,
-  \  'iso-8859-2': 0,
-  \  'iso-8859-3': 0,
-  \  'iso-8859-4': 0,
-  \  'iso-8859-5': 0,
-  \  'iso-8859-6': 0,
-  \  'iso-8859-7': 0,
-  \  'iso-8859-8': 0,
-  \  'iso-8859-9': 0,
-  \  'japan': 0,
-  \  'koi8-r': 0,
-  \  'koi8-u': 0,
-  \  'korea': 0,
-  \  'latin1': 0,
-  \  'macroman': 0,
-  \  'prc': 0,
-  \  'sjis': 0,
-  \  'taiwan': 0,
-  \  'ucs-2': 0,
-  \  'ucs-2be': 0,
-  \  'ucs-2le': 0,
-  \  'ucs-4': 0,
-  \  'ucs-4be': 0,
-  \  'ucs-4le': 0,
-  \  'ucs2be': 0,
-  \  'unicode': 0,
-  \  'utf-16': 0,
-  \  'utf-16le': 0,
-  \  'utf-32': 0,
-  \  'utf-32le': 0,
-  \  'utf-8': 0,
-  \  'utf8': 0,
-  \ }  " }}}
-  for encoding in split(&fileencodings, ',')
-    let _[encoding] = 0
-  endfor
-  return sort(filter(keys(_), 's:prefix_of_p(a:arglead, v:val)'))
-endfunction
-function! s:complete_fileformats(arglead, cmdline, cursorpos)
-  return sort(filter(split(&fileformats, ','), 's:prefix_of_p(a:arglead, v:val)'))
-endfunction
 
 
 
@@ -862,7 +869,7 @@ endfunction
 function! s:operator_yank_clipboard(motion_wiseness)  "{{{2
   let visual_commnad =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  execute 'normal!' '`['.visual_commnad.'`]"+y'
+  execute 'normal' '`['.visual_commnad.'`]"+y'
 endfunction
 
 
@@ -894,14 +901,6 @@ function! s:region(expr1, expr2, visual_commnad)  "{{{2
   endif
 
   return region
-endfunction
-
-
-
-
-function! s:set_short_indent(...)  "{{{2
-  let _ = a:0 ? a:1 : 2
-  let [&l:expandtab, &l:softtabstop, &l:shiftwidth] = [1, _, _]
 endfunction
 
 
@@ -1371,6 +1370,7 @@ noremap [Space]  <Nop>
 nnoremap [Space]f  <Nop>
 nnoremap [Space]fe  :<C-u>SetFileEncoding<Space>
 nnoremap [Space]ff  :<C-u>SetFileFormat<Space>
+nnoremap [Space]fi  :<C-u>SetIndent<Space>
 nnoremap [Space]ft  :<C-u>SetFileType<Space>
 
 nnoremap [Space]o  <Nop>
@@ -1534,6 +1534,13 @@ nnoremap <C-w>.  :<C-u>edit .<CR>
 
 " Expand with 'l' if the cursor on the holded text.
 nnoremap <expr> l  foldclosed(line('.')) != -1 ? 'zo' : 'l'
+
+
+" Move cursor by display lines when wrapping.
+noremap j  gj
+noremap k  gk
+noremap gj  j
+noremap gk  k
 
 
 " Delete a character with the black hole register.
@@ -1732,7 +1739,7 @@ let g:changelog_username  = 'emonkak <emonkak@gmail.com>'
 " css  "{{{2
 
 autocmd MyAutoCmd FileType css,sass
-\ call s:set_short_indent()
+\ SetIndent 2
 
 
 
@@ -1761,7 +1768,7 @@ endfunction
 " haskell  "{{{2
 
 autocmd MyAutoCmd FileType haskell
-\   call s:set_short_indent()
+\   SetIndent 2
 \ | compiler ghc
 
 
@@ -1779,7 +1786,7 @@ autocmd MyAutoCmd FileType java
 " javascript  "{{{2
 
 autocmd MyAutoCmd FileType coffee,javascript
-\ call s:set_short_indent()
+\ SetIndent 2
 
 
 
@@ -1787,7 +1794,7 @@ autocmd MyAutoCmd FileType coffee,javascript
 " lua  "{{{2
 
 autocmd MyAutoCmd FileType lua
-\ call s:set_short_indent()
+\ SetIndent 2
 
 
 
@@ -1795,7 +1802,7 @@ autocmd MyAutoCmd FileType lua
 " objc  "{{{2
 
 autocmd MyAutoCmd FileType objc
-\   call s:set_short_indent()
+\   SetIndent 2
 \ | setlocal commentstring=//%s
 
 
@@ -1804,7 +1811,7 @@ autocmd MyAutoCmd FileType objc
 " ocaml  "{{{2
 
 autocmd MyAutoCmd FileType ocaml
-\   call s:set_short_indent()
+\   SetIndent 2
 \ | setlocal commentstring=(*%s*)
 
 
@@ -1813,7 +1820,7 @@ autocmd MyAutoCmd FileType ocaml
 " perl  "{{{2
 
 autocmd MyAutoCmd FileType perl
-\   call s:set_short_indent()
+\   SetIndent 2
 \ | setlocal include=
 
 
@@ -1822,7 +1829,7 @@ autocmd MyAutoCmd FileType perl
 " python  "{{{2
 
 autocmd MyAutoCmd FileType python
-\ call s:set_short_indent()
+\ SetIndent 2
 
 let g:python_highlight_all = 1
 
@@ -1840,7 +1847,7 @@ autocmd MyAutoCmd FileType qf
 " ruby  "{{{2
 
 autocmd MyAutoCmd FileType ruby,yaml
-\ call s:set_short_indent()
+\ SetIndent 2
 
 
 
@@ -1855,7 +1862,7 @@ let g:is_gauche = 1
 " sh, zsh  "{{{2
 
 autocmd MyAutoCmd FileType sh,zsh
-\ call s:set_short_indent()
+\ SetIndent 2
 
 let g:is_bash = 1
 
@@ -1869,7 +1876,7 @@ autocmd MyAutoCmd FileType tex,plaintex
 \ | compiler tex
 
 function! s:on_FileType_tex()
-  call s:set_short_indent()
+  SetIndent 2
 
   inoreabbrev <buffer> \b  \textbf{}<Left>
   inoreabbrev <buffer> \i  \textit{}<Left>
@@ -1890,7 +1897,7 @@ let g:tex_flavor = 'latex'
 " vim  "{{{2
 
 autocmd MyAutoCmd FileType vim
-\ call s:set_short_indent()
+\ SetIndent 2
 
 let g:vim_indent_cont = 0
 
@@ -1906,7 +1913,7 @@ autocmd MyAutoCmd FileType haml
 \ call s:on_FileType_xml()
 
 function! s:on_FileType_xml()
-  call s:set_short_indent()
+  SetIndent 2
 
   " To deal with namespace prefixes and tag-name-including-hyphens.
   setlocal iskeyword+=45  " hyphen (-)
@@ -2116,9 +2123,6 @@ let g:ku_file_mru_limit = 200
 
 imap <C-l>  <Plug>(neocomplcache_snippets_expand)
 smap <C-l>  <Plug>(neocomplcache_snippets_expand)
-
-inoremap <expr> <BS>  neocomplcache#smart_close_popup() . "\<C-h>"
-inoremap <expr> <C-h>  neocomplcache#smart_close_popup() . "\<C-h>"
 
 
 let g:neocomplcache_disable_auto_complete = 0
