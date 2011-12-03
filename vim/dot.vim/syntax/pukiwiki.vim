@@ -25,8 +25,6 @@ if exists('b:current_syntax')  "{{{1
   finish
 endif
 
-let b:current_syntax = 'pukiwiki'
-
 
 
 
@@ -40,23 +38,21 @@ syntax match pukiwikiBlockquoteMarker '^<\{1,3}'
 syntax match pukiwikiUnorderedListMarker '^+\{1,3}'
 syntax match pukiwikiOrderedListMarker '^-\{1,3}'
 
-syntax region pukiwikiDefinitionList start='^:\{1,3}' end='$' contains=pukiwikiDefinitionListMarker transparent
+syntax region pukiwikiDefinitionList start='^:\{1,3}' end='$' contains=@pukiwikiInlineElements,pukiwikiDefinitionListMarker transparent
 syntax match pukiwikiDefinitionListMarker '^:' contained
 syntax match pukiwikiDefinitionListMarker '|' contained
 
 syntax match pukiwikiPreFormattedText '^\s.*'
 
-syntax region pukiwikiTable start='^|' end='$' contains=pukiwikiTableMarker transparent
+syntax region pukiwikiTable start='^|' end='$' contains=@pukiwikiInlineElements,pukiwikiTableMarker transparent
 syntax match pukiwikiTableMarker '|' contained
 
-syntax region pukiwikiCSVTable start='^,' end='$' contains=pukiwikiCSVTableMarker transparent
+syntax region pukiwikiCSVTable start='^,' end='$' contains=@pukiwikiInlineElements,pukiwikiCSVTableMarker transparent
 syntax match pukiwikiCSVTableMarker ',' contained
 
-syntax region pukiwikiHeadline matchgroup=Special start='^\*\{1,3}' end='$' oneline
+syntax region pukiwikiHeadline matchgroup=Special start='^\*\{1,3}' end='$' contains=@pukiwikiInlineElements oneline
 
-syntax match pukiwikiSharpe '^#' nextgroup=pukiwikiSharpeKeywords
-syntax keyword pukiwikiSharpeKeywords nextgroup=pukiwikiArguments contained
-\ contents hr br ref clear comment pcomment article vote
+syntax match pukiwikiBlockPlugin '^#\w\+' nextgroup=pukiwikiArguments,pukiwikiBlock
 
 syntax match pukiwikiAlignMarker '^LEFT:'
 syntax match pukiwikiAlignMarker '^CENTER:'
@@ -69,6 +65,8 @@ syntax match pukiwikiHorizon '^-\+$'
 
 " Inline elements  "{{{1
 
+syntax cluster pukiwikiInlineElements contains=pukiwikiLineBreak,pukiwikiBold,pukiwikiItalic,pukiwikiAnnotation,pukiwikiStrike,pukiwikiInlinePlugin,pukiwikiDecimalReference,pukiwikiHexReference,pukiwikiBracket,pukiwikiDoubleBracket
+
 syntax match pukiwikiLineBreak '\~$'
 
 syntax region pukiwikiBold start="''" end="''" oneline
@@ -76,14 +74,11 @@ syntax region pukiwikiItalic start="'''" end="'''" oneline
 syntax region pukiwikiAnnotation start='((' end='))' oneline
 syntax region pukiwikiStrike start='%%' end='%%' oneline
 
-syntax match pukiwikiAnd '&' nextgroup=pukiwikiAndKeywords,pukiwikiAndNumber
-syntax keyword pukiwikiAndKeywords nextgroup=pukiwikiArguments contained
-\ br size color ref ruby aname counter online version t page fpage
-\ date time now _date _time _now lastmod
-\ heart smile bigsmile huh oh wink sad worried
-syntax match pukiwikiAndNumber '#\d\+' contained
-syntax match pukiwikiAndNumber '#x\x\+' contained
+syntax match pukiwikiInlinePlugin '&\w\+' nextgroup=pukiwikiArguments,pukiwikiBlock
+syntax match pukiwikiDecimalReference '&#\d\+'
+syntax match pukiwikiHexReference '&#x\x\+'
 
+syntax region pukiwikiBracket matchgroup=Special start='\[' end='\]' contains=pukiwikiAnchor oneline keepend
 syntax region pukiwikiDoubleBracket matchgroup=Special start='\[\[' end='\]\]' contains=pukiwikiLink,pukiwikiAlias oneline keepend
 
 syntax match pukiwikiPageName '.\+' contains=pukiwikiAnchor contained
@@ -98,8 +93,10 @@ syntax match pukiwikiAliasWikiName '\(\u\l\+\)\+:'he=e-1 nextgroup=pukiwikiPageN
 
 " Misc.   "{{{1
 
-syntax region pukiwikiArguments nextgroup=pukiwikiBlock matchgroup=Special start='(' end=')' contained
-syntax region pukiwikiBlock matchgroup=Special start='{' end='}' contained
+syntax region pukiwikiArguments matchgroup=Special start='(' end=')' nextgroup=pukiwikiBlock contained transparent
+syntax region pukiwikiBlock matchgroup=Special start='{' end='}' contains=@pukiwikiInlineElements contained transparent
+syntax region pukiwikiBlock matchgroup=Special start='{{' end='}}' contains=@pukiwikiInlineElements contained transparent
+syntax region pukiwikiBlock matchgroup=Special start='{{{' end='}}}' contains=@pukiwikiInlineElements contained transparent
 
 syntax match pukiwikiComment '^//.*'
 
@@ -109,9 +106,7 @@ syntax match pukiwikiComment '^//.*'
 " Highlight links  "{{{1
 
 highlight default link pukiwikiSectionMarker  Statement
-
 highlight default link pukiwikiBlockquoteMarker  Comment
-
 highlight default link pukiwikiUnorderedListMarker  Statement
 highlight default link pukiwikiOrderedListMarker  Statement
 highlight default link pukiwikiDefinitionListMarker  Statement
@@ -122,14 +117,9 @@ highlight default link pukiwikiTableMarker  Statement
 highlight default link pukiwikiCSVTableMarker  Statement
 
 highlight default link pukiwikiHeadline  Title
-
-highlight default link pukiwikiSharpe  Identifier
-highlight default link pukiwikiSharpeKeywords  Identifier
-
+highlight default link pukiwikiBlockPlugin  Identifier
 highlight default link pukiwikiAlignMarker  Statement
-
 highlight default link pukiwikiHorizon PreProc
-
 
 highlight default link pukiwikiLineBreak  Statement
 highlight default link pukiwikiBold  Statement
@@ -137,19 +127,24 @@ highlight default link pukiwikiItalic  Statement
 highlight default link pukiwikiAnnotation  Special
 highlight default link pukiwikiStrike  NonText
 
-highlight default link pukiwikiAnd  PreProc
-highlight default link pukiwikiAndKeywords  PreProc
-highlight default link pukiwikiAndNumber  PreProc
+highlight default link pukiwikiInlinePlugin  PreProc
 
+highlight default link pukiwikiBracket  Special
 highlight default link pukiwikiDoublebracket  Special
 highlight default link pukiwikiLink  Underlined
-highlight default link pukiwikiAlias  Type
-highlight default link pukiwikiAliasWikiName  Underlined
+highlight default link pukiwikiAlias  Underlined
+highlight default link pukiwikiAliasWikiName  Type
 highlight default link pukiwikiPageName  String
-highlight default link pukiWikiAnchor  Type
-
+highlight default link pukiwikiAnchor  Type
 
 highlight default link pukiwikiComment  Comment
+
+
+
+
+" Fin.  "{{{1
+
+let b:current_syntax = 'pukiwiki'
 
 
 
