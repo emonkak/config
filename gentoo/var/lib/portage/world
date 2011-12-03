@@ -168,6 +168,7 @@ virtual/notification-daemon
 www-client/firefox-bin
 www-client/google-chrome:stable
 www-client/jd
+www-client/opera
 www-client/opera-next
 www-client/w3m
 www-plugins/adobe-flash
