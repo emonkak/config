@@ -223,7 +223,7 @@ myKeys conf = mkKeymap conf $
               , ("f", "firefox-bin")
               , ("g", "gimp")
               , ("j", "jd")
-              , ("o", "opera-next")
+              , ("o", "opera")
               , ("v", "geeqie")
               ]
   , m <- [ "", "M-"]
