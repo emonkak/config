@@ -40,28 +40,23 @@ syntax match pukiwikiBlockquoteMarker '^<\{1,3}'
 syntax match pukiwikiUnorderedListMarker '^+\{1,3}'
 syntax match pukiwikiOrderedListMarker '^-\{1,3}'
 
-syntax region pukiwikiDefinitionList start='^:\{1,3}' end='$'
-\ contains=pukiwikiDefinitionListMarker transparent
+syntax region pukiwikiDefinitionList start='^:\{1,3}' end='$' contains=pukiwikiDefinitionListMarker transparent
 syntax match pukiwikiDefinitionListMarker '^:' contained
 syntax match pukiwikiDefinitionListMarker '|' contained
 
 syntax match pukiwikiPreFormattedText '^\s.*'
 
-syntax region pukiwikiTable start='^|' end='$'
-\ contains=pukiwikiTableMarker transparent
+syntax region pukiwikiTable start='^|' end='$' contains=pukiwikiTableMarker transparent
 syntax match pukiwikiTableMarker '|' contained
 
-syntax region pukiwikiCSVTable start='^,' end='$'
-\ contains=pukiwikiCSVTableMarker transparent
+syntax region pukiwikiCSVTable start='^,' end='$' contains=pukiwikiCSVTableMarker transparent
 syntax match pukiwikiCSVTableMarker ',' contained
 
-syntax region pukiwikiHeadline matchgroup=Special
-\ start='^\*\{1,3}' end='$' oneline
+syntax region pukiwikiHeadline matchgroup=Special start='^\*\{1,3}' end='$' oneline
 
 syntax match pukiwikiSharpe '^#' nextgroup=pukiwikiSharpeKeywords
-syntax keyword pukiwikiSharpeKeywords nextgroup=pukiwikiArguments
+syntax keyword pukiwikiSharpeKeywords nextgroup=pukiwikiArguments contained
 \ contents hr br ref clear comment pcomment article vote
-\ contained
 
 syntax match pukiwikiAlignMarker '^LEFT:'
 syntax match pukiwikiAlignMarker '^CENTER:'
@@ -82,34 +77,28 @@ syntax region pukiwikiAnnotation start='((' end='))' oneline
 syntax region pukiwikiStrike start='%%' end='%%' oneline
 
 syntax match pukiwikiAnd '&' nextgroup=pukiwikiAndKeywords,pukiwikiAndNumber
-syntax keyword pukiwikiAndKeywords nextgroup=pukiwikiArguments
+syntax keyword pukiwikiAndKeywords nextgroup=pukiwikiArguments contained
 \ br size color ref ruby aname counter online version t page fpage
 \ date time now _date _time _now lastmod
 \ heart smile bigsmile huh oh wink sad worried
-\ contained
 syntax match pukiwikiAndNumber '#\d\+' contained
 syntax match pukiwikiAndNumber '#x\x\+' contained
 
-syntax region pukiwikiDoubleBracket matchgroup=Special start='\[\[' end='\]\]'
-\ contains=pukiwikiLink,pukiwikiAlias oneline keepend
+syntax region pukiwikiDoubleBracket matchgroup=Special start='\[\[' end='\]\]' contains=pukiwikiLink,pukiwikiAlias oneline keepend
 
 syntax match pukiwikiPageName '.\+' contains=pukiwikiAnchor contained
 syntax match pukiwikiAnchor '#[0-9A-Za-z_-]\+' contained
 
-syntax match pukiwikiLink '[^:]\+:\?'he=e-1
-\ nextgroup=pukiwikiPageName contained
-syntax match pukiwikiAlias '[^>]\+>'he=e-1
-\ nextgroup=pukiwikiAnchor,pukiwikiAliasWikiName,pukiwikiPageName contained
-syntax match pukiwikiAliasWikiName '\(\u\l\+\)\+:'he=e-1
-\ nextgroup=pukiwikiPageName contained
+syntax match pukiwikiLink '[^:]\+:\?'he=e-1 nextgroup=pukiwikiPageName contained
+syntax match pukiwikiAlias '[^>]\+>'he=e-1 nextgroup=pukiwikiAnchor,pukiwikiAliasWikiName,pukiwikiPageName contained
+syntax match pukiwikiAliasWikiName '\(\u\l\+\)\+:'he=e-1 nextgroup=pukiwikiPageName contained
 
 
 
 
 " Misc.   "{{{1
 
-syntax region pukiwikiArguments nextgroup=pukiwikiBlock matchgroup=Special
-\ start='(' end=')' contained
+syntax region pukiwikiArguments nextgroup=pukiwikiBlock matchgroup=Special start='(' end=')' contained
 syntax region pukiwikiBlock matchgroup=Special start='{' end='}' contained
 
 syntax match pukiwikiComment '^//.*'
