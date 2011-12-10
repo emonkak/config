@@ -45,7 +45,11 @@ if has('vim_starting')
     set fileformat=unix
     set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
     set termencoding=cp932
+  elseif has('gui_macvim')
+    language C
   endif
+  set runtimepath^=~/.vim/bundle/*
+  set runtimepath+=~/.vim/bundle/*/after
 endif
 
 if has('gui_running')
@@ -55,6 +59,10 @@ if has('gui_running')
     set linespace=3
   elseif has('gui_win32')
     set guifont=Consolas:h10.5
+  elseif has('gui_macvim')
+    set guifont=Consolas:h14
+    set linespace=5
+    set transparency=10
   endif
   set guioptions=AcgM
 endif
@@ -69,7 +77,7 @@ endif
 filetype plugin indent on
 
 
-if has('kaoriya') && has('gui_running')
+if has('kaoriya') && has('gui_win32')
   set ambiwidth=auto
 else
   set ambiwidth=double
@@ -122,6 +130,7 @@ set splitbelow
 set splitright
 set ttimeoutlen=50
 set wildmenu
+set wildmode=list:longest
 set nowrapscan
 
 set autoindent
@@ -195,7 +204,6 @@ augroup END
 
 call altercmd#load()
 call arpeggio#load()
-call rtputil#bundle()
 
 
 
@@ -209,7 +217,7 @@ let s:TRUE = !s:FALSE
 
 
 
-" :setlocal ... wrappers  "{{{2
+" :setlocal {option} wrappers  "{{{2
 
 command! -nargs=? -complete=filetype SetFileType
 \ setlocal filetype=<args> | silent! SkeletonLoad <args>
@@ -363,26 +371,17 @@ autocmd MyAutoCmd BufEnter,BufReadPost ?*
 
 
 
-" Hecho, Hechon, Hechomsg - various :echo with highlight specification  "{{{2
-
-command! -bar -nargs=+ Hecho  call s:cmd_Hecho('echo', [<f-args>])
-command! -bar -nargs=+ Hechon  call s:cmd_Hecho('echon', [<f-args>])
-command! -bar -nargs=+ Hechomsg  call s:cmd_Hecho('echomsg', [<f-args>])
-function! s:cmd_Hecho(echo_command, args)
-  let highlight_name = a:args[0]
-  let messages = a:args[1:]
-
-  execute 'echohl' highlight_name
-  execute a:echo_command join(messages)
-  echohl None
-endfunction
-
-
-
-
 " HelpTagsAll  "{{{2
 
-command! -bang -nargs=0 HelpTagsAll  call rtputil#helptags(<bang>0)
+command! -bang -nargs=0 HelpTagsAll
+\   for path in split(globpath(&runtimepath, 'doc'), '\n')
+\ |   if filewritable(path)
+\ |     helptags `=path`
+\ |     if <bang>0
+\ |       echo fnamemodify(path, ':~')
+\ |     endif
+\ |   endif
+\ | endfor
 
 
 
@@ -393,9 +392,13 @@ command! -complete=file -nargs=1 Rename  call s:cmd_Rename(<q-args>)
 function! s:cmd_Rename(name)
   let current = expand('%')
   if &l:readonly || !&l:modifiable || !filewritable(current)
-    Hecho ErrorMsg 'This file cannot be changes'
+    echohl ErrorMsg
+    echo 'This file cannot be changes:' a:name
+    echohl None
   elseif filereadable(a:name)
-    Hecho ErrorMsg 'Renamed file already exists'
+    echohl ErrorMsg
+    echo 'Renamed file already exists:' a:name
+    echohl None
   else
     file `=a:name`
     call delete(current)
@@ -570,7 +573,9 @@ function! s:make(command, args)
   try
     execute a:command.'!' join(a:args)
   catch
-    Hecho ErrorMsg v:exception
+    echohl ErrorMsg
+    echo v:exception
+    echohl None
   endtry
 
   if a:command ==# 'make'
@@ -1367,6 +1372,12 @@ map <Space>  [Space]
 noremap [Space]  <Nop>
 
 
+nnoremap <silent> [Space]w  :<C-u>w<CR>
+if has('unix') && executable('sudo')
+  nnoremap <silent> [Space]W  :<C-u>w sudo:%<CR>
+endif
+
+
 nnoremap [Space]f  <Nop>
 nnoremap [Space]fe  :<C-u>SetFileEncoding<Space>
 nnoremap [Space]ff  :<C-u>SetFileFormat<Space>
@@ -1522,10 +1533,6 @@ Arpeggio map oy  <Plug>(operator-yank-clipboard)
 " Misc.  "{{{2
 
 nnoremap <silent> <Leader><Leader>  :<C-u>update<CR>
-
-if has('unix') && executable('sudo')
-  nnoremap <silent> <Leader>w  :<C-u>w sudo:%<CR>
-endif
 
 nnoremap <C-h>  :<C-u>Help<Space>
 nnoremap <C-o>  :<C-u>edit<Space>
@@ -1803,7 +1810,7 @@ autocmd MyAutoCmd FileType lua
 
 autocmd MyAutoCmd FileType objc
 \   SetIndent 2
-\ | setlocal commentstring=//%s
+\ | setlocal commentstring=//%s cinoptions=l1,g0,t0,(0,W1s
 
 
 
@@ -2095,6 +2102,7 @@ nnoremap <silent> [Space]ka  :<C-u>Ku args<CR>
 nnoremap <silent> [Space]kb  :<C-u>Ku buffer<CR>
 nnoremap <silent> [Space]kc  :<C-u>Ku colorscheme<CR>
 nnoremap <silent> [Space]kf  :<C-u>Ku file<CR>
+nnoremap <silent> [Space]k.  :<C-u>Ku file/current<CR>
 nnoremap <silent> [Space]kg  :<C-u>Ku metarw/git<CR>
 nnoremap <silent> [Space]kh  :<C-u>Ku history<CR>
 nnoremap <silent> [Space]kl  :<C-u>Ku file_rec<CR>
@@ -2103,6 +2111,7 @@ nnoremap <silent> [Space]kr  :<C-u>Ku register<CR>
 nnoremap <silent> [Space]ks  :<C-u>Ku source<CR>
 nnoremap <silent> [Space]kt  :<C-u>Ku tags<CR>
 nnoremap <silent> [Space]kw  :<C-u>Ku myproject<CR>
+nnoremap <silent> [Space]kz  :<C-u>Ku fold<CR>
 
 nnoremap <silent> [Space]k/  :<C-u>Ku cmd_mru/search<CR>
 nnoremap <silent> [Space]k:  :<C-u>Ku cmd_mru/cmd<CR>
@@ -2175,7 +2184,7 @@ command! -complete=command -nargs=+ Capture  QuickRun vim -src <q-args>
 
 let g:quickrun_config = {
 \  '_': {
-\    'split': printf('%%{%s ? "vertical" : ""}', s:vertical_p),
+\    'split': '%{'.s:vertical_p.' ? "vertical" : ""}',
 \  },
 \  'dot': {
 \    'exec': ['%c -Tps:cairo -o %s:p:r.ps %s'],
@@ -2284,7 +2293,7 @@ function! s:on_User_plugin_skeleton_detect()
   let type = directories[-1]
 
   if extensions[-1] ==# 'vim'
-  \  && type =~# '^\v(autoload|colors|compiler|ftplugin|indent|plugin|syntax)'
+  \  && type =~# '^\v(autoload|colors|compiler|ftdetect|ftplugin|indent|plugin|syntax)'
     let after_p = directories[-2] == 'after'
     execute 'SkeletonLoad' (after_p ? 'vim-additional-' : 'vim-') . type
   elseif extensions[-2:-1] ==# ['user', 'js']
@@ -2335,7 +2344,9 @@ call submode#map('undo/redo', 'n', '', '-', 'g-')
 call submode#map('undo/redo', 'n', '', '+', 'g+')
 
 
-call submode#enter_with('winsize', 'n', '', '[Space]w',
+call submode#enter_with('winsize', 'n', '', '<C-w><Space>',
+\                       ':<C-u>call '.s:SID_PREFIX().'submode_winsize()<CR>')
+call submode#enter_with('winsize', 'n', '', '<C-w><C-@>',
 \                       ':<C-u>call '.s:SID_PREFIX().'submode_winsize()<CR>')
 function! s:submode_winsize()
   let current = winnr()
