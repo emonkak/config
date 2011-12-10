@@ -69,7 +69,6 @@ dev-lang/v8
 dev-ml/ccell
 dev-ml/ocaml-curses
 dev-node/coffee-script
-dev-node/npm
 dev-perl/Term-ProgressBar
 dev-perl/WWW-Mechanize
 dev-perl/libwww-perl
@@ -94,6 +93,7 @@ dev-vcs/mercurial
 dev-vcs/subversion
 dev-vcs/tig
 gnome-extra/gconf-editor
+gnome-extra/gucharmap
 media-fonts/artwiz-latin1
 media-fonts/corefonts
 media-fonts/font-micro-misc

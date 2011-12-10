@@ -75,7 +75,7 @@ virtual/ffmpeg x264 vaapi mp3 theora
 www-client/google-chrome linguas_ja
 www-client/jd migemo
 www-client/luakit luajit
-www-client/opera gtk
+www-client/opera gtk gtk3
 www-client/opera-next gtk
 www-client/w3m linguas_ja
 www-plugins/adobe-flash -32bit
