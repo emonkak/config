@@ -37,123 +37,123 @@ print 0 | export SORT_MARK_UP
 
 
 # Functions  #{{{1
-def cursor {  #{{{2
+def cursor (  #{{{2
   file_name $(cursor_num)
-}
+)
 
 
 
 
-def cursor_move_loop {  #{{{2
+def cursor_move_loop (  #{{{2
   file_num | \* 2 | + $(cursor_num) | + $(ary ARGV 0) | mod $(file_num) | var pos
   cursor_move $(var pos)
-}
+)
 
 
 
 
-def extname_length {  #{{{2
+def extname_length (  #{{{2
   | extname | var ext
-  if(var ext | [ = '' ] || var ext | length | [ -gt 4 ]) {
+  if(var ext | [ = '' ] || var ext | length | [ -gt 4 ]) (
     print 0
-  } else {
+  ) else (
     var ext | length | + 1
-  }
-}
+  )
+)
 
 
 
 
-def find_file {  #{{{2
+def find_file (  #{{{2
   find . @@(ary ARGV) | scan './(.+)' | vd
-}
+)
 
 
 
 
-def glob_mark {  #{{{2
-  for file in @@(ary ARGV) {
+def glob_mark (  #{{{2
+  for file in @@(ary ARGV) (
     mark $(var file) 1
-  }
-}
+  )
+)
 
 
 
 
-def open_file {  #{{{2
+def open_file (  #{{{2
   split $(ary ARGV 0) '\.' | lc | ary xs
 
-  if(length xs | [ -lt 2 ]) {
+  if(length xs | [ -lt 2 ]) (
     external -q "$$(export PAGER) $(ary ARGV 0)"
     return
-  }
+  )
 
-  case $(ary xs -1) '^gz$' {
-    if(ary xs -2 | [ = 'tar' ]) {
+  case $(ary xs -1) '^gz$' (
+    if(ary xs -2 | [ = 'tar' ]) (
       external -q "tar tvfz $(ary ARGV 0) | $$(export PAGER)"
       break
-    }
-  } '^bz2$' {
-    if(ary xs -2 | [ = 'tar' ]) {
+    )
+  ) '^bz2$' (
+    if(ary xs -2 | [ = 'tar' ]) (
       external -q "tar tvfj $(ary ARGV 0) | $$(export PAGER)"
       break
-    }
-  } '^xz$' {
-    if(ary xs -2 | [ = 'tar' ]) {
+    )
+  ) '^xz$' (
+    if(ary xs -2 | [ = 'tar' ]) (
       external -q "tar tvfJ $(ary ARGV 0) | $$(export PAGER)"
       break
-    }
-  } '^lzma$' {
-    if(ary xs -2 | [ = 'tar' ]) {
+    )
+  ) '^lzma$' (
+    if(ary xs -2 | [ = 'tar' ]) (
       external -q "tar tvfa $(ary ARGV 0) | $$(export PAGER)"
       break
-    }
-  } '^tgz$' {
+    )
+  ) '^tgz$' (
     external -q "tar tvfz $(ary ARGV 0) | $$(export PAGER)"
     break
-  } '^tbz$' {
+  ) '^tbz$' (
     external -q "tar tvfj $(ary ARGV 0) | $$(export PAGER)"
     break
-  } '^txz$' {
+  ) '^txz$' (
     external -q "tar tvfJ $(ary ARGV 0) | $$(export PAGER)"
     break
-  } '^tlz$' {
+  ) '^tlz$' (
     external -q "tar tvfa $(ary ARGV 0) | $$(export PAGER)"
     break
-  } '^7z$' {
+  ) '^7z$' (
     external -q "7z l $(ary ARGV 0) | $$(export PAGER)"
     break
-  } '^cab$' {
+  ) '^cab$' (
     external -q "cabextract -l $(ary ARGV 0) | $$(export PAGER)"
     break
-  } '^lzh$' {
+  ) '^lzh$' (
     external -q "lha l $(ary ARGV 0) | $$(export PAGER)"
     break
-  } '^rar$' {
+  ) '^rar$' (
     external -q "unrar vb $(ary ARGV 0) | $$(export PAGER)"
     break
-  } '^zip$' {
+  ) '^zip$' (
     external -q "zipinfo -O cp932 $(ary ARGV 0) | $$(export PAGER)"
     break
-  } '^(aac|asf|avi|flv|mkv|mov|mp3|mp4|mpe?g|ogg|ogv|rm|ts|wav|webm|wma|wmv)$' {
+  ) '^(aac|asf|avi|flv|mkv|mov|mp3|mp4|mpe?g|ogg|ogv|rm|ts|wav|webm|wma|wmv)$' (
     external -q "mplayer -quiet $(ary ARGV 0)"
     break
-  } '^(bmp|gif|jpe?g|png)$' {
+  ) '^(bmp|gif|jpe?g|png)$' (
     external -q "feh  $(ary ARGV 0)"
     break
-  } '^(eps|pdf|ps)$' {
+  ) '^(eps|pdf|ps)$' (
     external -q "evince $(ary ARGV 0)"
     break
-  } '.*' {
+  ) '.*' (
     external -q "$$(export PAGER) $(ary ARGV 0)"
     break
-  }
-}
+  )
+)
 
 
 
 
-def pack {  #{{{2
+def pack (  #{{{2
   ary ARGV 0 | var ext
   ary ARGV 1 | var command
 
@@ -164,86 +164,86 @@ def pack {  #{{{2
   cmdline "$$(var command) $$(var dest | q) @@(markfiles)" -$(var pos)
 
   reread -d all
-}
+)
 
 
 
 
-def q {  #{{{2
-  if(ary ARGV | length -nl -L | [ = 0 ]) {
-    | each { | printf "'%s'" | pomch } | chomp
-  } else {
-    foreach @@(ary ARGV) { | printf "'%s'" | pomch } | join ' ' | chomp
-  }
-}
+def q (  #{{{2
+  if(ary ARGV | length -nl -L | [ = 0 ]) (
+    | each ( | printf "'%s'" | pomch ) | chomp
+  ) else (
+    foreach @@(ary ARGV) ( | printf "'%s'" | pomch ) | join ' ' | chomp
+  )
+)
 
 
 
 
-def regex_mark {  #{{{2
-  for file in @@(allfiles) {
-    if(var file | [ -re $(ary ARGV 0) ]) {
+def regex_mark (  #{{{2
+  for file in @@(allfiles) (
+    if(var file | [ -re $(ary ARGV 0) ]) (
       mark -t $(var file) 1
-    }
-  }
-}
+    )
+  )
+)
 
 
 
 
-def regex_rename {  #{{{2
-  for file in @@(markfiles) {
-    if(var file | [ -re $(ary ARGV 0) ]) {
-      puts "$$(var file) -> $$(var file | sub $(ary ARGV 0) { ary ARGV 1 })"
-    } else {
+def regex_rename (  #{{{2
+  for file in @@(markfiles) (
+    if(var file | [ -re $(ary ARGV 0) ]) (
+      puts "$$(var file) -> $$(var file | sub $(ary ARGV 0) ( ary ARGV 1 ))"
+    ) else (
       puts "$$(var file)"
-    }
-  } | $$(export PAGER)
+    )
+  ) | $$(export PAGER)
 
   minitscr
-  if(mchoise "rename ok?" no yes | [ = yes ]) {
+  if(mchoise "rename ok?" no yes | [ = yes ]) (
     mendwin
     mclear_immediately
 
-    for file in @@(markfiles) {
-      if(var file | [ -re $(ary ARGV 0) ]) {
-        mrename $(var file) $(var file | sub $(ary ARGV 0) { ary ARGV 1 })
-      }
-    }
-  }
+    for file in @@(markfiles) (
+      if(var file | [ -re $(ary ARGV 0) ]) (
+        mrename $(var file) $(var file | sub $(ary ARGV 0) ( ary ARGV 1 ))
+      )
+    )
+  )
 
   mclear_immediately
   reread
-}
+)
 
 
 
 
-def scroll_left {  #{{{2
-  if(row | [ != 0 ]) {
+def scroll_left (  #{{{2
+  if(row | [ != 0 ]) (
     cursor_move -$(line_max)
-  }
-}
+  )
+)
 
 
 
 
-def scroll_right {  #{{{2
-  if(row | [ != $(row_max | - 1) ]) {
+def scroll_right (  #{{{2
+  if(row | [ != $(row_max | - 1) ]) (
     cursor_move +$(line_max)
-  }
-}
+  )
+)
 
 
 
 
-def toggle {  #{{{2
-  | if( | [ = 0 ]) {
+def toggle (  #{{{2
+  | if( | [ = 0 ]) (
       print 1
-  } else {
+  ) else (
       print 0
-  }
-}
+  )
+)
 
 
 
@@ -368,277 +368,277 @@ addmenu view 'file (S)ize view way Plane'       $(export key_P) 'print Plane | e
 # Keycommand  #{{{1
 # Cursor  #{{{2
 
-keycommand2 $(export key_up)     { cursor_move_loop -1 }
-keycommand2 $(export key_down)   { cursor_move_loop 1 }
-keycommand2 $(export key_k)      { cursor_move_loop -1 }
-keycommand2 $(export key_j)      { cursor_move_loop 1 }
-keycommand2 $(export key_ctrl_p) { cursor_move_loop -1 }
-keycommand2 $(export key_ctrl_n) { cursor_move_loop 1 }
+keycommand2 $(export key_up)     ( cursor_move_loop -1 )
+keycommand2 $(export key_down)   ( cursor_move_loop 1 )
+keycommand2 $(export key_k)      ( cursor_move_loop -1 )
+keycommand2 $(export key_j)      ( cursor_move_loop 1 )
+keycommand2 $(export key_ctrl_p) ( cursor_move_loop -1 )
+keycommand2 $(export key_ctrl_n) ( cursor_move_loop 1 )
 
-keycommand2 $(export key_G) { cursor_move $(file_num) }
-keycommand2 $(export key_g) { cursor_move 0 }
+keycommand2 $(export key_G) ( cursor_move $(file_num) )
+keycommand2 $(export key_g) ( cursor_move 0 )
 
-keycommand2 $(export key_pageup)   { cursor_move -10 }
-keycommand2 $(export key_pagedown) { cursor_move +10 }
-keycommand2 $(export key_ctrl_d)   { cursor_move +10 }
-keycommand2 $(export key_ctrl_u)   { cursor_move -10 }
+keycommand2 $(export key_pageup)   ( cursor_move -10 )
+keycommand2 $(export key_pagedown) ( cursor_move +10 )
+keycommand2 $(export key_ctrl_d)   ( cursor_move +10 )
+keycommand2 $(export key_ctrl_u)   ( cursor_move -10 )
 
-keycommand2 $(export key_space) {
+keycommand2 $(export key_space) (
   mark -t -n $(cursor_num)
   cursor_move +1
-}
+)
 
 
 
 
 # File and Directory  #{{{2
 
-keycommand2 $(export key_enter) -f .directory { mcd $(cursor) }
-keycommand2 $(export key_l)     -f .directory { mcd $(cursor) }
-keycommand2 $(export key_enter) -f .mark {
+keycommand2 $(export key_enter) -f .directory ( mcd $(cursor) )
+keycommand2 $(export key_l)     -f .directory ( mcd $(cursor) )
+keycommand2 $(export key_enter) -f .mark (
   ([ -d $(cursor) ] && mcd $(cursor)) || open_file $(cursor)
-}
-keycommand2 $(export key_enter) -f .link {
+)
+keycommand2 $(export key_enter) -f .link (
   ([ -d $(cursor) ] && mcd $(cursor)) || open_file $(cursor)
-}
-keycommand2 $(export key_l) -f .mark {
+)
+keycommand2 $(export key_l) -f .mark (
   ([ -d $(cursor) ] && mcd $(cursor)) || open_file $(cursor)
-}
-keycommand2 $(export key_l) -f .link {
+)
+keycommand2 $(export key_l) -f .link (
   ([ -d $(cursor) ] && mcd $(cursor)) || open_file $(cursor)
-}
-keycommand2 $(export key_enter) { open_file $(cursor) }
-keycommand2 $(export key_l)     { open_file $(cursor) }
+)
+keycommand2 $(export key_enter) ( open_file $(cursor) )
+keycommand2 $(export key_l)     ( open_file $(cursor) )
 
-keycommand2 $(export key_x) -f .execute { cmdline "./$(cursor) " -1 }
-keycommand2 $(export key_x) -f .exe     { cmdline "wine ./$(cursor) " -1 }
-keycommand2 $(export key_x) -f .hs      { cmdline "runghc ./$(cursor) " -1 }
-keycommand2 $(export key_x) -f .msi     { cmdline "wine msiexec /i ./$(cursor) " -1 }
-keycommand2 $(export key_x) -f .pl      { cmdline "perl ./$(cursor) " -1 }
-keycommand2 $(export key_x) -f .py      { cmdline "python ./$(cursor) " -1 }
-keycommand2 $(export key_x) -f .rb      { cmdline "ruby ./$(cursor) " -1 }
-keycommand2 $(export key_x) -f .scm     { cmdline "gosh ./$(cursor) " -1 }
-keycommand2 $(export key_x) -f .sh      { cmdline "sh ./$(cursor) " -1 }
-keycommand2 $(export key_x)             { cmdline " ./$(cursor)" 0 }
+keycommand2 $(export key_x) -f .execute ( cmdline "./$(cursor) " -1 )
+keycommand2 $(export key_x) -f .exe     ( cmdline "wine ./$(cursor) " -1 )
+keycommand2 $(export key_x) -f .hs      ( cmdline "runghc ./$(cursor) " -1 )
+keycommand2 $(export key_x) -f .msi     ( cmdline "wine msiexec /i ./$(cursor) " -1 )
+keycommand2 $(export key_x) -f .pl      ( cmdline "perl ./$(cursor) " -1 )
+keycommand2 $(export key_x) -f .py      ( cmdline "python ./$(cursor) " -1 )
+keycommand2 $(export key_x) -f .rb      ( cmdline "ruby ./$(cursor) " -1 )
+keycommand2 $(export key_x) -f .scm     ( cmdline "gosh ./$(cursor) " -1 )
+keycommand2 $(export key_x) -f .sh      ( cmdline "sh ./$(cursor) " -1 )
+keycommand2 $(export key_x)             ( cmdline " ./$(cursor)" 0 )
 
-keycommand2 $(export key_backspace) { mcd .. }
-keycommand2 $(export key_h)         { mcd .. }
-keycommand2 $(export key_tilda)     { mcd ~ }
-keycommand2 $(export key_backslash) { mcd / }
-keycommand2 $(export key_T)         { mcd $(export TRASHBOX_DIR) }
+keycommand2 $(export key_backspace) ( mcd .. )
+keycommand2 $(export key_h)         ( mcd .. )
+keycommand2 $(export key_tilda)     ( mcd ~ )
+keycommand2 $(export key_backslash) ( mcd / )
+keycommand2 $(export key_T)         ( mcd $(export TRASHBOX_DIR) )
 
-keycommand2 $(export key_ctrl_k) { mcd - }
-keycommand2 $(export key_ctrk_j) { mcd + }
+keycommand2 $(export key_ctrl_k) ( mcd - )
+keycommand2 $(export key_ctrk_j) ( mcd + )
 
 
 
 
 # Operation  #{{{2
 
-keycommand2 $(export key_r) -f .mark {
+keycommand2 $(export key_r) -f .mark (
   cmdline -q "regex_rename '' ''" -5
-}
-keycommand2 $(export key_r) {
+)
+keycommand2 $(export key_r) (
   cursor | extname_length | + 2 | var pos
   cmdline -q "mrename -c -r $$(cursor | q) $$(cursor | q)" -$(var pos)
-}
+)
 
-keycommand2 $(export key_L) { mln $(path -d sdir) }
-keycommand2 $(export key_b) { cmdline -q "mbackup -p $$(cursor | q)" -2 }
-keycommand2 $(export key_c) { mcp -p $(path -d sdir) }
-keycommand2 $(export key_m) { mmv -p $(path -d sdir) }
+keycommand2 $(export key_L) ( mln $(path -d sdir) )
+keycommand2 $(export key_b) ( cmdline -q "mbackup -p $$(cursor | q)" -2 )
+keycommand2 $(export key_c) ( mcp -p $(path -d sdir) )
+keycommand2 $(export key_m) ( mmv -p $(path -d sdir) )
 
-keycommand2 $(export key_D) -f .mark {
+keycommand2 $(export key_D) -f .mark (
   mchoise "DELETE file ok?" yes no | [ = yes ] && mrm
-}
-keycommand2 $(export key_d) -f .mark {
+)
+keycommand2 $(export key_d) -f .mark (
   mchoise "move file to trashbox ok?" yes no | [ = yes ] && mtrashbox -f
-}
+)
 
-keycommand2 $(export key_I) -f .mark { external "du --si -sc @@(markfiles)" }
-keycommand2 $(export key_I)          { external "du --si -s $(cursor)" }
-keycommand2 $(export key_i) -f .mark { external "du -hsc @@(markfiles)" }
-keycommand2 $(export key_i)          { external "du -hs $(cursor)" }
+keycommand2 $(export key_I) -f .mark ( external "du --si -sc @@(markfiles)" )
+keycommand2 $(export key_I)          ( external "du --si -s $(cursor)" )
+keycommand2 $(export key_i) -f .mark ( external "du -hsc @@(markfiles)" )
+keycommand2 $(export key_i)          ( external "du -hs $(cursor)" )
 
-keycommand2 $(export key_K) { cmdline "mkdir -p ''" -2 }
-keycommand2 $(export key_n) { cmdline "touch ''" -2 }
+keycommand2 $(export key_K) ( cmdline "mkdir -p ''" -2 )
+keycommand2 $(export key_n) ( cmdline "touch ''" -2 )
 
-keycommand2 $(export key_e) { external -q "vim --remote-tab-silent $(cursor)" }
-keycommand2 $(export key_E) { external -q "gvim --remote-tab-silent $(cursor)" }
+keycommand2 $(export key_e) ( external -q "vim --remote-tab-silent $(cursor)" )
+keycommand2 $(export key_E) ( external -q "gvim --remote-tab-silent $(cursor)" )
 
-keycommand2 $(export key_v) { external -q "$$(export PAGER) $(cursor)" }
-keycommand2 $(export key_B) { external -q "hex $(cursor) | $$(export PAGER)" }
+keycommand2 $(export key_v) ( external -q "$$(export PAGER) $(cursor)" )
+keycommand2 $(export key_B) ( external -q "hex $(cursor) | $$(export PAGER)" )
 
-keycommand2 $(export key_F) { cmdline -q "find_file -name ''" -2 }
-keycommand2 $(export key_f) { cmdline -q "mask -dotdir 0; mask ''" -2 }
+keycommand2 $(export key_F) ( cmdline -q "find_file -name ''" -2 )
+keycommand2 $(export key_f) ( cmdline -q "mask -dotdir 0; mask ''" -2 )
 
-keycommand2 $(export key_ctrl_g) { external "puts $(cursor)" }
+keycommand2 $(export key_ctrl_g) ( external "puts $(cursor)" )
 
-keycommand2 $(export key_Y) { external -q "print $(path)$(cursor) | xsel --input" }
-keycommand2 $(export key_y) { external -q "print $(cursor) | xsel --input" }
+keycommand2 $(export key_Y) ( external -q "print $(path)$(cursor) | xsel --input" )
+keycommand2 $(export key_y) ( external -q "print $(cursor) | xsel --input" )
 
 
 
 
 # Extract  #{{{2
 
-keycommand2 $(export key_u) -f .bz2 {
-  if(cursor | index -q tar.bz2) {
+keycommand2 $(export key_u) -f .bz2 (
+  if(cursor | index -q tar.bz2) (
     cmdline "tar xvfj $$(cursor | q) -C $$(path -d sdir | q)" -2
-  } else {
+  ) else (
     cmdline "bzip2 -d $$(cursor | q)" -2
-  }
-}
-keycommand2 $(export key_u) -f .gz {
-  if(cursor | index -q tar.gz) {
+  )
+)
+keycommand2 $(export key_u) -f .gz (
+  if(cursor | index -q tar.gz) (
     cmdline "tar xvfz $$(cursor | q) -C $$(path -d sdir | q)" -2
-  } else {
+  ) else (
     cmdline "gzip -d $$(cursor | q)" -2
-  }
-}
-keycommand2 $(export key_u) -f .lzma {
-  if(cursor | index -q tar.lzma) {
+  )
+)
+keycommand2 $(export key_u) -f .lzma (
+  if(cursor | index -q tar.lzma) (
     cmdline "tar xvfa $$(cursor | q) -C $$(path -d sdir | q)" -2
-  } else {
+  ) else (
     cmdline "lzma -d $$(cursor | q)" -2
-  }
-}
-keycommand2 $(export key_u) -f .xz {
-  if(cursor | index -q tar.xz) {
+  )
+)
+keycommand2 $(export key_u) -f .xz (
+  if(cursor | index -q tar.xz) (
     cmdline "tar xvfJ $$(cursor | q) -C $$(path -d sdir | q)" -2
-  } else {
+  ) else (
     cmdline "xz -d $$(cursor | q)" -2
-  }
-}
-keycommand2 $(export key_u) -f .tbz {
+  )
+)
+keycommand2 $(export key_u) -f .tbz (
   cmdline "tar xvfj $$(cursor | q) -C $$(path -d sdir | q)" -2
-}
-keycommand2 $(export key_u) -f .tgz {
+)
+keycommand2 $(export key_u) -f .tgz (
   cmdline "tar xvfz $$(cursor | q) -C $$(path -d sdir | q)" -2
-}
-keycommand2 $(export key_u) -f .tlz {
+)
+keycommand2 $(export key_u) -f .tlz (
   cmdline "tar xvfa $$(cursor | q) -C $$(path -d sdir | q)" -2
-}
-keycommand2 $(export key_u) -f .txz {
+)
+keycommand2 $(export key_u) -f .txz (
   cmdline "tar xvfJ $$(cursor | q) -C $$(path -d sdir | q)" -2
-}
+)
 
-keycommand2 $(export key_u) -f .7z {
+keycommand2 $(export key_u) -f .7z (
   cmdline "7z x $$(cursor | q) -o$$(path -d sdir | q)" -2
-}
-keycommand2 $(export key_u) -f .cab {
+)
+keycommand2 $(export key_u) -f .cab (
   cmdline "cabextract -d $$(path -d sdir | q) $$(cursor | q)" -2
-}
-keycommand2 $(export key_u) -f .deb {
+)
+keycommand2 $(export key_u) -f .deb (
   cmdline "ar x $$(cursor | q)" -2
-}
-keycommand2 $(export key_u) -f .lzh {
+)
+keycommand2 $(export key_u) -f .lzh (
   cmdline "lha xw=$$(path -d sdir | q) $$(cursor | q)" -2
-}
-keycommand2 $(export key_u) -f .rar {
+)
+keycommand2 $(export key_u) -f .rar (
   cmdline "unrar x $$(cursor | q) $$(path -d sdir | q)" -2
-}
-keycommand2 $(export key_u) -f .zip {
+)
+keycommand2 $(export key_u) -f .zip (
   cmdline "unzip $$(cursor | q) -d $$(path -d sdir | q)" -2
-}
+)
 
 
 
 
 # Menu  #{{{2
 
-keycommand2 $(export key_sharp) { mmenu sudo }
-keycommand2 $(export key_J)     { mmenu jump }
-keycommand2 $(export key_V)     { mmenu view }
-keycommand2 $(export key_a)     { mmenu attribute }
-keycommand2 $(export key_p)     { mmenu pack }
-keycommand2 $(export key_s)     { mmenu sort_and_mask }
+keycommand2 $(export key_sharp) ( mmenu sudo )
+keycommand2 $(export key_J)     ( mmenu jump )
+keycommand2 $(export key_V)     ( mmenu view )
+keycommand2 $(export key_a)     ( mmenu attribute )
+keycommand2 $(export key_p)     ( mmenu pack )
+keycommand2 $(export key_s)     ( mmenu sort_and_mask )
 
 
 
 
 # Mark  #{{{2
 
-keycommand2 $(export key_escape) { mark -a 0 }
-keycommand2 $(export key_ctrl_c) { mark -a 0 }
+keycommand2 $(export key_escape) ( mark -a 0 )
+keycommand2 $(export key_ctrl_c) ( mark -a 0 )
 
-keycommand2 $(export key_star) { mark -t -a }
-keycommand2 $(export key_plus) { cmdline -q "regex_mark ''" -2 }
-keycommand2 $(export key_M)    { cmdline -q "glob_mark *" -1 }
+keycommand2 $(export key_star) ( mark -t -a )
+keycommand2 $(export key_plus) ( cmdline -q "regex_mark ''" -2 )
+keycommand2 $(export key_M)    ( cmdline -q "glob_mark *" -1 )
 
-keycommand2 $(export key_key_lbrack) { cursor_num | global MARK_RANGE_BEGIN }
-keycommand2 $(export key_key_rbrack) {
-  if(global MARK_RANGE_BEGIN | [ != -1 ]) {
+keycommand2 $(export key_key_lbrack) ( cursor_num | global MARK_RANGE_BEGIN )
+keycommand2 $(export key_key_rbrack) (
+  if(global MARK_RANGE_BEGIN | [ != -1 ]) (
     global MARK_RANGE_BEGIN | var i
-    while(var i | [ -le $(cursor_num) ]) {
+    while(var i | [ -le $(cursor_num) ]) (
       mark -t -n $(var i)
       ++ i
-    }
-  }
-}
+    )
+  )
+)
 
 
 
 
 # Pane  #{{{2
 
-keycommand2 $(export key_O) { mcd $(path -d sdir) }
-keycommand2 $(export key_o) { mcd -d sdir $(path) }
+keycommand2 $(export key_O) ( mcd $(path -d sdir) )
+keycommand2 $(export key_o) ( mcd -d sdir $(path) )
 
-keycommand2 $(export key_w) {
+keycommand2 $(export key_w) (
   path -d adir | var adir
   path -d sdir | var sdir
   mcd -d adir $(var sdir)
   mcd -d sdir $(var adir)
-}
+)
 
-keycommand2 $(export key_left) {
+keycommand2 $(export key_left) (
   (export VIEW_OPTION | [ = 2pain ] && activate 0) || scroll_left
-}
-keycommand2 $(export key_right) {
+)
+keycommand2 $(export key_right) (
   (export VIEW_OPTION | [ = 2pain ] && activate 1) || scroll_right
-}
-keycommand2 $(export key_ctrl_b) {
+)
+keycommand2 $(export key_ctrl_b) (
   (export VIEW_OPTION | [ = 2pain ] && activate 0) || scroll_left
-}
-keycommand2 $(export key_ctrl_f) {
+)
+keycommand2 $(export key_ctrl_f) (
   (export VIEW_OPTION | [ = 2pain ] && activate 1) || scroll_right
-}
+)
 
-keycommand2 $(export key_ctrl_t) {
+keycommand2 $(export key_ctrl_t) (
   dir_num | var a
   new_dir ~ -m "^[^\.].*" -dotdir 1
   activate $(var a)
-}
-keycommand2 $(export key_ctrl_w) {
+)
+keycommand2 $(export key_ctrl_w) (
   dir_num | [ -gt 2 ] && activate $(dir_num | - 1)
   del_dir -d $(dir_num | - 1)
-}
+)
 
-keycommand2 $(export key_vbar) {
-  if(export VIEW_OPTION | [ = 2pain ]) {
+keycommand2 $(export key_vbar) (
+  if(export VIEW_OPTION | [ = 2pain ]) (
     print 1pain
-  } else {
+  ) else (
     print 2pain
-  } | export VIEW_OPTION
-}
+  ) | export VIEW_OPTION
+)
 
-keycommand2 $(export key_right) {
+keycommand2 $(export key_right) (
   (export VIEW_OPTION | [ = 2pain ] && activate 1) || scroll_right
-}
+)
 
-keycommand2 $(export key_tab) { (adir | [ = 0 ] && activate 1 ) || activate 0 }
+keycommand2 $(export key_tab) ( (adir | [ = 0 ] && activate 1 ) || activate 0 )
 
-keycommand2 $(export key_0) { activate 0 }
-keycommand2 $(export key_1) { activate 1 }
-keycommand2 $(export key_2) { activate 2 }
-keycommand2 $(export key_3) { activate 3 }
-keycommand2 $(export key_4) { activate 4 }
-keycommand2 $(export key_5) { activate 5 }
-keycommand2 $(export key_6) { activate 6 }
-keycommand2 $(export key_7) { activate 7 }
-keycommand2 $(export key_8) { activate 8 }
-keycommand2 $(export key_9) { activate 9 }
+keycommand2 $(export key_0) ( activate 0 )
+keycommand2 $(export key_1) ( activate 1 )
+keycommand2 $(export key_2) ( activate 2 )
+keycommand2 $(export key_3) ( activate 3 )
+keycommand2 $(export key_4) ( activate 4 )
+keycommand2 $(export key_5) ( activate 5 )
+keycommand2 $(export key_6) ( activate 6 )
+keycommand2 $(export key_7) ( activate 7 )
+keycommand2 $(export key_8) ( activate 8 )
+keycommand2 $(export key_9) ( activate 9 )
 
 
 
@@ -646,35 +646,35 @@ keycommand2 $(export key_9) { activate 9 }
 
 # Misc.  #{{{2
 
-keycommand2 $(export key_slash) { isearch }
+keycommand2 $(export key_slash) ( isearch )
 
-keycommand2 $(export key_q) { mchoise "quit?" yes no | [ = yes ] && quit }
+keycommand2 $(export key_q) ( mchoise "quit?" yes no | [ = yes ] && quit )
 
-keycommand2 $(export key_ctrl_l) {
+keycommand2 $(export key_ctrl_l) (
   mclear_immediately
   reread -d 0
   reread -d 1
-}
+)
 
-keycommand2 $(export key_colon)  { cmdline }
-keycommand2 $(export key_H)      { external -q $(export SHELL) }
+keycommand2 $(export key_colon)  ( cmdline )
+keycommand2 $(export key_H)      ( external -q $(export SHELL) )
 
 print 0 | global DOT_MASK
-def toggle_dotmask {
-  if(global DOT_MASK | [ = 0 ]) {
+def toggle_dotmask (
+  if(global DOT_MASK | [ = 0 ]) (
     print 1 | global DOT_MASK
     mask -dotdir 1
     mask -r '^[^.].*'
-  } else {
+  ) else (
     print 0 | global DOT_MASK
     mask -dotdir 0
     mask -r '.*'
-  }
-}
+  )
+)
 
-keycommand2 $(export key_dot) { toggle_dotmask }
+keycommand2 $(export key_dot) ( toggle_dotmask )
 
-keycommand2 $(export key_qmark) { external -q "$$(export PAGER) $(export MF3DOCDIR)/USAGE.ja.txt" }
+keycommand2 $(export key_qmark) ( external -q "$$(export PAGER) $(export MF3DOCDIR)/USAGE.ja.txt" )
 
 
 
@@ -682,25 +682,25 @@ keycommand2 $(export key_qmark) { external -q "$$(export PAGER) $(export MF3DOCD
 # Hooks  #{{{1
 
 print -1 | global MARK_RANGE_BEGIN
-def mcd_hook {
+def mcd_hook (
   print -1 | global MARK_RANGE_BEGIN
-}
+)
 
-def activate_hook {
+def activate_hook (
   true
-}
+)
 
-def cursor_move_hook {
+def cursor_move_hook (
   true
-}
+)
 
-def cmdline_hook {
+def cmdline_hook (
   true
-}
+)
 
-def atexit_hook {
+def atexit_hook (
   save_mfiler3_stat
-}
+)
 
 
 
