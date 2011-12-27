@@ -38,10 +38,10 @@ let g:colors_name = 'basic256'
 " Variables  "{{{1
 
 let s:gui_colors = [
-\   '#000000', '#990000', '#009900', '#999900',
-\   '#000099', '#990099', '#009999', '#999999',
-\   '#555555', '#cc0000', '#00cc00', '#cccc00',
-\   '#3366ff', '#cc00cc', '#00cccc', '#ffffff',
+\   '#292929', '#c41700', '#679b00', '#c49300',
+\   '#074080', '#9b0059', '#007676', '#818181',
+\   '#474747', '#ff614c', '#b9f73e', '#ffd24c',
+\   '#4581c4', '#dd429a', '#37bbbb', '#ffffff',
 \ ] + [
 \   '#000000', '#00005f', '#000087', '#0000af',
 \   '#0000d7', '#0000ff', '#005f00', '#005f5f',
@@ -177,19 +177,16 @@ endfunction
 
 
 " Highlighting  "{{{1
-" Specialized-GUI  "{{{2
+" Basic  "{{{2
 
 if has('gui_running')
-  call s:highlight('Normal',   {'fg': '#cccccc', 'bg': '#222222'})
-  call s:highlight('Cursor',   {'fg': 'bg', 'bg': '#009900'})
-  call s:highlight('CursorIM', {'fg': 'bg', 'bg': '#009900'})
-  call s:highlight('lCursor',  {'fg': 'bg', 'bg': '#009900'})
+  call s:highlight('Normal',   {'fg': '#e2e2e2', 'bg': '#171717'})
+  call s:highlight('Cursor',   {'fg': 'bg', 'bg': 'fg'})
+  call s:highlight('CursorIM', {'fg': 'bg', 'bg': 'fg'})
+  call s:highlight('lCursor',  {'fg': 'bg', 'bg': 'fg'})
+else
+  call s:highlight('Normal',   {})
 endif
-
-
-
-
-" Basic  "{{{2
 
 call s:highlight('SpecialKey'   , {'fg': 8})
 call s:highlight('NonText'      , {'fg': 12})
