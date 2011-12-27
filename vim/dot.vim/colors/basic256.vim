@@ -180,12 +180,12 @@ endfunction
 " Basic  "{{{2
 
 if has('gui_running')
-  call s:highlight('Normal',   {'fg': '#e2e2e2', 'bg': '#171717'})
-  call s:highlight('Cursor',   {'fg': 'bg', 'bg': 'fg'})
-  call s:highlight('CursorIM', {'fg': 'bg', 'bg': 'fg'})
-  call s:highlight('lCursor',  {'fg': 'bg', 'bg': 'fg'})
+  call s:highlight('Normal'     , {'fg': '#e2e2e2', 'bg': '#171717'})
+  call s:highlight('Cursor'     , {'fg': 'bg', 'bg': 'fg'})
+  call s:highlight('CursorIM'   , {'fg': 'bg', 'bg': 'fg'})
+  call s:highlight('lCursor'    , {'fg': 'bg', 'bg': 'fg'})
 else
-  call s:highlight('Normal',   {})
+  call s:highlight('Normal'     , {})
 endif
 
 call s:highlight('SpecialKey'   , {'fg': 8})
