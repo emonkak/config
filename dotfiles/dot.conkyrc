@@ -21,4 +21,4 @@ ${template1} \
 ${if_mixer_mute}\
 ${template0 \\#679b00 spkr_02.xbm}${else}\
 ${template0 \\#679b00 spkr_01.xbm}${endif} ${mixer}% \
-${template1} ${time %m/%d %a %H:%M}
+${template1} ${time %m/%d %a %H:%M:%S}

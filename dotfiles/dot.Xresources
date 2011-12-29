@@ -36,7 +36,7 @@ Rxvt.color7: rgb:81/81/81
 Rxvt.color15: rgb:ff/ff/ff
 
 Rxvt.font: \
-  xft:Consolas:size=10.5, \
+  xft:TheSans Mono:size=10.5, \
   xft:AXIS Std:pixelsize=14, \
   xft:Droid Sans Fallback:pixelsize=14
 !Rxvt.font: \

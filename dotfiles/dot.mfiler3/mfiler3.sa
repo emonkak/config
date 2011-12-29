@@ -82,6 +82,7 @@ def glob_mark (  #{{{2
 
 def open_file (  #{{{2
   split $(ary ARGV 0) '\.' | lc | ary xs
+  uname | [ = 'Darwin' ] | var mac_p
 
   if(length xs | [ -lt 2 ]) (
     external -q "$$(export PAGER) $(ary ARGV 0)"
@@ -139,10 +140,18 @@ def open_file (  #{{{2
     external -q "mplayer -quiet $(ary ARGV 0)"
     break
   ) '^(bmp|gif|jpe?g|png)$' (
-    external -q "feh  $(ary ARGV 0)"
+    if (var mac_p) (
+      external -q "open $(ary ARGV 0) &"
+    ) else (
+      external -q "feh $(ary ARGV 0)"
+    )
     break
   ) '^(eps|pdf|ps)$' (
-    external -q "evince $(ary ARGV 0)"
+    if (var mac_p) (
+      external -q "open $(ary ARGV 0) &"
+    ) else (
+      external -q "evince $(ary ARGV 0)"
+    )
     break
   ) '.*' (
     external -q "$$(export PAGER) $(ary ARGV 0)"
@@ -325,7 +334,7 @@ addmenu sudo 'sudo (d)elete'    $(export key_d) 'cmdline "sudo rm -vr @@(markfil
 addmenu sudo 'sudo (r)ename'    $(export key_r) 'cmdline "sudo mv -v $$(cursor | q) $$(cursor | q)" -$(cursor | extname_length | + 2)'
 addmenu sudo 'sudo m(k)dir'     $(export key_k) 'cmdline "sudo mkdir -p '\'\''" -2'
 addmenu sudo 'sudo (n)ewfile'   $(export key_n) 'cmdline "sudo touch '\'\''" -2'
-addmenu sudo 'sudo (a)ttribute' $(export key_a) 'menu sudo_attribute'
+addmenu sudo 'sudo (a)ttribute' $(export key_a) 'mmenu sudo_attribute'
 
 
 
