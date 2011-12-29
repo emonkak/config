@@ -1,0 +1,16 @@
+# My .inputrc
+
+set -o emacs
+
+set bell-style visible
+set bind-tty-special-chars off
+set completion-ignore-case on
+set show-all-if-ambiguous on
+set visible-stats on
+
+"\C-n":history-search-forward
+"\C-p":history-search-backward
+"\C-u":kill-whole-line
+
+# __END__
+# vim: filetype=readline
