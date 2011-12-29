@@ -17,7 +17,6 @@ app-editors/leafpad
 app-editors/vim
 app-emulation/qemu-kvm
 app-emulation/wine
-app-i18n/ibus-mozc
 app-i18n/nkf
 app-i18n/skk-jisyo
 app-i18n/skktools
@@ -37,7 +36,6 @@ app-shells/zsh-completion
 app-text/asciidoc
 app-text/evince
 app-text/lv
-app-text/pandoc
 app-text/ptex
 dev-haskell/animas
 dev-haskell/attoparsec
@@ -45,6 +43,7 @@ dev-haskell/attoparsec-enumerator
 dev-haskell/attoparsec-text
 dev-haskell/attoparsec-text-enumerator
 dev-haskell/cabal-install
+dev-haskell/control-monad-failure
 dev-haskell/criterion
 dev-haskell/ghc-mod
 dev-haskell/gtk
@@ -54,6 +53,7 @@ dev-haskell/hfuse
 dev-haskell/hoogle
 dev-haskell/hunit
 dev-haskell/libmpd
+dev-haskell/monad-control
 dev-haskell/quickcheck
 dev-haskell/reactive
 dev-haskell/reactive-banana
