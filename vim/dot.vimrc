@@ -48,21 +48,20 @@ if has('vim_starting')
   elseif has('gui_macvim')
     language C
   endif
-  set runtimepath^=~/.vim/bundle/*
-  set runtimepath+=~/.vim/bundle/*/after
+  set runtimepath^=~/.vim/bundle/* runtimepath+=~/.vim/bundle/*/after
 endif
 
 if has('gui_running')
   set guicursor=a:blinkon0
   if has('gui_gtk2')
-    set guifont=Consolas\ 10.5
+    set guifont=TheSans\ Mono\ 10.5
     set linespace=3
-  elseif has('gui_win32')
-    set guifont=Consolas:h10.5
   elseif has('gui_macvim')
-    set guifont=Consolas:h14
+    set guifont=TheSans\ Mono:h14
     set linespace=5
     set transparency=10
+  elseif has('gui_win32')
+    set guifont=Consolas:h10.5
   endif
   set guioptions=AcgM
 endif
@@ -373,15 +372,17 @@ autocmd MyAutoCmd BufEnter,BufReadPost ?*
 
 " HelpTagsAll  "{{{2
 
-command! -bang -nargs=0 HelpTagsAll
-\   for path in split(globpath(&runtimepath, 'doc'), '\n')
-\ |   if filewritable(path)
-\ |     helptags `=path`
-\ |     if <bang>0
-\ |       echo fnamemodify(path, ':~')
-\ |     endif
-\ |   endif
-\ | endfor
+command! -bang -nargs=0 HelpTagsAll  call s:cmd_HelpTagsAll(<bang>0)
+function! s:cmd_HelpTagsAll(banged_p)
+  for path in split(globpath(&runtimepath, 'doc'), '\n')
+    if filewritable(path)
+      helptags `=path`
+      if a:banged_p
+        echo fnamemodify(path, ':~')
+      endif
+    endif
+  endfor
+endfunction
 
 
 
@@ -515,6 +516,13 @@ command! -bang -bar -complete=file -nargs=? Utf32be
 \ edit<bang> ++enc=utf-32be <args>
 command! -bang -bar -complete=file -nargs=? Utf32
 \ edit<bang> ++enc=utf-32le <args>
+
+command! -bang -bar -complete=file -nargs=? Dos
+\ edit<bang> ++ff=dos <args>
+command! -bang -bar -complete=file -nargs=? Unix
+\ edit<kang> ++ff=unix <args>
+command! -bang -bar -complete=file -nargs=? Mac
+\ edit<kang> ++ff=mac <args>
 
 command! -bang -bar -complete=file -nargs=? Jis  Iso2022jp<bang> <args>
 command! -bang -bar -complete=file -nargs=? Sjis  Cp932<bang> <args>
@@ -681,10 +689,10 @@ endfunction
 
 " Vertical with  "{{{2
 
-let s:vertical_p = '(winwidth(0) * 2 > winheight(0) * 8)'
+let s:vertical_statement = '(winwidth(0) * 2 > winheight(0) * 8)'
 
 function! s:vertical_with(command, args)
-  execute eval(s:vertical_p) ? 'vertical' : ''
+  execute eval(s:vertical_statement) ? 'vertical' : ''
   \       a:command
   \       join(a:args)
 endfunction
@@ -1772,6 +1780,14 @@ endfunction
 
 
 
+" git  "{{{2
+
+autocmd MyAutoCmd FileType gitcommit
+\ setlocal nofoldenable
+
+
+
+
 " haskell  "{{{2
 
 autocmd MyAutoCmd FileType haskell
@@ -1995,6 +2011,13 @@ nmap <Esc><C-k>  <Plug>(exjumplist-previous-buffer)
 
 
 
+" gfdiff  "{{{2
+
+nmap gh  <Plug>(gfdiff-to)
+
+
+
+
 " grex  "{{{2
 
 nmap gy  <Plug>(operator-grex-yank)<Plug>(textobj-entire-a)
@@ -2102,7 +2125,7 @@ nnoremap <silent> [Space]ka  :<C-u>Ku args<CR>
 nnoremap <silent> [Space]kb  :<C-u>Ku buffer<CR>
 nnoremap <silent> [Space]kc  :<C-u>Ku colorscheme<CR>
 nnoremap <silent> [Space]kf  :<C-u>Ku file<CR>
-nnoremap <silent> [Space]k.  :<C-u>Ku file/current<CR>
+nnoremap <silent> [Space]kj  :<C-u>Ku file/current<CR>
 nnoremap <silent> [Space]kg  :<C-u>Ku metarw/git<CR>
 nnoremap <silent> [Space]kh  :<C-u>Ku history<CR>
 nnoremap <silent> [Space]kl  :<C-u>Ku file_rec<CR>
@@ -2184,7 +2207,7 @@ command! -complete=command -nargs=+ Capture  QuickRun vim -src <q-args>
 
 let g:quickrun_config = {
 \  '_': {
-\    'split': '%{'.s:vertical_p.' ? "vertical" : ""}',
+\    'split': '%{'.s:vertical_statement.' ? "vertical" : ""}',
 \  },
 \  'dot': {
 \    'exec': ['%c -Tps:cairo -o %s:p:r.ps %s'],
