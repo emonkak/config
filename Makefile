@@ -27,6 +27,7 @@ GROUP_DOTS_FILES=\
   dotfiles/dot.ghci \
   dotfiles/dot.inputrc \
   dotfiles/dot.mfiler3/mfiler3.sa \
+  dotfiles/dot.screenrc \
   dotfiles/dot.tmux.conf \
   dotfiles/dot.uim \
   dotfiles/dot.xinitrc \
