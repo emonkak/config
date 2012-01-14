@@ -9,6 +9,7 @@ app-i18n/ibus gtk python
 app-i18n/ibus-mozc -ibus uim qt4
 app-i18n/uim -anthy gtk gtk3 libnotify linguas_ja skk xft
 app-misc/mfiler3 migemo
+app-misc/tmux vim-syntax
 app-office/libreoffice-bin linguas_ja
 app-office/libreoffice-l10n linguas_ja
 app-portage/eix sqlite
@@ -18,13 +19,14 @@ app-text/asciidoc graphviz highlight
 app-text/ghostscript-gpl gtk
 app-text/lcdf-typetools kpathsea
 app-text/poppler -abiword
-dev-lang/ghc ghcbootstrap llvm
+dev-lang/ghc doc ghcbootstrap llvm
 dev-lang/perl ithreads
 dev-lang/python sqlite
 dev-libs/boost python
 dev-libs/libxml2 python
 dev-vcs/git cvs perl subversion
 dev-vcs/subversion -dso perl python
+dev-haskell/* doc
 media-gfx/fontforge pango svg
 media-gfx/gimp dbus exif jpeg pdf png python svg
 media-gfx/graphviz gtk
@@ -90,3 +92,5 @@ x11-plugins/purple-plugin_pack gtk
 x11-terms/evilvte savedconfig
 x11-terms/rxvt-unicode -vanilla 256-color alt-font-width force-hints perl truetype
 x11-themes/gtk-engines-murrine -themes
+x11-wm/xmonad doc
+x11-wm/xmonad-contrib doc
