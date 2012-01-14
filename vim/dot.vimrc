@@ -54,10 +54,10 @@ endif
 if has('gui_running')
   set guicursor=a:blinkon0
   if has('gui_gtk2')
-    set guifont=TheSans\ Mono\ 10.5
+    set guifont=Consolas\ 10.5
     set linespace=3
   elseif has('gui_macvim')
-    set guifont=TheSans\ Mono:h14
+    set guifont=Consolas:h14
     set linespace=5
     set transparency=10
   elseif has('gui_win32')
@@ -105,6 +105,10 @@ if exists('+shellslash')
   set shellslash
 endif
 set spelllang=en_us
+if has('persistent_undo')
+  set undodir=~/tmp
+  set undofile
+endif
 set updatetime=1000
 set virtualedit=block
 
@@ -129,7 +133,7 @@ set splitbelow
 set splitright
 set ttimeoutlen=50
 set wildmenu
-set wildmode=list:longest
+set wildmode=full
 set nowrapscan
 
 set autoindent
@@ -148,6 +152,8 @@ set titlestring=Vim:\ %f\ %h%r%m
 if exists('$TMUX')
   let &t_fs = "\<C-g>"
   let &t_ts = "\<Esc>]2;"
+  let &t_ZH = "\<Esc>[3m"
+  let &t_ZR = "\<Esc>[23m"
 endif
 
 let &statusline = ''
@@ -216,7 +222,7 @@ let s:TRUE = !s:FALSE
 
 
 
-" :setlocal {option} wrappers  "{{{2
+" :setlocal wrappers  "{{{2
 
 command! -nargs=? -complete=filetype SetFileType
 \ setlocal filetype=<args> | silent! SkeletonLoad <args>
@@ -311,13 +317,6 @@ endfunction
 function! s:complete_fileformats(arglead, cmdline, cursorpos)
   return sort(filter(split(&fileformats, ','), 's:prefix_of_p(a:arglead, v:val)'))
 endfunction
-
-command! -bar -bang -nargs=1 SetIndent
-\   if <bang>0
-\ |   setlocal noexpandtab tabstop=<args> softtabstop< shiftwidth=<args>
-\ | else
-\ |   setlocal expandtab tabstop< softtabstop=<args> shiftwidth=<args>
-\ | endif
 
 
 
@@ -600,6 +599,46 @@ AlterCommand lmak[e]  Lmake
 
 
 
+" High-level key sequences  "{{{2
+
+function! s:keys_to_complete()
+  if &l:completefunc != ''
+    return "\<C-x>\<C-u>"
+  elseif &l:omnifunc != ''
+    return "\<C-x>\<C-o>"
+  else
+    return "\<C-n>"
+  endif
+endfunction
+
+
+function! s:keys_to_insert_one_character()
+  echohl ModeMsg
+  echo '-- INSERT (one char) --'
+  echohl None
+  return nr2char(getchar()) . "\<Esc>"
+endfunction
+
+
+function! s:keys_to_select_the_last_changed_text()
+  " It is not possible to determine whether the last operation to change text
+  " is linewise or not, so guess the wise of the last operation from the range
+  " of '[ and '], like wise of a register content set by setreg() without
+  " {option}.
+
+  let col_begin = col("'[")
+  let col_end = col("']")
+  let length_end = len(getline("']"))
+
+  let maybe_linewise_p = (col_begin == 1
+  \                       && (col_end == length_end
+  \                           || (length_end == 0 && col_end == 1)))
+  return '`[' . (maybe_linewise_p ? 'V' : 'v') . '`]'
+endfunction
+
+
+
+
 " Jump sections  "{{{2
 
 " for normal mode.  a:pattern is '/regexp' or '?regexp'.
@@ -639,6 +678,36 @@ endfunction
 " for operator-pending mode.  a:motion is '[[', '[]', ']]' or ']['.
 function! s:jump_section_o(motion)
   execute 'normal' v:count1 . a:motion
+endfunction
+
+
+
+
+
+" Indent setter  "{{{2
+
+command! -bar -nargs=1 SetIndent  call s:cmd_SetIndent(<q-args>)
+function! s:cmd_SetIndent(expr)
+  let width = &l:shiftwidth
+  let expandtab = &l:expandtab
+
+  for item in split(a:expr, '\d\+\zs\|.\zs')
+    if item =~# '\d\+'
+      let width = str2nr(item)
+    elseif item ==# 's'
+      let expandtab = s:TRUE
+    elseif item ==# 't'
+      let expandtab = s:FALSE
+    endif
+  endfor
+
+  if expandtab
+    setlocal expandtab tabstop<
+    let [&l:softtabstop, &l:shiftwidth] = [width, width]
+  else
+    setlocal noexpandtab softtabstop<
+    let [&l:tabstop, &l:shiftwidth] = [width, width]
+  endif
 endfunction
 
 
@@ -784,19 +853,6 @@ function! s:combinations(pool, r)  "{{{2
   endwhile
 
   return result
-endfunction
-
-
-
-
-function! s:keys_to_complete()  "{{{2
-  if &l:completefunc != ''
-    return "\<C-x>\<C-u>"
-  elseif &l:omnifunc != ''
-    return "\<C-x>\<C-o>"
-  else
-    return "\<C-n>"
-  endif
 endfunction
 
 
@@ -1381,10 +1437,13 @@ noremap [Space]  <Nop>
 
 
 nnoremap <silent> [Space]w  :<C-u>w<CR>
-if has('unix') && executable('sudo')
+if executable('sudo')
   nnoremap <silent> [Space]W  :<C-u>w sudo:%<CR>
 endif
 
+nnoremap <silent> [Space]/  :<C-u>call <SID>toggle_option('hlsearch')<CR>
+
+nnoremap <silent> [Space]c  :<C-u>call <SID>close_temporary_windows()<CR>
 
 nnoremap [Space]f  <Nop>
 nnoremap [Space]fe  :<C-u>SetFileEncoding<Space>
@@ -1392,25 +1451,13 @@ nnoremap [Space]ff  :<C-u>SetFileFormat<Space>
 nnoremap [Space]fi  :<C-u>SetIndent<Space>
 nnoremap [Space]ft  :<C-u>SetFileType<Space>
 
-nnoremap [Space]o  <Nop>
-nnoremap <silent> [Space]oc  :<C-u>call <SID>toggle_colorcolumn()<CR>
-nnoremap <silent> [Space]og  :<C-u>call <SID>toggle_grepprg(0)<CR>
-nnoremap <silent> [Space]ol  :<C-u>call <SID>toggle_option('cursorline')<CR>
-nnoremap <silent> [Space]on  :<C-u>call <SID>toggle_option('number')<CR>
-nnoremap <silent> [Space]op  :<C-u>call <SID>toggle_option('paste')<CR>
-nnoremap <silent> [Space]os  :<C-u>call <SID>toggle_option('spell')<CR>
-nnoremap <silent> [Space]ow  :<C-u>call <SID>toggle_option('wrap')<CR>
+" Append one character.
+nnoremap [Space]A  A<C-r>=<SID>keys_to_insert_one_character()<Return>
+nnoremap [Space]a  a<C-r>=<SID>keys_to_insert_one_character()<Return>
 
-nnoremap <silent> [Space]/  :<C-u>call <SID>toggle_option('hlsearch')<CR>
-
-nnoremap <silent> [Space]c  :<C-u>call <SID>close_temporary_windows()<CR>
-
-nnoremap <silent> [Space]q  :<C-u>Help quickref<CR>
-nnoremap <silent> [Space]m  :<C-u>marks<CR>
-nnoremap <silent> [Space]r  :<C-u>registers<CR>
-
-nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
-
+" Insert one character.
+nnoremap [Space]I  I<C-r>=<SID>keys_to_insert_one_character()<Return>
+nnoremap [Space]i  i<C-r>=<SID>keys_to_insert_one_character()<Return>
 
 " Open a fold.
 nnoremap [Space]l  zo
@@ -1421,10 +1468,24 @@ nnoremap [Space]h  zc
 " Close all folds but including the cursor.
 nnoremap [Space]v  zMzv
 
-
 " Enter command-line window.
 nnoremap [Space]:  q:
 xnoremap [Space]:  q:
+
+nnoremap [Space]o  <Nop>
+nnoremap <silent> [Space]oc  :<C-u>call <SID>toggle_colorcolumn()<CR>
+nnoremap <silent> [Space]og  :<C-u>call <SID>toggle_grepprg(0)<CR>
+nnoremap <silent> [Space]ol  :<C-u>call <SID>toggle_option('cursorline')<CR>
+nnoremap <silent> [Space]on  :<C-u>call <SID>toggle_option('number')<CR>
+nnoremap <silent> [Space]op  :<C-u>call <SID>toggle_option('paste')<CR>
+nnoremap <silent> [Space]os  :<C-u>call <SID>toggle_option('spell')<CR>
+nnoremap <silent> [Space]ow  :<C-u>call <SID>toggle_option('wrap')<CR>
+
+nnoremap <silent> [Space]q  :<C-u>Help quickref<CR>
+nnoremap <silent> [Space]m  :<C-u>marks<CR>
+nnoremap <silent> [Space]r  :<C-u>registers<CR>
+
+nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
 
 
 
@@ -1500,6 +1561,12 @@ onoremap ar  a]
 vnoremap ar  a]
 onoremap ir  i]
 vnoremap ir  i]
+
+
+" Select the last chaged text - "c" stands for "C"hanged.
+nnoremap <expr> gc  <SID>keys_to_select_the_last_changed_text()
+onoremap gc  :<C-u>normal gc<CR>
+vnoremap gc  :<C-u>normal gc<CR>
 
 
 " Select the last selected text.
@@ -1754,7 +1821,7 @@ let g:changelog_username  = 'emonkak <emonkak@gmail.com>'
 " css  "{{{2
 
 autocmd MyAutoCmd FileType css,sass
-\ SetIndent 2
+\ SetIndent 2s
 
 
 
@@ -1791,7 +1858,7 @@ autocmd MyAutoCmd FileType gitcommit
 " haskell  "{{{2
 
 autocmd MyAutoCmd FileType haskell
-\   SetIndent 2
+\   SetIndent 2s
 \ | compiler ghc
 
 
@@ -1809,7 +1876,7 @@ autocmd MyAutoCmd FileType java
 " javascript  "{{{2
 
 autocmd MyAutoCmd FileType coffee,javascript
-\ SetIndent 2
+\ SetIndent 2s
 
 
 
@@ -1817,7 +1884,7 @@ autocmd MyAutoCmd FileType coffee,javascript
 " lua  "{{{2
 
 autocmd MyAutoCmd FileType lua
-\ SetIndent 2
+\ SetIndent 2s
 
 
 
@@ -1825,7 +1892,7 @@ autocmd MyAutoCmd FileType lua
 " objc  "{{{2
 
 autocmd MyAutoCmd FileType objc
-\   SetIndent 2
+\   SetIndent 2s
 \ | setlocal commentstring=//%s cinoptions=l1,g0,t0,(0,W1s
 
 
@@ -1834,7 +1901,7 @@ autocmd MyAutoCmd FileType objc
 " ocaml  "{{{2
 
 autocmd MyAutoCmd FileType ocaml
-\   SetIndent 2
+\   SetIndent 2s
 \ | setlocal commentstring=(*%s*)
 
 
@@ -1843,7 +1910,7 @@ autocmd MyAutoCmd FileType ocaml
 " perl  "{{{2
 
 autocmd MyAutoCmd FileType perl
-\   SetIndent 2
+\   SetIndent 2s
 \ | setlocal include=
 
 
@@ -1852,7 +1919,7 @@ autocmd MyAutoCmd FileType perl
 " python  "{{{2
 
 autocmd MyAutoCmd FileType python
-\ SetIndent 2
+\ SetIndent 2s
 
 let g:python_highlight_all = 1
 
@@ -1870,7 +1937,7 @@ autocmd MyAutoCmd FileType qf
 " ruby  "{{{2
 
 autocmd MyAutoCmd FileType ruby,yaml
-\ SetIndent 2
+\ SetIndent 2s
 
 
 
@@ -1885,7 +1952,7 @@ let g:is_gauche = 1
 " sh, zsh  "{{{2
 
 autocmd MyAutoCmd FileType sh,zsh
-\ SetIndent 2
+\ SetIndent 2s
 
 let g:is_bash = 1
 
@@ -1899,7 +1966,7 @@ autocmd MyAutoCmd FileType tex,plaintex
 \ | compiler tex
 
 function! s:on_FileType_tex()
-  SetIndent 2
+  SetIndent 2s
 
   inoreabbrev <buffer> \b  \textbf{}<Left>
   inoreabbrev <buffer> \i  \textit{}<Left>
@@ -1920,7 +1987,7 @@ let g:tex_flavor = 'latex'
 " vim  "{{{2
 
 autocmd MyAutoCmd FileType vim
-\ SetIndent 2
+\ SetIndent 2s
 
 let g:vim_indent_cont = 0
 
@@ -1933,10 +2000,10 @@ autocmd MyAutoCmd FileType docbk,html,xhtml,xml,xslt
 \ call s:on_FileType_xml()
 
 autocmd MyAutoCmd FileType haml
-\ call s:on_FileType_xml()
+\ SetIndent 2s
 
 function! s:on_FileType_xml()
-  SetIndent 2
+  SetIndent 2s
 
   " To deal with namespace prefixes and tag-name-including-hyphens.
   setlocal iskeyword+=45  " hyphen (-)
@@ -2162,8 +2229,8 @@ let g:neocomplcache_enable_at_startup = 1
 let g:neocomplcache_enable_prefetch = 1
 let g:neocomplcache_enable_smart_case = 1
 
-let g:neocomplcache_clang_library_path = '/usr/lib/llvm'
-if has('python')
+  let g:neocomplcache_clang_library_path = '/usr/lib/llvm'
+if has('python') && filereadable(g:neocomplcache_clang_library_path)
   let g:neocomplcache_clang_use_library = 1
 endif
 let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*\|\[ku\]\|\[quickrun output\]'
