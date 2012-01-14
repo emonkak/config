@@ -1,5 +1,47 @@
+; My .uim
+
 (require "japanese.scm")
 (use srfi-1)
+
+
+
+
+(define custom-activate-default-im-name? #t)
+(define custom-preserved-default-im-name 'skk)
+
+(define default-im-name 'skk)
+(define enabled-im-list '(skk))
+(define enable-im-toggle? #f)
+
+(define bridge-show-input-state? #t)
+(define bridge-show-with? 'mode)
+
+(define uim-xim-use-xft-font? #t)
+(define uim-xim-xft-font-name "AXIS Std")
+
+(define notify-agent 'libnotify)
+
+(define skk-use-with-vi? #t)
+(define skk-egg-like-newline? #t)
+(define skk-dic-file-name "/home/emon/.skk/SKK-JISYO.mine")
+(define skk-use-manual-candwin-setting? #t)
+(define skk-candidate-op-count 3)
+(define skk-nr-candidate-max 7)
+
+
+
+
+(define generic-on-key '("zenkaku-hankaku"))
+(define generic-on-key? (make-key-predicate '("zenkaku-hankaku")))
+(define generic-off-key '("zenkaku-hankaku"))
+(define generic-off-key? (make-key-predicate '("zenkaku-hankaku")))
+
+(define skk-cancel-key '("escape" "<IgnoreShift><Control>[" "<IgnoreCase><Control>g"))
+(define skk-cancel-key? (make-key-predicate '("escape" "<IgnoreShift><Control>[" "<IgnoreCase><Control>g")))
+(define skk-latin-key '("<IgnoreCase>l" "zenkaku-hankaku"))
+(define skk-latin-key? (make-key-predicate '("<IgnoreCase>l" "zenkaku-hankaku")))
+(define skk-on-key '("zenkaku-hankaku"))
+(define skk-on-key? (make-key-predicate '("zenkaku-hankaku")))
 
 (define ja-rk-rule-basic
   (append '(((("z" " ") . ()) ("¡¡" "¡¡" "¡¡"))
@@ -11,3 +53,9 @@
 (define ja-rk-rule-additional
   (filter (lambda (x) (not (equal? (caaar x) "z")))
           ja-rk-rule-additional))
+
+
+
+
+; __END__
+; vim: filetype=scheme

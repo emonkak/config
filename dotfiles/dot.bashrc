@@ -12,6 +12,7 @@ ulimit -c 0  # Don't create core file
 HISTSIZE=10000  # History size at runtime
 HISTFILESIZE=$HISTSIZE  # History size to save
 HISTCONTROL=ignoreboth
+IGNOREEOF=10
 
 
 

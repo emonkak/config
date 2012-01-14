@@ -82,7 +82,6 @@ def glob_mark (  #{{{2
 
 def open_file (  #{{{2
   split $(ary ARGV 0) '\.' | lc | ary xs
-  uname | [ = 'Darwin' ] | var mac_p
 
   if(length xs | [ -lt 2 ]) (
     external -q "$$(export PAGER) $(ary ARGV 0)"
@@ -140,18 +139,10 @@ def open_file (  #{{{2
     external -q "mplayer -quiet $(ary ARGV 0)"
     break
   ) '^(bmp|gif|jpe?g|png)$' (
-    if (var mac_p) (
-      external -q "open $(ary ARGV 0) &"
-    ) else (
-      external -q "feh $(ary ARGV 0)"
-    )
+    external -q "feh $(ary ARGV 0)"
     break
   ) '^(eps|pdf|ps)$' (
-    if (var mac_p) (
-      external -q "open $(ary ARGV 0) &"
-    ) else (
-      external -q "evince $(ary ARGV 0)"
-    )
+    external -q "evince $(ary ARGV 0)"
     break
   ) '.*' (
     external -q "$$(export PAGER) $(ary ARGV 0)"

@@ -36,7 +36,7 @@ Rxvt.color7: rgb:81/81/81
 Rxvt.color15: rgb:ff/ff/ff
 
 Rxvt.font: \
-  xft:TheSans Mono:size=10.5, \
+  xft:Consolas:size=10.5, \
   xft:AXIS Std:pixelsize=14, \
   xft:Droid Sans Fallback:pixelsize=14
 !Rxvt.font: \
@@ -59,6 +59,6 @@ Rxvt.saveLines: 1000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true
 Rxvt.secondaryScroll: true
-Rxvt.termName: rxvt-256color
+Rxvt.termName: rxvt-unicode-256color
 Rxvt.urgentOnBell: true
 Rxvt.visualBell: false
