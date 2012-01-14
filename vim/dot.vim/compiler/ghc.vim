@@ -27,7 +27,11 @@ if exists('current_compiler')
 endif
 
 
-CompilerSet makeprg=ghc\ $*\ \"%\"
+if expand('%:e') ==# 'hsc'
+  CompilerSet makeprg=hsc2hs\ \"\%\"\ &&\ ghc\ $*\ \"%:r.hs\"
+else
+  CompilerSet makeprg=ghc\ $*\ \"%\"
+endif
 CompilerSet errorformat=%-Z\ %#,
                        \%W%f:%l:%c:\ Warning:\ %m,
                        \%E%f:%l:%c:\ %m,
