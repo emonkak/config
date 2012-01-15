@@ -1800,8 +1800,13 @@ autocmd MyAutoCmd BufReadPost *
 \ |   execute 'normal! g''"'
 \ | endif
 
+
 " Unset 'paste' automatically.
 autocmd MyAutoCmd InsertLeave *  set nopaste
+
+
+" Visible ideographic space.
+autocmd MyAutoCmd VimEnter,WinEnter *  match Underlined /[\u3000]/
 
 
 
@@ -2039,6 +2044,7 @@ function! s:on_User_eskk_initial_pre()
     call table.add_map('~', "\uff5e")
     call table.add_map('(', "\uff08")
     call table.add_map(')', "\uff09")
+    call table.add_map('z ', "\u3000")
     call eskk#register_mode_table(mode, table)
   endfor
 endfunction
