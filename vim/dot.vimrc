@@ -48,7 +48,8 @@ if has('vim_starting')
   elseif has('gui_macvim')
     language C
   endif
-  set runtimepath^=~/.vim/bundle/* runtimepath+=~/.vim/bundle/*/after
+  set runtimepath^=~/.vim/bundle/*
+  set runtimepath+=~/.vim/bundle/*/after
 endif
 
 if has('gui_running')
@@ -121,12 +122,16 @@ set display=lastline
 set noequalalways
 set foldmethod=marker
 set nohlsearch
-set laststatus=2
+set laststatus=0
 set linebreak
 set list
 let &listchars = "tab:\u00bb ,extends:<,trail:-"
 set pumheight=20
 set ruler
+let &rulerformat = '%28('
+\                . '[%{&fileencoding == "" ? &encoding : &fileencoding}]'
+\                . '%= %-14.(%l,%c%V%) %P'
+\                . '%)'
 set showcmd
 set showtabline=2
 set splitbelow
@@ -160,9 +165,8 @@ let &statusline = ''
 let &statusline .= '%<%f %h%m%r%w'
 let &statusline .= '   %{eskk#statusline("[%s]")}'
 let &statusline .= '%='
-let &statusline .= '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
-let &statusline .= '%{&l:fileformat[0] == &fileformats[0] ? "" : "," . &l:fileformat}]'
-let &statusline .= '   %-14.(%l,%c%V%) %P'
+let &statusline .= '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}]'
+let &statusline .= '   %-14.(%l,%c%V%) %P '
 
 function! s:my_tabline()  "{{{
   let s = ''
@@ -214,18 +218,8 @@ call arpeggio#load()
 
 
 " Syntax  {{{1
-" Stuffs  "{{{2
-
-let s:FALSE = 0
-let s:TRUE = !s:FALSE
-
-
-
-
 " :setlocal wrappers  "{{{2
 
-command! -nargs=? -complete=filetype SetFileType
-\ setlocal filetype=<args> | silent! SkeletonLoad <args>
 command! -nargs=? -complete=customlist,s:complete_fileencoding SetFileEncoding
 \ setlocal fileencoding=<args>
 command! -nargs=? -complete=customlist,s:complete_fileformats SetFileFormat
@@ -691,13 +685,13 @@ function! s:cmd_SetIndent(expr)
   let width = &l:shiftwidth
   let expandtab = &l:expandtab
 
-  for item in split(a:expr, '\d\+\zs\|.\zs')
+  for item in split(a:expr, '\(\d\+\|\a\+\)\zs\|.\zs')
     if item =~# '\d\+'
       let width = str2nr(item)
-    elseif item ==# 's'
-      let expandtab = s:TRUE
-    elseif item ==# 't'
-      let expandtab = s:FALSE
+    elseif item =~# 's\%[pace]'
+      let expandtab = !0
+    elseif item =~# 't\%[ab]'
+      let expandtab = 0
     endif
   endfor
 
@@ -729,7 +723,7 @@ function! s:toggle_grepprg(global_p)
   endif
 endfunction
 if has('vim_starting')
-  silent call s:toggle_grepprg(s:TRUE)
+  silent call s:toggle_grepprg(!0)
 endif
 
 
@@ -833,11 +827,11 @@ function! s:combinations(pool, r)  "{{{2
   let indices = range(a:r)
   call add(result, join(map(copy(indices), 'a:pool[v:val]'), ''))
 
-  while s:TRUE
-    let broken_p = s:FALSE
+  while !0
+    let broken_p = 0
     for i in reverse(range(a:r))
       if indices[i] != i + n - a:r
-        let broken_p = s:TRUE
+        let broken_p = !0
         break
       endif
     endfor
@@ -1449,15 +1443,16 @@ nnoremap [Space]f  <Nop>
 nnoremap [Space]fe  :<C-u>SetFileEncoding<Space>
 nnoremap [Space]ff  :<C-u>SetFileFormat<Space>
 nnoremap [Space]fi  :<C-u>SetIndent<Space>
-nnoremap [Space]ft  :<C-u>SetFileType<Space>
+nnoremap [Space]ft  :<C-u>setfiletype<Space>
+nnoremap [Space]fs  :<C-u>setlocal filetype? fileencoding? fileformat?<CR>
 
 " Append one character.
-nnoremap [Space]A  A<C-r>=<SID>keys_to_insert_one_character()<Return>
-nnoremap [Space]a  a<C-r>=<SID>keys_to_insert_one_character()<Return>
+nnoremap [Space]A  A<C-r>=<SID>keys_to_insert_one_character()<CR>
+nnoremap [Space]a  a<C-r>=<SID>keys_to_insert_one_character()<CR>
 
 " Insert one character.
-nnoremap [Space]I  I<C-r>=<SID>keys_to_insert_one_character()<Return>
-nnoremap [Space]i  i<C-r>=<SID>keys_to_insert_one_character()<Return>
+nnoremap [Space]I  I<C-r>=<SID>keys_to_insert_one_character()<CR>
+nnoremap [Space]i  i<C-r>=<SID>keys_to_insert_one_character()<CR>
 
 " Open a fold.
 nnoremap [Space]l  zo
@@ -1699,7 +1694,7 @@ onoremap <expr> n  <SID>search_forward_p() ? 'n' : 'N'
 onoremap <expr> N  <SID>search_forward_p() ? 'N' : 'n'
 
 function! s:search_forward_p()
-  return exists('v:searchforward') ? v:searchforward : s:TRUE
+  return exists('v:searchforward') ? v:searchforward : !0
 endfunction
 
 
@@ -1708,31 +1703,6 @@ nnoremap <silent> gs
 \ :<C-u>echo join(<SID>syntax_name_the_cursor(), '/')<CR>
 function! s:syntax_name_the_cursor()
   return map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-endfunction
-
-
-" git-diff-aware version of gf commands.
-nnoremap <expr> gf  <SID>do_git_diff_aware_gf('gf')
-nnoremap <expr> gF  <SID>do_git_diff_aware_gf('gF')
-nnoremap <expr> <C-w>f  <SID>do_git_diff_aware_gf('<C-w>f')
-nnoremap <expr> <C-w><C-f>  <SID>do_git_diff_aware_gf('<C-w><C-f>')
-nnoremap <expr> <C-w>F  <SID>do_git_diff_aware_gf('<C-w>F')
-nnoremap <expr> <C-w>gf  <SID>do_git_diff_aware_gf('<C-w>gf')
-nnoremap <expr> <C-w>gF  <SID>do_git_diff_aware_gf('<C-w>gF')
-
-function! s:do_git_diff_aware_gf(command)
-  let target_path = expand('<cfile>')
-  if target_path =~# '^[ab]/'  " with a peculiar prefix of git-diff(1)?
-    if filereadable(target_path) || isdirectory(target_path)
-      return a:command
-    else
-      " BUGS: Side effect - Cursor position is changed.
-      let [_, c] = searchpos('\f\+', 'cenW')
-      return c . '|' . 'v' . (len(target_path) - 2 - 1) . 'h' . a:command
-    endif
-  else
-    return a:command
-  endif
 endfunction
 
 
@@ -1826,7 +1796,7 @@ let g:changelog_username  = 'emonkak <emonkak@gmail.com>'
 " css  "{{{2
 
 autocmd MyAutoCmd FileType css,sass
-\ SetIndent 2s
+\ SetIndent 2space
 
 
 
@@ -1863,7 +1833,7 @@ autocmd MyAutoCmd FileType gitcommit
 " haskell  "{{{2
 
 autocmd MyAutoCmd FileType haskell
-\   SetIndent 2s
+\   SetIndent 2space
 \ | compiler ghc
 
 
@@ -1881,7 +1851,7 @@ autocmd MyAutoCmd FileType java
 " javascript  "{{{2
 
 autocmd MyAutoCmd FileType coffee,javascript
-\ SetIndent 2s
+\ SetIndent 2space
 
 
 
@@ -1889,7 +1859,7 @@ autocmd MyAutoCmd FileType coffee,javascript
 " lua  "{{{2
 
 autocmd MyAutoCmd FileType lua
-\ SetIndent 2s
+\ SetIndent 2space
 
 
 
@@ -1897,7 +1867,7 @@ autocmd MyAutoCmd FileType lua
 " objc  "{{{2
 
 autocmd MyAutoCmd FileType objc
-\   SetIndent 2s
+\   SetIndent 2space
 \ | setlocal commentstring=//%s cinoptions=l1,g0,t0,(0,W1s
 
 
@@ -1906,7 +1876,7 @@ autocmd MyAutoCmd FileType objc
 " ocaml  "{{{2
 
 autocmd MyAutoCmd FileType ocaml
-\   SetIndent 2s
+\   SetIndent 2space
 \ | setlocal commentstring=(*%s*)
 
 
@@ -1915,7 +1885,7 @@ autocmd MyAutoCmd FileType ocaml
 " perl  "{{{2
 
 autocmd MyAutoCmd FileType perl
-\   SetIndent 2s
+\   SetIndent 2space
 \ | setlocal include=
 
 
@@ -1924,7 +1894,7 @@ autocmd MyAutoCmd FileType perl
 " python  "{{{2
 
 autocmd MyAutoCmd FileType python
-\ SetIndent 2s
+\ SetIndent 2space
 
 let g:python_highlight_all = 1
 
@@ -1942,7 +1912,7 @@ autocmd MyAutoCmd FileType qf
 " ruby  "{{{2
 
 autocmd MyAutoCmd FileType ruby,yaml
-\ SetIndent 2s
+\ SetIndent 2space
 
 
 
@@ -1957,7 +1927,7 @@ let g:is_gauche = 1
 " sh, zsh  "{{{2
 
 autocmd MyAutoCmd FileType sh,zsh
-\ SetIndent 2s
+\ SetIndent 2space
 
 let g:is_bash = 1
 
@@ -1971,7 +1941,7 @@ autocmd MyAutoCmd FileType tex,plaintex
 \ | compiler tex
 
 function! s:on_FileType_tex()
-  SetIndent 2s
+  SetIndent 2space
 
   inoreabbrev <buffer> \b  \textbf{}<Left>
   inoreabbrev <buffer> \i  \textit{}<Left>
@@ -1992,7 +1962,7 @@ let g:tex_flavor = 'latex'
 " vim  "{{{2
 
 autocmd MyAutoCmd FileType vim
-\ SetIndent 2s
+\ SetIndent 2space
 
 let g:vim_indent_cont = 0
 
@@ -2005,10 +1975,10 @@ autocmd MyAutoCmd FileType docbk,html,xhtml,xml,xslt
 \ call s:on_FileType_xml()
 
 autocmd MyAutoCmd FileType haml
-\ SetIndent 2s
+\ SetIndent 2space
 
 function! s:on_FileType_xml()
-  SetIndent 2s
+  SetIndent 2space
 
   " To deal with namespace prefixes and tag-name-including-hyphens.
   setlocal iskeyword+=45  " hyphen (-)
@@ -2107,7 +2077,7 @@ autocmd MyAutoCmd FileType ku
 \ call s:on_FileType_ku()
 
 function! s:on_FileType_ku()
-  call ku#default_key_mappings(s:TRUE)
+  call ku#default_key_mappings(!0)
 
   nmap <buffer> <Esc><Esc>  <Plug>(ku-cancel)
   imap <buffer> <Esc><Esc>  <Plug>(ku-cancel)
@@ -2228,6 +2198,9 @@ let g:ku_file_mru_limit = 200
 
 imap <C-l>  <Plug>(neocomplcache_snippets_expand)
 smap <C-l>  <Plug>(neocomplcache_snippets_expand)
+
+inoremap <expr> <BS>  neocomplcache#smart_close_popup() . "\<C-h>"
+inoremap <expr> <C-h>  neocomplcache#smart_close_popup() . "\<C-h>"
 
 
 let g:neocomplcache_disable_auto_complete = 0
@@ -2383,8 +2356,12 @@ autocmd MyAutoCmd User plugin-skeleton-detect
 \ call s:on_User_plugin_skeleton_detect()
 
 function! s:on_User_plugin_skeleton_detect()
-  let _ = split(expand('%:p'), '/')
-  let extensions = split(_[-1], '\.', 1)
+  if expand('%:p') == ''
+    return
+  endif
+
+  let _ = split(expand('%:p'), '/', !0)
+  let extensions = split(_[-1], '\.', !0)
   let directories = _[:-2]
   let type = directories[-1]
 
