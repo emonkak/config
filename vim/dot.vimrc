@@ -106,10 +106,6 @@ if exists('+shellslash')
   set shellslash
 endif
 set spelllang=en_us
-if has('persistent_undo')
-  set undodir=~/tmp
-  set undofile
-endif
 set updatetime=1000
 set virtualedit=block
 
@@ -122,16 +118,12 @@ set display=lastline
 set noequalalways
 set foldmethod=marker
 set nohlsearch
-set laststatus=0
+set laststatus=2
 set linebreak
 set list
 let &listchars = "tab:\u00bb ,extends:<,trail:-"
 set pumheight=20
 set ruler
-let &rulerformat = '%28('
-\                . '[%{&fileencoding == "" ? &encoding : &fileencoding}]'
-\                . '%= %-14.(%l,%c%V%) %P'
-\                . '%)'
 set showcmd
 set showtabline=2
 set splitbelow
@@ -539,7 +531,7 @@ function! s:grep(command, args)
     try
       let original_errorformat = &l:errorformat
       let &l:errorformat = &l:grepformat
-      let result = vimproc#system(grepprg . " " . a:args[-1] . " " . target)
+      let result = vimproc#system([grepprg, a:args[-1], target])
       if a:command ==# 'grep'
         cgetexpr result
       else  " lgrep
@@ -2196,12 +2188,13 @@ let g:ku_file_mru_limit = 200
 
 " neocomplcache  "{{{2
 
-imap <C-l>  <Plug>(neocomplcache_snippets_expand)
-smap <C-l>  <Plug>(neocomplcache_snippets_expand)
+if !exists('$SUDO_USER')
+  imap <C-l>  <Plug>(neocomplcache_snippets_expand)
+  smap <C-l>  <Plug>(neocomplcache_snippets_expand)
 
-inoremap <expr> <BS>  neocomplcache#smart_close_popup() . "\<C-h>"
-inoremap <expr> <C-h>  neocomplcache#smart_close_popup() . "\<C-h>"
-
+  inoremap <expr> <BS>  neocomplcache#smart_close_popup() . "\<C-h>"
+  inoremap <expr> <C-h>  neocomplcache#smart_close_popup() . "\<C-h>"
+endif
 
 let g:neocomplcache_disable_auto_complete = 0
 let g:neocomplcache_enable_at_startup = 1
