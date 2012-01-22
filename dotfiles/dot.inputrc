@@ -2,7 +2,7 @@
 
 set -o emacs
 
-set bell-style visible
+set bell-style none
 set bind-tty-special-chars off
 set completion-ignore-case on
 set show-all-if-ambiguous on

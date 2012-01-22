@@ -113,38 +113,54 @@ zstyle ':vcs_info:bzr:*' use-simple true
 
 add-zsh-hook precmd vcs_info
 
-function prompt_setup() {
-  local user
-  if [ "$USER" = 'root' ]; then
-    user=$'%{\e[31m%}%n'
-  else
-    user=$'%{\e[32m%}%n'
-  fi
-
-  local host
-  if [ -n "$SSH_CONNECTION" ]; then
-    host=$'%{\e[36m%}%m'
-  else
-    host=$'%{\e[32m%}%m'
-  fi
-
-  local cwd=$'%{\e[33m%}%~'
-  local vcs='$vcs_info_msg_0_'
-  local main=$'%{\e[0m%}YUKI.N%(!.#.>) '
-
-  PS1="
-$user@$host $cwd $vcs
-$main"
-}
-
-prompt_setup
-unset -f prompt_setup
-
-
+# Highlight executed command
 accept-line() {
   zle .accept-line && region_highlight=("0 ${#BUFFER} bold")
 }
 zle -N accept-line
+
+function prompt_setup() {
+  local c_reset=$'\e[0m'
+  local c_cyan=$'\e[36m'
+  local c_green=$'\e[32m'
+  local c_red=$'\e[31m'
+  local c_yellow=$'\e[33m'
+  local c_gray=$'\e[37m'
+
+  local c_user
+  case "$USER" in
+    root)
+      c_user="$c_red"
+      ;;
+    *)
+      c_user="$c_green"
+      ;;
+  esac
+  local c_host
+  if [ -n "$SSH_CONNECTION" ]; then
+    c_host="$c_cyan"
+  else
+    c_host="$c_green"
+  fi
+
+  local t_host="$c_user%n$c_reset$c_host@%m$c_reset"
+  local t_cwd="$c_yellow%~$c_reset"
+  local t_main='$PS_DECORATOR%(!.#.>) '
+  if [ 1 -lt $SHLVL ]; then  # is nested interactive shell?
+    local t_shlvl=" $c_gray($SHLVL)$c_reset"
+  else
+    local t_shlvl=''
+  fi
+  local t_vcs="$c_gray\$vcs_info_msg_0_$c_reset"
+
+  PS1="
+$t_host $t_cwd$t_shlvl $t_vcs
+$t_main"
+  PS_DECORATOR='YUKI.N'
+}
+
+prompt_setup
+unset -f prompt_setup
 
 
 
@@ -167,28 +183,27 @@ fi
 autoload zmv
 alias zmv='noglob zmv'
 
-alias diff='colordiff -u'
 alias git='noglob git'
+alias g='git'
+alias sudo='sudo '
+alias s='sudo'
+if which vim &>/dev/null && vim --version | grep -q +X11; then
+  alias vim='vim --servername VIM'
+fi
+alias v='vim'
+
+if which colordiff &>/dev/null; then
+  alias diff='colordiff -u'
+fi
 alias grep='grep --color -E'
 alias lv='lv -c'
 alias pstree='pstree -A'
-alias sudo='sudo '
-alias vim='vim --servername VIM'
-
-alias g='git'
-alias s='sudo'
-alias v='vim'
 
 alias mount-cifs='sudo mount -t cifs -o defaults,noatime,user,iocharset=utf8,uid=$USER,gid=users,file_mode=0644,dir_mode=0755,username=$USER'
 
-if [ -n "$DISPLAY" ] && which xsel &>/dev/null; then
+if which xsel &>/dev/null; then
   alias pbcopy='xsel --input --clipboard'
   alias pbpaste='xsel --output --clipboard'
-fi
-
-if [ -n "$DISPLAY" ] && which mplayer &>/dev/null; then
-  alias mplayer-webcam='mplayer tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1:forceaudio:immediatemode=0:width=1280:height=720:fps=30'
-  alias mencoder-webcam='mencoder tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1:forceaudio:immediatemode=0:width=1280:height=720:fps=30 -ovc x264 -x264encopts bitrate=1000:threads=2 -oac faac -faacopts br=64 -vf scale=640:360,harddup -o'
 fi
 
 
