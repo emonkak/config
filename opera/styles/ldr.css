@@ -1,12 +1,16 @@
 @import url("user.css");
 
 * {
-  font-family: "Droid Sans", "Trebuchet MS", sans-serif !important;
+  font-family: sans-serif !important;
+}
+
+pre {
+  overflow: hidden;
 }
 
 pre,
 pre * {
-  font-family: "Monaco", "Consolas", monospace !important;
+  font-family: 'Consolas', monospace !important;
 }
 
 blockquote,
@@ -22,12 +26,12 @@ blockquote p {
 }
 
 #left_container {
+  box-sizing: border-box !important;
   border-right: 1px solid #cccccc !important;
-  z-index: 1 !important;
 }
 
 #right_container {
-  border-left-width: 0px !important;
+  border-left: none !important;
 }
 
 #subs_container {
@@ -120,11 +124,6 @@ blockquote p {
   height: 30px !important;
 }
 
-.body > a[href^="http://rss.rssad.jp"],
-.body > a[href^="http://rss.rssad.jp"] + br {
-  display: none !important;
-}
-
 #header,
 #reader_logo,
 #ads_top,
@@ -140,6 +139,10 @@ blockquote p {
 .FullBox,
 .GuideNavigationWrapper,
 .HintAndRecommendBox,
+.body a[href^="http://feedads.g.doubleclick.net"],
+.body a[href^="http://feedads.g.doubleclick.net"] + br,
+.body a[href^="http://rss.rssad.jp"],
+.body a[href^="http://rss.rssad.jp"] + br,
 td[style^="width:260px;height:48px;"] {
   display: none !important;
 }
