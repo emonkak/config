@@ -56,13 +56,14 @@ if has('gui_running')
   set guicursor=a:blinkon0
   if has('gui_gtk2')
     set guifont=Consolas\ 10.5
-    set linespace=3
+    set linespace=2
   elseif has('gui_macvim')
     set guifont=Consolas:h14
-    set linespace=5
+    set linespace=4
     set transparency=10
   elseif has('gui_win32')
-    set guifont=Consolas:h10.5
+    set guifont=Envy\ Code\ R:h10
+    set linespace=0
   endif
   set guioptions=AcgM
 endif
@@ -103,6 +104,9 @@ set keywordprg=:help
 set nrformats=hex
 set nowritebackup
 if exists('+shellslash')
+  set shell=bash
+  set shellcmdflag=-c
+  set shellpipe=2>&1\|\ tee
   set shellslash
 endif
 set spelllang=en_us
@@ -158,7 +162,7 @@ let &statusline .= '%<%f %h%m%r%w'
 let &statusline .= '   %{eskk#statusline("[%s]")}'
 let &statusline .= '%='
 let &statusline .= '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}]'
-let &statusline .= '   %-14.(%l,%c%V%) %P '
+let &statusline .= '   %-14.(%l,%c%V%) %P'
 
 function! s:my_tabline()  "{{{
   let s = ''
@@ -505,9 +509,9 @@ command! -bang -bar -complete=file -nargs=? Utf32
 command! -bang -bar -complete=file -nargs=? Dos
 \ edit<bang> ++ff=dos <args>
 command! -bang -bar -complete=file -nargs=? Unix
-\ edit<kang> ++ff=unix <args>
+\ edit<bang> ++ff=unix <args>
 command! -bang -bar -complete=file -nargs=? Mac
-\ edit<kang> ++ff=mac <args>
+\ edit<bang> ++ff=mac <args>
 
 command! -bang -bar -complete=file -nargs=? Jis  Iso2022jp<bang> <args>
 command! -bang -bar -complete=file -nargs=? Sjis  Cp932<bang> <args>
@@ -522,24 +526,11 @@ command! -bang -bar -complete=file -nargs=? Unicode  Utf16<bang> <args>
 command! -bar -complete=file -nargs=+ Grep  call s:grep('grep', [<f-args>])
 command! -bar -complete=file -nargs=+ Lgrep  call s:grep('lgrep', [<f-args>])
 function! s:grep(command, args)
-  let target = len(a:args) > 1 ? join(a:args[:-2]) : '**/*'
+  let target = len(a:args) > 1 ? join(a:args[:-2], ' ') : '**/*'
   let grepprg = &l:grepprg == '' ? &grepprg : &l:grepprg
 
   if grepprg ==# 'internal'
     execute a:command '/'.escape(a:args[-1], '/ ').'/j' target
-  elseif has('win32') || has('win64')
-    try
-      let original_errorformat = &l:errorformat
-      let &l:errorformat = &l:grepformat
-      let result = vimproc#system([grepprg, a:args[-1], target])
-      if a:command ==# 'grep'
-        cgetexpr result
-      else  " lgrep
-        lgetexpr result
-      endif
-    finally
-      let &l:errorformat = original_errorformat
-    endtry
   else
     execute a:command.'!' shellescape(a:args[-1]) target
   endif
@@ -1380,7 +1371,8 @@ inoremap <C-f>  <Right>
 inoremap <C-a>  <Home>
 inoremap <C-e>  <End>
 inoremap <C-d>  <Delete>
-inoremap <expr> <C-k>  repeat("\<Delete>", max([col('$') - col('.'), 1]))
+inoremap <expr> <C-k>
+\ repeat("\<Delete>", max([strchars(getline('.')[col('.') - 1:]), 1]))
 inoremap <expr> <C-y>  pumvisible() ? "\<C-y>" : "\<C-r>+"
 
 " Alternatives for the original actions.
@@ -1445,6 +1437,9 @@ nnoremap [Space]a  a<C-r>=<SID>keys_to_insert_one_character()<CR>
 " Insert one character.
 nnoremap [Space]I  I<C-r>=<SID>keys_to_insert_one_character()<CR>
 nnoremap [Space]i  i<C-r>=<SID>keys_to_insert_one_character()<CR>
+
+" Put from clipboard.
+nnoremap [Space]p  "+p
 
 " Open a fold.
 nnoremap [Space]l  zo
@@ -1595,6 +1590,7 @@ Arpeggio map oy  <Plug>(operator-yank-clipboard)
 " Misc.  "{{{2
 
 nnoremap <silent> <Leader><Leader>  :<C-u>update<CR>
+
 
 nnoremap <C-h>  :<C-u>Help<Space>
 nnoremap <C-o>  :<C-u>edit<Space>
@@ -1785,9 +1781,17 @@ let g:changelog_username  = 'emonkak <emonkak@gmail.com>'
 
 
 
+" coffee  "{{{2
+
+autocmd MyAutoCmd FileType coffee
+\ SetIndent 2space
+
+
+
+
 " css  "{{{2
 
-autocmd MyAutoCmd FileType css,sass
+autocmd MyAutoCmd FileType css,sass,scss
 \ SetIndent 2space
 
 
@@ -1842,7 +1846,7 @@ autocmd MyAutoCmd FileType java
 
 " javascript  "{{{2
 
-autocmd MyAutoCmd FileType coffee,javascript
+autocmd MyAutoCmd FileType javascript
 \ SetIndent 2space
 
 
@@ -1883,6 +1887,18 @@ autocmd MyAutoCmd FileType perl
 
 
 
+" php  "{{{2
+
+autocmd MyAutoCmd FileType php
+\   SetIndent 4tab
+\ | setlocal commentstring=//%s
+\ | setlocal foldexpr=syntax
+
+let g:php_folding = 1
+
+
+
+
 " python  "{{{2
 
 autocmd MyAutoCmd FileType python
@@ -1903,7 +1919,7 @@ autocmd MyAutoCmd FileType qf
 
 " ruby  "{{{2
 
-autocmd MyAutoCmd FileType ruby,yaml
+autocmd MyAutoCmd FileType ruby
 \ SetIndent 2space
 
 
@@ -2017,7 +2033,9 @@ let g:eskk#dictionary = {
 \   'encoding': 'utf-8',
 \ }
 let g:eskk#large_dictionary = {
-\   'path': expand('~/.skk/SKK-JISYO.L'),
+\   'path': has('macunix')
+\         ? expand('~/Library/Application\ Support/AquaSKK/SKK-JISYO.L')
+\         : expand('~/.skk/SKK-JISYO.L'),
 \   'sorted': 1,
 \   'encoding': 'euc-jp',
 \ }
@@ -2073,6 +2091,9 @@ function! s:on_FileType_ku()
 
   nmap <buffer> <Esc><Esc>  <Plug>(ku-cancel)
   imap <buffer> <Esc><Esc>  <Plug>(ku-cancel)
+
+  iunmap <buffer> <C-j>
+  iunmap <buffer> <C-k>
 
   imap <buffer> <expr> <Plug>(ku-%-cancel-when-empty)
   \    col('$') <= 2 ? '<Plug>(ku-cancel)' : ''
@@ -2160,10 +2181,10 @@ nnoremap <silent> [Space]ka  :<C-u>Ku args<CR>
 nnoremap <silent> [Space]kb  :<C-u>Ku buffer<CR>
 nnoremap <silent> [Space]kc  :<C-u>Ku colorscheme<CR>
 nnoremap <silent> [Space]kf  :<C-u>Ku file<CR>
-nnoremap <silent> [Space]kj  :<C-u>Ku file/current<CR>
 nnoremap <silent> [Space]kg  :<C-u>Ku metarw/git<CR>
 nnoremap <silent> [Space]kh  :<C-u>Ku history<CR>
-nnoremap <silent> [Space]kl  :<C-u>Ku file_rec<CR>
+nnoremap <silent> [Space]kj  :<C-u>Ku file/current<CR>
+nnoremap <silent> [Space]kl  :<C-u>Ku file_project<CR>
 nnoremap <silent> [Space]kq  :<C-u>Ku quickfix<CR>
 nnoremap <silent> [Space]kr  :<C-u>Ku register<CR>
 nnoremap <silent> [Space]ks  :<C-u>Ku source<CR>
@@ -2198,7 +2219,6 @@ endif
 
 let g:neocomplcache_disable_auto_complete = 0
 let g:neocomplcache_enable_at_startup = 1
-let g:neocomplcache_enable_prefetch = 1
 let g:neocomplcache_enable_smart_case = 1
 
   let g:neocomplcache_clang_library_path = '/usr/lib/llvm'
@@ -2305,10 +2325,11 @@ endfunction
 nmap <silent> K  <Plug>(ref-keyword)
 vmap <silent> K  <Plug>(ref-keyword)
 
-nnoremap <silent> <Leader>a  :<C-u>call ref#jump('normal', 'alc2')<CR>
-vnoremap <silent> <Leader>a  :<C-u>call ref#jump('visual', 'alc2')<CR>
+nnoremap <silent> <Leader>a  :<C-u>call ref#jump('normal', 'alc')<CR>
+vnoremap <silent> <Leader>a  :<C-u>call ref#jump('visual', 'alc')<CR>
 
 
+let g:ref_alc2_overwrite_alc = 1
 let g:ref_cache_dir = expand('~/.vim/info/ref')
 let g:ref_no_default_key_mappings = 1
 let g:ref_open = 'Split'
@@ -2349,21 +2370,29 @@ autocmd MyAutoCmd User plugin-skeleton-detect
 \ call s:on_User_plugin_skeleton_detect()
 
 function! s:on_User_plugin_skeleton_detect()
-  if expand('%:p') == ''
+  let _ = split(expand('%:p'), '/')
+  if len(_) == 0
     return
   endif
-
-  let _ = split(expand('%:p'), '/', !0)
-  let extensions = split(_[-1], '\.', !0)
+  let filename = _[-1]
   let directories = _[:-2]
-  let type = directories[-1]
 
-  if extensions[-1] ==# 'vim'
-  \  && type =~# '^\v(autoload|colors|compiler|ftdetect|ftplugin|indent|plugin|syntax)'
-    let after_p = directories[-2] == 'after'
-    execute 'SkeletonLoad' (after_p ? 'vim-additional-' : 'vim-') . type
-  elseif extensions[-2:-1] ==# ['user', 'js']
+  if filename =~# '\.user\.js$'
     SkeletonLoad userjs
+  endif
+
+  if filename =~# '\.txt$' && get(directories, -1) ==# 'doc'
+    SkeletonLoad help-doc
+  endif
+
+  if filename =~# '\.vim$'
+  \  && get(directories, -1) =~#
+  \     '^\v(autoload|colors|compiler|ftdetect|ftplugin|indent|plugin|syntax)'
+    if get(directories, -2) ==# 'after'
+      execute 'SkeletonLoad' 'vim-additional-'.directories[-1]
+    else
+      execute 'SkeletonLoad' 'vim-'.directories[-1]
+    endif
   endif
 endfunction
 
