@@ -28,6 +28,7 @@ import XMonad.Util.WorkspaceCompare
 
 import qualified XMonad.StackSet as W
 
+import Control.Monad (filterM)
 import Data.List (isInfixOf)
 import Graphics.X11.Xlib.Extras (changeProperty8, propModeReplace)
 import System.Directory (getHomeDirectory)
@@ -45,7 +46,7 @@ myFont = "-nil-profont-medium-r-normal--11-*-*-*-*-*-*-*, -mplus-gothic-medium-r
 
 myBorderWidth = 2
 myStatusbarHeight = 14
-myWorkspaces = ["main", "another", "work", "misc"]
+myWorkspaces = map show [1..9]
 
 myNormalBorderColor = "#474747"
 myNormalFGColor = "#e2e2e2"
@@ -93,28 +94,28 @@ myLayoutHook = avoidStruts $ smartBorders $
 -- Manage  --{{{1
 
 myManageHook = composeOne
-  [ isDialog                               -?> doCenterFloat
-  , isFullscreen                           -?> doFullFloat
-  , className =? "Uim-tomoe-gtk"           -?> doFloat
+  [ isDialog                                -?> doCenterFloat
+  , isFullscreen                            -?> doFullFloat
+  , className =? "Uim-tomoe-gtk"            -?> doFloat
   , className =? "Firefox"
-    <&&> appName /=? "Navigator"           -?> doFloat
-  , className =? "qemu-system-x86_64"      -?> doFloat
-  , className =? "rdesktop"                -?> doFloat
-  , className =? "MPlayer"                 -?> doCenterFloat
-  , className =? "XFontSel"                -?> doCenterFloat
-  , className =? "Xmessage"                -?> doCenterFloat
-  , className =? "feh"                     -?> doCenterFloat
-  , className =? "Geeqie"                  -?> doShiftAndGo "work"
-  , className =? "Inkscape"                -?> doShiftAndGo "work"
-  , className =? "fontforge"               -?> doShiftAndGo "work" <+> doFloat
-  , className =? "libreoffice-startcenter" -?> doShiftAndGo "work"
+    <&&> appName /=? "Navigator"            -?> doFloat
+  , className =? "qemu-system-x86_64"       -?> doFloat
+  , className =? "rdesktop"                 -?> doFloat
+  , className =? "MPlayer"                  -?> doCenterFloat
+  , className =? "XFontSel"                 -?> doCenterFloat
+  , className =? "Xmessage"                 -?> doCenterFloat
+  , className =? "feh"                      -?> doCenterFloat
+  , className =? "Geeqie"                  -?> doShiftEmptyAndGo
+  , className =? "Inkscape"                -?> doShiftEmptyAndGo
+  , className =? "fontforge"               -?> doShiftEmptyAndGo <+> doFloat
+  , className =? "libreoffice-startcenter" -?> doShiftEmptyAndGo
   , className =? "Gimp"
     <&&> role /=? "gimp-toolbox"
     <&&> role /=? "gimp-dock"
-    <&&> role /=? "gimp-image-window"      -?> doShiftAndGo "work" <+> doFloat
-  , className =? "Gimp"                    -?> doShiftAndGo "work"
+    <&&> role /=? "gimp-image-window"       -?> doShiftEmptyAndGo <+> doFloat
+  , className =? "Gimp"                     -?> doShiftEmptyAndGo
   , className =? "Skype"
-    <&&> fmap (isInfixOf "(Beta)") title   -?> addProperty "WM_WINDOW_ROLE" "MainWindow"
+    <&&> fmap (isInfixOf "(Beta)") title    -?> addProperty "WM_WINDOW_ROLE" "MainWindow"
   ]
   where
     role = stringProperty "WM_WINDOW_ROLE"
@@ -126,6 +127,15 @@ myManageHook = composeOne
       io $ changeProperty8 d w a t propModeReplace $ map (fromIntegral . fromEnum) value
       idHook
     doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
+    doShiftEmptyAndGo = do
+      w <- ask
+      c <- liftX $ runQuery className w
+      xs <- liftX $ withWindowSet $ filterM (runQuery $ className =? c) . W.index
+      case xs of
+        [] -> do
+          ws <- liftX $ findWorkspace getSortByIndex Next EmptyWS 1
+          doShiftAndGo ws
+        _  -> idHook
 
 
 

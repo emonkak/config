@@ -16,7 +16,8 @@ ALL_GROUPS=\
   GENTOO \
   LINUX \
   OPERA \
-  VIM
+  VIM \
+  XMONAD
 
 GROUP_DOTS_FILES=\
   dotfiles/dot.Xmodmap \
@@ -31,7 +32,6 @@ GROUP_DOTS_FILES=\
   dotfiles/dot.tmux.conf \
   dotfiles/dot.uim \
   dotfiles/dot.xinitrc \
-  dotfiles/dot.xmonad/xmonad.hs \
   dotfiles/dot.zprofile \
   dotfiles/dot.zshrc
 GROUP_DOTS_RULE=$(patsubst dotfiles/dot.%, $(HOME)/.%, $(1))
@@ -82,6 +82,9 @@ GROUP_VIM_FILES=\
   vim/dot.vimrc
 GROUP_VIM_RULE=$(patsubst vim/dot.%, $(HOME)/.%, $(1))
 
+GROUP_XMONAD_FILES=\
+  xmonad/xmonad.hs
+GROUP_XMONAD_RULE=$(patsubst xmonad/%, $(HOME)/.xmonad/%, $(1))
 
 
 
