@@ -1,4 +1,4 @@
+=dev-lang/php-5.4.0_rc*
 =sys-boot/grub-1.99*
 >app-i18n/skk-jisyo-9999
->media-video/mplayer-1.0_rc4_p20110322-r9999
 sys-kernel/gentoo-sources

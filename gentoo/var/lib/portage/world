@@ -39,7 +39,6 @@ app-text/evince
 app-text/lv
 app-text/ptex
 app-text/tree
-dev-haskell/animas
 dev-haskell/attoparsec
 dev-haskell/attoparsec-enumerator
 dev-haskell/cabal-install
@@ -57,7 +56,6 @@ dev-haskell/libmpd
 dev-haskell/lifted-base
 dev-haskell/monad-control
 dev-haskell/quickcheck
-dev-haskell/reactive
 dev-haskell/reactive-banana
 dev-haskell/sha
 dev-haskell/split
@@ -66,6 +64,7 @@ dev-haskell/vector
 dev-java/oracle-jdk-bin
 dev-lang/ghc
 dev-lang/ocaml
+dev-lang/php
 dev-lang/ruby
 dev-lang/v8
 dev-ml/ccell
@@ -76,6 +75,7 @@ dev-perl/WWW-Mechanize
 dev-perl/libwww-perl
 dev-python/dbus-python
 dev-python/imaging
+dev-ruby/kramdown
 dev-ruby/rake
 dev-ruby/rsense
 dev-ruby/rubygems
@@ -111,6 +111,7 @@ media-gfx/graphviz
 media-gfx/imagemagick
 media-gfx/inkscape
 media-gfx/scrot
+media-gfx/wkhtmltopdf
 media-libs/freetype
 media-plugins/alsa-plugins
 media-sound/alsa-utils
@@ -176,6 +177,7 @@ www-client/opera-next
 www-client/w3m
 www-plugins/adobe-flash
 www-plugins/gecko-mediaplayer
+www-servers/apache
 x11-apps/mesa-progs
 x11-apps/xdpyinfo
 x11-apps/xev
@@ -212,5 +214,6 @@ x11-themes/gtk-theme-switch
 x11-themes/notification-daemon-engine-coco
 x11-themes/tango-icon-theme
 x11-themes/vanilla-dmz-xcursors
+x11-wm/notion
 x11-wm/xmonad
 x11-wm/xmonad-contrib
