@@ -36,13 +36,9 @@ Rxvt.color7: rgb:81/81/81
 Rxvt.color15: rgb:ff/ff/ff
 
 Rxvt.font: \
-  xft:Consolas:size=10.5, \
-  xft:AXIS Std:pixelsize=14, \
+  xft:TheSans Mono:size=10, \
+  xft:KaiLunaStd:pixelsize=14, \
   xft:Droid Sans Fallback:pixelsize=14
-!Rxvt.font: \
-!  -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \
-!  -mplus-gothic-medium-r-normal--12-120-75-75-c-60-jisx0201.1976-0, \
-!  -mplus-gothic-medium-r-normal--12-120-75-75-c-120-jisx0208.1990-0
 Rxvt.imFont: \
   -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \
   -mplus-gothic-medium-r-normal--12-120-75-75-c-60-jisx0201.1976-0, \
@@ -59,6 +55,31 @@ Rxvt.saveLines: 1000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true
 Rxvt.secondaryScroll: true
-Rxvt.termName: rxvt-unicode-256color
+Rxvt.termName: rxvt-256color
 Rxvt.urgentOnBell: true
 Rxvt.visualBell: false
+
+
+! XTERM
+
+XTerm*foreground: #cccccc
+XTerm*background: #000000
+XTerm*color0: #000000
+XTerm*color1: #990000
+XTerm*color2: #009900
+XTerm*color3: #999900
+XTerm*color4: #000099
+XTerm*color5: #990099
+XTerm*color6: #009999
+XTerm*color7: #999999
+XTerm*color8: #555555
+XTerm*color9: #cc0000
+XTerm*color10: #00cc00
+XTerm*color11: #cccc00
+XTerm*color12: #3366ff
+XTerm*color13: #cc00cc
+XTerm*color14: #00cccc
+XTerm*color15: #ffffff
+
+XTerm*font: \
+  -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1

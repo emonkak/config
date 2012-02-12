@@ -151,7 +151,7 @@ function prompt_setup() {
   else
     local t_shlvl=''
   fi
-  local t_vcs="$c_gray\$vcs_info_msg_0_$c_reset"
+  local t_vcs="$c_yellow\$vcs_info_msg_0_$c_reset"
 
   PS1="
 $t_host $t_cwd$t_shlvl $t_vcs
