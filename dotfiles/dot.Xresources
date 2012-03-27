@@ -10,6 +10,8 @@ Xcursor.size: 24
 
 Rxvt.background: rgb:17/17/17
 Rxvt.foreground: rgb:e2/e2/e2
+Rxvt.cursorColor: rgb:67/9b/00
+
 ! Black
 Rxvt.color0: rgb:29/29/29
 Rxvt.color8: rgb:47/47/47
@@ -37,7 +39,7 @@ Rxvt.color15: rgb:ff/ff/ff
 
 Rxvt.font: \
   xft:TheSans Mono:size=10, \
-  xft:KaiLunaStd:pixelsize=14, \
+  xft:KaiGothicStd:pixelsize=14, \
   xft:Droid Sans Fallback:pixelsize=14
 Rxvt.imFont: \
   -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \

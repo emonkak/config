@@ -265,7 +265,6 @@ defmenu jump  #{{{2
 addmenu jump '(d)esktop'   $(export key_d) "mcd $(export HOME)/Desktop"
 addmenu jump 'D(o)cuments' $(export key_o) "mcd $(export HOME)/Documents"
 addmenu jump 'Dow(n)loads' $(export key_n) "mcd $(export HOME)/Downloads"
-addmenu jump '(b)ooks'     $(export key_b) "mcd $(export HOME)/Books"
 addmenu jump '(m)usic'     $(export key_m) "mcd $(export HOME)/Music"
 addmenu jump '(p)ictures'  $(export key_p) "mcd $(export HOME)/Pictures"
 addmenu jump '(r)adio'     $(export key_r) "mcd $(export HOME)/Radio"

@@ -14,6 +14,8 @@ export GTK_IM_MODULE='uim'
 export QT_IM_MODULE='uim'
 uim-xim &
 
+dropbox &
+
 mpd
 
 FG='#e2e2e2'
