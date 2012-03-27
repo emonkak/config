@@ -101,7 +101,6 @@ if has('multi_byte_ime') || has('xim')
   set imsearch=0
 endif
 set keywordprg=:help
-set nrformats=hex
 set nowritebackup
 if exists('+shellslash')
   set shell=bash
@@ -161,7 +160,8 @@ let &statusline = ''
 let &statusline .= '%<%f %h%m%r%w'
 let &statusline .= '   %{eskk#statusline("[%s]")}'
 let &statusline .= '%='
-let &statusline .= '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}]'
+let &statusline .= '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
+let &statusline .= '%{&l:fileformat == "unix" ? "" : ":".&l:fileformat}]'
 let &statusline .= '   %-14.(%l,%c%V%) %P'
 
 function! s:my_tabline()  "{{{
@@ -708,6 +708,21 @@ endfunction
 if has('vim_starting')
   silent call s:toggle_grepprg(!0)
 endif
+
+
+function! s:toggle_foldmethod(global_p)
+  let VALUES = ['marker', 'syntax']
+  let foldmethod = &l:foldmethod == '' ? &foldmethod : &l:foldmethod
+  let i = (index(VALUES, foldmethod) + 1) % len(VALUES)
+
+  if a:global_p
+    let &foldmethod = VALUES[i]
+    set foldmethod?
+  else
+    let &l:foldmethod = VALUES[i]
+    setlocal foldmethod?
+  endif
+endfunction
 
 
 function! s:toggle_option(option_name)
@@ -1439,7 +1454,7 @@ nnoremap [Space]I  I<C-r>=<SID>keys_to_insert_one_character()<CR>
 nnoremap [Space]i  i<C-r>=<SID>keys_to_insert_one_character()<CR>
 
 " Put from clipboard.
-nnoremap [Space]p  "+p
+nmap [Space]p  "*p
 
 " Open a fold.
 nnoremap [Space]l  zo
@@ -1462,6 +1477,7 @@ nnoremap <silent> [Space]on  :<C-u>call <SID>toggle_option('number')<CR>
 nnoremap <silent> [Space]op  :<C-u>call <SID>toggle_option('paste')<CR>
 nnoremap <silent> [Space]os  :<C-u>call <SID>toggle_option('spell')<CR>
 nnoremap <silent> [Space]ow  :<C-u>call <SID>toggle_option('wrap')<CR>
+nnoremap <silent> [Space]oz  :<C-u>call <SID>toggle_foldmethod(0)<CR>
 
 nnoremap <silent> [Space]q  :<C-u>Help quickref<CR>
 nnoremap <silent> [Space]m  :<C-u>marks<CR>
@@ -1581,7 +1597,6 @@ Arpeggio map ot  <Plug>(operator-translate)
 
 call operator#user#define('yank-clipboard',
 \                         s:SID_PREFIX() . 'operator_yank_clipboard')
-Arpeggio map oy  <Plug>(operator-yank-clipboard)
 Arpeggio map oy  <Plug>(operator-yank-clipboard)
 
 
@@ -1709,11 +1724,6 @@ function! s:on_FileType_any()
     let &l:dictionary = dictionary
   endif
 
-  " Make omni completion available for all filetypes.
-  if &l:omnifunc == ''
-    setlocal omnifunc=syntaxcomplete#Complete
-  endif
-
   " Disable auto wrap.
   setlocal formatoptions-=t formatoptions-=c
 
@@ -1792,7 +1802,8 @@ autocmd MyAutoCmd FileType coffee
 " css  "{{{2
 
 autocmd MyAutoCmd FileType css,sass,scss
-\ SetIndent 2space
+\   SetIndent 2space
+\ | setlocal iskeyword+=-
 
 
 
@@ -1864,7 +1875,8 @@ autocmd MyAutoCmd FileType lua
 
 autocmd MyAutoCmd FileType objc
 \   SetIndent 2space
-\ | setlocal commentstring=//%s cinoptions=l1,g0,t0,(0,W1s
+\ | setlocal cinoptions=l1,g0,t0,(0,W1s
+\ | setlocal commentstring=//%s
 
 
 
@@ -1892,7 +1904,7 @@ autocmd MyAutoCmd FileType perl
 autocmd MyAutoCmd FileType php
 \   SetIndent 4tab
 \ | setlocal commentstring=//%s
-\ | setlocal foldexpr=syntax
+\ | setlocal foldmethod=syntax
 
 let g:php_folding = 1
 
@@ -1979,11 +1991,8 @@ let g:vim_indent_cont = 0
 
 " xml  "{{{2
 
-autocmd MyAutoCmd FileType docbk,html,xhtml,xml,xslt
+autocmd MyAutoCmd FileType docbk,html,xhtml,xml,xslt,smarty
 \ call s:on_FileType_xml()
-
-autocmd MyAutoCmd FileType haml
-\ SetIndent 2space
 
 function! s:on_FileType_xml()
   SetIndent 2space
@@ -1991,9 +2000,10 @@ function! s:on_FileType_xml()
   " To deal with namespace prefixes and tag-name-including-hyphens.
   setlocal iskeyword+=45  " hyphen (-)
   setlocal iskeyword+=58  " colon (:)
-
-  inoremap <buffer> </  </<C-x><C-o>
 endfunction
+
+autocmd MyAutoCmd FileType haml
+\ SetIndent 2space
 
 
 
@@ -2035,6 +2045,8 @@ let g:eskk#dictionary = {
 let g:eskk#large_dictionary = {
 \   'path': has('macunix')
 \         ? expand('~/Library/Application\ Support/AquaSKK/SKK-JISYO.L')
+\         : has('unix')
+\         ? expand('/usr/share/skk/SKK-JISYO.L')
 \         : expand('~/.skk/SKK-JISYO.L'),
 \   'sorted': 1,
 \   'encoding': 'euc-jp',
@@ -2328,12 +2340,15 @@ vmap <silent> K  <Plug>(ref-keyword)
 nnoremap <silent> <Leader>a  :<C-u>call ref#jump('normal', 'alc')<CR>
 vnoremap <silent> <Leader>a  :<C-u>call ref#jump('visual', 'alc')<CR>
 
+AlterCommand ref  Ref
+
 
 let g:ref_alc2_overwrite_alc = 1
 let g:ref_cache_dir = expand('~/.vim/info/ref')
 let g:ref_no_default_key_mappings = 1
 let g:ref_open = 'Split'
 let g:ref_perldoc_complete_head = 1
+let g:ref_phpmanual_path = '/usr/share/php-docs/en/php-chunked-xhtml'
 let g:ref_wikipedia_lang = 'ja'
 
 
