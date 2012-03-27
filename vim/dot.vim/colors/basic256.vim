@@ -166,7 +166,7 @@ endfunction
 
 if has('gui_running')
   call s:highlight('Normal'     , {'fg': '#e2e2e2', 'bg': '#171717'})
-  call s:highlight('Cursor'     , {'fg': 'bg', 'bg': 'fg'})
+  call s:highlight('Cursor'     , {'fg': 'bg', 'bg': 2})
   call s:highlight('CursorIM'   , {'fg': 'bg', 'bg': 14})
   call s:highlight('lCursor'    , {'fg': 'bg', 'bg': 14})
 else
