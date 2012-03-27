@@ -12,6 +12,7 @@ app-arch/unzip
 app-arch/zip
 app-cdr/bchunk
 app-cdr/dvd+rw-tools
+app-doc/php-docs
 app-editors/gvim
 app-editors/leafpad
 app-editors/vim
@@ -45,6 +46,7 @@ dev-haskell/cabal-install
 dev-haskell/control-monad-failure
 dev-haskell/criterion
 dev-haskell/ghc-mod
+dev-haskell/ghc-pkg-autofix
 dev-haskell/gtk
 dev-haskell/gtk-traymanager
 dev-haskell/haddock
@@ -70,6 +72,7 @@ dev-lang/v8
 dev-ml/ccell
 dev-ml/ocaml-curses
 dev-node/coffee-script
+dev-node/less
 dev-perl/Term-ProgressBar
 dev-perl/WWW-Mechanize
 dev-perl/libwww-perl
@@ -110,6 +113,7 @@ media-gfx/gimp
 media-gfx/graphviz
 media-gfx/imagemagick
 media-gfx/inkscape
+media-gfx/optipng
 media-gfx/scrot
 media-gfx/wkhtmltopdf
 media-libs/freetype
@@ -126,6 +130,7 @@ media-video/rtmpdump
 media-video/vlc
 net-analyzer/ngrep
 net-analyzer/tcpdump
+net-dialup/pptpclient
 net-dns/bind-tools
 net-firewall/iptables
 net-fs/samba
@@ -161,18 +166,19 @@ sys-boot/grub
 sys-devel/clang
 sys-fs/fuseiso
 sys-fs/ntfs3g
-sys-kernel/gentoo-sources
+sys-fs/sshfs-fuse
 sys-power/hibernate-script
 sys-process/htop
 sys-process/lsof
 sys-process/vixie-cron
 virtual/ffmpeg
+virtual/linux-sources
+virtual/mysql
 virtual/notification-daemon
 www-client/elinks
 www-client/firefox-bin
 www-client/google-chrome:stable
 www-client/jd
-www-client/opera
 www-client/opera-next
 www-client/w3m
 www-plugins/adobe-flash

@@ -1,4 +1,5 @@
-=dev-lang/php-5.4.0_rc*
+=net-misc/dropbox-1.2.51*
+=sys-apps/net-tools-1.60_p20120127084908
 =sys-boot/grub-1.99*
 >app-i18n/skk-jisyo-9999
 sys-kernel/gentoo-sources
