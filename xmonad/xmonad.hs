@@ -94,17 +94,17 @@ myLayoutHook = avoidStruts $ smartBorders $
 -- Manage  --{{{1
 
 myManageHook = composeOne
-  [ isDialog                                -?> doCenterFloat
-  , isFullscreen                            -?> doFullFloat
-  , className =? "Uim-tomoe-gtk"            -?> doFloat
+  [ isDialog                               -?> doCenterFloat
+  , isFullscreen                           -?> doFullFloat
+  , className =? "Uim-tomoe-gtk"           -?> doFloat
   , className =? "Firefox"
-    <&&> appName /=? "Navigator"            -?> doFloat
-  , className =? "qemu-system-x86_64"       -?> doFloat
-  , className =? "rdesktop"                 -?> doFloat
-  , className =? "MPlayer"                  -?> doCenterFloat
-  , className =? "XFontSel"                 -?> doCenterFloat
-  , className =? "Xmessage"                 -?> doCenterFloat
-  , className =? "feh"                      -?> doCenterFloat
+    <&&> appName /=? "Navigator"           -?> doFloat
+  , className =? "qemu-system-x86_64"      -?> doFloat
+  , className =? "rdesktop"                -?> doFloat
+  , className =? "MPlayer"                 -?> doCenterFloat
+  , className =? "XFontSel"                -?> doCenterFloat
+  , className =? "Xmessage"                -?> doCenterFloat
+  , className =? "feh"                     -?> doCenterFloat
   , className =? "Geeqie"                  -?> doShiftEmptyAndGo
   , className =? "Inkscape"                -?> doShiftEmptyAndGo
   , className =? "fontforge"               -?> doShiftEmptyAndGo <+> doFloat
@@ -233,7 +233,7 @@ myKeys conf = mkKeymap conf $
               , ("f", "firefox-bin")
               , ("g", "gimp")
               , ("j", "jd")
-              , ("o", "opera")
+              , ("o", "opera-next")
               , ("v", "geeqie")
               ]
   , m <- [ "", "M-"]
