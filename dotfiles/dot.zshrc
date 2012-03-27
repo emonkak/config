@@ -10,8 +10,8 @@ stty start undef
 # Parameters  #{{{1
 
 HISTFILE="$HOME/.zsh_history"
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=100000
+SAVEHIST=100000
 
 
 # Don't add "rm" and "rmdir" to history.
@@ -46,8 +46,10 @@ setopt list_types
 setopt brace_ccl
 setopt equals
 setopt extended_glob
+setopt glob_complete
 setopt magic_equal_subst
 setopt mark_dirs
+setopt complete_in_word
 
 setopt append_history
 setopt hist_ignore_all_dups
@@ -67,7 +69,12 @@ unsetopt flow_control
 
 
 
-# Title  #{{{1
+# Hooks  #{{{1
+
+autoload -Uz vcs_info
+zstyle ':vcs_info:*' actionformats '[%s:%b|%a]'
+zstyle ':vcs_info:*' formats '[%s:%b]'
+zstyle ':vcs_info:bzr:*' use-simple true
 
 if [ -n "$WINDOW" ]; then  # is GNU screen
   preexec() {
@@ -92,32 +99,32 @@ if [ -n "$WINDOW" ]; then  # is GNU screen
 elif [[ -n "$TMUX" ]]; then
   precmd() {
     print -Pn "\e]0;%m@%n:%~\a"
-    print -n "\a"
+    vcs_info
+    tmux show-environment | while read line; do
+      if [ $line[1] = '-' ]; then
+        unset ${line#-*}
+      else
+        eval ${line// /\\ }
+      fi
+    done
   }
 elif [[ "$TERM" == (xterm*|rxvt*) ]]; then
   precmd() {
     print -Pn "\e]0;%m@%n:%~\a"
+    vcs_info
   }
 fi
-
-
-
-
-# Prompt  #{{{1
-
-autoload -Uz add-zsh-hook
-autoload -Uz vcs_info
-zstyle ':vcs_info:*' actionformats '[%s:%b|%a]'
-zstyle ':vcs_info:*' formats '[%s:%b]'
-zstyle ':vcs_info:bzr:*' use-simple true
-
-add-zsh-hook precmd vcs_info
 
 # Highlight executed command
 accept-line() {
   zle .accept-line && region_highlight=("0 ${#BUFFER} bold")
 }
 zle -N accept-line
+
+
+
+
+# Prompt  #{{{1
 
 function prompt_setup() {
   local c_reset=$'\e[0m'
@@ -136,14 +143,9 @@ function prompt_setup() {
       c_user="$c_green"
       ;;
   esac
-  local c_host
-  if [ -n "$SSH_CONNECTION" ]; then
-    c_host="$c_cyan"
-  else
-    c_host="$c_green"
-  fi
+  local c_host="\$([ -n \"\$SSH_CONNECTION\" ] && echo \"$c_cyan\")"
 
-  local t_host="$c_user%n$c_reset$c_host@%m$c_reset"
+  local t_host="$c_user%n$c_host@%m$c_reset"
   local t_cwd="$c_yellow%~$c_reset"
   local t_main='$PS_DECORATOR%(!.#.>) '
   if [ 1 -lt $SHLVL ]; then  # is nested interactive shell?
@@ -167,7 +169,11 @@ unset -f prompt_setup
 
 # Aliases  #{{{1
 
-alias ls='ls -F --show-control-chars --color=auto'
+if ls --color=never --directory / >/dev/null 2>&1; then
+  alias ls='ls -Fh --color=auto --show-control-chars'
+else
+  alias ls='ls -FGh'
+fi
 alias la='ls -a'
 alias ll='ls -l'
 alias lla='ls -la'
@@ -195,11 +201,36 @@ alias v='vim'
 if which colordiff &>/dev/null; then
   alias diff='colordiff -u'
 fi
-alias grep='grep --color -E'
+alias grep='grep --binary-files=without-match --color -E'
 alias lv='lv -c'
 alias pstree='pstree -A'
 
-alias mount-cifs='sudo mount -t cifs -o defaults,noatime,user,iocharset=utf8,uid=$USER,gid=users,file_mode=0644,dir_mode=0755,username=$USER'
+function mount-cifs() {
+  if [ $# != 2 ]; then
+    echo "Usage: $0 [{username}@]{server}[/{share}] {mount-point}"
+    return 1
+  fi
+
+  local uri=$1
+  local mount_point=$2
+
+  local username=${uri%%@*}
+  [ $username = $uri ] && username=$USER
+  local server=${uri#//}
+  local server=${server#*@}
+  local server=${server%%/*}
+  local share=${uri#*/}
+  [ $share = $uri ] && share=$USER
+
+  if which mount_smbfs &>/dev/null; then
+    mount_smbfs -f 0644 -d 0755 //$username@$server/$share $mount_point
+  else
+    sudo mount \
+        -t cifs \
+        -o defaults,user,iocharset=utf8,uid=$USER,gid=users,file_mode=0644,dir_mode=0755,username=$username \
+        //$server/$share $mount_point
+  fi
+}
 
 if which xsel &>/dev/null; then
   alias pbcopy='xsel --input --clipboard'
@@ -245,7 +276,7 @@ zstyle ':zle:*' word-style unspecified
 
 autoload -U compinit
 compinit
-zstyle ':completion:*' completer _complete _expand _ignored _oldlist
+zstyle ':completion:*' completer _complete _expand _ignored _match _oldlist _prefix
 zstyle ':completion:*' list-colors ''
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' menu select=1
