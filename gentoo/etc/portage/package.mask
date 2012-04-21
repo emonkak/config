@@ -1,4 +1,4 @@
-=net-misc/dropbox-1.2.51*
+=app-i18n/uim-1.8.0
 =sys-apps/net-tools-1.60_p20120127084908
 =sys-boot/grub-1.99*
 >app-i18n/skk-jisyo-9999

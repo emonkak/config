@@ -15,7 +15,6 @@ dev-lang/v8
 dev-libs/atk
 dev-ruby/bundler
 media-gfx/gimp
-net-libs/nodejs
 virtual/jdk
 virtual/jre
 virtual/ruby-rdoc

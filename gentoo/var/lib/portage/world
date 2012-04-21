@@ -43,8 +43,8 @@ app-text/tree
 dev-haskell/attoparsec
 dev-haskell/attoparsec-enumerator
 dev-haskell/cabal-install
-dev-haskell/control-monad-failure
 dev-haskell/criterion
+dev-haskell/failure
 dev-haskell/ghc-mod
 dev-haskell/ghc-pkg-autofix
 dev-haskell/gtk
@@ -76,6 +76,7 @@ dev-node/less
 dev-perl/Term-ProgressBar
 dev-perl/WWW-Mechanize
 dev-perl/libwww-perl
+dev-php/PHPSpec
 dev-python/dbus-python
 dev-python/imaging
 dev-ruby/kramdown
@@ -129,7 +130,7 @@ media-video/mplayer
 media-video/rtmpdump
 media-video/vlc
 net-analyzer/ngrep
-net-analyzer/tcpdump
+net-analyzer/tcpflow
 net-dialup/pptpclient
 net-dns/bind-tools
 net-firewall/iptables
@@ -140,6 +141,7 @@ net-irc/weechat
 net-libs/nodejs
 net-misc/bridge-utils
 net-misc/dropbox
+net-misc/hotot
 net-misc/mimms
 net-misc/ntp
 net-misc/openvpn
@@ -183,7 +185,6 @@ www-client/opera-next
 www-client/w3m
 www-plugins/adobe-flash
 www-plugins/gecko-mediaplayer
-www-servers/apache
 x11-apps/mesa-progs
 x11-apps/xdpyinfo
 x11-apps/xev

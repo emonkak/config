@@ -7,7 +7,7 @@ app-emulation/qemu-kvm alsa qemu-ifup sdl
 app-emulation/wine alsa dbus fontconfig hardened jpeg mp3 png xml
 app-i18n/ibus gtk python
 app-i18n/ibus-mozc -ibus uim qt4
-app-i18n/uim -anthy gtk gtk3 libnotify linguas_ja skk xft
+app-i18n/uim -anthy gtk libnotify linguas_ja skk xft
 app-misc/mfiler3 migemo
 app-misc/tmux vim-syntax
 app-office/libreoffice-bin linguas_ja
@@ -61,6 +61,7 @@ net-im/pidgin gstreamer
 net-im/skype4pidgin dbus
 net-irc/irssi perl
 net-irc/weechat perl python ruby
+net-misc/hotot gtk
 net-misc/rdesktop alsa
 net-print/bjfilter ip3100
 net-print/cups samba
