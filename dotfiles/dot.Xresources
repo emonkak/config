@@ -39,7 +39,7 @@ Rxvt.color15: rgb:ff/ff/ff
 
 Rxvt.font: \
   xft:TheSans Mono:size=10, \
-  xft:KaiGothicStd:pixelsize=14, \
+  xft:KaiLunaStd:pixelsize=14, \
   xft:Droid Sans Fallback:pixelsize=14
 Rxvt.imFont: \
   -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \

@@ -143,7 +143,7 @@ function prompt_setup() {
       c_user="$c_green"
       ;;
   esac
-  local c_host="\$([ -n \"\$SSH_CONNECTION\" ] && echo \"$c_cyan\")"
+  local c_host="\$([ -n \"\$SSH_CONNECTION\" ] && echo \"$c_cyan\" || echo \"$c_green\")"
 
   local t_host="$c_user%n$c_host@%m$c_reset"
   local t_cwd="$c_yellow%~$c_reset"
@@ -226,9 +226,9 @@ function mount-cifs() {
     mount_smbfs -f 0644 -d 0755 //$username@$server/$share $mount_point
   else
     sudo mount \
-        -t cifs \
-        -o defaults,user,iocharset=utf8,uid=$USER,gid=users,file_mode=0644,dir_mode=0755,username=$username \
-        //$server/$share $mount_point
+      -t cifs \
+      -o defaults,user,iocharset=utf8,uid=$USER,gid=users,file_mode=0644,dir_mode=0755,username=$username \
+         //$server/$share $mount_point
   fi
 }
 

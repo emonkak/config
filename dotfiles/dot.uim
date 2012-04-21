@@ -17,7 +17,7 @@
 (define bridge-show-with? 'mode)
 
 (define uim-xim-use-xft-font? #t)
-(define uim-xim-xft-font-name "AXIS Std")
+(define uim-xim-xft-font-name "KaiLunaStd")
 
 (define notify-agent 'libnotify)
 
