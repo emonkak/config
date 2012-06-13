@@ -1,9 +1,9 @@
 app-admin/conky mpd lua vim-syntax
 app-arch/unzip natspec
-app-editors/gvim gtk
+app-editors/gvim gtk python
 app-editors/vim gtk python
 app-editors/yi gtk
-app-emulation/qemu-kvm alsa qemu-ifup sdl
+app-emulation/qemu-kvm alsa opengl qemu-ifup sdl
 app-emulation/wine alsa dbus fontconfig hardened jpeg mp3 png xml
 app-i18n/ibus gtk python
 app-i18n/ibus-mozc -ibus uim qt4
@@ -18,7 +18,7 @@ app-text/acroread minimal linguas_ja
 app-text/asciidoc graphviz highlight
 app-text/ghostscript-gpl gtk
 app-text/lcdf-typetools kpathsea
-app-text/poppler -abiword
+app-text/poppler qt4 -abiword
 dev-haskell/* doc
 dev-lang/ghc doc ghcbootstrap llvm
 dev-lang/perl ithreads
@@ -29,6 +29,7 @@ dev-libs/libxml2 python
 dev-libs/nettle gmp
 dev-vcs/git cvs perl subversion
 dev-vcs/subversion -dso perl python
+media-gfx/comix rar
 media-gfx/fontforge pango svg
 media-gfx/gimp dbus exif jpeg pdf png python svg
 media-gfx/graphviz gtk
@@ -40,7 +41,7 @@ media-libs/lcms python
 media-libs/libass enca
 media-libs/libpng apng
 media-libs/libsdl alsa xv
-media-libs/mesa gles
+media-libs/mesa gles xa
 media-libs/speex ogg
 media-plugins/gst-plugins-meta alsa
 media-sound/ario dbus taglib
@@ -60,7 +61,6 @@ net-im/instantbird -system-libpurple
 net-im/pidgin gstreamer
 net-im/skype4pidgin dbus
 net-irc/irssi perl
-net-irc/weechat perl python ruby
 net-misc/hotot gtk
 net-misc/rdesktop alsa
 net-print/bjfilter ip3100
@@ -89,6 +89,7 @@ www-servers/nginx nginx_modules_http_headers_more
 x11-libs/cairo lcdfilter opengl svg
 x11-libs/gdk-pixbuf jpeg
 x11-libs/gtk+ jpeg
+x11-libs/libdrm libkms
 x11-libs/libva opengl
 x11-libs/qt-gui dbus gtkstyle
 x11-plugins/purple-plugin_pack gtk

@@ -1,5 +1,6 @@
 app-admin/conky
 app-admin/haskell-updater
+app-admin/hddtemp
 app-admin/logrotate
 app-admin/sudo
 app-admin/syslog-ng
@@ -92,6 +93,7 @@ dev-scheme/slib
 dev-scheme/xire
 dev-tcltk/expect
 dev-util/omake
+dev-util/strace
 dev-vcs/cvs
 dev-vcs/fast-export
 dev-vcs/git
@@ -107,6 +109,7 @@ media-fonts/font-misc-misc
 media-fonts/ja-ipaexfonts
 media-fonts/mplus-fonts
 media-fonts/pcf2bdf
+media-gfx/comix
 media-gfx/feh
 media-gfx/fontforge
 media-gfx/geeqie
@@ -116,7 +119,6 @@ media-gfx/imagemagick
 media-gfx/inkscape
 media-gfx/optipng
 media-gfx/scrot
-media-gfx/wkhtmltopdf
 media-libs/freetype
 media-plugins/alsa-plugins
 media-sound/alsa-utils
@@ -141,13 +143,13 @@ net-irc/weechat
 net-libs/nodejs
 net-misc/bridge-utils
 net-misc/dropbox
-net-misc/hotot
 net-misc/mimms
 net-misc/ntp
 net-misc/openvpn
 net-misc/rdesktop
 net-misc/telnet-bsd
 net-misc/whois
+net-misc/wol
 net-p2p/rtorrent
 net-print/bjfilter
 net-proxy/privoxy
@@ -156,14 +158,19 @@ perl-gcpan/HTML-TreeBuilder-XPath
 perl-gcpan/WWW-NicoVideo-Download
 perl-gcpan/Web-Scraper
 sci-visualization/gnuplot
+sys-apps/ethtool
+sys-apps/hdparm
 sys-apps/hexdump-esr
 sys-apps/lm_sensors
 sys-apps/miscfiles
 sys-apps/pciutils
 sys-apps/safe-rm
 sys-apps/smartmontools
+sys-apps/usbutils
 sys-apps/usermode-utilities
 sys-block/eject
+sys-block/gparted
+sys-block/parted
 sys-boot/grub
 sys-devel/clang
 sys-fs/fuseiso
@@ -204,6 +211,7 @@ x11-libs/libXinerama
 x11-misc/dzen
 x11-misc/gbdfed
 x11-misc/growl-for-linux
+x11-misc/qcomicbook
 x11-misc/trayer
 x11-misc/xcompmgr
 x11-misc/xdotool

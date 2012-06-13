@@ -4,14 +4,13 @@
 =dev-lang/ghc-7.4*
 =sys-apps/portage-2.2*
 =sys-devel/gcc-4.6*
-=sys-kernel/gentoo-sources-3.3.0
+=sys-kernel/gentoo-sources-3.4.0
 =x11-misc/dzen-9999
 =x11-themes/gtk-engines-unico-1*
 app-office/libreoffice-bin
 app-text/ptex
 dev-haskell/haddock
 dev-lang/ruby
-dev-lang/v8
 dev-libs/atk
 dev-ruby/bundler
 media-gfx/gimp

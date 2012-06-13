@@ -12,9 +12,8 @@
 #
 # <fs>      <mountpoint>  <type>   <opts> <dump/pass>
 
-/dev/sda1   /             ext4     discard,noatime 0 1
-/dev/sdb2   /mnt/windows  ntfs-3g  noatime,uid=1000,gid=users,fmask=0113,dmask=0022,windows_names 0 0
-/dev/sdb3   /home         ext4     noatime 0 0
+/dev/sdb1   /             ext4     discard,noatime 0 1
+/dev/sdc2   /home         ext4     noatime 0 0
 /dev/cdrom  /mnt/cdrom    auto     noauto,user 0 0
-tmpfs       /var/tmp      tmpfs    noatime,size=6g 0 0
+tmpfs       /var/tmp      tmpfs    noatime,size=8g 0 0
 tmpfs       /tmp          tmpfs    noatime,size=1g 0 0
