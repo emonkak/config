@@ -2,6 +2,15 @@
 " Basic  "{{{1
 " Absolute  "{{{2
 
+if has('vim_starting')
+  if has('win32') || has('win64')
+    set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
+  endif
+  set runtimepath^=~/.vim/bundle/*
+  set runtimepath+=~/.vim/bundle/*/after
+endif
+
+
 function! s:SID_PREFIX()
   return matchstr(expand('<sfile>'), '<SNR>\d\+_')
 endfunction
@@ -35,38 +44,18 @@ if has('iconv')
 endif
 
 
+if has('win32') || has('win64')
+  language C
+  set fileformat=unix
+  set termencoding=cp932
+elseif has('gui_macvim')
+  language C
+endif
+
+
 
 
 " Options  "{{{2
-
-if has('vim_starting')
-  if has('win32') || has('win64')
-    language C
-    set fileformat=unix
-    set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
-    set termencoding=cp932
-  elseif has('gui_macvim')
-    language C
-  endif
-  set runtimepath^=~/.vim/bundle/*
-  set runtimepath+=~/.vim/bundle/*/after
-endif
-
-if has('gui_running')
-  set guicursor=a:blinkon0
-  if has('gui_gtk2')
-    set guifont=Consolas\ 10.5
-    set linespace=2
-  elseif has('gui_macvim')
-    set guifont=Consolas:h14
-    set linespace=4
-    set transparency=10
-  elseif has('gui_win32')
-    set guifont=Envy\ Code\ R:h10
-    set linespace=0
-  endif
-  set guioptions=AcgM
-endif
 
 if (1 < &t_Co || has('gui')) && has('syntax')
   syntax enable
@@ -77,6 +66,24 @@ endif
 
 filetype plugin indent on
 
+
+if has('gui_running')
+  set guicursor=a:blinkwait4000-blinkon1500-blinkoff500
+  if has('gui_gtk2')
+    set guifont=Monospace\ 10.5
+    set linespace=2
+  elseif has('gui_macvim')
+    set guifont=TheSansMono:h14
+    set guifontwide=KaiLunaStd:h14
+    set linespace=4
+    set transparency=15
+    set visualbell
+  elseif has('gui_win32')
+    set guifont=Envy\ Code\ R:h10
+    set linespace=0
+  endif
+  set guioptions=AcgM
+endif
 
 if has('kaoriya') && has('gui_win32')
   set ambiwidth=auto
@@ -143,6 +150,7 @@ set formatlistpat&
 let &formatlistpat .= '\|^\s*[*+-]\s*'
 set ignorecase
 set incsearch
+set infercase
 set shiftround
 set smartcase
 set smartindent
@@ -157,12 +165,11 @@ if exists('$TMUX')
 endif
 
 let &statusline = ''
-let &statusline .= '%<%f %h%m%r%w'
-let &statusline .= '   %{eskk#statusline("[%s]")}'
-let &statusline .= '%='
-let &statusline .= '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
-let &statusline .= '%{&l:fileformat == "unix" ? "" : ":".&l:fileformat}]'
-let &statusline .= '   %-14.(%l,%c%V%) %P'
+\ . '%<%f %h%m%r%w'
+\ . '%='
+\ . '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
+\ . '%{&l:fileformat == "unix" ? "" : ":".&l:fileformat}]'
+\ . '   %-14.(%l,%c%V%) %P'
 
 function! s:my_tabline()  "{{{
   let s = ''
@@ -174,8 +181,8 @@ function! s:my_tabline()  "{{{
     let no = (i <= 10 ? i - 1 : '#')  " display 0-origin tabpagenr.
     let mod = getbufvar(curbufnr, '&modified') ? '+' : ' '
     let title = gettabvar(i, 'title')
-    let title = len(title) ? title : fnamemodify(bufname(curbufnr),':t')
-    let title = len(title) ? title : '[No Name]'
+    let title = title != '' ? title : fnamemodify(gettabvar(i, 'cwd'), ':t')
+    let title = title != '' ? title : fnamemodify(getcwd(), ':t')
 
     let s .= '%' . i . 'T'
     let s .= '%#' . (i == tabpagenr() ? 'TabLineSel' : 'TabLine') . '#'
@@ -188,7 +195,10 @@ function! s:my_tabline()  "{{{
 
   let s .= '%#TabLineFill#%T'
   let s .= '%=%#TabLine#'
-  let s .= exists('t:cwd') ? '| %<' . fnamemodify(t:cwd, ':p:~:h') : ''
+  let s .= '| %<'
+  let branch_name = s:vcs_branch_name(getcwd())
+  let branch_name = branch_name != '' ? branch_name : fnamemodify(getcwd(), ':~')
+  let s .= branch_name
   return s
 endfunction "}}}
 let &tabline = '%!' . s:SID_PREFIX() . 'my_tabline()'
@@ -207,8 +217,10 @@ augroup MyAutoCmd
   autocmd!
 augroup END
 
+
 call altercmd#load()
 call arpeggio#load()
+call metarw#define_wrapper_commands(0)
 
 
 
@@ -332,7 +344,7 @@ endfunction
 " CD - wrapper of :cd to keep cwd for each tabpage  "{{{2
 
 command! -complete=dir -nargs=* CD
-\   if <q-args> == '' && expand('%') != ''
+\   if <q-args> == ''
 \ |   cd %:p:h
 \ | else
 \ |   cd <args>
@@ -350,11 +362,8 @@ autocmd MyAutoCmd TabEnter *
 \ |   endif
 \ | endif
 
-autocmd MyAutoCmd BufEnter,BufReadPost ?*
-\   if !exists('t:cwd') && buflisted(bufnr('%')) && filereadable(expand('%'))
-\ |   cd %:p:h
-\ |   let t:cwd = getcwd()
-\ | endif
+autocmd MyAutoCmd TabLeave *
+\ let t:cwd = getcwd()
 
 
 
@@ -581,6 +590,8 @@ AlterCommand lmak[e]  Lmake
 function! s:keys_to_complete()
   if &l:completefunc != ''
     return "\<C-x>\<C-u>"
+  elseif &l:filetype ==# 'vim'
+    return "\<C-x>\<C-v>"
   elseif &l:omnifunc != ''
     return "\<C-x>\<C-o>"
   else
@@ -711,7 +722,7 @@ endif
 
 
 function! s:toggle_foldmethod(global_p)
-  let VALUES = ['marker', 'syntax']
+  let VALUES = ['marker', 'expr']
   let foldmethod = &l:foldmethod == '' ? &foldmethod : &l:foldmethod
   let i = (index(VALUES, foldmethod) + 1) % len(VALUES)
 
@@ -775,6 +786,80 @@ command! -bar -complete=file -nargs=* SplitRight  SplitBottom <args>
 AlterCommand sp[lit]  Split
 AlterCommand h[elp]  Help
 AlterCommand new  New
+
+
+
+
+" VCS branch name  "{{{2
+" Returns the name of the current branch of the given directory.
+" BUGS: git is only supported.
+let s:_vcs_branch_name_cache = {}  " dir_path = [branch_name, cache_key]
+
+
+function! s:vcs_branch_name(dir)
+  let cache_entry = get(s:_vcs_branch_name_cache, a:dir, 0)
+  if cache_entry is 0
+  \  || cache_entry[1] !=# s:_vcs_branch_name_cache_key(a:dir)
+    unlet cache_entry
+    let cache_entry = s:_vcs_branch_name(a:dir . '/.git')
+    let s:_vcs_branch_name_cache[a:dir] = cache_entry
+  endif
+
+  return cache_entry[0]
+endfunction
+
+
+function! s:_vcs_branch_name_cache_key(dir)
+  return getftime(a:dir . '/.git/HEAD') . getftime(a:dir . '/.git/MERGE_HEAD')
+endfunction
+
+
+function! s:_vcs_branch_name(dir)
+  if isdirectory(a:dir)
+    if isdirectory(a:dir . '/rebase-apply')
+      if filereadable(a:dir . '/rebase-apply/rebasing')
+        let additional_info = 'REBASE'
+      elseif filereadable(a:dir . '/rebase-apply/applying')
+        let additional_info = 'AM'
+      else
+        let additional_info = 'AM/REBASE'
+      endif
+      let head_info = s:first_line(a:dir . '/HEAD')
+    elseif filereadable(a:dir . '/rebase-merge/interactive')
+      let additional_info = 'REBASE-i'
+      let head_info = s:first_line(a:dir . '/rebase-merge/head-name')
+    elseif isdirectory(a:dir . '/rebase-merge')
+      let additional_info = 'REBASE-m'
+      let head_info = s:first_line(a:dir . '/rebase-merge/head-name')
+    elseif filereadable(a:dir . '/MERGE_HEAD')
+      let additional_info = 'MERGING'
+      let head_info = s:first_line(a:dir . '/HEAD')
+    else  " Normal case
+      let additional_info = ''
+      let head_info = s:first_line(a:dir . '/HEAD')
+    endif
+
+    let branch_name = matchstr(head_info, '^\(ref: \)\?refs/heads/\zs\S\+\ze$')
+    if branch_name == ''
+      let lines = readfile(a:dir . '/logs/HEAD')
+      let co_lines = filter(lines, 'v:val =~# "checkout: moving from"')
+      let log = empty(co_lines) ? '' : co_lines[-1]
+      let branch_name = substitute(log, '^.* to \([^ ]*\)$', '\1', '')
+      if branch_name == ''
+        let branch_name = '(unknown)'
+      endif
+    endif
+    if additional_info != ''
+      let branch_name .= ' ' . '(' . additional_info . ')'
+    endif
+  elseif filereadable(a:dir)
+    return s:_vcs_branch_name(matchstr(s:first_line(a:dir), 'gitdir:\s\zs.*'))
+  else  " Not in a git repository.
+    let branch_name = ''
+  endif
+
+  return [branch_name, s:_vcs_branch_name_cache_key(a:dir)]
+endfunction
 
 
 
@@ -850,6 +935,14 @@ endfunction
 
 
 
+function! s:first_line(file)  "{{{2
+  let lines = readfile(a:file, '', 1)
+  return 1 <= len(lines) ? lines[0] : ''
+endfunction
+
+
+
+
 function! s:move_window_into_tabpage(target_tabpagenr)  "{{{2
   " Move the current window into a:target_tabpagenr.
   if a:target_tabpagenr <= 0  " ignore invalid number.
@@ -909,7 +1002,7 @@ function! s:operator_translate(motion_wiseness)  "{{{2
   let query = join(s:region("'[", "']", visual_commnad), "\n")
 
   let api = 'http://translate.google.com/translate_a/t'
-  let response = http#get(api, {
+  let response = webapi#http#get(api, {
   \   'client': 'o',
   \   'hl': 'en',
   \   'sl': 'en',
@@ -917,8 +1010,11 @@ function! s:operator_translate(motion_wiseness)  "{{{2
   \   'text': query
   \ }, {'User-Agent': 'Mozilla/5.0'})
   if response.header[0] ==# 'HTTP/1.1 200 OK'
-    let result = json#decode(response.content)
-    echo join(map(result.sentences, 'v:val.trans'))
+    let result = webapi#json#decode(response.content)
+    if has_key(result, 'sentences')
+      echo join(map(result.sentences,
+      \             'has_key(v:val, "trans") ? v:val.trans : ""'))
+    endif
   else
     echoerr response.header[0]
   end
@@ -1365,11 +1461,11 @@ function! s:on_CmdwinEnter()
   inoremap <buffer> <Esc><Esc>  <Esc><C-w>q
   inoremap <buffer> <expr> <C-c>  pumvisible() ? "\<Esc>" : "\<C-c>\<C-c>"
   inoremap <buffer> <expr> <BS>
-  \        getline('.') == '' ? "\<C-c>\<C-c>" : col('.') == 1 ? '' : "\<BS>"
+         \ getline('.') == '' ? "\<C-c>\<C-c>" : col('.') == 1 ? '' : "\<BS>"
   inoremap <buffer> <expr> <C-w>
-  \        getline('.') == '' ? "\<C-c>\<C-c>" : col('.') == 1 ? '' : "\<C-w>"
+         \ getline('.') == '' ? "\<C-c>\<C-c>" : col('.') == 1 ? '' : "\<C-w>"
   inoremap <buffer> <expr> <C-u>
-  \        getline('.') == '' ? "\<C-c>\<C-c>" : col('.') == 1 ? '' : "\<C-u>"
+         \ getline('.') == '' ? "\<C-c>\<C-c>" : col('.') == 1 ? '' : "\<C-u>"
   imap <buffer> <C-h>  <BS>
 
   startinsert!
@@ -1387,7 +1483,7 @@ inoremap <C-a>  <Home>
 inoremap <C-e>  <End>
 inoremap <C-d>  <Delete>
 inoremap <expr> <C-k>
-\ repeat("\<Delete>", max([strchars(getline('.')[col('.') - 1:]), 1]))
+\        repeat("\<Delete>", max([strchars(getline('.')[col('.') - 1:]), 1]))
 inoremap <expr> <C-y>  pumvisible() ? "\<C-y>" : "\<C-r>+"
 
 " Alternatives for the original actions.
@@ -1610,17 +1706,6 @@ nnoremap <silent> <Leader><Leader>  :<C-u>update<CR>
 nnoremap <C-h>  :<C-u>Help<Space>
 nnoremap <C-o>  :<C-u>edit<Space>
 nnoremap <C-w>.  :<C-u>edit .<CR>
-
-
-" Expand with 'l' if the cursor on the holded text.
-nnoremap <expr> l  foldclosed(line('.')) != -1 ? 'zo' : 'l'
-
-
-" Move cursor by display lines when wrapping.
-noremap j  gj
-noremap k  gk
-noremap gj  j
-noremap gk  k
 
 
 " Delete a character with the black hole register.
@@ -1875,7 +1960,6 @@ autocmd MyAutoCmd FileType lua
 
 autocmd MyAutoCmd FileType objc
 \   SetIndent 2space
-\ | setlocal cinoptions=l1,g0,t0,(0,W1s
 \ | setlocal commentstring=//%s
 
 
@@ -1902,11 +1986,15 @@ autocmd MyAutoCmd FileType perl
 " php  "{{{2
 
 autocmd MyAutoCmd FileType php
-\   SetIndent 4tab
-\ | setlocal commentstring=//%s
-\ | setlocal foldmethod=syntax
+\ call s:on_FileType_php()
 
-let g:php_folding = 1
+function! s:on_FileType_php()
+  SetIndent 4tab
+  setlocal cindent
+  setlocal commentstring=//%s
+  setlocal include=
+  setlocal indentexpr=
+endfunction
 
 
 
@@ -1940,6 +2028,14 @@ autocmd MyAutoCmd FileType ruby
 " scheme  "{{{2
 
 let g:is_gauche = 1
+
+
+
+
+" sql  "{{{2
+
+autocmd MyAutoCmd FileType sql
+\ SetIndent 2space
 
 
 
@@ -2009,6 +2105,17 @@ autocmd MyAutoCmd FileType haml
 
 
 " Plugins  "{{{1
+" accelerate  "{{{2
+
+call accelerate#map('nv', '', 'j', 'gj')
+call accelerate#map('nv', '', 'k', 'gk')
+call accelerate#map('nv', '', 'h')
+call accelerate#map('n', 'e', 'l', "foldclosed(line('.')) != -1 ? 'zo' : 'l'")
+call accelerate#map('v', '', 'l')
+
+
+
+
 " altr  "{{{2
 
 call altr#reset()
@@ -2026,6 +2133,22 @@ autocmd MyAutoCmd User eskk-initialize-pre
 \ call s:on_User_eskk_initial_pre()
 
 function! s:on_User_eskk_initial_pre()
+  " Initialize smartinput
+  call smartinput#map_trigger_keys(0)
+
+  for dictionary in [
+  \   '~/.skk/SKK-JISYO.L',
+  \   '~/Library/Application\ Support/AquaSKK/SKK-JISYO.L',
+  \   '/usr/share/skk/SKK-JISYO.L',
+  \ ]
+    if filereadable(expand(dictionary))
+      let g:eskk#large_dictionary = {
+      \   'path': dictionary,
+      \   'sorted': 1,
+      \   'encoding': 'euc-jp',
+      \ }
+    endif
+  endfor
   for mode in ['hira', 'kata']
     let table_name = 'rom_to_' . mode
     let table = eskk#table#new(table_name . '*', table_name)
@@ -2042,19 +2165,7 @@ let g:eskk#dictionary = {
 \   'sorted': 0,
 \   'encoding': 'utf-8',
 \ }
-let g:eskk#large_dictionary = {
-\   'path': has('macunix')
-\         ? expand('~/Library/Application\ Support/AquaSKK/SKK-JISYO.L')
-\         : has('unix')
-\         ? expand('/usr/share/skk/SKK-JISYO.L')
-\         : expand('~/.skk/SKK-JISYO.L'),
-\   'sorted': 1,
-\   'encoding': 'euc-jp',
-\ }
-
-let g:eskk#directory = expand('~/.vim/info/eskk')
 let g:eskk#egg_like_newline = 1
-let g:eskk#enable_completion = 1
 let g:eskk#statusline_mode_strings = {
 \   'hira': "\u3042",
 \   'kata': "\u30a2",
@@ -2212,7 +2323,6 @@ nnoremap <silent> [Space]kk  :<C-u>call ku#restart()<CR>
 
 
 let g:ku_personal_runtime = expand('~/.vim')
-let g:ku_file_mru_file = expand('~/.vim/info/ku/mru')
 let g:ku_file_mru_ignore_pattern = '/$\|/\.git/\|^/\(/\|mnt\|tmp\)'
 let g:ku_file_mru_limit = 200
 
@@ -2221,24 +2331,18 @@ let g:ku_file_mru_limit = 200
 
 " neocomplcache  "{{{2
 
-if !exists('$SUDO_USER')
-  imap <C-l>  <Plug>(neocomplcache_snippets_expand)
-  smap <C-l>  <Plug>(neocomplcache_snippets_expand)
+" imap <C-l>  <Plug>(neocomplcache_snippets_expand)
+" smap <C-l>  <Plug>(neocomplcache_snippets_expand)
 
-  inoremap <expr> <BS>  neocomplcache#smart_close_popup() . "\<C-h>"
-  inoremap <expr> <C-h>  neocomplcache#smart_close_popup() . "\<C-h>"
-endif
-
-let g:neocomplcache_disable_auto_complete = 0
 let g:neocomplcache_enable_at_startup = 1
-let g:neocomplcache_enable_smart_case = 1
+let g:neocomplcache_enable_camel_case_completion = 1
+let g:neocomplcache_enable_underbar_completioletn = 1
+let g:neocomplcache_lock_buffer_name_pattern = '^[[*]'
 
-  let g:neocomplcache_clang_library_path = '/usr/lib/llvm'
+let g:neocomplcache_clang_library_path = '/usr/lib/llvm'
 if has('python') && filereadable(g:neocomplcache_clang_library_path)
   let g:neocomplcache_clang_use_library = 1
 endif
-let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*\|\[ku\]\|\[quickrun output\]'
-let g:neocomplcache_temporary_dir = expand('~/.vim/info/neocon')
 
 if !exists('g:neocomplcache_omni_patterns')
   let g:neocomplcache_omni_patterns = {}
@@ -2344,7 +2448,6 @@ AlterCommand ref  Ref
 
 
 let g:ref_alc2_overwrite_alc = 1
-let g:ref_cache_dir = expand('~/.vim/info/ref')
 let g:ref_no_default_key_mappings = 1
 let g:ref_open = 'Split'
 let g:ref_perldoc_complete_head = 1
@@ -2425,6 +2528,53 @@ function! s:on_User_plugin_skeleton_loaded()
     normal! gg
   endif
 endfunction
+
+
+
+
+" smartinput  "{{{2
+
+let g:smartinput_no_default_key_mappings = 1
+
+" for PHP  "{{{
+call smartinput#define_rule({
+\   'at': '\%#',
+\   'char': '@',
+\   'input': '$this->',
+\   'filetype': ['php'],
+\ })
+call smartinput#define_rule({
+\   'at': '\%#',
+\   'char': '@',
+\   'input': '@',
+\   'filetype': ['php'],
+\   'syntax': ['Comment', 'Constant', 'None'],
+\ })
+call smartinput#define_rule({
+\   'at': '\%#\w',
+\   'char': '@',
+\   'input': '@',
+\   'filetype': ['php'],
+\ })
+" }}}
+
+" for Haskell  "{{{
+call smartinput#define_rule({
+\   'at': '\%#',
+\   'char': "'",
+\   'input': "'",
+\   'filetype': ['haskell'],
+\ })
+" }}}
+
+call smartinput#define_rule({
+\   'at': '\%#',
+\   'char': '{',
+\   'input': '{',
+\   'syntax': ['Comment'],
+\ })
+
+call smartinput#map_trigger_keys()
 
 
 
@@ -2516,10 +2666,8 @@ let g:vcsi_use_native_message_p = 1
 
 " Fin.  "{{{1
 
-if has('vim_starting')
-  if filereadable(expand('~/.vimrc.local'))
-    source ~/.vimrc.local
-  endif
+if filereadable(expand('~/.vimrc.local'))
+  source ~/.vimrc.local
 endif
 
 
