@@ -11,7 +11,7 @@ template1 ^fg(\\\\#474747)^p(;2)^r(1x8)^p()^fg()
 TEXT
 ${template0 \\#679b00 note.xbm} ${if_mpd_playing}${mpd_smart 100}${else}No Playing${endif} \
 ${template1} \
-${template0 \\#c49300 cpu.xbm} ${cpu}% \
+${template0 \\#c49300 cpu.xbm} ${cpu}% (${hwmon 2 temp 1}°C) \
 ${template1} \
 ${template0 \\#c49300 mem.xbm} ${memperc}% \
 ${template1} \

@@ -38,7 +38,7 @@ Rxvt.color7: rgb:81/81/81
 Rxvt.color15: rgb:ff/ff/ff
 
 Rxvt.font: \
-  xft:TheSans Mono:size=10, \
+  xft:TheSans Mono:pixelsize=14, \
   xft:KaiLunaStd:pixelsize=14, \
   xft:Droid Sans Fallback:pixelsize=14
 Rxvt.imFont: \
@@ -52,7 +52,7 @@ Rxvt.urlLauncher: google-chrome
 
 Rxvt.externalBorder: 0
 Rxvt.internalBorder: 2
-Rxvt.lineSpace: 2
+Rxvt.lineSpace: 3
 Rxvt.saveLines: 1000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true
@@ -65,7 +65,7 @@ Rxvt.visualBell: false
 ! XTERM
 
 XTerm*foreground: #cccccc
-XTerm*background: #000000
+XTerm*background: #111111
 XTerm*color0: #000000
 XTerm*color1: #990000
 XTerm*color2: #009900

@@ -72,8 +72,10 @@ unsetopt flow_control
 # Hooks  #{{{1
 
 autoload -Uz vcs_info
-zstyle ':vcs_info:*' actionformats '[%s:%b|%a]'
-zstyle ':vcs_info:*' formats '[%s:%b]'
+zstyle ':vcs_info:git:*' check-for-changes true
+zstyle ':vcs_info:git:*' unstagedstr '!'
+zstyle ':vcs_info:*' actionformats '[%s:%b%u|%a]'
+zstyle ':vcs_info:*' formats '[%s:%b%u]'
 zstyle ':vcs_info:bzr:*' use-simple true
 
 if [ -n "$WINDOW" ]; then  # is GNU screen

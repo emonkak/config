@@ -5,6 +5,9 @@ usermodmap="$HOME/.Xmodmap"
 [ -f "$userresources" ] && xrdb -merge "$userresources"
 [ -f "$usermodmap" ] && xmodmap "$usermodmap"
 
+export XDG_CACHE_HOME="/tmp/.${USER}/cache"
+[ ! -d "${XDG_CACHE_HOME}" ] && install -dm0700 "${XDG_CACHE_HOME}"
+
 xset r rate 250 30
 
 export BROWSER='google-chrome'
