@@ -1,4 +1,4 @@
-" Vim syntax: dmesg
+" Vim additional ftplugin: asciidoc
 " Version: 0.0.0
 " Copyright (C) 2011 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
@@ -22,31 +22,25 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-if exists('b:current_syntax')
-  finish
+setlocal foldmethod=expr foldexpr=AsciiDocFold(v:lnum)
+
+function! AsciiDocFold(lnum)
+  let current = matchend(getline(a:lnum), '^=\{1,5}\ze\s\+\S') - 1
+  let next = matchend(getline(a:lnum + 1), '^=\{1,5}\ze\s\+\S') - 1
+  return current > 0
+  \    ? current
+  \    : next > 0
+  \    ? '<' . next
+  \    : '='
+endfunction
+
+if exists('b:undo_ftplugin')
+  let b:undo_ftplugin .= ' | '
+else
+  let b:undo_ftplugin = ''
 endif
 
-
-
-
-syntax region dmesgBracket start='\[' end='\]' oneline
-syntax region dmesgString  start='"' end='"' oneline
-syntax region dmesgString  start="'" end="'" oneline
-syntax match dmesgTime '^\[.\{-}\]' nextgroup=dmesgIdentifier skipwhite
-syntax match dmesgIdentifier '[ 0-9A-Za-z#/_.:-]\{-}:\(\s\|$\)' contained
-syntax match dmesgType '\<\w\+='
-
-
-highlight link dmesgBracket Special
-highlight link dmesgString String
-highlight link dmesgTime PreProc
-highlight link dmesgIdentifier Identifier
-highlight link dmesgType Type
-
-
-
-
-let b:current_syntax = 'dmesg'
+let b:undo_ftplugin .= 'setlocal foldmethod& foldexpr&'
 
 " __END__
 " vim: foldmethod=marker

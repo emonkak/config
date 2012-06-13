@@ -1,6 +1,6 @@
-" Vim syntax: int-ghci
+" Vim indent: smarty
 " Version: 0.0.0
-" Copyright (C) 2011 emonkak <emonkak@gmail.com>
+" Copyright (C) 2012 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -21,33 +21,20 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-" Version: 0.0.0
 
-if exists('b:current_syntax')
+if exists('b:did_indent')
   finish
 endif
 
 
 
 
-syntax match ghciPrompt '^ghci>'
-
-syntax region ghciLoading oneline start='^Loading\spackage\s' end='\sdone\.$'
-syntax region ghciMessage oneline start='^<interactive>' end='$'
-syntax region ghciVersion oneline start='GHCi, version [0-9.]\+' end='$'
-
-syntax region ghciString oneline start='"' end='"'
-
-highlight default link ghciPrompt Identifier
-highlight default link ghciLoading Statement
-highlight default link ghciMessage Special
-highlight default link ghciVersion PreProc
-highlight default link ghciString Constant
+runtime! indent/html.vim
 
 
 
 
-let b:current_syntax = 'int-ghci'
+let b:did_indent = 1
 
 " __END__
 " vim: foldmethod=marker

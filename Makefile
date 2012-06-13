@@ -63,28 +63,15 @@ GROUP_OPERA_FILES=\
   opera/styles/user.css
 GROUP_OPERA_RULE=$(patsubst opera/%, $(HOME)/.opera/%, $(1))
 
-GROUP_VIM_FILES=\
-  vim/dot.vim/after/plugin/metarw/http.vim \
-  vim/dot.vim/autoload/metarw/http.vim \
-  vim/dot.vim/autoload/metarw/sudo.vim \
-  vim/dot.vim/autoload/ref/hayoo.vim \
+GROUP_VIM_FILES=$(patsubst $(HOME)/.%, vim/dot.%, $(shell find $(HOME)/.vim/{after,autoload,compiler,dict,indent,plugin,syntax} -type f)) \
   vim/dot.vim/colors/basic256.vim \
-  vim/dot.vim/compiler/ghc.vim \
-  vim/dot.vim/compiler/javac.vim \
-  vim/dot.vim/compiler/tex.vim \
-  vim/dot.vim/dict/java.dict \
-  vim/dot.vim/dict/javascript.dict \
-  vim/dot.vim/syntax/dmesg.vim \
-  vim/dot.vim/syntax/int-ghci.vim \
-  vim/dot.vim/syntax/int-gosh.vim \
-  vim/dot.vim/syntax/pukiwiki.vim \
-  vim/dot.vim/syntax/ref-hoogle.vim \
   vim/dot.vimrc
 GROUP_VIM_RULE=$(patsubst vim/dot.%, $(HOME)/.%, $(1))
 
 GROUP_XMONAD_FILES=\
   xmonad/xmonad.hs
 GROUP_XMONAD_RULE=$(patsubst xmonad/%, $(HOME)/.xmonad/%, $(1))
+
 
 
 
