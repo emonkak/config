@@ -164,12 +164,23 @@ if exists('$TMUX')
   let &t_ZR = "\<Esc>[23m"
 endif
 
-let &statusline = ''
-\ . '%<%f %h%m%r%w'
-\ . '%='
-\ . '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
-\ . '%{&l:fileformat == "unix" ? "" : ":".&l:fileformat}]'
-\ . '   %-14.(%l,%c%V%) %P'
+function! s:my_statusline()  "{{{
+  let s = ''
+  let s .= '%<%f %h%m%r%w'
+  let s .= ' %{eskk#statusline("[%s]")}'
+  let s .= '%='
+  let s .= '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
+  let s .= '%{&l:fileformat == "unix" ? "" : ":".&l:fileformat}]'
+  let s .= '   %-14.(%l,%c%V%) %P'
+  return s
+endfunction  "}}}
+if has('vim_starting')
+  " Lazy load statusline,
+  " because 'statusline' to empty when call eskk#statusline()
+  autocmd VimEnter *  let &statusline = s:my_statusline()
+else
+  let &statusline = s:my_statusline()
+endif
 
 function! s:my_tabline()  "{{{
   let s = ''
@@ -410,17 +421,20 @@ endfunction
 
 
 
-" Sequence - sequence number substitutions  "{{{2
+" Seq - sequence number substitutions  "{{{2
 "
-" :Sequence {pattern} [format] [first] [step]
+" :Seq {pattern} [format] [first] [step]
 "
 "   Example: Print the number in front of each line:
-"   Sequence ^ '%03d ' 1
+"   Seq/^/%03d /1
 
-command! -range -nargs=+ Sequence
-\ <line1>,<line2>call s:cmd_Sequence(<q-args>)
-function! s:cmd_Sequence(args) range
-  let args = vimproc#parser#split_args(a:args)
+command! -range -nargs=+ Seq
+\ <line1>,<line2>call s:cmd_Seq(<q-args>)
+function! s:cmd_Seq(args) range
+  let args = split(a:args, '\(^\|[^\\]\|[^\\]\\\\\)\zs' . a:args[0] . '\+')
+  call map(args, 'substitute(v:val, "\\\\" . a:args[0], a:args[0], "g")')
+  call map(args, 'substitute(v:val, "\\\\\\\\", "\\\\", "g")')
+
   let incrementer = {
   \   'format': get(args, 1, '%d'),
   \   'current': get(args, 2, 0),
@@ -496,6 +510,49 @@ command! -bar -nargs=* TabpageTitle
 
 
 
+" UpdateBundles - update git managed runtimepath  "{{{2
+
+command! -nargs=0 UpdateBundles
+\ call s:cmd_UpdateBundles(split(&runtimepath, ','))
+function! s:cmd_UpdateBundles(bundles)
+  for bundle in a:bundles
+    if stridx(bundle, '*') >= 0
+      call s:cmd_UpdateBundle(split(glob(bundle), "\n"))
+    elseif isdirectory(bundle . '/.git')
+      let git = join([
+      \   'git',
+      \   '--git-dir',
+      \   shellescape(bundle . '/.git'),
+      \   '--work-tree',
+      \   shellescape(bundle)
+      \ ])
+
+      let remote = split(system(git . ' remote -v'), '\n', !0)[0]
+
+      if v:shell_error != 0 || remote !~# '^origin\s\(git\|https\?\)://'
+        continue
+      endif
+
+      echohl Title
+      echo 'Update' fnamemodify(bundle, ':t') '...'
+      echohl None
+
+      let result = system(git . ' pull --rebase')
+
+      if v:shell_error == 0
+        echo result
+      else
+        echohl ErrorMsg
+        echomsg result
+        echohl None
+      endif
+    endif
+  endfor
+endfunction
+
+
+
+
 " Utf8 and others - :edit with specified 'fileencoding'  "{{{2
 
 command! -bang -bar -complete=file -nargs=? Cp932
@@ -541,7 +598,7 @@ function! s:grep(command, args)
   if grepprg ==# 'internal'
     execute a:command '/'.escape(a:args[-1], '/ ').'/j' target
   else
-    execute a:command.'!' shellescape(a:args[-1]) target
+    execute a:command.'!' a:args[-1] target
   endif
 
   if a:command ==# 'grep'
@@ -2133,9 +2190,6 @@ autocmd MyAutoCmd User eskk-initialize-pre
 \ call s:on_User_eskk_initial_pre()
 
 function! s:on_User_eskk_initial_pre()
-  " Initialize smartinput
-  call smartinput#map_trigger_keys(0)
-
   for dictionary in [
   \   '~/.skk/SKK-JISYO.L',
   \   '~/Library/Application\ Support/AquaSKK/SKK-JISYO.L',
@@ -2175,6 +2229,8 @@ let g:eskk#statusline_mode_strings = {
 \   'abbrev': '/',
 \ }
 let g:eskk#use_color_cursor = 0
+
+call eskk#load()
 
 
 
@@ -2331,9 +2387,6 @@ let g:ku_file_mru_limit = 200
 
 " neocomplcache  "{{{2
 
-" imap <C-l>  <Plug>(neocomplcache_snippets_expand)
-" smap <C-l>  <Plug>(neocomplcache_snippets_expand)
-
 let g:neocomplcache_enable_at_startup = 1
 let g:neocomplcache_enable_camel_case_completion = 1
 let g:neocomplcache_enable_underbar_completioletn = 1
@@ -2457,14 +2510,6 @@ let g:ref_wikipedia_lang = 'ja'
 
 
 
-" rsense  "{{{2
-
-let g:rsenseHome = '/opt/rsense'
-let g:rsenseUseOmniFunc = 1
-
-
-
-
 " scratch  "{{{2
 
 nmap <Leader>s  <Plug>(scratch-open)
@@ -2574,7 +2619,7 @@ call smartinput#define_rule({
 \   'syntax': ['Comment'],
 \ })
 
-call smartinput#map_trigger_keys()
+call smartinput#map_trigger_keys(0)
 
 
 
