@@ -1056,16 +1056,19 @@ endfunction
 function! s:operator_translate(motion_wiseness)  "{{{2
   let visual_commnad =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  let query = join(s:region("'[", "']", visual_commnad), "\n")
+  let text = join(s:region("'[", "']", visual_commnad), "\n")
+
+  if match(text, '[^\x00-\x7F]') >= 0
+    let options = {'sl': 'ja', 'tl': 'en'}
+  else
+    let options = {'sl': 'en', 'tl': 'ja'}
+  endif
 
   let api = 'http://translate.google.com/translate_a/t'
-  let response = webapi#http#get(api, {
+  let response = webapi#http#get(api, extend({
   \   'client': 'o',
-  \   'hl': 'en',
-  \   'sl': 'en',
-  \   'tl': 'ja',
-  \   'text': query
-  \ }, {'User-Agent': 'Mozilla/5.0'})
+  \   'text': text
+  \ }, options), {'User-Agent': 'Mozilla/5.0'})
   if response.header[0] ==# 'HTTP/1.1 200 OK'
     let result = webapi#json#decode(response.content)
     if has_key(result, 'sentences')
