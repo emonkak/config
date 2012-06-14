@@ -2176,6 +2176,13 @@ call accelerate#map('v', '', 'l')
 
 
 
+" arpeggio  "{{{2
+
+let g:arpeggio_timeoutlen = 80
+
+
+
+
 " altr  "{{{2
 
 call altr#reset()
