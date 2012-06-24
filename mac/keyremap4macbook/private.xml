@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<root>
+  <item>
+    <name>Control+[ to Eisu+Escape</name>
+    <identifier>option.my_controlLeftbracket2EisuAndEscape</identifier>
+    <autogen>--KeyToKey-- KeyCode::BRACKET_LEFT, VK_CONTROL, KeyCode::JIS_EISUU, KeyCode::ESCAPE</autogen>
+  </item>
+  <item>
+    <name>Backquote(`) to EISUU+Escape if no modifiers pressed</name>
+    <identifier>remap.my_backquote2eisuuAndEscape_withoutmodifiers</identifier>
+    <autogen>--KeyToKey-- KeyCode::BACKQUOTE, ModifierFlag::NONE, KeyCode::JIS_EISUU, KeyCode::ESCAPE</autogen>
+  </item>
+  <item>
+    <name>Command_L to Command_L</name>
+    <appendix>(+ When you type Command_L only, send EISUU+Escape)</appendix>
+    <identifier>remap.my_commandL2commandL_eisuuAndEscape</identifier>
+    <autogen>--KeyOverlaidModifier-- KeyCode::COMMAND_L, KeyCode::COMMAND_L, KeyCode::JIS_EISUU, KeyCode::ESCAPE</autogen>
+  </item>
+</root>
