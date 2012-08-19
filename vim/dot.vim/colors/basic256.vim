@@ -230,7 +230,7 @@ call s:highlight('TabLineFill'  , {'bg': 8})
 
 call s:highlight('CursorColumn' , {'bg': 0})
 call s:highlight('CursorLine'   , {'bg': 0})
-call s:highlight('ColorColumn'  , {'bg': 8})
+call s:highlight('ColorColumn'  , {'bg': 0})
 
 
 
