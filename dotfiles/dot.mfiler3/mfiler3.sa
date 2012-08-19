@@ -274,6 +274,7 @@ addmenu jump '.(V)im'      $(export key_V) "mcd $(export HOME)/.vim"
 addmenu jump '.(W)ine'     $(export key_W) "mcd $(export HOME)/.wine"
 addmenu jump '(e)tc'       $(export key_e) "mcd /etc"
 addmenu jump 'mn(t)'       $(export key_t) "mcd /mnt"
+addmenu jump '(s)hare'     $(export key_s) "mcd /mnt/share"
 addmenu jump '(u)sr'       $(export key_u) "mcd /usr"
 addmenu jump '(l)ocal'     $(export key_l) "mcd /usr/local"
 
