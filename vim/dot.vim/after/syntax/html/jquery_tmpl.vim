@@ -1,4 +1,4 @@
-" Vim additional ftplugin: php
+" Vim additional syntax: html
 " Version: 0.0.0
 " Copyright (C) 2012 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
@@ -22,34 +22,23 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-setlocal foldmethod=expr foldexpr=PHPFold(v:lnum)
+" jQuery template
+syntax keyword jQueryTmplKeyword contained html if else each tmpl wrap
+syntax region jQueryTmplRegion matchgroup=Delimiter start="{{/\?" end="}}"
+\ containedin=jQueryTmplTag,javaScriptStringS,javaScriptStringD,htmlString
+\ contains=jQueryTmplKeyword,@htmlJavaScript
+\ contained
+\ keepend
+syntax region jQueryTmplVariable matchgroup=Delimiter start="\${=\?" end="}"
+\ containedin=jQueryTmplTag,javaScriptStringS,javaScriptStringD,htmlString
+\ contains=@htmlJavaScript
+\ contained
+\ keepend
+syntax region jQueryTmplTag start=+<script\s[^>]*type\s*=["']text/x-jquery-tmpl["'][^>]*>+ end=+</script>+me=s-1
+\ contains=TOP,javaScript
+\ keepend
 
-function! PHPFold(lnum)
-  let current = getline(a:lnum)
-
-  if current =~# '\s*}$'
-    let level = indent(a:lnum) / &l:shiftwidth
-    return level > 1 ? '=' : '<' . (level + 1)
-  elseif current =~# '^\s*\('
-                 \ . '\(\(final\|private\|protected\|public\|static\)\s\)*function'
-                 \ . '\|\(abstract\s\)\?class'
-                 \ . '\|interface'
-                 \ . '\|trait'
-                 \ . '\)'
-    let level = indent(a:lnum) / &l:shiftwidth
-    return level > 1 ? '=' : '>' . (level + 1)
-  else
-    return '='
-  endif
-endfunction
-
-if exists('b:undo_ftplugin')
-  let b:undo_ftplugin = ''
-else
-  let b:undo_ftplugin = ' | '
-endif
-
-let b:undo_ftplugin .= 'setlocal foldmethod< foldexpr<'
+highlight default link jQueryTmplKeyword Keyword
 
 " __END__
 " vim: foldmethod=marker

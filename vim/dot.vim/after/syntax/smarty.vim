@@ -1,4 +1,4 @@
-" Vim additional ftplugin: php
+" Vim additional syntax: smarty
 " Version: 0.0.0
 " Copyright (C) 2012 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
@@ -22,34 +22,13 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-setlocal foldmethod=expr foldexpr=PHPFold(v:lnum)
+runtime! after/syntax/html/*.vim
 
-function! PHPFold(lnum)
-  let current = getline(a:lnum)
+syntax clear smartyZone
+syntax region smartyZone matchgroup=Delimiter start="<%" end="%>" contains=smartyProperty, smartyString, smartyBlock, smartyTagName, smartyConstant, smartyInFunc, smartyModifier
+syntax region smartyComment start="<%\*" end="\*%>"
 
-  if current =~# '\s*}$'
-    let level = indent(a:lnum) / &l:shiftwidth
-    return level > 1 ? '=' : '<' . (level + 1)
-  elseif current =~# '^\s*\('
-                 \ . '\(\(final\|private\|protected\|public\|static\)\s\)*function'
-                 \ . '\|\(abstract\s\)\?class'
-                 \ . '\|interface'
-                 \ . '\|trait'
-                 \ . '\)'
-    let level = indent(a:lnum) / &l:shiftwidth
-    return level > 1 ? '=' : '>' . (level + 1)
-  else
-    return '='
-  endif
-endfunction
-
-if exists('b:undo_ftplugin')
-  let b:undo_ftplugin = ''
-else
-  let b:undo_ftplugin = ' | '
-endif
-
-let b:undo_ftplugin .= 'setlocal foldmethod< foldexpr<'
+highlight default link SmartyComment Comment
 
 " __END__
 " vim: foldmethod=marker
