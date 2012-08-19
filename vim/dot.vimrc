@@ -73,10 +73,10 @@ if has('gui_running')
     set guifont=Monospace\ 10.5
     set linespace=2
   elseif has('gui_macvim')
-    set guifont=TheSansMono:h14
+    set guifont=Consolas:h14
     set guifontwide=KaiLunaStd:h14
-    set linespace=4
-    set transparency=15
+    set linespace=5
+    set transparency=10
     set visualbell
   elseif has('gui_win32')
     set guifont=Envy\ Code\ R:h10
@@ -97,7 +97,6 @@ if has('clientserver')
 endif
 set completeopt=menuone,longest
 set confirm
-set cursorline
 set diffopt=filler,vertical
 set directory=~/tmp,/tmp
 set fileformats=unix,dos,mac
@@ -124,6 +123,7 @@ if has('conceal')
   set concealcursor=nc
   set conceallevel=2
 endif
+set nocursorline
 set display=lastline
 set noequalalways
 set foldmethod=marker
@@ -131,7 +131,7 @@ set nohlsearch
 set laststatus=2
 set linebreak
 set list
-let &listchars = "tab:\u00bb ,extends:<,trail:-"
+let &listchars = "tab:| ,extends:<,trail:-"
 set pumheight=20
 set ruler
 set showcmd
@@ -164,23 +164,13 @@ if exists('$TMUX')
   let &t_ZR = "\<Esc>[23m"
 endif
 
-function! s:my_statusline()  "{{{
-  let s = ''
-  let s .= '%<%f %h%m%r%w'
-  let s .= ' %{eskk#statusline("[%s]")}'
-  let s .= '%='
-  let s .= '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
-  let s .= '%{&l:fileformat == "unix" ? "" : ":".&l:fileformat}]'
-  let s .= '   %-14.(%l,%c%V%) %P'
-  return s
-endfunction  "}}}
-if has('vim_starting')
-  " Lazy load statusline,
-  " because 'statusline' to empty when call eskk#statusline()
-  autocmd VimEnter *  let &statusline = s:my_statusline()
-else
-  let &statusline = s:my_statusline()
-endif
+let &statusline = ''
+let &statusline .= '%<%f %h%m%r%w'
+let &statusline .= ' %{eskk#statusline("[%s]")}'
+let &statusline .= '%='
+let &statusline .= '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
+let &statusline .= '%{&l:fileformat == "unix" ? "" : ":".&l:fileformat}]'
+let &statusline .= '   %-14.(%l,%c%V%) %P'
 
 function! s:my_tabline()  "{{{
   let s = ''
@@ -208,7 +198,9 @@ function! s:my_tabline()  "{{{
   let s .= '%=%#TabLine#'
   let s .= '| %<'
   let branch_name = s:vcs_branch_name(getcwd())
-  let branch_name = branch_name != '' ? branch_name : fnamemodify(getcwd(), ':~')
+  let branch_name = branch_name != ''
+  \               ? branch_name
+  \               : pathshorten(fnamemodify(getcwd(), ':p:~:h'))
   let s .= branch_name
   return s
 endfunction "}}}
@@ -423,10 +415,10 @@ endfunction
 
 " Seq - sequence number substitutions  "{{{2
 "
-" :Seq {pattern} [format] [first] [step]
+" :Seq /{pattern}/[format]/[first]/[options]
 "
 "   Example: Print the number in front of each line:
-"   Seq/^/%03d /1
+"   Seq/^/%03d /
 
 command! -range -nargs=+ Seq
 \ <line1>,<line2>call s:cmd_Seq(<q-args>)
@@ -437,9 +429,18 @@ function! s:cmd_Seq(args) range
 
   let incrementer = {
   \   'format': get(args, 1, '%d'),
-  \   'current': get(args, 2, 0),
-  \   'step': get(args, 3, 1)
+  \   'current': get(args, 2, 1),
+  \   'step': 1,
   \ }
+
+  let options = ''
+  for c in split(get(args, 3, ''), '[^0-9-]\zs')
+    if c =~ '\d'
+      let incrementer.step = str2nr(c)
+    else
+      let options .= c
+    endif
+  endfor
 
   function incrementer.call() dict
     let next = printf(self.format, self.current)
@@ -447,10 +448,11 @@ function! s:cmd_Seq(args) range
     return next
   endfunction
 
-  execute printf('%d,%ds/%s/\=incrementer.call()/g',
+  execute printf('%d,%ds/%s/\=incrementer.call()/%s',
   \              a:firstline,
   \              a:lastline,
-  \              escape(args[0], '/'))
+  \              escape(args[0], '/'),
+  \              options)
 endfunction
 
 
@@ -472,6 +474,10 @@ AlterCommand so[urce]  Source
 command! -bar -nargs=0 SuspendWithAutomticCD
 \ call s:cmd_SuspendWithAutomticCD()
 function! s:cmd_SuspendWithAutomticCD()
+  if has('gui_running') && has('macunix')
+    silent !open -a Terminal
+  endif
+
   let shell = split(&shell, '/')[-1]
   if exists('$TMUX')
     let windows = split(vimproc#system('tmux list-windows'), '\n')
@@ -501,54 +507,11 @@ endfunction
 
 command! -bar -nargs=* TabpageTitle
 \   if <q-args> == ''
-\ |   let t:title = input("Set tabpage's title to: ", get(t:, 'title', ''))
+\ |   let t:title = input("Set tabpage's title to: ", '')
 \ | else
 \ |   let t:title = <q-args>
 \ | endif
 \ | redraw!
-
-
-
-
-" UpdateBundles - update git managed runtimepath  "{{{2
-
-command! -nargs=0 UpdateBundles
-\ call s:cmd_UpdateBundles(split(&runtimepath, ','))
-function! s:cmd_UpdateBundles(bundles)
-  for bundle in a:bundles
-    if stridx(bundle, '*') >= 0
-      call s:cmd_UpdateBundle(split(glob(bundle), "\n"))
-    elseif isdirectory(bundle . '/.git')
-      let git = join([
-      \   'git',
-      \   '--git-dir',
-      \   shellescape(bundle . '/.git'),
-      \   '--work-tree',
-      \   shellescape(bundle)
-      \ ])
-
-      let remote = split(system(git . ' remote -v'), '\n', !0)[0]
-
-      if v:shell_error != 0 || remote !~# '^origin\s\(git\|https\?\)://'
-        continue
-      endif
-
-      echohl Title
-      echo 'Update' fnamemodify(bundle, ':t') '...'
-      echohl None
-
-      let result = system(git . ' pull --rebase')
-
-      if v:shell_error == 0
-        echo result
-      else
-        echohl ErrorMsg
-        echomsg result
-        echohl None
-      endif
-    endif
-  endfor
-endfunction
 
 
 
@@ -598,7 +561,7 @@ function! s:grep(command, args)
   if grepprg ==# 'internal'
     execute a:command '/'.escape(a:args[-1], '/ ').'/j' target
   else
-    execute a:command.'!' a:args[-1] target
+    execute a:command.'!' shellescape(a:args[-1]) target
   endif
 
   if a:command ==# 'grep'
@@ -642,6 +605,56 @@ AlterCommand lmak[e]  Lmake
 
 
 
+" Bundle update  "{{{2
+
+command! -nargs=0 BundleUpdate
+\ call s:cmd_BundleUpdate(split(&runtimepath, ','), 0<bang>)
+function! s:cmd_BundleUpdate(bundles, banged_p)
+  for bundle in a:bundles
+    if stridx(bundle, '*') >= 0
+      call s:cmd_BundleUpdate(split(glob(bundle), "\n"), a:banged_p)
+    elseif isdirectory(bundle . '/.git')
+      if !a:banged_p
+      \  && localtime() - getftime(bundle . '/.git/FETCH_HEAD') < 60 * 60 * 24
+        echohl Title
+        echo fnamemodify(bundle, ':t') 'is already updated'
+        echohl None
+        continue
+      endif
+
+      let git = join([
+      \   'git',
+      \   '--git-dir',
+      \   shellescape(bundle . '/.git'),
+      \   '--work-tree',
+      \   shellescape(bundle)
+      \ ])
+
+      let remote = split(system(git . ' remote -v'), '\n', !0)
+      if v:shell_error != 0 || remote[0] !~# '^origin\s\(git\|https\?\)://'
+        continue
+      endif
+
+      echohl Title
+      echo 'Update' fnamemodify(bundle, ':t') '...'
+      echohl None
+
+      let result = system(git . ' pull --rebase')
+      if v:shell_error == 0
+        echo result
+      else
+        echohl ErrorMsg
+        echomsg 'Error:' fnamemodify(bundle, ':t')
+        echomsg result
+        echohl None
+      endif
+    endif
+  endfor
+endfunction
+
+
+
+
 " High-level key sequences  "{{{2
 
 function! s:keys_to_complete()
@@ -679,6 +692,15 @@ function! s:keys_to_select_the_last_changed_text()
   \                       && (col_end == length_end
   \                           || (length_end == 0 && col_end == 1)))
   return '`[' . (maybe_linewise_p ? 'V' : 'v') . '`]'
+endfunction
+
+
+function! s:keys_to_stop_insert_mode_completion()
+  if pumvisible()
+    return "\<C-e>"
+  else
+    return "\<Space>\<BS>"
+  endif
 endfunction
 
 
@@ -1058,7 +1080,7 @@ function! s:operator_translate(motion_wiseness)  "{{{2
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   let text = join(s:region("'[", "']", visual_commnad), "\n")
 
-  if match(text, '[^\x00-\x7F]') >= 0
+  if text =~ '[^\x00-\x7F]'
     let options = {'sl': 'ja', 'tl': 'en'}
   else
     let options = {'sl': 'en', 'tl': 'ja'}
@@ -1569,8 +1591,7 @@ inoremap <expr> <S-Tab>  pumvisible()
                      \ : <SID>keys_to_complete()
 
 function! s:should_indent_rather_than_complete_p()
-  let m = match(getline('.'), '\S')
-  return m == -1 || col('.') - 1 <= m
+  return getline('.')[col('.') - 2] !~ '^\S'
 endfunction
 
 
@@ -2003,7 +2024,8 @@ autocmd MyAutoCmd FileType java
 " javascript  "{{{2
 
 autocmd MyAutoCmd FileType javascript
-\ SetIndent 2space
+\   SetIndent 2space
+\ | setlocal omnifunc=jscomplete#CompleteJS
 
 
 
@@ -2095,7 +2117,8 @@ let g:is_gauche = 1
 " sql  "{{{2
 
 autocmd MyAutoCmd FileType sql
-\ SetIndent 2space
+\   SetIndent 2space
+\ | setlocal commentstring=--%s
 
 
 
@@ -2152,6 +2175,25 @@ autocmd MyAutoCmd FileType docbk,html,xhtml,xml,xslt,smarty
 
 function! s:on_FileType_xml()
   SetIndent 2space
+
+  " Complete proper end-tags.
+  " In the following description, {|} means the cursor position.
+
+  " Insert the end tag after the cursor.
+  " Before: <code{|}
+  " After:  <code>{|}</code>
+  inoremap <buffer> <LT><LT>  ><LT>/<C-x><C-o><C-r>=
+                             \<SID>keys_to_stop_insert_mode_completion()
+                             \<CR><C-o>F<LT>
+
+  " Wrap the cursor with the tag.
+  " Before: <code{|}
+  " After:  <code>
+  "           {|}
+  "         </code>
+  inoremap <buffer> >>  ><CR>X<CR><LT>/<C-x><C-o><C-d><C-r>=
+                       \<SID>keys_to_stop_insert_mode_completion()
+                       \<CR><C-o><Up><BS>
 
   " To deal with namespace prefixes and tag-name-including-hyphens.
   setlocal iskeyword+=45  " hyphen (-)
@@ -2593,40 +2635,22 @@ let g:smartinput_no_default_key_mappings = 1
 
 " for PHP  "{{{
 call smartinput#define_rule({
-\   'at': '\%#',
-\   'char': '@',
-\   'input': '$this->',
-\   'filetype': ['php'],
+\   'at': '\%#', 'char': '@', 'input': '$this->',
+\   'filetype': ['php']
 \ })
 call smartinput#define_rule({
-\   'at': '\%#',
-\   'char': '@',
-\   'input': '@',
-\   'filetype': ['php'],
-\   'syntax': ['Comment', 'Constant', 'None'],
+\   'at': '\%#\w', 'char': '@', 'input': '@',
+\   'filetype': ['php']
 \ })
 call smartinput#define_rule({
-\   'at': '\%#\w',
-\   'char': '@',
-\   'input': '@',
-\   'filetype': ['php'],
-\ })
-" }}}
-
-" for Haskell  "{{{
-call smartinput#define_rule({
-\   'at': '\%#',
-\   'char': "'",
-\   'input': "'",
-\   'filetype': ['haskell'],
+\   'at': '\%#', 'char': '@', 'input': '@',
+\   'filetype': ['php'], 'syntax': ['Comment', 'Constant', 'None']
 \ })
 " }}}
 
 call smartinput#define_rule({
-\   'at': '\%#',
-\   'char': '{',
-\   'input': '{',
-\   'syntax': ['Comment'],
+\   'at': '\%#', 'char': '{', 'input': '{',
+\   'syntax': ['Comment']
 \ })
 
 call smartinput#map_trigger_keys(0)
