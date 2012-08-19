@@ -41,8 +41,8 @@ app-text/evince
 app-text/lv
 app-text/ptex
 app-text/tree
+dev-db/mariadb
 dev-haskell/attoparsec
-dev-haskell/attoparsec-enumerator
 dev-haskell/cabal-install
 dev-haskell/criterion
 dev-haskell/failure
@@ -52,7 +52,6 @@ dev-haskell/gtk
 dev-haskell/gtk-traymanager
 dev-haskell/haddock
 dev-haskell/hashmap
-dev-haskell/hfuse
 dev-haskell/hoogle
 dev-haskell/hunit
 dev-haskell/libmpd
@@ -144,6 +143,7 @@ net-libs/nodejs
 net-misc/bridge-utils
 net-misc/dropbox
 net-misc/mimms
+net-misc/mosh
 net-misc/ntp
 net-misc/openvpn
 net-misc/rdesktop
@@ -151,7 +151,6 @@ net-misc/telnet-bsd
 net-misc/whois
 net-misc/wol
 net-p2p/rtorrent
-net-print/bjfilter
 net-proxy/privoxy
 perl-gcpan/HTML-Selector-XPath
 perl-gcpan/HTML-TreeBuilder-XPath

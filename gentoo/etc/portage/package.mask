@@ -1,6 +1,8 @@
 =app-i18n/uim-1.8.0
+=net-fs/cifs-utils-5.5
 =sys-apps/net-tools-1.60_p20120127084908
-=sys-boot/grub-1.99*
+=sys-boot/grub-2*
 =sys-libs/glibc-2.15-r1
+=x11-drivers/xf86-input-evdev-2.7*
 >app-i18n/skk-jisyo-9999
 sys-kernel/gentoo-sources

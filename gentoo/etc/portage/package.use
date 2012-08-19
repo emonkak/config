@@ -19,6 +19,7 @@ app-text/asciidoc graphviz highlight
 app-text/ghostscript-gpl gtk
 app-text/lcdf-typetools kpathsea
 app-text/poppler qt4 -abiword
+dev-db/mariadb pbxt
 dev-haskell/* doc
 dev-lang/ghc doc ghcbootstrap llvm
 dev-lang/perl ithreads
@@ -48,7 +49,7 @@ media-sound/ario dbus taglib
 media-sound/easytag flac mp3 mp4 speex vorbis wavpack
 media-sound/mpd lame ogg vorbis
 media-sound/ncmpcpp clock taglib
-media-sound/pulseaudio gnome system-wide
+media-sound/pulseaudio gnome
 media-sound/sonata dbus lyrics taglib trayicon
 media-tv/xawtv xv
 media-video/ffmpeg alsa faac mp3 rtmp theora v4l2 vaapi vorbis x264 xvid
@@ -94,7 +95,7 @@ x11-libs/libva opengl
 x11-libs/qt-gui dbus gtkstyle
 x11-plugins/purple-plugin_pack gtk
 x11-terms/evilvte savedconfig
-x11-terms/rxvt-unicode -vanilla 256-color alt-font-width force-hints perl truetype
+x11-terms/rxvt-unicode -vanilla 256-color alt-font-width force-hints perl truetype xft
 x11-themes/gtk-engines-murrine -themes
 x11-wm/xmonad doc
 x11-wm/xmonad-contrib doc
