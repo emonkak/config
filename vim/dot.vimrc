@@ -2108,6 +2108,15 @@ autocmd MyAutoCmd FileType haskell
 
 
 
+" haxe  "{{{2
+
+autocmd MyAutoCmd FileType haxe
+\   SetIndent 2space
+\ | setlocal commentstring=//%s
+
+
+
+
 " java  "{{{2
 
 autocmd MyAutoCmd FileType java
@@ -2134,6 +2143,16 @@ autocmd MyAutoCmd FileType lua
 
 
 
+" markdown  "{{{2
+
+if isdirectory('/Applications/Marked.app')
+  autocmd MyAutoCmd BufWritePost *.markdown,*.mkd
+  \ QuickRun markdown/Marked
+endif
+
+
+
+
 " objc  "{{{2
 
 autocmd MyAutoCmd FileType objc
@@ -2155,8 +2174,7 @@ autocmd MyAutoCmd FileType ocaml
 " perl  "{{{2
 
 autocmd MyAutoCmd FileType perl
-\   SetIndent 2space
-\ | setlocal include=
+\ SetIndent 2space
 
 
 
@@ -2167,12 +2185,11 @@ autocmd MyAutoCmd FileType php
 \ call s:on_FileType_php()
 
 function! s:on_FileType_php()
-  SetIndent 4tab
-  setlocal cindent
+  SetIndent 4space
   setlocal commentstring=//%s
-  setlocal include=
-  setlocal indentexpr=
 endfunction
+
+let g:PHP_vintage_case_default_indent = 1
 
 
 
