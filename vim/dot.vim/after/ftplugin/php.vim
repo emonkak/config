@@ -34,8 +34,9 @@ function! PHPFold(lnum)
                  \ . '\(\(final\|private\|protected\|public\|static\)\s\)*function'
                  \ . '\|\(abstract\s\)\?class'
                  \ . '\|interface'
+                 \ . '\|namespace'
                  \ . '\|trait'
-                 \ . '\)'
+                 \ . '\)[^;]*$'
     let level = indent(a:lnum) / &l:shiftwidth
     return level > 2 ? '=' : '>' . (level + 1)
   else
