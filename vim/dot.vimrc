@@ -392,7 +392,7 @@ endfunction
 command! -complete=file -nargs=1 Rename  call s:cmd_Rename(<q-args>)
 function! s:cmd_Rename(name)
   let current = expand('%')
-  if &l:readonly || !&l:modifiable || !filewritable(current)
+  if &l:readonly || !&l:modifiable || !(filereadable(a:name) || filewritable(current))
     echohl ErrorMsg
     echo 'This file cannot be changes:' a:name
     echohl None
