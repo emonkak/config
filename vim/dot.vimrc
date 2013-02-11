@@ -71,16 +71,16 @@ if has('gui_running')
   set guicursor=a:blinkwait4000-blinkon1500-blinkoff500
   if has('gui_gtk2')
     set guifont=Monospace\ 10.5
-    set linespace=2
+    set linespace=4
   elseif has('gui_macvim')
     set guifont=Consolas:h14
-    set guifontwide=KaiLunaStd:h14
     set linespace=5
+    set macmeta
     set transparency=10
     set visualbell
   elseif has('gui_win32')
-    set guifont=Envy\ Code\ R:h10
-    set linespace=0
+    set guifont=Consolas:h10.5
+    set linespace=2
   endif
   set guioptions=AcgM
 endif
@@ -95,6 +95,8 @@ set nobackup
 if has('clientserver')
   set clipboard=autoselectml,exclude:cons\|linux
 endif
+set complete&
+set complete-=i
 set completeopt=menuone,longest
 set confirm
 set diffopt=filler,vertical
@@ -131,7 +133,7 @@ set nohlsearch
 set laststatus=2
 set linebreak
 set list
-let &listchars = "tab:| ,extends:<,trail:-"
+let &listchars = "tab:\u00bb ,extends:<,trail:-"
 set pumheight=20
 set ruler
 set showcmd
@@ -166,7 +168,6 @@ endif
 
 let &statusline = ''
 let &statusline .= '%<%f %h%m%r%w'
-let &statusline .= ' %{eskk#statusline("[%s]")}'
 let &statusline .= '%='
 let &statusline .= '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
 let &statusline .= '%{&l:fileformat == "unix" ? "" : ":".&l:fileformat}]'
@@ -182,8 +183,8 @@ function! s:my_tabline()  "{{{
     let no = (i <= 10 ? i - 1 : '#')  " display 0-origin tabpagenr.
     let mod = getbufvar(curbufnr, '&modified') ? '+' : ' '
     let title = gettabvar(i, 'title')
-    let title = title != '' ? title : fnamemodify(gettabvar(i, 'cwd'), ':t')
-    let title = title != '' ? title : fnamemodify(getcwd(), ':t')
+    let title = title != '' ? title : fnamemodify(bufname(curbufnr), ':t')
+    let title = title != '' ? title : '[No Name]'
 
     let s .= '%' . i . 'T'
     let s .= '%#' . (i == tabpagenr() ? 'TabLineSel' : 'TabLine') . '#'
@@ -194,14 +195,12 @@ function! s:my_tabline()  "{{{
     let s .= '  '
   endfor
 
+  let branch_name = s:vcs_branch_name(getcwd())
   let s .= '%#TabLineFill#%T'
   let s .= '%=%#TabLine#'
-  let s .= '| %<'
-  let branch_name = s:vcs_branch_name(getcwd())
-  let branch_name = branch_name != ''
-  \               ? branch_name
-  \               : pathshorten(fnamemodify(getcwd(), ':p:~:h'))
   let s .= branch_name
+  let s .= ' | %<'
+  let s .= fnamemodify(getcwd(), ':t')
   return s
 endfunction "}}}
 let &tabline = '%!' . s:SID_PREFIX() . 'my_tabline()'
