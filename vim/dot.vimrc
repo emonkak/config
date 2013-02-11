@@ -1578,8 +1578,12 @@ nmap <C-g><C-Space>  <C-g><Space>
 
 " Command-line editting  "{{{2
 
-cnoremap <C-b>  <Left>
-cnoremap <C-f>  <Right>
+" Move the cursor instead of selecting a different match
+cnoremap <Left> <Space><BS><Left>
+cnoremap <Right> <Space><BS><Right>
+cmap <C-b>  <Left>
+cmap <C-f>  <Right>
+
 cnoremap <C-a>  <Home>
 cnoremap <C-d>  <Delete>
 cnoremap <C-y>  <C-r>"
@@ -1632,11 +1636,18 @@ endfunction
 " Like emacs mappings.
 inoremap <C-b>  <Left>
 inoremap <C-f>  <Right>
-inoremap <C-a>  <Home>
-inoremap <C-e>  <End>
+inoremap <Esc>b  <C-Left>
+inoremap <Esc>f  <C-Right>
 inoremap <C-d>  <Delete>
+
+inoremap <expr> <C-a>
+     \   indent(line('.')) > 0 && virtcol('.') > indent(line('.')) + 1
+     \ ? "\<Home>\<S-Right>"
+     \ : "\<Home>"
+inoremap <expr> <C-e>
+       \ virtcol('.') < indent(line('.')) ? "\<S-Right>" : "\<End>"
 inoremap <expr> <C-k>
-\        repeat("\<Delete>", max([strchars(getline('.')[col('.') - 1:]), 1]))
+       \ repeat("\<Delete>", max([strchars(getline('.')[col('.') - 1:]), 1]))
 inoremap <expr> <C-y>  pumvisible() ? "\<C-y>" : "\<C-r>+"
 
 " Alternatives for the original actions.
@@ -1647,6 +1658,21 @@ inoremap <C-q>  <C-d>
 " To be able to undo these types of deletion.
 inoremap <C-w>  <C-g>u<C-w>
 inoremap <C-u>  <C-g>u<C-u>
+
+
+" Make I/A available in characterwise-visual and linewise-visual.
+vnoremap <expr> I  <SID>force_blockwise_visual('I')
+vnoremap <expr> A  <SID>force_blockwise_visual('A')
+
+function! s:force_blockwise_visual(next_key)
+  if mode() ==# 'v'
+    return "\<C-v>" . a:next_key
+  elseif mode() ==# 'V'
+    return "\<C-v>0o$" . a:next_key
+  else  " mode() ==# "\<C-v>"
+    return a:next_key
+  endif
+endfunction
 
 
 " Complete or indent.
