@@ -478,12 +478,11 @@ AlterCommand so[urce]  Source
 command! -bar -nargs=0 SuspendWithAutomticCD
 \ call s:cmd_SuspendWithAutomticCD()
 function! s:cmd_SuspendWithAutomticCD()
+  let shell = split(&shell, '/')[-1]
+
   if has('gui_running') && has('macunix')
     silent !open -a Terminal
-  endif
-
-  let shell = split(&shell, '/')[-1]
-  if exists('$TMUX')
+  elseif exists('$TMUX')
     let windows = split(vimproc#system('tmux list-windows'), '\n')
     call map(windows, 'split(v:val, "^\\d\\+\\zs:\\s")')
     call filter(windows, 'matchstr(v:val[1], "\\S\\+") ==# shell')
