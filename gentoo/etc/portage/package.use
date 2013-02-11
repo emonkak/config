@@ -3,8 +3,9 @@ app-arch/unzip natspec
 app-editors/gvim gtk python
 app-editors/vim gtk python
 app-editors/yi gtk
-app-emulation/qemu-kvm alsa opengl qemu-ifup sdl
-app-emulation/wine alsa dbus fontconfig hardened jpeg mp3 png xml
+app-emulation/libvirt python qemu
+app-emulation/qemu alsa opengl qemu-ifup sdl
+app-emulation/wine -prelink alsa dbus fontconfig hardened jpeg mp3 png xml
 app-i18n/ibus gtk python
 app-i18n/ibus-mozc -ibus uim qt4
 app-i18n/uim -anthy gtk libnotify linguas_ja skk xft
@@ -52,23 +53,26 @@ media-sound/ncmpcpp clock taglib
 media-sound/pulseaudio gnome
 media-sound/sonata dbus lyrics taglib trayicon
 media-tv/xawtv xv
-media-video/ffmpeg alsa faac mp3 rtmp theora v4l2 vaapi vorbis x264 xvid
+media-video/ffmpeg alsa faac mp3 network rtmp theora v4l2 vorbis x264 xvid
 media-video/gnome-mplayer dbus
-media-video/libav alsa faac mp3 rtmp theora v4l2 vaapi vorbis x264 xvid
-media-video/mplayer faac libmpeg2 png v4l2 vaapi xvmc
-media-video/vlc aac alsa dvd flac fontconfig matroska mp3 mpeg ogg png stream theora truetype v4l2 vaapi vorbis x264 xv
+media-video/libav alsa faac mp3 rtmp theora v4l2 vorbis x264 xvid
+media-video/mplayer faac libmpeg2 png rtmp v4l2 xvmc
+media-video/vlc aac alsa dvd flac fontconfig matroska mp3 mpeg ogg png stream theora truetype v4l2 vorbis x264 xv
 net-analyzer/wireshark gtk
 net-im/instantbird -system-libpurple
 net-im/pidgin gstreamer
 net-im/skype4pidgin dbus
 net-irc/irssi perl
+net-libs/gtk-vnc python
 net-misc/hotot gtk
 net-misc/rdesktop alsa
+net-misc/spice-gtk python
 net-print/bjfilter ip3100
 net-print/cups samba
 net-proxy/tinyproxy minimal
 sys-apps/groff linguas_ja
 sys-apps/smartmontools minimal
+sys-auth/consolekit policykit
 sys-block/gparted fat ntfs
 sys-devel/gcc go
 sys-fs/udev extras hwdb
@@ -76,7 +80,7 @@ sys-kernel/ck-sources symlink
 sys-kernel/gentoo-sources symlink
 sys-kernel/vanilla-sources symlink
 sys-libs/zlib minizip
-virtual/ffmpeg x264 vaapi mp3 theora
+virtual/udev hwdb
 www-client/google-chrome linguas_ja
 www-client/jd migemo
 www-client/luakit luajit
@@ -84,7 +88,7 @@ www-client/opera gtk gtk3
 www-client/opera-next gtk
 www-client/w3m linguas_ja
 www-plugins/adobe-flash -32bit
-www-plugins/gnash gstreamer gtk nsplugin opengl openvg vaapi
+www-plugins/gnash gstreamer gtk nsplugin opengl openvg
 www-servers/apache userdir
 www-servers/nginx nginx_modules_http_headers_more
 x11-libs/cairo lcdfilter opengl svg
@@ -93,6 +97,7 @@ x11-libs/gtk+ jpeg
 x11-libs/libdrm libkms
 x11-libs/libva opengl
 x11-libs/qt-gui dbus gtkstyle
+x11-libs/vte python
 x11-plugins/purple-plugin_pack gtk
 x11-terms/evilvte savedconfig
 x11-terms/rxvt-unicode -vanilla 256-color alt-font-width force-hints perl truetype xft

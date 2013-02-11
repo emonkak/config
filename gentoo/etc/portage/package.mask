@@ -1,6 +1,6 @@
 =app-i18n/uim-1.8.0
 =net-fs/cifs-utils-5.5
-=sys-apps/net-tools-1.60_p20120127084908
+=sys-apps/groff-1.22.1
 =sys-boot/grub-2*
 =sys-libs/glibc-2.15-r1
 =x11-drivers/xf86-input-evdev-2.7*
