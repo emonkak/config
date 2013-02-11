@@ -325,15 +325,15 @@ endfunction
 
 
 
-" BufferCleanr - delete unnecessary buffer  "{{{2
+" BufferCleaner - delete unnecessary buffer  "{{{2
 
 command! -bang -nargs=0 BufferCleaner  call s:cmd_BufferCleaner(<bang>0)
 function! s:cmd_BufferCleaner(banged_p)
   let _ = range(1, bufnr('$'))
-  call filter(_, 'bufexists(v:val) &&
-  \               buflisted(v:val) &&
-  \               (bufname(v:val) == "" || !filereadable(bufname(v:val))) &&
-  \               (a:banged_p || !getbufvar(v:val, "&modified"))')
+  call filter(_, 'bufexists(v:val)
+  \               && buflisted(v:val)
+  \               && (bufname(v:val) == "" || !filereadable(bufname(v:val)))
+  \               && (a:banged_p || !getbufvar(v:val, "&modified"))')
   for bufnr in _
     silent execute bufnr 'bdelete'.(a:banged_p ? '!' : '')
   endfor
