@@ -1645,7 +1645,7 @@ inoremap <expr> <C-a>
      \ ? "\<Home>\<S-Right>"
      \ : "\<Home>"
 inoremap <expr> <C-e>
-       \ virtcol('.') < indent(line('.')) ? "\<S-Right>" : "\<End>"
+       \ virtcol('.') < indent(line('.')) + 1 ? "\<S-Right>" : "\<End>"
 inoremap <expr> <C-k>
        \ repeat("\<Delete>", max([strchars(getline('.')[col('.') - 1:]), 1]))
 inoremap <expr> <C-y>  pumvisible() ? "\<C-y>" : "\<C-r>+"
