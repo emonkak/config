@@ -35,7 +35,7 @@ prompt_setup() {
 
   local c_host
   if [ -n "$SSH_CONNECTION" ]; then
-    c_host="$ccyan"
+    c_host="$c_cyan"
   else
     c_host="$c_green"
   fi
@@ -54,7 +54,9 @@ prompt_setup() {
   PS1="
 $t_host $t_cwd$t_shlvl $t_vcs
 $t_main"
-  PS_DECORATOR='YUKI.N'
+
+  local decorators=('AKARI.A' 'KYOKO.T' 'YUI.F' 'TINATSU.Y')
+  PS_DECORATOR="${decorators[$(( $RANDOM % ${#decorators[@]} ))]}"
 }
 
 prompt_setup

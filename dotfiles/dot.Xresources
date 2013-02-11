@@ -38,8 +38,8 @@ Rxvt.color7: rgb:81/81/81
 Rxvt.color15: rgb:ff/ff/ff
 
 Rxvt.font: \
-  xft:TheSans Mono:pixelsize=14, \
-  xft:KaiLunaStd:pixelsize=14, \
+  xft:Fedra Mono Screen:pixelsize=12, \
+  xft:Meiryo:pixelsize=14, \
   xft:Droid Sans Fallback:pixelsize=14
 Rxvt.imFont: \
   -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \
@@ -48,11 +48,11 @@ Rxvt.imFont: \
 
 Rxvt.matcher.button: 1
 Rxvt.perl-ext-common: default,matcher
-Rxvt.urlLauncher: google-chrome
+Rxvt.url-launcher: google-chrome
 
 Rxvt.externalBorder: 0
 Rxvt.internalBorder: 2
-Rxvt.lineSpace: 3
+Rxvt.lineSpace: 2
 Rxvt.saveLines: 1000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true
