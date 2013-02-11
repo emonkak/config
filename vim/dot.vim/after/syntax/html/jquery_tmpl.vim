@@ -25,18 +25,19 @@
 " jQuery template
 syntax keyword jQueryTmplKeyword contained html if else each tmpl wrap
 syntax region jQueryTmplRegion matchgroup=Delimiter start="{{/\?" end="}}"
-\ containedin=jQueryTmplTag,javaScriptStringS,javaScriptStringD,htmlString
+\ containedin=jQueryTmplTag,htmlString
 \ contains=jQueryTmplKeyword,@htmlJavaScript
 \ contained
 \ keepend
 syntax region jQueryTmplVariable matchgroup=Delimiter start="\${=\?" end="}"
-\ containedin=jQueryTmplTag,javaScriptStringS,javaScriptStringD,htmlString
+\ containedin=jQueryTmplTag,htmlString
 \ contains=@htmlJavaScript
 \ contained
 \ keepend
 syntax region jQueryTmplTag start=+<script\s[^>]*type\s*=["']text/x-jquery-tmpl["'][^>]*>+ end=+</script>+me=s-1
 \ contains=TOP,javaScript
 \ keepend
+syntax cluster htmlTop add=jQueryTmplRegion,jQueryTmplVariable
 
 highlight default link jQueryTmplKeyword Keyword
 
