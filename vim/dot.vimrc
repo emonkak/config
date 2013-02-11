@@ -2349,57 +2349,6 @@ nmap <F2>  <Plug>(altr-forward)
 
 
 
-" eskk  "{{{2
-
-autocmd MyAutoCmd User eskk-initialize-pre
-\ call s:on_User_eskk_initial_pre()
-
-function! s:on_User_eskk_initial_pre()
-  for dictionary in [
-  \   '~/.skk/SKK-JISYO.L',
-  \   '~/Library/Application\ Support/AquaSKK/SKK-JISYO.L',
-  \   '/usr/share/skk/SKK-JISYO.L',
-  \ ]
-    if filereadable(expand(dictionary))
-      let g:eskk#large_dictionary = {
-      \   'path': dictionary,
-      \   'sorted': 1,
-      \   'encoding': 'euc-jp',
-      \ }
-    endif
-  endfor
-  for mode in ['hira', 'kata']
-    let table_name = 'rom_to_' . mode
-    let table = eskk#table#new(table_name . '*', table_name)
-    call table.add_map('~', "\uff5e")
-    call table.add_map('(', "\uff08")
-    call table.add_map(')', "\uff09")
-    call table.add_map('z ', "\u3000")
-    call eskk#register_mode_table(mode, table)
-  endfor
-endfunction
-
-let g:eskk#dictionary = {
-\   'path': expand('~/.skk-eskk-jisyo'),
-\   'sorted': 0,
-\   'encoding': 'utf-8',
-\ }
-let g:eskk#egg_like_newline = 1
-let g:eskk#statusline_mode_strings = {
-\   'hira': "\u3042",
-\   'kata': "\u30a2",
-\   'ascii': 'A',
-\   'zenei': "\u82f1",
-\   'hankata': "\uff76\uff85",
-\   'abbrev': '/',
-\ }
-let g:eskk#use_color_cursor = 0
-
-call eskk#load()
-
-
-
-
 " exjumplist  "{{{2
 
 nmap <Esc><C-j>  <Plug>(exjumplist-next-buffer)
