@@ -29,7 +29,7 @@ function! PHPFold(lnum)
 
   if current =~# '\s*}$'
     let level = indent(a:lnum) / &l:shiftwidth
-    return level > 1 ? '=' : '<' . (level + 1)
+    return level > 2 ? '=' : '<' . (level + 1)
   elseif current =~# '^\s*\('
                  \ . '\(\(final\|private\|protected\|public\|static\)\s\)*function'
                  \ . '\|\(abstract\s\)\?class'
@@ -37,7 +37,7 @@ function! PHPFold(lnum)
                  \ . '\|trait'
                  \ . '\)'
     let level = indent(a:lnum) / &l:shiftwidth
-    return level > 1 ? '=' : '>' . (level + 1)
+    return level > 2 ? '=' : '>' . (level + 1)
   else
     return '='
   endif
