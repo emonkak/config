@@ -608,56 +608,6 @@ AlterCommand lmak[e]  Lmake
 
 
 
-" Bundle update  "{{{2
-
-command! -nargs=0 BundleUpdate
-\ call s:cmd_BundleUpdate(split(&runtimepath, ','), 0<bang>)
-function! s:cmd_BundleUpdate(bundles, banged_p)
-  for bundle in a:bundles
-    if stridx(bundle, '*') >= 0
-      call s:cmd_BundleUpdate(split(glob(bundle), "\n"), a:banged_p)
-    elseif isdirectory(bundle . '/.git')
-      if !a:banged_p
-      \  && localtime() - getftime(bundle . '/.git/FETCH_HEAD') < 60 * 60 * 24
-        echohl Title
-        echo fnamemodify(bundle, ':t') 'is already updated'
-        echohl None
-        continue
-      endif
-
-      let git = join([
-      \   'git',
-      \   '--git-dir',
-      \   shellescape(bundle . '/.git'),
-      \   '--work-tree',
-      \   shellescape(bundle)
-      \ ])
-
-      let remote = split(system(git . ' remote -v'), '\n', !0)
-      if v:shell_error != 0 || remote[0] !~# '^origin\s\(git\|https\?\)://'
-        continue
-      endif
-
-      echohl Title
-      echo 'Update' fnamemodify(bundle, ':t') '...'
-      echohl None
-
-      let result = system(git . ' pull --rebase')
-      if v:shell_error == 0
-        echo result
-      else
-        echohl ErrorMsg
-        echomsg 'Error:' fnamemodify(bundle, ':t')
-        echomsg result
-        echohl None
-      endif
-    endif
-  endfor
-endfunction
-
-
-
-
 " High-level key sequences  "{{{2
 
 function! s:keys_to_complete()
@@ -778,6 +728,124 @@ function! s:cmd_SetIndent(expr)
     setlocal noexpandtab softtabstop<
     let [&l:tabstop, &l:shiftwidth] = [width, width]
   endif
+endfunction
+
+
+
+
+" Plugin manager  "{{{2
+
+command! -bang -complete=customlist,s:complete_bundle -nargs=+ Bundle
+\ call s:bundle._call(<f-args>, <bang>0)
+function! s:complete_bundle(arglead, cmdline, cursorpos)
+  return filter(keys(s:bundle),
+  \             'v:val =~# "^[a-z]" && s:prefix_of_p(a:arglead, v:val)')
+endfunction
+
+let s:bundle = {
+\   'DIR': $HOME . '/.vim/bundle'
+\ }
+
+function! s:bundle._call(action, ...) dict  "{{{3
+  call call(get(self, a:action, self.help), a:000, self)
+endfunction
+
+
+function! s:bundle.help(banged_p) dict  "{{{3
+  echo 'Usage:'
+  echo printf('  :Bundle [%s]',
+  \           join(filter(keys(self), 'v:val =~# "^[a-z]"'), '|'))
+endfunction
+
+
+function! s:bundle.install(package, banged_p) dict  "{{{3
+  let m = matchlist(a:package, '^\(\%(git\|https\?\)://[^/]\+\)\?/*\(.\+\)')
+
+  if !empty(m)
+    if m[1] == ''
+      let m[1] = 'git://github.com'
+    endif
+    let m[2] = substitute(m[2], '\.git$', '', '')
+
+    let bundle = self.DIR . '/' . substitute(m[2], '/', '_', '')
+    let command = join([
+    \   'git',
+    \   'clone',
+    \   shellescape(join(m[1:2], '/') . '.git'),
+    \   shellescape(bundle)
+    \ ])
+
+    if isdirectory(bundle)
+      echohl ErrorMsg
+      echo 'Already installed package:' a:package
+      echohl None
+    else
+      echo system(command)
+      Source `=bundle . '/plugin/*.vim'`
+    endif
+  else
+    echohl ErrorMsg
+    echo 'Invalid package:' a:package
+    echohl None
+  endif
+endfunction
+
+
+function! s:bundle.list(banged_p) dict  "{{{3
+  let bundles = split(glob(self.DIR . '/*'), "\n")
+
+  echohl Title
+  echo len(bundles) 'plugins available'
+  echohl None
+
+  for bundle in bundles
+    let head = bundle . '/.git/HEAD'
+    if filereadable(head)
+      echo readfile(head, '')[0] fnamemodify(bundle, ':t')
+    else
+      echo fnamemodify(bundle, ':t')
+    endif
+  endfor
+endfunction
+
+
+function! s:bundle.update(banged_p) dict  "{{{3
+  for bundle in split(glob(self.DIR . '/*'), "\n")
+    if !a:banged_p
+    \  && localtime() - getftime(bundle . '/.git/FETCH_HEAD') < 60 * 60 * 24
+      echohl Title
+      echo fnamemodify(bundle, ':t') 'is already updated'
+      echohl None
+      continue
+    endif
+
+    let git = join([
+    \   'git',
+    \   '--git-dir',
+    \   shellescape(bundle . '/.git'),
+    \   '--work-tree',
+    \   shellescape(bundle)
+    \ ])
+
+    let remote = split(system(git . ' remote -v'), '\n', !0)
+    if v:shell_error != 0 || remote[0] !~# '^origin\s\(git\|https\?\)://'
+      continue
+    endif
+
+    echohl Title
+    echo 'Update' fnamemodify(bundle, ':t') '...'
+    echohl None
+
+    let result = system(git . ' pull --rebase')
+    if v:shell_error == 0
+      echo result
+    else
+      echohl ErrorMsg
+      echomsg 'Error:' fnamemodify(bundle, ':t')
+      echomsg result
+      echohl None
+    endif
+  endfor
 endfunction
 
 
