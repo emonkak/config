@@ -414,10 +414,13 @@ endfunction
 
 " Seq - sequence number substitutions  "{{{2
 "
-" :Seq /{pattern}/[format]/[first]/[options]
+" :Seq /{pattern}[/format][/options]
 "
-"   Example: Print the number in front of each line:
-"   Seq/^/%03d /
+" Example: Print the number in front of each line:
+" :Seq/^/%03d /
+"
+" Example: Set start number and step
+" :Seq/^/%d /100+2
 
 command! -range -nargs=+ Seq
 \ <line1>,<line2>call s:cmd_Seq(<q-args>)
@@ -428,14 +431,16 @@ function! s:cmd_Seq(args) range
 
   let incrementer = {
   \   'format': get(args, 1, '%d'),
-  \   'current': get(args, 2, 1),
+  \   'current': 1,
   \   'step': 1,
   \ }
 
   let options = ''
-  for c in split(get(args, 3, ''), '[^0-9-]\zs')
-    if c =~ '\d'
+  for c in split(get(args, 2, ''), '\([+-]\?\d\+\|.\)\zs')
+    if c =~ '^[+-]'
       let incrementer.step = str2nr(c)
+    elseif c =~ '^\d'
+      let incrementer.current = str2nr(c)
     else
       let options .= c
     endif
