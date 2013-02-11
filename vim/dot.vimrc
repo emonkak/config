@@ -911,7 +911,7 @@ endfunction
 
 " Vertical with  "{{{2
 
-let s:vertical_statement = '(winwidth(0) * 2 > winheight(0) * 8)'
+let s:vertical_statement = '(winwidth(0) > winheight(0) * 5)'
 
 function! s:vertical_with(command, args)
   execute eval(s:vertical_statement) ? 'vertical' : ''
