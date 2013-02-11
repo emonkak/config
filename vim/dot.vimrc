@@ -564,7 +564,7 @@ function! s:grep(command, args)
   if grepprg ==# 'internal'
     execute a:command '/'.escape(a:args[-1], '/ ').'/j' target
   else
-    execute a:command.'!' shellescape(a:args[-1]) target
+    execute a:command.'!' a:args[-1] target
   endif
 
   if a:command ==# 'grep'
