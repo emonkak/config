@@ -2048,7 +2048,7 @@ autocmd MyAutoCmd FileType changelog
 \ noremap <buffer> <silent> <Leader>o  :<C-u>NewChangelogEntry<CR>
 
 let g:changelog_timeformat = '%Y-%m-%d'
-let g:changelog_username  = 'emonkak <emonkak@gmail.com>'
+let g:changelog_username = 'Shota Nozaki <emonkak@gmail.com>'
 
 
 
