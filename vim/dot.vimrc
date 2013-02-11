@@ -2325,8 +2325,7 @@ autocmd MyAutoCmd FileType haml
 call accelerate#map('nv', '', 'j', 'gj')
 call accelerate#map('nv', '', 'k', 'gk')
 call accelerate#map('nv', '', 'h')
-call accelerate#map('n', 'e', 'l', "foldclosed(line('.')) != -1 ? 'zo' : 'l'")
-call accelerate#map('v', '', 'l')
+call accelerate#map('nv', 'e', 'l', "foldclosed(line('.')) != -1 ? 'zo' : 'l'")
 
 
 
@@ -2499,7 +2498,9 @@ let g:ku_file_mru_limit = 200
 
 
 
+" metarw  "{{{2
 
+let g:metarw_gist_safe_write = 1
 
 
 
@@ -2539,14 +2540,19 @@ let g:quickrun_config = {
 \  'dot': {
 \    'exec': ['%c -Tps:cairo -o %s:p:r.ps %s'],
 \  },
+\  'haxe': {
+\    'exec': ['%c %a --cwd %s:p:h -x %s:t:r'],
+\    'tempfile': '%{fnamemodify(tempname(), ":h")}/%{expand("%:t")}',
+\    'hook/sweep/files': ['%S:p:r.n'],
+\  },
 \  'java': {
 \    'exec': ['javac %s', '%c -cp %s:h %s:t:r %a'],
-\    'tempfile': '{fnamemodify(tempname(), ":h")}/{expand("%:t")}',
+\    'tempfile': '%{fnamemodify(tempname(), ":h")}/%{expand("%:t")}',
 \  },
 \  'javaapplet': {
-\    'exec': ['echo "<applet code=%s:t:r width=500 height=500></applet>" > %s:p:r.html',
-\             'appletviewer %s:p:r.html'],
-\    'tempfile': '{fnamemodify(tempname(), ":h")}/{expand("%:t")}',
+\    'exec': 'appletviewer %s:p:r.html',
+\    'tempfile': '%{fnamemodify(tempname(), ":h")}/%{expand("%:t")}',
+\    'hook/eval/template': '<applet code=%s:t:r width=500 height=500></applet>',
 \  },
 \  'javascript': {
 \    'type': 'javascript/v8',
@@ -2554,6 +2560,12 @@ let g:quickrun_config = {
 \  'javascript/v8': {
 \    'command': executable('d8') ? 'd8' : 'v8',
 \    'tempfile': '%{tempname()}.js',
+\  },
+\  'markdown/Marked': {
+\    'outputter': 'null',
+\    'command': 'open',
+\    'cmdopt': '-g',
+\    'exec': '%c %o -a Marked %s',
 \  },
 \  'objc': {
 \    'command': 'gcc',
@@ -2693,6 +2705,18 @@ call smartinput#define_rule({
 \   'at': '\%#', 'char': '@', 'input': '@',
 \   'filetype': ['php'], 'syntax': ['Comment', 'Constant', 'None']
 \ })
+call smartinput#define_rule({
+\   'at': '\%#', 'char': '[', 'input': 'array()<Left>',
+\   'filetype': ['php']
+\ })
+call smartinput#define_rule({
+\   'at': '[0-9A-Za-z_)\]]\%#', 'char': '[', 'input': '[]<Left>',
+\   'filetype': ['php']
+\ })
+call smartinput#define_rule({
+\   'at': '\%#', 'char': '[', 'input': '[',
+\   'filetype': ['php'], 'syntax': ['Comment', 'Constant', 'None']
+\ })
 " }}}
 
 call smartinput#define_rule({
@@ -2736,10 +2760,10 @@ call submode#enter_with('winsize', 'n', '', '<C-w><C-@>',
 \                       ':<C-u>call '.s:SID_PREFIX().'submode_winsize()<CR>')
 function! s:submode_winsize()
   let current = winnr()
-  wincmd k | let above = winnr() | execute current "wincmd w"
-  wincmd j | let below = winnr() | execute current "wincmd w"
-  wincmd h | let left = winnr() | execute current "wincmd w"
-  wincmd l | let right = winnr() | execute current "wincmd w"
+  wincmd k | let above = winnr() | execute current 'wincmd w'
+  wincmd j | let below = winnr() | execute current 'wincmd w'
+  wincmd h | let left = winnr() | execute current 'wincmd w'
+  wincmd l | let right = winnr() | execute current 'wincmd w'
 
   execute printf('call submode#map("winsize", "n", "r", "j", "<C-w>%s")',
   \ above != below && current == below ? "-" : "+")
