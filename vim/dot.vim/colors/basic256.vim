@@ -1,6 +1,6 @@
 " Vim colorscheme: basic256
 " Version: 0.0.0
-" Copyright (C) 2010-2011 emonkak <emonkak@gmail.com>
+" Copyright (C) 2010-2012 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -37,7 +37,7 @@ let g:colors_name = 'basic256'
 
 " Variables  "{{{1
 
-let s:color_rgb_table = [
+let s:color_table = [
 \   '#292929', '#c41700', '#679b00', '#c49300',
 \   '#074080', '#9b0059', '#007676', '#818181',
 \   '#474747', '#ff614c', '#b9f73e', '#ffd24c',
@@ -76,7 +76,7 @@ function! s:color(color)  "{{{2
   if type(a:color) == type('')
     return a:color
   elseif has('gui_running')
-    return s:color_rgb(a:color)
+    return s:color_table[a:color % len(s:color_table)]
   elseif &term ==# 'win32'
     let _ = [0, 4, 2, 6, 1, 5, 3, 7, 8, 12, 10, 14, 9, 13, 11, 15]
     return _[a:color % len(_)]
@@ -88,11 +88,34 @@ endfunction
 
 
 
-function! s:color_rgb(color)  "{{{2
-  if len(s:color_rgb_table) > a:color % 256
-    return s:color_rgb_table[a:color % 256]
+function! s:highlight(name, config)  "{{{2
+  let _ = []
+  let type = has('gui_running') ? 'gui' : 'cterm'
+  let reversed_p = 0
+
+  if has_key(a:config, 'attr')
+    if &term ==# 'win32' && a:config['attr'] =~# 'r'
+      let reversed_p = !0
+    endif
+    call insert(_, ['', s:attributes(a:config['attr'])])
+  endif
+  if has_key(a:config, 'fg')
+    call insert(_, [reversed_p ? 'bg' : 'fg', s:color(a:config['fg'])])
+  endif
+  if has_key(a:config, 'bg')
+    call insert(_, [reversed_p ? 'fg' : 'bg', s:color(a:config['bg'])])
+  endif
+  if has_key(a:config, 'sp') && has('gui_running')
+    call insert(_, ['sp', s:color(a:config['sp'])])
   endif
 
+  execute 'highlight' a:name 'NONE' join(map(_, 'type . join(v:val, "=")'))
+endfunction
+
+
+
+
+function! s:xterm_colors()  "{{{2
   let _ = []
   let [r, g, b] = [0, 0, 0]
 
@@ -128,35 +151,10 @@ function! s:color_rgb(color)  "{{{2
     call add(_, '#'.join(map(rgb, 'printf("%02x", v:val)'), ''))
   endfor
 
-  return extend(s:color_rgb_table, _)[a:color % 256]
+  return _
 endfunction
 
-
-
-
-function! s:highlight(name, config)  "{{{2
-  let _ = []
-  let type = has('gui_running') ? 'gui' : 'cterm'
-  let reversed_p = 0
-
-  if has_key(a:config, 'attr')
-    if &term ==# 'win32' && a:config['attr'] =~# 'r'
-      let reversed_p = !0
-    endif
-    call insert(_, ['', s:attributes(a:config['attr'])])
-  endif
-  if has_key(a:config, 'fg')
-    call insert(_, [reversed_p ? 'bg' : 'fg', s:color(a:config['fg'])])
-  endif
-  if has_key(a:config, 'bg')
-    call insert(_, [reversed_p ? 'fg' : 'bg', s:color(a:config['bg'])])
-  endif
-  if has_key(a:config, 'sp') && has('gui_running')
-    call insert(_, ['sp', s:color(a:config['sp'])])
-  endif
-
-  execute 'highlight' a:name 'NONE' join(map(_, 'type . join(v:val, "=")'))
-endfunction
+call extend(s:color_table, s:xterm_colors())
 
 
 
@@ -166,9 +164,9 @@ endfunction
 
 if has('gui_running')
   call s:highlight('Normal'     , {'fg': '#e2e2e2', 'bg': '#171717'})
-  call s:highlight('Cursor'     , {'fg': 'bg', 'bg': 2})
-  call s:highlight('CursorIM'   , {'fg': 'bg', 'bg': 14})
-  call s:highlight('lCursor'    , {'fg': 'bg', 'bg': 14})
+  call s:highlight('Cursor'     , {'bg': 2})
+  call s:highlight('CursorIM'   , {'bg': 14})
+  call s:highlight('lCursor'    , {'bg': 14})
 else
   call s:highlight('Normal'     , {})
 endif
@@ -230,7 +228,7 @@ call s:highlight('TabLineFill'  , {'bg': 8})
 
 call s:highlight('CursorColumn' , {'bg': 0})
 call s:highlight('CursorLine'   , {'bg': 0})
-call s:highlight('ColorColumn'  , {'bg': 0})
+call s:highlight('ColorColumn'  , {'bg': 8})
 
 
 
@@ -273,6 +271,13 @@ highlight link SpecialChar    Special
 highlight link Delimiter      Special
 highlight link SpecialComment Special
 highlight link Debug          Special
+
+
+
+
+" Fin.  "{{{1
+
+unlet s:color_table
 
 
 
