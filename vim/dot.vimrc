@@ -1981,10 +1981,9 @@ autocmd MyAutoCmd FileType *
 \ call s:on_FileType_any()
 
 function! s:on_FileType_any()
-  " Add 'dictionary' for filetype.
-  let dictionary = expand('~/.vim/dict/') . &l:filetype . '.dict'
-  if filereadable(dictionary)
-    let &l:dictionary = dictionary
+  " Make omni completion available for all filetypes.
+  if &l:omnifunc == ''
+    setlocal omnifunc=syntaxcomplete#Complete
   endif
 
   " Disable auto wrap.
