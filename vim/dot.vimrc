@@ -73,8 +73,8 @@ if has('gui_running')
     set guifont=Monospace\ 10.5
     set linespace=4
   elseif has('gui_macvim')
-    set guifont=Consolas:h14
-    set linespace=5
+    set guifont=Monaco:h13
+    set linespace=6
     set macmeta
     set transparency=10
     set visualbell
@@ -133,7 +133,7 @@ set nohlsearch
 set laststatus=2
 set linebreak
 set list
-let &listchars = "tab:\u00bb ,extends:<,trail:-"
+let &listchars = "tab:\u00a6 ,extends:<,trail:-"
 set pumheight=20
 set ruler
 set showcmd
@@ -781,7 +781,7 @@ function! s:bundle.install(package, banged_p) dict  "{{{3
       echohl None
     else
       echo system(command)
-      Source `=bundle . '/plugin/*.vim'`
+      silent! execute 'source' bundle . '/plugin/*.vim'
     endif
   else
     echohl ErrorMsg
@@ -854,7 +854,7 @@ endfunction
 " Toggle options  "{{{2
 
 function! s:toggle_grepprg(global_p)
-  let VALUES = ['grep -nHE', 'git grep -n']
+  let VALUES = ['grep -nHE', 'ag --nogroup --nocolor --column', 'git grep -n']
   let grepprg = &l:grepprg == '' ? &grepprg : &l:grepprg
   let i = (index(VALUES, grepprg) + 1) % len(VALUES)
 
@@ -1132,10 +1132,10 @@ endfunction
 
 
 function! s:operator_search(motion_wiseness)  "{{{2
-  let visual_commnad =
+  let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   let search_command = v:searchforward ? 'n' : 'N'
-  let region = join(map(s:region("'[", "']", visual_commnad),
+  let region = join(map(s:region("'[", "']", visual_command),
   \                     'escape(v:val, "\\/")'),
   \                 '\n')
   let @/ = '\V' . region
@@ -1147,7 +1147,7 @@ endfunction
 
 
 function! s:operator_translate(motion_wiseness)  "{{{2
-  let visual_commnad =
+  let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   let text = join(s:region("'[", "']", visual_commnad), "\n")
 
@@ -1177,9 +1177,9 @@ endfunction
 
 
 function! s:operator_yank_clipboard(motion_wiseness)  "{{{2
-  let visual_commnad =
+  let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  execute 'normal' '`['.visual_commnad.'`]"+y'
+  execute 'normal' '`['.visual_command.'`]"+y'
 endfunction
 
 
@@ -1192,19 +1192,19 @@ endfunction
 
 
 
-function! s:region(expr1, expr2, visual_commnad)  "{{{2
+function! s:region(expr1, expr2, visual_command)  "{{{2
   let [lnum1, col1] = getpos(a:expr1)[1:2]
   let [lnum2, col2] = getpos(a:expr2)[1:2]
   let region = getline(lnum1, lnum2)
 
-  if a:visual_commnad ==# "v"  " char
+  if a:visual_command ==# "v"  " char
     if lnum1 == lnum2  " single line
       let region[0] = s:strpart(region[-1], col1 - 1, col2 - (col1 - 1))
     else  " multi line
       let region[0] = s:strpart(region[0], col1 - 1)
       let region[-1] = s:strpart(region[-1], 0, col2)
     endif
-  elseif a:visual_commnad ==# "V"  " line
+  elseif a:visual_command ==# "V"  " line
     let region += ['']
   else  " block
     call map(region, 's:strpart(v:val, col1 - 1, col2 - (col1 - 1))')
@@ -1636,16 +1636,14 @@ endfunction
 " Like emacs mappings.
 inoremap <C-b>  <Left>
 inoremap <C-f>  <Right>
-inoremap <Esc>b  <C-Left>
-inoremap <Esc>f  <C-Right>
-inoremap <C-d>  <Delete>
 
+inoremap <C-d>  <Delete>
 inoremap <expr> <C-a>
      \   indent(line('.')) > 0 && virtcol('.') > indent(line('.')) + 1
      \ ? "\<Home>\<S-Right>"
      \ : "\<Home>"
 inoremap <expr> <C-e>
-       \ virtcol('.') < indent(line('.')) + 1 ? "\<S-Right>" : "\<End>"
+       \ virtcol('.') < indent(line('.')) ? "\<S-Right>" : "\<End>"
 inoremap <expr> <C-k>
        \ repeat("\<Delete>", max([strchars(getline('.')[col('.') - 1:]), 1]))
 inoremap <expr> <C-y>  pumvisible() ? "\<C-y>" : "\<C-r>+"
@@ -1845,6 +1843,7 @@ vnoremap gc  :<C-u>normal gc<CR>
 onoremap <silent> gv  :<C-u>normal! gv<CR>
 
 
+" Alias for brackets
 onoremap (  t(
 vnoremap (  t(
 onoremap )  t)
@@ -2332,7 +2331,7 @@ call accelerate#map('nv', 'e', 'l', "foldclosed(line('.')) != -1 ? 'zo' : 'l'")
 
 " arpeggio  "{{{2
 
-let g:arpeggio_timeoutlen = 80
+let g:arpeggio_timeoutlen = 40
 
 
 
@@ -2690,7 +2689,15 @@ endfunction
 
 " smartinput  "{{{2
 
-let g:smartinput_no_default_key_mappings = 1
+if exists('g:loaded_smartinput')
+  call smartinput#clear_rules()
+  call smartinput#define_default_rules()
+endif
+
+call smartinput#define_rule({
+\   'at': '\%#', 'char': '{', 'input': '{',
+\   'syntax': ['Comment']
+\ })
 
 " for PHP  "{{{
 call smartinput#define_rule({
@@ -2698,7 +2705,7 @@ call smartinput#define_rule({
 \   'filetype': ['php']
 \ })
 call smartinput#define_rule({
-\   'at': '\%#\w', 'char': '@', 'input': '@',
+\   'at': '\%#[0-9A-Za-z_$]', 'char': '@', 'input': '@',
 \   'filetype': ['php']
 \ })
 call smartinput#define_rule({
@@ -2718,13 +2725,6 @@ call smartinput#define_rule({
 \   'filetype': ['php'], 'syntax': ['Comment', 'Constant', 'None']
 \ })
 " }}}
-
-call smartinput#define_rule({
-\   'at': '\%#', 'char': '{', 'input': '{',
-\   'syntax': ['Comment']
-\ })
-
-call smartinput#map_trigger_keys(0)
 
 
 
