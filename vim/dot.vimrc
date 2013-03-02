@@ -1149,28 +1149,22 @@ endfunction
 function! s:operator_translate(motion_wiseness)  "{{{2
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  let text = join(s:region("'[", "']", visual_commnad), "\n")
+  let text = join(s:region("'[", "']", visual_command), "\n")
+  echo s:translate_with_auto_detect(text)
+endfunction
 
-  if text =~ '[^\x00-\x7F]'
-    let options = {'sl': 'ja', 'tl': 'en'}
-  else
-    let options = {'sl': 'en', 'tl': 'ja'}
-  endif
 
-  let api = 'http://translate.google.com/translate_a/t'
-  let response = webapi#http#get(api, extend({
-  \   'client': 'o',
-  \   'text': text
-  \ }, options), {'User-Agent': 'Mozilla/5.0'})
-  if response.header[0] ==# 'HTTP/1.1 200 OK'
-    let result = webapi#json#decode(response.content)
-    if has_key(result, 'sentences')
-      echo join(map(result.sentences,
-      \             'has_key(v:val, "trans") ? v:val.trans : ""'))
-    endif
-  else
-    echoerr response.header[0]
-  end
+
+
+function! s:operator_translate_and_replace(motion_wiseness)  "{{{2
+  let visual_command =
+  \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
+  let text = join(s:region("'[", "']", visual_command), "\n")
+
+  let reg_0 = [@0, getregtype('0')]
+  let @" = s:translate_with_auto_detect(text)
+  execute 'normal!' '`['.visual_command.'`]"0p'
+  call setreg('0', reg_0[0], reg_0[1])
 endfunction
 
 
@@ -1223,6 +1217,41 @@ function! s:strpart(src, start, ...)  "{{{2
     return i == -1 ? str : strpart(str, 0, a:1 + i)
   else
     return str
+  endif
+endfunction
+
+
+
+
+function! s:translate(text, from, to)  "{{{2
+  let api = 'http://translate.google.com/translate_a/t'
+  let options = {'sl': a:from, 'tl': a:to}
+  let response = webapi#http#get(api, extend({
+  \   'client': 'o',
+  \   'text': a:text
+  \ }, options), {'User-Agent': 'Mozilla/5.0'})
+
+  if response.header[0] ==# 'HTTP/1.1 200 OK'
+    let result = webapi#json#decode(response.content)
+    if has_key(result, 'sentences')
+      return join(map(result.sentences,
+      \           'has_key(v:val, "trans") ? v:val.trans : ""'))
+    endif
+  else
+    throw response.header[0]
+  end
+
+  return ''
+endfunction
+
+
+
+
+function! s:translate_with_auto_detect(text)  "{{{2
+  if a:text =~ '[^\x00-\x7F]'
+    return s:translate(a:text, 'ja', 'en')
+  else  " English given
+    return s:translate(a:text, 'en', 'ja')
   endif
 endfunction
 
@@ -1834,9 +1863,11 @@ vnoremap ir  i]
 
 
 " Select the last chaged text - "c" stands for "C"hanged.
-nnoremap <expr> gc  <SID>keys_to_select_the_last_changed_text()
-onoremap gc  :<C-u>normal gc<CR>
-vnoremap gc  :<C-u>normal gc<CR>
+nnoremap <expr> <Plug>(textobj-last-changed-text)
+\               <SID>keys_to_select_the_last_changed_text()
+onoremap <Plug>(textobj-last-changed-text)  :<C-u>normal gc<CR>
+vnoremap <Plug>(textobj-last-changed-text)  :<C-u>normal gc<CR>
+map gc  <Plug>(textobj-last-changed-text)
 
 
 " Select the last selected text.
@@ -1866,6 +1897,25 @@ vmap #  <Plug>(operator-search-backward)
 
 call operator#user#define('translate', s:SID_PREFIX() . 'operator_translate')
 Arpeggio map ot  <Plug>(operator-translate)
+
+
+call operator#user#define('translate-and-replace',
+\                         s:SID_PREFIX() . 'operator_translate_and_replace')
+nnoremap <expr> ti  <SID>translate_inserted_text('i')
+nnoremap <expr> tI  <SID>translate_inserted_text('I')
+nnoremap <expr> ta  <SID>translate_inserted_text('a')
+nnoremap <expr> tA  <SID>translate_inserted_text('A')
+nnoremap <expr> to  <SID>translate_inserted_text('o')
+nnoremap <expr> tO  <SID>translate_inserted_text('O')
+function! s:translate_inserted_text(command)
+  augroup TranslateInsertedText
+    autocmd!
+    autocmd InsertLeave *
+    \   execute 'normal' "\<Plug>(operator-translate-and-replace)\<Plug>(textobj-last-changed-text)"
+    \ | autocmd! TranslateInsertedText
+  augroup END
+  return a:command
+endfunction
 
 
 call operator#user#define('yank-clipboard',
