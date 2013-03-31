@@ -37,7 +37,8 @@ let g:colors_name = 'basic256'
 
 " Variables  "{{{1
 
-let s:color_table = [
+let s:_ = {}
+let s:_.color_table = [
 \   '#292929', '#c41700', '#679b00', '#c49300',
 \   '#074080', '#9b0059', '#007676', '#818181',
 \   '#474747', '#ff614c', '#b9f73e', '#ffd24c',
@@ -48,17 +49,17 @@ let s:color_table = [
 
 
 " Utilities  "{{{1
-function! s:attributes(expr)  "{{{2
+function! s:_.attributes(expr) dict "{{{2
   let _ = &term ==# 'win32' ? {
-  \ 'r': 'reverse',
-  \ 's': 'standout',
+  \   'r': 'reverse',
+  \   's': 'standout',
   \ } : {
-  \ 'b': 'bold',
-  \ 'c': 'undercurl',
-  \ 'i': 'italic',
-  \ 'r': 'reverse',
-  \ 's': 'standout',
-  \ 'u': 'underline',
+  \   'b': 'bold',
+  \   'c': 'undercurl',
+  \   'i': 'italic',
+  \   'r': 'reverse',
+  \   's': 'standout',
+  \   'u': 'underline',
   \ }
   let attrs = []
   for key in split(a:expr, '.\zs')
@@ -72,11 +73,11 @@ endfunction
 
 
 
-function! s:color(color)  "{{{2
+function! s:_.color(color) dict  "{{{2
   if type(a:color) == type('')
     return a:color
   elseif has('gui_running')
-    return s:color_table[a:color % len(s:color_table)]
+    return self.color_table[a:color % len(self.color_table)]
   elseif &term ==# 'win32'
     let _ = [0, 4, 2, 6, 1, 5, 3, 7, 8, 12, 10, 14, 9, 13, 11, 15]
     return _[a:color % len(_)]
@@ -88,7 +89,7 @@ endfunction
 
 
 
-function! s:highlight(name, config)  "{{{2
+function! s:_.highlight(name, config) dict  "{{{2
   let _ = []
   let type = has('gui_running') ? 'gui' : 'cterm'
   let reversed_p = 0
@@ -97,16 +98,16 @@ function! s:highlight(name, config)  "{{{2
     if &term ==# 'win32' && a:config['attr'] =~# 'r'
       let reversed_p = !0
     endif
-    call insert(_, ['', s:attributes(a:config['attr'])])
+    call insert(_, ['', self.attributes(a:config['attr'])])
   endif
   if has_key(a:config, 'fg')
-    call insert(_, [reversed_p ? 'bg' : 'fg', s:color(a:config['fg'])])
+    call insert(_, [reversed_p ? 'bg' : 'fg', self.color(a:config['fg'])])
   endif
   if has_key(a:config, 'bg')
-    call insert(_, [reversed_p ? 'fg' : 'bg', s:color(a:config['bg'])])
+    call insert(_, [reversed_p ? 'fg' : 'bg', self.color(a:config['bg'])])
   endif
   if has_key(a:config, 'sp') && has('gui_running')
-    call insert(_, ['sp', s:color(a:config['sp'])])
+    call insert(_, ['sp', self.color(a:config['sp'])])
   endif
 
   execute 'highlight' a:name 'NONE' join(map(_, 'type . join(v:val, "=")'))
@@ -115,7 +116,7 @@ endfunction
 
 
 
-function! s:xterm_colors()  "{{{2
+function! s:_.xterm_colors() dict "{{{2
   let _ = []
   let [r, g, b] = [0, 0, 0]
 
@@ -154,7 +155,7 @@ function! s:xterm_colors()  "{{{2
   return _
 endfunction
 
-call extend(s:color_table, s:xterm_colors())
+call extend(s:_.color_table, s:_.xterm_colors())
 
 
 
@@ -163,89 +164,89 @@ call extend(s:color_table, s:xterm_colors())
 " Basic  "{{{2
 
 if has('gui_running')
-  call s:highlight('Normal'     , {'fg': '#e2e2e2', 'bg': '#171717'})
-  call s:highlight('Cursor'     , {'bg': 2})
-  call s:highlight('CursorIM'   , {'bg': 14})
-  call s:highlight('lCursor'    , {'bg': 14})
+  call s:_.highlight('Normal'     , {'fg': '#e2e2e2', 'bg': '#171717'})
+  call s:_.highlight('Cursor'     , {'bg': 2})
+  call s:_.highlight('CursorIM'   , {'bg': 14})
+  call s:_.highlight('lCursor'    , {'bg': 14})
 else
-  call s:highlight('Normal'     , {})
+  call s:_.highlight('Normal'     , {})
 endif
 
-call s:highlight('SpecialKey'   , {'fg': 8})
-call s:highlight('NonText'      , {'fg': 12})
-call s:highlight('Directory'    , {'fg': 14})
-call s:highlight('MatchParen'   , {'attr': 'b', 'fg': 0, 'bg': 14})
-call s:highlight('LineNr'       , {'fg': 8})
-call s:highlight('CursorLineNr' , {'bg': 0, 'fg': 7})
-call s:highlight('Question'     , {'fg': 10})
-call s:highlight('VertSplit'    , {'attr': 'r', 'fg': 8})
-call s:highlight('Title'        , {'fg': 14})
-call s:highlight('Visual'       , {'bg': 4})
-call s:highlight('VisualNOS'    , {'attr': 'r'})
-call s:highlight('WildMenu'     , {'attr': 'br', 'fg': 11})
+call s:_.highlight('SpecialKey'   , {'fg': 8})
+call s:_.highlight('NonText'      , {'fg': 12})
+call s:_.highlight('Directory'    , {'fg': 14})
+call s:_.highlight('MatchParen'   , {'attr': 'b', 'fg': 0, 'bg': 14})
+call s:_.highlight('LineNr'       , {'fg': 8})
+call s:_.highlight('CursorLineNr' , {'bg': 0, 'fg': 7})
+call s:_.highlight('Question'     , {'fg': 10})
+call s:_.highlight('VertSplit'    , {'attr': 'r', 'fg': 8})
+call s:_.highlight('Title'        , {'fg': 14})
+call s:_.highlight('Visual'       , {'bg': 4})
+call s:_.highlight('VisualNOS'    , {'attr': 'r'})
+call s:_.highlight('WildMenu'     , {'attr': 'br', 'fg': 11})
 
-call s:highlight('ErrorMsg'     , {'bg': 1})
-call s:highlight('MoreMsg'      , {'bg': 2})
-call s:highlight('ModeMsg'      , {'bg': 4})
-call s:highlight('WarningMsg'   , {'fg': 11})
+call s:_.highlight('ErrorMsg'     , {'bg': 1})
+call s:_.highlight('MoreMsg'      , {'bg': 2})
+call s:_.highlight('ModeMsg'      , {'bg': 4})
+call s:_.highlight('WarningMsg'   , {'fg': 11})
 
-call s:highlight('IncSearch'    , {'attr': 'r'})
-call s:highlight('Search'       , {'attr': 'r', 'fg': 11})
+call s:_.highlight('IncSearch'    , {'attr': 'r'})
+call s:_.highlight('Search'       , {'attr': 'r', 'fg': 11})
 
-call s:highlight('StatusLine'   , {'attr': 'b', 'bg': 8, 'fg': 15})
-call s:highlight('StatusLineNC' , {'bg': 8})
+call s:_.highlight('StatusLine'   , {'attr': 'b', 'bg': 8, 'fg': 15})
+call s:_.highlight('StatusLineNC' , {'bg': 8})
 
-call s:highlight('Folded'       , {'fg': 6})
-call s:highlight('FoldColumn'   , {'fg': 6})
-call s:highlight('SignColumn'   , {'fg': 14})
-call s:highlight('Conceal'      , {'bg': 8})
+call s:_.highlight('Folded'       , {'fg': 6})
+call s:_.highlight('FoldColumn'   , {'fg': 6})
+call s:_.highlight('SignColumn'   , {'fg': 14})
+call s:_.highlight('Conceal'      , {'bg': 8})
 
-call s:highlight('DiffAdd'      , {'bg': 4})
-call s:highlight('DiffChange'   , {'bg': 5})
-call s:highlight('DiffDelete'   , {'fg': 8})
-call s:highlight('DiffText'     , {'bg': 5})
+call s:_.highlight('DiffAdd'      , {'bg': 4})
+call s:_.highlight('DiffChange'   , {'bg': 5})
+call s:_.highlight('DiffDelete'   , {'fg': 8})
+call s:_.highlight('DiffText'     , {'bg': 5})
 
 if has('gui_running')
-  call s:highlight('SpellBad'   , {'attr': 'c', 'sp': 1})
-  call s:highlight('SpellCap'   , {'attr': 'c', 'sp': 4})
-  call s:highlight('SpellRare'  , {'attr': 'c', 'sp': 5})
-  call s:highlight('SpellLocal' , {'attr': 'c', 'sp': 6})
+  call s:_.highlight('SpellBad'   , {'attr': 'c', 'sp': 1})
+  call s:_.highlight('SpellCap'   , {'attr': 'c', 'sp': 4})
+  call s:_.highlight('SpellRare'  , {'attr': 'c', 'sp': 5})
+  call s:_.highlight('SpellLocal' , {'attr': 'c', 'sp': 6})
 else
-  call s:highlight('SpellBad'   , {'bg': 1})
-  call s:highlight('SpellCap'   , {'bg': 4})
-  call s:highlight('SpellRare'  , {'bg': 5})
-  call s:highlight('SpellLocal' , {'bg': 6})
+  call s:_.highlight('SpellBad'   , {'bg': 1})
+  call s:_.highlight('SpellCap'   , {'bg': 4})
+  call s:_.highlight('SpellRare'  , {'bg': 5})
+  call s:_.highlight('SpellLocal' , {'bg': 6})
 endif
 
-call s:highlight('Pmenu'        , {'attr': 'u'})
-call s:highlight('PmenuSel'     , {'attr': 'r', 'fg': 11})
-call s:highlight('PmenuSbar'    , {})
-call s:highlight('PmenuThumb'   , {'bg': 11})
+call s:_.highlight('Pmenu'        , {'attr': 'u'})
+call s:_.highlight('PmenuSel'     , {'attr': 'r', 'fg': 11})
+call s:_.highlight('PmenuSbar'    , {})
+call s:_.highlight('PmenuThumb'   , {'bg': 11})
 
-call s:highlight('TabLine'      , {'bg': 8})
-call s:highlight('TabLineSel'   , {'attr': 'bu', 'fg': 15, 'bg': 8})
-call s:highlight('TabLineFill'  , {'bg': 8})
+call s:_.highlight('TabLine'      , {'bg': 8})
+call s:_.highlight('TabLineSel'   , {'attr': 'bu', 'fg': 15, 'bg': 8})
+call s:_.highlight('TabLineFill'  , {'bg': 8})
 
-call s:highlight('CursorColumn' , {'bg': 0})
-call s:highlight('CursorLine'   , {'bg': 0})
-call s:highlight('ColorColumn'  , {'bg': 8})
+call s:_.highlight('CursorColumn' , {'bg': 0})
+call s:_.highlight('CursorLine'   , {'bg': 0})
+call s:_.highlight('ColorColumn'  , {'bg': 8})
 
 
 
 
 " Syntax  "{{{2
 
-call s:highlight('Comment'      , {'fg': 14})
-call s:highlight('Constant'     , {'fg': 13})
-call s:highlight('Special'      , {'fg': 9})
-call s:highlight('Identifier'   , {'attr': 'b', 'fg': 14})
-call s:highlight('Statement'    , {'fg': 11})
-call s:highlight('PreProc'      , {'fg': 12})
-call s:highlight('Type'         , {'fg': 10})
-call s:highlight('Underlined'   , {'attr': 'u', 'fg': 12})
-call s:highlight('Ignore'       , {'fg': 0})
-call s:highlight('Error'        , {'bg': 1})
-call s:highlight('Todo'         , {'attr': 'u', 'fg': 11})
+call s:_.highlight('Comment'      , {'fg': 14})
+call s:_.highlight('Constant'     , {'fg': 13})
+call s:_.highlight('Special'      , {'fg': 9})
+call s:_.highlight('Identifier'   , {'attr': 'b', 'fg': 14})
+call s:_.highlight('Statement'    , {'fg': 11})
+call s:_.highlight('PreProc'      , {'fg': 12})
+call s:_.highlight('Type'         , {'fg': 10})
+call s:_.highlight('Underlined'   , {'attr': 'u', 'fg': 12})
+call s:_.highlight('Ignore'       , {'fg': 0})
+call s:_.highlight('Error'        , {'bg': 1})
+call s:_.highlight('Todo'         , {'attr': 'u', 'fg': 11})
 
 highlight link String         Constant
 highlight link Character      Constant
@@ -277,7 +278,7 @@ highlight link Debug          Special
 
 " Fin.  "{{{1
 
-unlet s:color_table
+unlet s:_
 
 
 
