@@ -12,14 +12,16 @@ app-arch/p7zip
 app-arch/unrar
 app-arch/unzip
 app-arch/zip
+app-benchmarks/sysbench
 app-cdr/bchunk
 app-cdr/dvd+rw-tools
 app-doc/php-docs
+app-editors/emacs
 app-editors/gvim
-app-editors/leafpad
 app-editors/vim
 app-emulation/libvirt
 app-emulation/qemu
+app-emulation/virt-viewer
 app-emulation/virtinst
 app-emulation/wine
 app-i18n/nkf
@@ -44,12 +46,9 @@ app-text/evince
 app-text/lv
 app-text/tree
 dev-db/mariadb
-dev-haskell/attoparsec
 dev-haskell/cabal-install
-dev-haskell/criterion
 dev-haskell/failure
 dev-haskell/ghc-mod
-dev-haskell/ghc-pkg-autofix
 dev-haskell/gtk
 dev-haskell/gtk-traymanager
 dev-haskell/haddock
@@ -65,8 +64,6 @@ dev-haskell/vector
 dev-java/oracle-jdk-bin
 dev-lang/ghc
 dev-lang/ocaml
-dev-lang/php
-dev-lang/php:5.3
 dev-lang/ruby
 dev-lang/v8
 dev-ml/ccell
@@ -144,6 +141,7 @@ net-irc/weechat
 net-libs/nodejs
 net-misc/bridge-utils
 net-misc/dropbox
+net-misc/gtkvncviewer
 net-misc/mimms
 net-misc/mosh
 net-misc/ntp
@@ -178,6 +176,7 @@ sys-fs/ntfs3g
 sys-fs/sshfs-fuse
 sys-fs/zfs
 sys-kernel/genkernel
+sys-kernel/gentoo-sources
 sys-power/hibernate-script
 sys-process/htop
 sys-process/lsof
@@ -209,7 +208,6 @@ x11-apps/xsetroot
 x11-apps/xwininfo
 x11-base/xorg-server
 x11-libs/gtk+
-x11-libs/gtk+:3
 x11-libs/libXinerama
 x11-misc/dzen
 x11-misc/gbdfed
@@ -224,11 +222,6 @@ x11-plugins/pidgin-mbpurple
 x11-terms/rxvt-unicode
 x11-themes/gnome-colors-themes
 x11-themes/gtk-engines
-x11-themes/gtk-engines-equinox
-x11-themes/gtk-engines-murrine
-x11-themes/gtk-engines-nodoka
-x11-themes/gtk-engines-unico
-x11-themes/gtk-theme-switch
 x11-themes/notification-daemon-engine-coco
 x11-themes/tango-icon-theme
 x11-themes/vanilla-dmz-xcursors

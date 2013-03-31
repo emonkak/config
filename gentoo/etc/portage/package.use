@@ -1,9 +1,12 @@
 app-admin/conky mpd lua vim-syntax
+app-admin/eselect-php apache2
 app-arch/unzip natspec
+app-benchmarks/sysbench mysql
+app-editors/emacs gtk
 app-editors/gvim gtk python
 app-editors/vim gtk python
 app-editors/yi gtk
-app-emulation/libvirt python qemu
+app-emulation/libvirt python qemu virt-network
 app-emulation/qemu alsa opengl qemu-ifup sdl
 app-emulation/wine -prelink alsa dbus fontconfig hardened jpeg mp3 png xml
 app-i18n/ibus gtk python
@@ -17,18 +20,19 @@ app-portage/eix sqlite
 app-shells/saphire migemo
 app-text/acroread minimal linguas_ja
 app-text/asciidoc graphviz highlight
-app-text/ghostscript-gpl gtk
+app-text/ghostscript-gpl gtk cups
 app-text/lcdf-typetools kpathsea
 app-text/poppler qt4 -abiword
 dev-db/mariadb pbxt
 dev-haskell/* doc
 dev-lang/ghc doc ghcbootstrap llvm
 dev-lang/perl ithreads
-dev-lang/php apache2 gd mysql mysqli pdo sqlite3 zip
+dev-lang/php apache2 gd mysql mysqli pcntl pdo sockets sqlite3 zip
 dev-lang/python sqlite
 dev-libs/boost python
 dev-libs/libxml2 python
 dev-libs/nettle gmp
+dev-qt/qtgui dbus gtkstyle
 dev-vcs/git cvs perl subversion
 dev-vcs/subversion -dso perl python
 media-gfx/comix rar
@@ -36,7 +40,7 @@ media-gfx/fontforge pango svg
 media-gfx/gimp dbus exif jpeg pdf png python svg
 media-gfx/graphviz gtk
 media-gfx/imagemagick jpeg png
-media-libs/freetype utils
+media-libs/freetype utils infinality
 media-libs/gd fontconfig jpeg png truetype
 media-libs/imlib2 gif jpeg png
 media-libs/lcms python
@@ -84,7 +88,7 @@ virtual/udev hwdb
 www-client/google-chrome linguas_ja
 www-client/jd migemo
 www-client/luakit luajit
-www-client/opera gtk gtk3
+www-client/opera gtk
 www-client/opera-next gtk
 www-client/w3m linguas_ja
 www-plugins/adobe-flash -32bit
@@ -96,7 +100,6 @@ x11-libs/gdk-pixbuf jpeg
 x11-libs/gtk+ jpeg
 x11-libs/libdrm libkms
 x11-libs/libva opengl
-x11-libs/qt-gui dbus gtkstyle
 x11-libs/vte python
 x11-plugins/purple-plugin_pack gtk
 x11-terms/evilvte savedconfig
