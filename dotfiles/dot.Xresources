@@ -38,8 +38,8 @@ Rxvt.color7: rgb:81/81/81
 Rxvt.color15: rgb:ff/ff/ff
 
 Rxvt.font: \
-  xft:Fedra Mono Screen:pixelsize=12, \
-  xft:Meiryo:pixelsize=14, \
+  xft:Menlo:pixelsize=14, \
+  xft:AXIS\ Std:pixelsize=14, \
   xft:Droid Sans Fallback:pixelsize=14
 Rxvt.imFont: \
   -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \
@@ -52,7 +52,7 @@ Rxvt.url-launcher: google-chrome
 
 Rxvt.externalBorder: 0
 Rxvt.internalBorder: 2
-Rxvt.lineSpace: 2
+Rxvt.lineSpace: 6
 Rxvt.saveLines: 1000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true

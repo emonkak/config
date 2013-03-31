@@ -1,7 +1,19 @@
 ! My xmodmap
 
+! Caps Lock -> Control_L
+remove Lock = Caps_Lock
+add Control = Caps_Lock
+keysym Caps_Lock = Control_L
+
 ! Semicolon <-> Colon
 keycode 47 = colon semicolon
 
-! Like AX layout
-keycode 108 = Zenkaku_Hankaku Kanji
+! Alt <-> Super
+clear mod1
+clear mod4
+keycode 64 = Super_L
+keycode 108 = Super_R
+keycode 133 = Alt_L
+keycode 134 = Zenkaku_Hankaku Kanji
+add mod1 = Alt_L Alt_R
+add mod4 = Super_L Super_R
