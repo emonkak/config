@@ -73,7 +73,7 @@ if has('gui_running')
     set guifont=Monospace\ 10.5
     set linespace=4
   elseif has('gui_macvim')
-    set guifont=Monaco:h13
+    set guifont=Menlo:h14
     set linespace=6
     set macmeta
     set transparency=10
@@ -137,7 +137,7 @@ let &listchars = "tab:\u00a6 ,extends:<,trail:-"
 set pumheight=20
 set ruler
 set showcmd
-set showtabline=2
+set showtabline=1
 set splitbelow
 set splitright
 set ttimeoutlen=50
@@ -345,13 +345,31 @@ endfunction
 
 " CD - wrapper of :cd to keep cwd for each tabpage  "{{{2
 
-command! -complete=dir -nargs=* CD
-\   if <q-args> == ''
-\ |   cd %:p:h
-\ | else
-\ |   cd <args>
-\ | endif
-\ | let t:cwd = getcwd()
+command! -complete=dir -nargs=* CD  call s:cmd_CD(<q-args>)
+function! s:cmd_CD(path)
+  if a:path == ''
+    let cwd = expand('%:p:h')
+    let dirs = split(cwd, '/', !0)
+
+    while !empty(dirs)
+      let path = join(dirs, '/')
+      if isdirectory(path . '/.git')
+        cd `=path`
+        break
+      endif
+      call remove(dirs, -1)
+    endwhile
+
+    if empty(dirs)
+      cd `=cwd`
+    endif
+  else
+    cd `=a:path`
+  endif
+
+  let t:cwd = getcwd()
+  echo t:cwd
+endfunction
 
 AlterCommand cd  CD
 
@@ -558,13 +576,13 @@ command! -bang -bar -complete=file -nargs=? Unicode  Utf16<bang> <args>
 command! -bar -complete=file -nargs=+ Grep  call s:grep('grep', [<f-args>])
 command! -bar -complete=file -nargs=+ Lgrep  call s:grep('lgrep', [<f-args>])
 function! s:grep(command, args)
-  let target = len(a:args) > 1 ? join(a:args[:-2], ' ') : '**/*'
+  let target = join(a:args[:-2], ' ')
   let grepprg = &l:grepprg == '' ? &grepprg : &l:grepprg
 
   if grepprg ==# 'internal'
     execute a:command '/'.escape(a:args[-1], '/ ').'/j' target
   else
-    execute a:command.'!' a:args[-1] target
+    execute a:command.'!' shellescape(a:args[-1]) target
   endif
 
   if a:command ==# 'grep'
@@ -628,23 +646,6 @@ function! s:keys_to_insert_one_character()
   echo '-- INSERT (one char) --'
   echohl None
   return nr2char(getchar()) . "\<Esc>"
-endfunction
-
-
-function! s:keys_to_select_the_last_changed_text()
-  " It is not possible to determine whether the last operation to change text
-  " is linewise or not, so guess the wise of the last operation from the range
-  " of '[ and '], like wise of a register content set by setreg() without
-  " {option}.
-
-  let col_begin = col("'[")
-  let col_end = col("']")
-  let length_end = len(getline("']"))
-
-  let maybe_linewise_p = (col_begin == 1
-  \                       && (col_end == length_end
-  \                           || (length_end == 0 && col_end == 1)))
-  return '`[' . (maybe_linewise_p ? 'V' : 'v') . '`]'
 endfunction
 
 
@@ -854,7 +855,7 @@ endfunction
 " Toggle options  "{{{2
 
 function! s:toggle_grepprg(global_p)
-  let VALUES = ['grep -nHE', 'ag --nogroup --nocolor --column', 'git grep -n']
+  let VALUES = ['ag --nogroup --nocolor', 'git grep -n']
   let grepprg = &l:grepprg == '' ? &grepprg : &l:grepprg
   let i = (index(VALUES, grepprg) + 1) % len(VALUES)
 
@@ -1863,10 +1864,9 @@ vnoremap ir  i]
 
 
 " Select the last chaged text - "c" stands for "C"hanged.
-nnoremap <expr> <Plug>(textobj-last-changed-text)
-\               <SID>keys_to_select_the_last_changed_text()
-onoremap <Plug>(textobj-last-changed-text)  :<C-u>normal gc<CR>
-vnoremap <Plug>(textobj-last-changed-text)  :<C-u>normal gc<CR>
+nnoremap <Plug>(textobj-last-changed-text)  `[v`]h
+onoremap <silent> <Plug>(textobj-last-changed-text)  :<C-u>normal gc<CR>
+vnoremap <silent> <Plug>(textobj-last-changed-text)  :<C-u>normal gc<CR>
 map gc  <Plug>(textobj-last-changed-text)
 
 
@@ -1884,6 +1884,7 @@ vnoremap )  t)
 
 
 " Operators  "{{{2
+" operator-search  "{{{3
 
 call operator#user#define('search-forward',
 \                         s:SID_PREFIX() . 'operator_search',
@@ -1895,28 +1896,36 @@ vmap *  <Plug>(operator-search-forward)
 vmap #  <Plug>(operator-search-backward)
 
 
+" operator-translate  "{{{3
+
 call operator#user#define('translate', s:SID_PREFIX() . 'operator_translate')
 Arpeggio map ot  <Plug>(operator-translate)
 
 
+" operator-translate-and-replace  "{{{3
+
 call operator#user#define('translate-and-replace',
 \                         s:SID_PREFIX() . 'operator_translate_and_replace')
-nnoremap <expr> ti  <SID>translate_inserted_text('i')
-nnoremap <expr> tI  <SID>translate_inserted_text('I')
-nnoremap <expr> ta  <SID>translate_inserted_text('a')
-nnoremap <expr> tA  <SID>translate_inserted_text('A')
-nnoremap <expr> to  <SID>translate_inserted_text('o')
-nnoremap <expr> tO  <SID>translate_inserted_text('O')
+nnoremap T  <Nop>
+nnoremap <expr> Ti  <SID>translate_inserted_text('i')
+nnoremap <expr> TI  <SID>translate_inserted_text('I')
+nnoremap <expr> Ta  <SID>translate_inserted_text('a')
+nnoremap <expr> TA  <SID>translate_inserted_text('A')
+nnoremap <expr> To  <SID>translate_inserted_text('o')
+nnoremap <expr> TO  <SID>translate_inserted_text('O')
+nnoremap <expr> TT  <SID>translate_inserted_text('o')
 function! s:translate_inserted_text(command)
   augroup TranslateInsertedText
     autocmd!
     autocmd InsertLeave *
-    \   execute 'normal' "\<Plug>(operator-translate-and-replace)\<Plug>(textobj-last-changed-text)"
+    \   execute "normal \<Plug>(operator-translate-and-replace)\<Plug>(textobj-last-changed-text)"
     \ | autocmd! TranslateInsertedText
   augroup END
   return a:command
 endfunction
 
+
+" operator-yank-clipboard  "{{{3
 
 call operator#user#define('yank-clipboard',
 \                         s:SID_PREFIX() . 'operator_yank_clipboard')
@@ -2086,6 +2095,16 @@ autocmd MyAutoCmd InsertLeave *  set nopaste
 
 " Visible ideographic space.
 autocmd MyAutoCmd VimEnter,WinEnter *  match Underlined /[\u3000]/
+
+
+
+
+" actionscript  "{{{2
+
+autocmd MyAutoCmd FileType actionscript
+\   compiler ant
+\ | setlocal commentstring=//%s
+\ | SetIndent 4tab
 
 
 
@@ -2332,7 +2351,7 @@ let g:vim_indent_cont = 0
 
 " xml  "{{{2
 
-autocmd MyAutoCmd FileType docbk,html,xhtml,xml,xslt,smarty
+autocmd MyAutoCmd FileType ant,docbk,html,xhtml,xml,xslt,smarty
 \ call s:on_FileType_xml()
 
 function! s:on_FileType_xml()
@@ -2375,13 +2394,6 @@ call accelerate#map('nv', '', 'j', 'gj')
 call accelerate#map('nv', '', 'k', 'gk')
 call accelerate#map('nv', '', 'h')
 call accelerate#map('nv', 'e', 'l', "foldclosed(line('.')) != -1 ? 'zo' : 'l'")
-
-
-
-
-" arpeggio  "{{{2
-
-let g:arpeggio_timeoutlen = 40
 
 
 
@@ -2469,9 +2481,9 @@ call ku#custom_action('metarw/git', 'checkout',
 
 function! s:ku_common_action_my_cd(item)
   if isdirectory(a:item.word)
-    CD `=a:item.word`
+    execute 'CD' a:item.word
   else  " treat a:item as a file name
-    CD `=fnamemodify(a:item.word, ':h')`
+    execute 'CD' fnamemodify(a:item.word, ':h')
   endif
 endfunction
 
@@ -2582,9 +2594,19 @@ vmap [Space]s  <Plug>(operator-sort)
 
 command! -complete=command -nargs=+ Capture  QuickRun vim -src <q-args>
 
+nnoremap <expr> <C-c>
+\ quickrun#is_running() ? quickrun#sweep_sessions() : "\<C-c>"
+
 let g:quickrun_config = {
 \  '_': {
+\    'runner': 'vimproc',
+\    'runner/vimproc/updatetime': 60,
 \    'split': '%{'.s:vertical_statement.' ? "vertical" : ""}',
+\  },
+\  'actionscript': {
+\    'command': 'mxmlc',
+\    'exec': ['%c %s', 'open -a "/Applications/Adobe Flash Builder 4.7/player/mac/11.1/Flash Player Debugger.app" %s:p:r.swf'],
+\    'hook/sweep/files': ['%S:p:r.swf'],
 \  },
 \  'dot': {
 \    'exec': ['%c -Tps:cairo -o %s:p:r.ps %s'],
@@ -2739,6 +2761,8 @@ endfunction
 
 " smartinput  "{{{2
 
+let g:smartinput_no_default_key_mappings = 1
+
 if exists('g:loaded_smartinput')
   call smartinput#clear_rules()
   call smartinput#define_default_rules()
@@ -2752,10 +2776,6 @@ call smartinput#define_rule({
 " for PHP  "{{{
 call smartinput#define_rule({
 \   'at': '\%#', 'char': '@', 'input': '$this->',
-\   'filetype': ['php']
-\ })
-call smartinput#define_rule({
-\   'at': '\%#[0-9A-Za-z_$]', 'char': '@', 'input': '@',
 \   'filetype': ['php']
 \ })
 call smartinput#define_rule({
@@ -2775,6 +2795,8 @@ call smartinput#define_rule({
 \   'filetype': ['php'], 'syntax': ['Comment', 'Constant', 'None']
 \ })
 " }}}
+
+call smartinput#map_trigger_keys()
 
 
 
