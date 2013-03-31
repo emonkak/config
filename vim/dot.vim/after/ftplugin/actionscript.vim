@@ -1,6 +1,6 @@
-" Vim additional ftplugin: php
+" Vim additional ftplugin: actionscript
 " Version: 0.0.0
-" Copyright (C) 2012 emonkak <emonkak@gmail.com>
+" Copyright (C) 2013 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -22,20 +22,19 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-setlocal foldmethod=expr foldexpr=PHPFold(v:lnum)
+setlocal foldmethod=expr foldexpr=ActionScriptFold(v:lnum)
 
-function! PHPFold(lnum)
+function! ActionScriptFold(lnum)
   let current = getline(a:lnum)
 
   if current =~# '\s*}$'
     let level = indent(a:lnum) / &l:shiftwidth
     return level > 2 ? '=' : '<' . (level + 1)
   elseif current =~# '^\s*\('
-                 \ . '\(\(final\|private\|protected\|public\|static\)\s\)*function'
-                 \ . '\|\(\(abstract\|final\)\s\)*class'
+                 \ . '\(\(final\|internal\|private\|protected\|public\|override\|static\)\s\)*function'
+                 \ . '\|\(\(abstract\|dynamic\|final\|internal\|public\)\s\)*class'
                  \ . '\|interface'
-                 \ . '\|namespace'
-                 \ . '\|trait'
+                 \ . '\|package'
                  \ . '\)[^;]*$'
     let level = indent(a:lnum) / &l:shiftwidth
     return level > 2 ? '=' : '>' . (level + 1)
