@@ -73,8 +73,8 @@ if has('gui_running')
     set guifont=Monospace\ 10.5
     set linespace=4
   elseif has('gui_macvim')
-    set guifont=Menlo:h14
-    set linespace=6
+    set guifont=Monaco:h14
+    set linespace=4
     set macmeta
     set transparency=10
     set visualbell
@@ -133,8 +133,11 @@ set nohlsearch
 set laststatus=2
 set linebreak
 set list
-let &listchars = "tab:\u00a6 ,extends:<,trail:-"
+let &listchars = "tab:\u00bb ,extends:<,trail:-"
 set pumheight=20
+if exists('+regexpengine')
+  set regexpengine=2
+endif
 set ruler
 set showcmd
 set showtabline=1
@@ -503,7 +506,7 @@ function! s:cmd_SuspendWithAutomticCD()
   elseif exists('$TMUX')
     let windows = split(vimproc#system('tmux list-windows'), '\n')
     call map(windows, 'split(v:val, "^\\d\\+\\zs:\\s")')
-    call filter(windows, 'matchstr(v:val[1], "\\S\\+") ==# shell')
+    call filter(windows, 'matchstr(v:val[1], "\\w\\+") ==# shell')
     let select_command = empty(windows)
     \                  ? 'new-window'
     \                  : 'select-window -t ' . windows[0][0]
@@ -1151,21 +1154,12 @@ function! s:operator_translate(motion_wiseness)  "{{{2
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   let text = join(s:region("'[", "']", visual_command), "\n")
-  echo s:translate_with_auto_detect(text)
-endfunction
+  let translated = s:translate_with_auto_detect(text)
 
+  " Yank translated text into the unnamed register.
+  let @" = translated . (visual_command ==# 'V' ? "\n" : '')
 
-
-
-function! s:operator_translate_and_replace(motion_wiseness)  "{{{2
-  let visual_command =
-  \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  let text = join(s:region("'[", "']", visual_command), "\n")
-
-  let reg_0 = [@0, getregtype('0')]
-  let @" = s:translate_with_auto_detect(text)
-  execute 'normal!' '`['.visual_command.'`]"0p'
-  call setreg('0', reg_0[0], reg_0[1])
+  echo translated
 endfunction
 
 
@@ -1227,19 +1221,19 @@ endfunction
 function! s:translate(text, from, to)  "{{{2
   let api = 'http://translate.google.com/translate_a/t'
   let options = {'sl': a:from, 'tl': a:to}
-  let response = webapi#http#get(api, extend({
-  \   'client': 'o',
-  \   'text': a:text
+  let response = webapi#http#post(api, extend({
+  \   'client': '0',
+  \   'q': a:text
   \ }, options), {'User-Agent': 'Mozilla/5.0'})
 
-  if response.header[0] ==# 'HTTP/1.1 200 OK'
+  if response.status == 200
     let result = webapi#json#decode(response.content)
     if has_key(result, 'sentences')
       return join(map(result.sentences,
       \           'has_key(v:val, "trans") ? v:val.trans : ""'))
     endif
   else
-    throw response.header[0]
+    throw printf("%d %s: %s", response.status, response.message, api)
   end
 
   return ''
@@ -1902,29 +1896,6 @@ call operator#user#define('translate', s:SID_PREFIX() . 'operator_translate')
 Arpeggio map ot  <Plug>(operator-translate)
 
 
-" operator-translate-and-replace  "{{{3
-
-call operator#user#define('translate-and-replace',
-\                         s:SID_PREFIX() . 'operator_translate_and_replace')
-nnoremap T  <Nop>
-nnoremap <expr> Ti  <SID>translate_inserted_text('i')
-nnoremap <expr> TI  <SID>translate_inserted_text('I')
-nnoremap <expr> Ta  <SID>translate_inserted_text('a')
-nnoremap <expr> TA  <SID>translate_inserted_text('A')
-nnoremap <expr> To  <SID>translate_inserted_text('o')
-nnoremap <expr> TO  <SID>translate_inserted_text('O')
-nnoremap <expr> TT  <SID>translate_inserted_text('o')
-function! s:translate_inserted_text(command)
-  augroup TranslateInsertedText
-    autocmd!
-    autocmd InsertLeave *
-    \   execute "normal \<Plug>(operator-translate-and-replace)\<Plug>(textobj-last-changed-text)"
-    \ | autocmd! TranslateInsertedText
-  augroup END
-  return a:command
-endfunction
-
-
 " operator-yank-clipboard  "{{{3
 
 call operator#user#define('yank-clipboard',
@@ -2093,7 +2064,7 @@ autocmd MyAutoCmd BufReadPost *
 autocmd MyAutoCmd InsertLeave *  set nopaste
 
 
-" Visible ideographic space.
+" Visualization ideographic space.
 autocmd MyAutoCmd VimEnter,WinEnter *  match Underlined /[\u3000]/
 
 
@@ -2211,16 +2182,6 @@ autocmd MyAutoCmd FileType lua
 
 
 
-" markdown  "{{{2
-
-if isdirectory('/Applications/Marked.app')
-  autocmd MyAutoCmd BufWritePost *.markdown,*.mkd
-  \ QuickRun markdown/Marked
-endif
-
-
-
-
 " objc  "{{{2
 
 autocmd MyAutoCmd FileType objc
@@ -2256,8 +2217,6 @@ function! s:on_FileType_php()
   SetIndent 4space
   setlocal commentstring=//%s
 endfunction
-
-let g:PHP_vintage_case_default_indent = 1
 
 
 
@@ -2381,7 +2340,9 @@ function! s:on_FileType_xml()
   setlocal iskeyword+=58  " colon (:)
 endfunction
 
-autocmd MyAutoCmd FileType haml
+
+" For light weight template engines
+autocmd MyAutoCmd FileType haml,jade,slim
 \ SetIndent 2space
 
 
@@ -2442,11 +2403,11 @@ autocmd MyAutoCmd FileType ku
 function! s:on_FileType_ku()
   call ku#default_key_mappings(!0)
 
-  nmap <buffer> <Esc><Esc>  <Plug>(ku-cancel)
-  imap <buffer> <Esc><Esc>  <Plug>(ku-cancel)
-
   iunmap <buffer> <C-j>
   iunmap <buffer> <C-k>
+
+  nmap <buffer> <Esc><Esc>  <Plug>(ku-cancel)
+  imap <buffer> <Esc><Esc>  <Plug>(ku-cancel)
 
   imap <buffer> <expr> <Plug>(ku-%-cancel-when-empty)
   \    col('$') <= 2 ? '<Plug>(ku-cancel)' : ''
@@ -2527,6 +2488,9 @@ call ku#custom_prefix('common', '.VIM', expand('~/.vim'))
 call ku#custom_prefix('common', 'HOME', expand('~'))
 call ku#custom_prefix('common', 'VIM', expand('$VIMRUNTIME'))
 call ku#custom_prefix('common', '~', expand('~'))
+if executable('portageq')
+  call ku#custom_prefix('common', 'PORT', system('portageq portdir')[:-2])
+end
 
 
 nmap [Space]k  <Nop>
@@ -2599,8 +2563,6 @@ nnoremap <expr> <C-c>
 
 let g:quickrun_config = {
 \  '_': {
-\    'runner': 'vimproc',
-\    'runner/vimproc/updatetime': 60,
 \    'split': '%{'.s:vertical_statement.' ? "vertical" : ""}',
 \  },
 \  'actionscript': {
@@ -2779,19 +2741,11 @@ call smartinput#define_rule({
 \   'filetype': ['php']
 \ })
 call smartinput#define_rule({
+\   'at': '\%#[$A-Za-z]', 'char': '@', 'input': '@',
+\   'filetype': ['php']
+\ })
+call smartinput#define_rule({
 \   'at': '\%#', 'char': '@', 'input': '@',
-\   'filetype': ['php'], 'syntax': ['Comment', 'Constant', 'None']
-\ })
-call smartinput#define_rule({
-\   'at': '\%#', 'char': '[', 'input': 'array()<Left>',
-\   'filetype': ['php']
-\ })
-call smartinput#define_rule({
-\   'at': '[0-9A-Za-z_)\]]\%#', 'char': '[', 'input': '[]<Left>',
-\   'filetype': ['php']
-\ })
-call smartinput#define_rule({
-\   'at': '\%#', 'char': '[', 'input': '[',
 \   'filetype': ['php'], 'syntax': ['Comment', 'Constant', 'None']
 \ })
 " }}}
