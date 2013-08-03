@@ -1,10 +1,12 @@
+=dev-lang/php-5.5* ipv6
 app-admin/conky mpd lua vim-syntax
 app-admin/eselect-php apache2
 app-arch/unzip natspec
 app-benchmarks/sysbench mysql
+app-crypt/gcr gtk
 app-editors/emacs gtk
-app-editors/gvim gtk python
-app-editors/vim gtk python
+app-editors/gvim gtk lua python
+app-editors/vim gtk lua python
 app-editors/yi gtk
 app-emulation/libvirt python qemu virt-network
 app-emulation/qemu alsa opengl qemu-ifup sdl
@@ -52,7 +54,7 @@ media-libs/speex ogg
 media-plugins/gst-plugins-meta alsa
 media-sound/ario dbus taglib
 media-sound/easytag flac mp3 mp4 speex vorbis wavpack
-media-sound/mpd lame ogg vorbis
+media-sound/mpd aac inotify lame ogg sqlite vorbis
 media-sound/ncmpcpp clock taglib
 media-sound/pulseaudio gnome
 media-sound/sonata dbus lyrics taglib trayicon
@@ -63,13 +65,17 @@ media-video/libav alsa faac mp3 rtmp theora v4l2 vorbis x264 xvid
 media-video/mplayer faac libmpeg2 png rtmp v4l2 xvmc
 media-video/vlc aac alsa dvd flac fontconfig matroska mp3 mpeg ogg png stream theora truetype v4l2 vorbis x264 xv
 net-analyzer/wireshark gtk
+net-fs/cifs-utils upcall
+net-fs/samba winbind
 net-im/instantbird -system-libpurple
 net-im/pidgin gstreamer
 net-im/skype4pidgin dbus
 net-irc/irssi perl
+net-libs/gtk-vnc gtk3
 net-libs/gtk-vnc python
 net-misc/hotot gtk
 net-misc/rdesktop alsa
+net-misc/spice-gtk gtk3
 net-misc/spice-gtk python
 net-print/bjfilter ip3100
 net-print/cups samba
@@ -83,6 +89,7 @@ sys-fs/udev extras hwdb
 sys-kernel/ck-sources symlink
 sys-kernel/gentoo-sources symlink
 sys-kernel/vanilla-sources symlink
+sys-libs/talloc python
 sys-libs/zlib minizip
 virtual/udev hwdb
 www-client/google-chrome linguas_ja
