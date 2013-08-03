@@ -62,8 +62,15 @@ endfunction
 
 function! metarw#sudo#write(fakepath, line1, line2, append_p)  "{{{2
   let path = split(a:fakepath, ':', !0)[1]
-  setlocal nomodified
-  return ['write', '!sudo tee >/dev/null ' . shellescape(path)]
+  let original_autoread = &l:autoread
+  setlocal noautoread
+  try
+    let result = ['write', '!sudo tee >/dev/null ' . shellescape(path)]
+    setlocal nomodified
+  finally
+    let &l:autoread = original_autoread
+  endtry
+  return result
 endfunction
 
 
