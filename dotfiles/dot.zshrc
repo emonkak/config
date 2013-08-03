@@ -50,6 +50,7 @@ setopt glob_complete
 setopt magic_equal_subst
 setopt mark_dirs
 setopt complete_in_word
+setopt no_clobber
 
 setopt append_history
 setopt hist_ignore_all_dups
@@ -207,33 +208,6 @@ fi
 alias grep='grep --binary-files=without-match --color -E'
 alias lv='lv -c'
 alias pstree='pstree -A'
-
-function mount-cifs() {
-  if [ $# != 2 ]; then
-    echo "Usage: $0 [{username}@]{server}[/{share}] {mount-point}"
-    return 1
-  fi
-
-  local uri=$1
-  local mount_point=$2
-
-  local username=${uri%%@*}
-  [ $username = $uri ] && username=$USER
-  local server=${uri#//}
-  local server=${server#*@}
-  local server=${server%%/*}
-  local share=${uri#*/}
-  [ $share = $uri ] && share=$USER
-
-  if which mount_smbfs &>/dev/null; then
-    mount_smbfs -f 0644 -d 0755 //$username@$server/$share $mount_point
-  else
-    sudo mount \
-      -t cifs \
-      -o defaults,user,iocharset=utf8,uid=$USER,gid=users,file_mode=0644,dir_mode=0755,username=$username \
-         //$server/$share $mount_point
-  fi
-}
 
 if which xsel &>/dev/null; then
   alias pbcopy='xsel --input --clipboard'

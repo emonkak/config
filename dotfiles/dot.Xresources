@@ -8,37 +8,70 @@ Xcursor.size: 24
 
 ! RXVT
 
-Rxvt.background: rgb:17/17/17
-Rxvt.foreground: rgb:e2/e2/e2
-Rxvt.cursorColor: rgb:67/9b/00
+! Modern Color
+! ------------
+! Rxvt.background: rgb:17/17/17
+! Rxvt.foreground: rgb:e2/e2/e2
+! Rxvt.cursorColor: rgb:67/9b/00
+!
+! Black
+! Rxvt.color0: rgb:29/29/29
+! Rxvt.color8: rgb:47/47/47
+! Red
+! Rxvt.color1: rgb:c4/17/00
+! Rxvt.color9: rgb:ff/61/4c
+! Green
+! Rxvt.color2: rgb:67/9b/00
+! Rxvt.color10: rgb:b9/f7/3e
+! Yellow
+! Rxvt.color3: rgb:c4/93/00
+! Rxvt.color11: rgb:ff/d2/4c
+! Blue
+! Rxvt.color4: rgb:07/40/80
+! Rxvt.color12: rgb:45/81/c4
+! Magenta
+! Rxvt.color5: rgb:9d/00/59
+! Rxvt.color13: rgb:dd/42/9a
+! Cyan
+! Rxvt.color6: rgb:00/76/76
+! Rxvt.color14: rgb:37/bb/bb
+! White
+! Rxvt.color7: rgb:81/81/81
+! Rxvt.color15: rgb:ff/ff/ff
+
+! Better Color
+! ------------
+Rxvt.background: rgb:20/20/20
+Rxvt.foreground: rgb:cb/cb/cb
+Rxvt.cursorColor: rgb:2b/79/38
 
 ! Black
-Rxvt.color0: rgb:29/29/29
-Rxvt.color8: rgb:47/47/47
+Rxvt.color0: rgb:32/32/32
+Rxvt.color8: rgb:41/41/41
 ! Red
-Rxvt.color1: rgb:c4/17/00
-Rxvt.color9: rgb:ff/61/4c
+Rxvt.color1: rgb:97/2c/27
+Rxvt.color9: rgb:e1/13/37
 ! Green
-Rxvt.color2: rgb:67/9b/00
-Rxvt.color10: rgb:b9/f7/3e
+Rxvt.color2: rgb:2b/79/38
+Rxvt.color10: rgb:45/ae/51
 ! Yellow
-Rxvt.color3: rgb:c4/93/00
-Rxvt.color11: rgb:ff/d2/4c
+Rxvt.color3: rgb:9d/79/30
+Rxvt.color11: rgb:ec/b0/45
 ! Blue
-Rxvt.color4: rgb:07/40/80
-Rxvt.color12: rgb:45/81/c4
+Rxvt.color4: rgb:00/52/71
+Rxvt.color12: rgb:00/75/a0
 ! Magenta
-Rxvt.color5: rgb:9d/00/59
-Rxvt.color13: rgb:dd/42/9a
+Rxvt.color5: rgb:9a/27/54
+Rxvt.color13: rgb:e2/37/74
 ! Cyan
-Rxvt.color6: rgb:00/76/76
-Rxvt.color14: rgb:37/bb/bb
+Rxvt.color6: rgb:32/83/81
+Rxvt.color14: rgb:46/ab/aa
 ! White
-Rxvt.color7: rgb:81/81/81
+Rxvt.color7: rgb:a9/aa/a9
 Rxvt.color15: rgb:ff/ff/ff
 
 Rxvt.font: \
-  xft:Menlo:pixelsize=14, \
+  xft:Monaco:pixelsize=14, \
   xft:AXIS\ Std:pixelsize=14, \
   xft:Droid Sans Fallback:pixelsize=14
 Rxvt.imFont: \
@@ -53,7 +86,7 @@ Rxvt.url-launcher: google-chrome
 Rxvt.externalBorder: 0
 Rxvt.internalBorder: 2
 Rxvt.lineSpace: 6
-Rxvt.saveLines: 1000
+Rxvt.saveLines: 10000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true
 Rxvt.secondaryScroll: true

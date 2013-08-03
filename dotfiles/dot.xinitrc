@@ -5,10 +5,12 @@ usermodmap="$HOME/.Xmodmap"
 [ -f "$userresources" ] && xrdb -merge "$userresources"
 [ -f "$usermodmap" ] && xmodmap "$usermodmap"
 
-export XDG_CACHE_HOME="/tmp/.${USER}/cache"
-[ ! -d "${XDG_CACHE_HOME}" ] && install -dm0700 "${XDG_CACHE_HOME}"
+export XDG_CACHE_HOME="/tmp/.$USER/cache"
+[ ! -d "$XDG_CACHE_HOME" ] && install -dm0700 "$XDG_CACHE_HOME"
 
 xset r rate 250 30
+
+xinput --set-ptr-feedback "ThinkPS/2 Kensington ThinkingMouse" 0 25 10
 
 export BROWSER='google-chrome'
 
@@ -18,8 +20,6 @@ export QT_IM_MODULE='uim'
 uim-xim &
 
 dropbox &
-
-mpd
 
 FG='#e2e2e2'
 BG='#171717'
