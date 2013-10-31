@@ -1,6 +1,6 @@
-" Vim additional syntax: smarty
+" Vim additional ftplugin: python
 " Version: 0.0.0
-" Copyright (C) 2012 emonkak <emonkak@gmail.com>
+" Copyright (C) 2013 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -22,15 +22,33 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-runtime! after/syntax/html/*.vim
+setlocal foldmethod=expr foldexpr=PythonFold(v:lnum)
 
-syntax clear smartyZone
-syntax region smartyZone matchgroup=Delimiter start="<%" end="%>" contains=smartyProperty, smartyString, smartyBlock, smartyTagName, smartyConstant, smartyInFunc, smartyModifier
-syntax region smartyZone matchgroup=Delimiter start="{{" end="}}" contains=smartyProperty, smartyString, smartyBlock, smartyTagName, smartyConstant, smartyInFunc, smartyModifier
-syntax region smartyComment start="<%\*" end="\*%>"
-syntax region smartyComment start="{{\*" end="\*}}"
+function! PythonFold(lnum)
+  if getline(a:lnum) =~# '^\s*\(class\|def\)\s'
+    return '>' . (indent(a:lnum) / &l:shiftwidth + 1)
+  endif
 
-highlight default link SmartyComment Comment
+  let next_lnum = nextnonblank(a:lnum + 1)
+  if next_lnum == 0 || next_lnum == a:lnum + 1
+    return '='
+  endif
+
+  let next_indent = indent(next_lnum)
+  if next_indent < indent(a:lnum)
+    return '<' . (next_indent / &l:shiftwidth + 1)
+  endif
+
+  return '='
+endfunction
+
+if exists('b:undo_ftplugin')
+  let b:undo_ftplugin .= ' | '
+else
+  let b:undo_ftplugin = ''
+endif
+
+let b:undo_ftplugin .= 'setlocal foldmethod< foldexpr<'
 
 " __END__
 " vim: foldmethod=marker

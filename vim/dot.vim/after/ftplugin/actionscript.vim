@@ -30,17 +30,19 @@ function! ActionScriptFold(lnum)
   if current =~# '\s*}$'
     let level = indent(a:lnum) / &l:shiftwidth
     return level > 2 ? '=' : '<' . (level + 1)
-  elseif current =~# '^\s*\('
-                 \ . '\(\(final\|internal\|private\|protected\|public\|override\|static\)\s\)*function'
-                 \ . '\|\(\(abstract\|dynamic\|final\|internal\|public\)\s\)*class'
-                 \ . '\|interface'
-                 \ . '\|package'
-                 \ . '\)[^;]*$'
+  endif
+
+  if current =~# '^\s*\('
+             \ . '\(\(final\|internal\|private\|protected\|public\|override\|static\)\s\)*function'
+             \ . '\|\(\(abstract\|dynamic\|final\|internal\|public\)\s\)*class'
+             \ . '\|interface'
+             \ . '\|package'
+             \ . '\)[^;]*$'
     let level = indent(a:lnum) / &l:shiftwidth
     return level > 2 ? '=' : '>' . (level + 1)
-  else
-    return '='
   endif
+
+  return '='
 endfunction
 
 if exists('b:undo_ftplugin')

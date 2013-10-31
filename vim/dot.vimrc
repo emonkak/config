@@ -10,6 +10,11 @@ if has('vim_starting')
   set runtimepath+=~/.vim/bundle/*/after
 endif
 
+if has('kaoriya')
+  " Hate default vimrc and gvimrc.
+  call delete($VIM . '/vimrc')
+  call delete($VIM . '/gvimrc')
+endif
 
 function! s:SID_PREFIX()
   return matchstr(expand('<sfile>'), '<SNR>\d\+_')
@@ -70,11 +75,11 @@ filetype plugin indent on
 if has('gui_running')
   set guicursor=a:blinkwait4000-blinkon1500-blinkoff500
   if has('gui_gtk2')
-    set guifont=Monospace\ 10.5
-    set linespace=4
+    set guifont=Monospace\ 10
+    set linespace=5
   elseif has('gui_macvim')
-    set guifont=Monaco:h14
-    set linespace=4
+    set guifont=Fira\ Mono\ OT:h14
+    set linespace=5
     set macmeta
     set transparency=10
     set visualbell
@@ -121,10 +126,6 @@ set updatetime=1000
 set virtualedit=block
 
 set cmdheight=1
-if has('conceal')
-  set concealcursor=nc
-  set conceallevel=2
-endif
 set nocursorline
 set display=lastline
 set noequalalways
@@ -135,9 +136,6 @@ set linebreak
 set list
 let &listchars = "tab:\u00bb ,extends:<,trail:-"
 set pumheight=20
-if exists('+regexpengine')
-  set regexpengine=2
-endif
 set ruler
 set showcmd
 set showtabline=1
@@ -408,6 +406,13 @@ endfunction
 
 
 
+" MessageClear  "{{{2
+
+command! -bar MessageClear  for i in range(200) | echomsg '' | endfor | unlet i
+
+
+
+
 " Rename - rename file and buffer  "{{{2
 
 command! -complete=file -nargs=1 Rename  call s:cmd_Rename(<q-args>)
@@ -625,6 +630,14 @@ endfunction
 
 AlterCommand mak[e]  Make
 AlterCommand lmak[e]  Lmake
+
+
+
+
+" Fold debugger  "{{{2
+
+command! -range=% FoldDebug
+\ <line1>,<line2>global/^/echo printf("%*d [%-2s] %s", len(line('$')), line('.'), eval(substitute(&l:foldexpr, 'v:lnum', line('.'), '')), getline('.'))
 
 
 
@@ -1716,6 +1729,24 @@ endfunction
 
 
 
+" Section jumping  "{{{2
+"
+" Enable *consistent* ]] and other motions in Visual and Operator-pending
+" mode.  Because some ftplugins provide these motions only for Normal mode and
+" other ftplugins provide these motions with some faults, e.g., not countable.
+
+vnoremap <silent> ]]  :<C-u>call <SID>jump_section_v(']]')<CR>
+vnoremap <silent> ][  :<C-u>call <SID>jump_section_v('][')<CR>
+vnoremap <silent> [[  :<C-u>call <SID>jump_section_v('[[')<CR>
+vnoremap <silent> []  :<C-u>call <SID>jump_section_v('[]')<CR>
+onoremap <silent> ]]  :<C-u>call <SID>jump_section_o(']]')<CR>
+onoremap <silent> ][  :<C-u>call <SID>jump_section_o('][')<CR>
+onoremap <silent> [[  :<C-u>call <SID>jump_section_o('[[')<CR>
+onoremap <silent> []  :<C-u>call <SID>jump_section_o('[]')<CR>
+
+
+
+
 " The <Space>  "{{{2
 
 " to show <Space> in the bottom line.
@@ -1780,24 +1811,6 @@ nnoremap <silent> [Space]m  :<C-u>marks<CR>
 nnoremap <silent> [Space]r  :<C-u>registers<CR>
 
 nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
-
-
-
-
-" Section jumping  "{{{2
-"
-" Enable *consistent* ]] and other motions in Visual and Operator-pending
-" mode.  Because some ftplugins provide these motions only for Normal mode and
-" other ftplugins provide these motions with some faults, e.g., not countable.
-
-vnoremap <silent> ]]  :<C-u>call <SID>jump_section_v(']]')<CR>
-vnoremap <silent> ][  :<C-u>call <SID>jump_section_v('][')<CR>
-vnoremap <silent> [[  :<C-u>call <SID>jump_section_v('[[')<CR>
-vnoremap <silent> []  :<C-u>call <SID>jump_section_v('[]')<CR>
-onoremap <silent> ]]  :<C-u>call <SID>jump_section_o(']]')<CR>
-onoremap <silent> ][  :<C-u>call <SID>jump_section_o('][')<CR>
-onoremap <silent> [[  :<C-u>call <SID>jump_section_o('[[')<CR>
-onoremap <silent> []  :<C-u>call <SID>jump_section_o('[]')<CR>
 
 
 
@@ -2216,6 +2229,8 @@ autocmd MyAutoCmd FileType php
 function! s:on_FileType_php()
   SetIndent 4space
   setlocal commentstring=//%s
+
+  inoreabbrev <buffer> /** /**<CR><CR>/<Up>
 endfunction
 
 
@@ -2224,7 +2239,7 @@ endfunction
 " python  "{{{2
 
 autocmd MyAutoCmd FileType python
-\ SetIndent 2space
+\ SetIndent 4space
 
 let g:python_highlight_all = 1
 
@@ -2349,12 +2364,15 @@ autocmd MyAutoCmd FileType haml,jade,slim
 
 
 " Plugins  "{{{1
-" accelerate  "{{{2
+" acceleration  "{{{2
+
+call accelerate#map('nv', 'e', '<C-u>', 'repeat("\<C-u>", v:count1)')
+call accelerate#map('nv', 'e', '<C-d>', 'repeat("\<C-d>", v:count1)')
 
 call accelerate#map('nv', '', 'j', 'gj')
 call accelerate#map('nv', '', 'k', 'gk')
-call accelerate#map('nv', '', 'h')
-call accelerate#map('nv', 'e', 'l', "foldclosed(line('.')) != -1 ? 'zo' : 'l'")
+call accelerate#map('nv', '', 'h', 'h')
+call accelerate#map('nv', 'e', 'l', 'foldclosed(line(".")) != -1 ? "zo" : "l"')
 
 
 

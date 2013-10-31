@@ -28,20 +28,22 @@ function! PHPFold(lnum)
   let current = getline(a:lnum)
 
   if current =~# '\s*}$'
-    let level = indent(a:lnum) / &l:shiftwidth
-    return level > 2 ? '=' : '<' . (level + 1)
-  elseif current =~# '^\s*\('
-                 \ . '\(\(final\|private\|protected\|public\|static\)\s\)*function'
-                 \ . '\|\(\(abstract\|final\)\s\)*class'
-                 \ . '\|interface'
-                 \ . '\|namespace'
-                 \ . '\|trait'
-                 \ . '\)[^;]*$'
-    let level = indent(a:lnum) / &l:shiftwidth
-    return level > 2 ? '=' : '>' . (level + 1)
-  else
-    return '='
+    let level = indent(a:lnum) / &l:shiftwidth + 1
+    return level > 2 ? '=' : '<' . level
   endif
+
+  if current =~# '^\s*\('
+             \ . '\(\(final\|private\|protected\|public\|static\)\s\)*function'
+             \ . '\|\(\(abstract\|final\)\s\)*class'
+             \ . '\|interface'
+             \ . '\|namespace'
+             \ . '\|trait'
+             \ . '\)[^;]*$'
+    let level = indent(a:lnum) / &l:shiftwidth + 1
+    return level > 2 ? '=' : level
+  endif
+
+  return '='
 endfunction
 
 if exists('b:undo_ftplugin')
