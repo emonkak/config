@@ -5,9 +5,10 @@ app-arch/unzip natspec
 app-benchmarks/sysbench mysql
 app-crypt/gcr gtk
 app-editors/emacs gtk
-app-editors/gvim gtk lua python
-app-editors/vim gtk lua python
+app-editors/gvim gtk lua luajit python
+app-editors/vim gtk lua luajit lpython
 app-editors/yi gtk
+app-emulation/emul-linux-x86-soundlibs alsa
 app-emulation/libvirt python qemu virt-network
 app-emulation/qemu alsa opengl qemu-ifup sdl
 app-emulation/wine -prelink alsa dbus fontconfig hardened jpeg mp3 png xml
@@ -29,7 +30,7 @@ dev-db/mariadb pbxt
 dev-haskell/* doc
 dev-lang/ghc doc ghcbootstrap llvm
 dev-lang/perl ithreads
-dev-lang/php apache2 gd mysql mysqli pcntl pdo sockets sqlite3 zip
+dev-lang/php apache2 gd mysql mysqli pcntl pdo sockets sqlite zip
 dev-lang/python sqlite
 dev-libs/boost python
 dev-libs/libxml2 python
@@ -65,7 +66,7 @@ media-video/libav alsa faac mp3 rtmp theora v4l2 vorbis x264 xvid
 media-video/mplayer faac libmpeg2 png rtmp v4l2 xvmc
 media-video/vlc aac alsa dvd flac fontconfig matroska mp3 mpeg ogg png stream theora truetype v4l2 vorbis x264 xv
 net-analyzer/wireshark gtk
-net-fs/cifs-utils upcall
+net-fs/cifs-utils ads upcall
 net-fs/samba winbind
 net-im/instantbird -system-libpurple
 net-im/pidgin gstreamer
@@ -83,14 +84,18 @@ net-proxy/tinyproxy minimal
 sys-apps/groff linguas_ja
 sys-apps/smartmontools minimal
 sys-auth/consolekit policykit
+sys-auth/pambase consolekit
 sys-block/gparted fat ntfs
 sys-devel/gcc go
+sys-devel/llvm clang
 sys-fs/udev extras hwdb
+sys-fs/udev gudev
 sys-kernel/ck-sources symlink
 sys-kernel/gentoo-sources symlink
 sys-kernel/vanilla-sources symlink
 sys-libs/talloc python
 sys-libs/zlib minizip
+virtual/udev gudev
 virtual/udev hwdb
 www-client/google-chrome linguas_ja
 www-client/jd migemo

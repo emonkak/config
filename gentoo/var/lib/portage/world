@@ -2,6 +2,7 @@ app-admin/conky
 app-admin/haskell-updater
 app-admin/hddtemp
 app-admin/logrotate
+app-admin/stow
 app-admin/sudo
 app-admin/syslog-ng
 app-admin/sysstat
@@ -36,6 +37,7 @@ app-misc/mfiler3
 app-misc/tmux
 app-pda/ifuse
 app-portage/eix
+app-portage/flaggie
 app-portage/g-cpan
 app-portage/gentoolkit
 app-portage/hackport
@@ -47,18 +49,10 @@ app-text/evince
 app-text/lv
 app-text/tree
 dev-haskell/cabal-install
-dev-haskell/failure
 dev-haskell/ghc-mod
 dev-haskell/haddock
-dev-haskell/hashmap
-dev-haskell/hoogle
-dev-haskell/hunit
-dev-haskell/libmpd
-dev-haskell/quickcheck
-dev-haskell/stm
-dev-haskell/vector
-dev-java/oracle-jdk-bin
 dev-lang/ghc
+dev-lang/mono
 dev-lang/ocaml
 dev-lang/php
 dev-lang/ruby
@@ -91,13 +85,13 @@ dev-tcltk/expect
 dev-util/omake
 dev-util/strace
 dev-vcs/cvs
-dev-vcs/fast-export
 dev-vcs/git
 dev-vcs/mercurial
 dev-vcs/subversion
 dev-vcs/tig
 gnome-extra/gconf-editor
 gnome-extra/gucharmap
+mail-client/mailx
 media-fonts/artwiz-latin1
 media-fonts/corefonts
 media-fonts/font-micro-misc
@@ -105,7 +99,6 @@ media-fonts/font-misc-misc
 media-fonts/ja-ipaexfonts
 media-fonts/mplus-fonts
 media-fonts/pcf2bdf
-media-gfx/comix
 media-gfx/feh
 media-gfx/fontforge
 media-gfx/geeqie
@@ -134,6 +127,7 @@ net-analyzer/tcpflow
 net-analyzer/traceroute
 net-dialup/pptpclient
 net-dns/bind-tools
+net-dns/ddclient
 net-firewall/iptables
 net-fs/samba
 net-im/skype
