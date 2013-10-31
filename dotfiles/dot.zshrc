@@ -1,7 +1,8 @@
 # My zshrc
 # Misc.  #{{{1
 
-ulimit -c 0
+umask 022  # Default permission
+ulimit -c 0  # Don't create core file
 stty stop undef
 stty start undef
 
@@ -73,7 +74,7 @@ unsetopt flow_control
 # Hooks  #{{{1
 
 autoload -Uz vcs_info
-zstyle ':vcs_info:git:*' check-for-changes true
+zstyle ':vcs_info:git:*' check-for-changes false
 zstyle ':vcs_info:git:*' unstagedstr '!'
 zstyle ':vcs_info:*' actionformats '[%s:%b%u|%a]'
 zstyle ':vcs_info:*' formats '[%s:%b%u]'
@@ -276,6 +277,30 @@ if [ -f "$HOME/.zsh/zaw/zaw.zsh" ]; then
   bindkey '^Xc' zaw-dirstack
   bindkey '^Xg' zaw-git-files
 fi
+
+function static_httpd {
+  if type plackup > /dev/null; then
+    plackup -MPlack::App::Directory -e 'Plack::App::Directory->new(root => ".")->to_app'
+  elif type ruby > /dev/null; then
+    if ruby -v | grep -qm1 'ruby 2\.'; then
+      ruby -run -e httpd -- --port=5000 .
+    else
+      ruby -rwebrick -e 'WEBrick::HTTPServer.new(:Port => 5000, :DocumentRoot => ".").start'
+    fi
+  elif type python > /dev/null; then
+    if python -V 2>&1 | grep -qm1 'Python 3\.'; then
+      python -m http.server 5000
+    else
+      python -m SimpleHTTPServer 5000
+    fi
+  elif type node > /dev/null; then
+    node -e "var c=require('connect'), d=process.env.PWD; c().use(c.logger()).use(c.static(d)).use(c.directory(d)).listen(5000);"
+  elif type php > /dev/null && php -v | grep -qm1 'PHP 5\.[45]\.'; then
+    php -S 0.0.0.0:5000
+  elif type erl > /dev/null; then
+    erl -eval 'inets:start(), inets:start(httpd, [{server_name, "httpd"}, {server_root, "."}, {document_root, "."}, {port, 5000}])'
+  fi
+}
 
 
 

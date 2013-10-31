@@ -26,4 +26,4 @@ export GIT_MERGE_AUTOEDIT=no
 
 export MPD_CONF="$HOME/.mpd/mpd.conf"
 
-eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
+# eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)

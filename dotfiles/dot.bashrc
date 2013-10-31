@@ -1,7 +1,7 @@
 # My bashrc
 # Misc.  #{{{1
 
-umask 077  # Default permission
+umask 022  # Default permission
 ulimit -c 0  # Don't create core file
 
 
