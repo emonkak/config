@@ -170,8 +170,11 @@ endif
 let &statusline = ''
 let &statusline .= '%<%f %h%m%r%w'
 let &statusline .= '%='
-let &statusline .= '[%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
-let &statusline .= '%{&l:fileformat == "unix" ? "" : ":".&l:fileformat}]'
+let &statusline .= '['
+let &statusline .=   '%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
+let &statusline .=   '%{&l:bomb ? "/BOM" : ""}'
+let &statusline .= ']'
+let &statusline .= '[%{&l:fileformat}]'
 let &statusline .= '   %-14.(%l,%c%V%) %P'
 
 function! s:my_tabline()  "{{{
@@ -326,24 +329,6 @@ endfunction
 
 
 
-" BufferCleaner - delete unnecessary buffer  "{{{2
-
-command! -bang -nargs=0 BufferCleaner  call s:cmd_BufferCleaner(<bang>0)
-function! s:cmd_BufferCleaner(banged_p)
-  let _ = range(1, bufnr('$'))
-  call filter(_, 'bufexists(v:val)
-  \               && buflisted(v:val)
-  \               && (bufname(v:val) == "" || !filereadable(bufname(v:val)))
-  \               && (a:banged_p || !getbufvar(v:val, "&modified"))')
-  for bufnr in _
-    silent execute bufnr 'bdelete'.(a:banged_p ? '!' : '')
-  endfor
-  echo len(_) 'buffer deleted'
-endfunction
-
-
-
-
 " CD - wrapper of :cd to keep cwd for each tabpage  "{{{2
 
 command! -complete=dir -nargs=* CD  call s:cmd_CD(<q-args>)
@@ -408,7 +393,8 @@ endfunction
 
 " MessageClear  "{{{2
 
-command! -bar MessageClear  for i in range(200) | echomsg '' | endfor | unlet i
+command! -bar MessageClear
+\ for i in range(200) | echomsg '' | endfor | unlet i
 
 
 
@@ -433,56 +419,6 @@ function! s:cmd_Rename(name)
     redraw
     echo 'Renamed:' current '->' a:name
   endif
-endfunction
-
-
-
-
-" Seq - sequence number substitutions  "{{{2
-"
-" :Seq /{pattern}[/format][/options]
-"
-" Example: Print the number in front of each line:
-" :Seq/^/%03d /
-"
-" Example: Set start number and step
-" :Seq/^/%d /100+2
-
-command! -range -nargs=+ Seq
-\ <line1>,<line2>call s:cmd_Seq(<q-args>)
-function! s:cmd_Seq(args) range
-  let args = split(a:args, '\(^\|[^\\]\|[^\\]\\\\\)\zs' . a:args[0] . '\+')
-  call map(args, 'substitute(v:val, "\\\\" . a:args[0], a:args[0], "g")')
-  call map(args, 'substitute(v:val, "\\\\\\\\", "\\\\", "g")')
-
-  let incrementer = {
-  \   'format': get(args, 1, '%d'),
-  \   'current': 1,
-  \   'step': 1,
-  \ }
-
-  let options = ''
-  for c in split(get(args, 2, ''), '\([+-]\?\d\+\|.\)\zs')
-    if c =~ '^[+-]'
-      let incrementer.step = str2nr(c)
-    elseif c =~ '^\d'
-      let incrementer.current = str2nr(c)
-    else
-      let options .= c
-    endif
-  endfor
-
-  function incrementer.call() dict
-    let next = printf(self.format, self.current)
-    let self.current += self.step
-    return next
-  endfunction
-
-  execute printf('%d,%ds/%s/\=incrementer.call()/%s',
-  \              a:firstline,
-  \              a:lastline,
-  \              escape(args[0], '/'),
-  \              options)
 endfunction
 
 
@@ -630,6 +566,24 @@ endfunction
 
 AlterCommand mak[e]  Make
 AlterCommand lmak[e]  Lmake
+
+
+
+
+" Buffer cleaner  "{{{2
+
+command! -bang -nargs=0 BufferCleaner  call s:cmd_BufferCleaner(<bang>0)
+function! s:cmd_BufferCleaner(banged_p)
+  let _ = range(1, bufnr('$'))
+  call filter(_, 'bufexists(v:val)
+  \               && buflisted(v:val)
+  \               && (bufname(v:val) == "" || !filereadable(bufname(v:val)))
+  \               && (a:banged_p || !getbufvar(v:val, "&modified"))')
+  for bufnr in _
+    silent execute bufnr 'bdelete'.(a:banged_p ? '!' : '')
+  endfor
+  echo len(_) 'buffer deleted'
+endfunction
 
 
 
@@ -868,6 +822,56 @@ endfunction
 
 
 
+" Sequence number substitutions  "{{{2
+"
+" :Seq /{pattern}[/format][/options]
+"
+" Example: Print the number in front of each line:
+" :Seq/^/%03d /
+"
+" Example: Set start number and step
+" :Seq/^/%d /100+2
+
+command! -range -nargs=+ Seq
+\ <line1>,<line2>call s:cmd_Seq(<q-args>)
+function! s:cmd_Seq(args) range
+  let args = split(a:args, '\(^\|[^\\]\|[^\\]\\\\\)\zs' . a:args[0] . '\+')
+  call map(args, 'substitute(v:val, "\\\\" . a:args[0], a:args[0], "g")')
+  call map(args, 'substitute(v:val, "\\\\\\\\", "\\\\", "g")')
+
+  let incrementer = {
+  \   'format': get(args, 1, '%d'),
+  \   'current': 1,
+  \   'step': 1,
+  \ }
+
+  let options = ''
+  for c in split(get(args, 2, ''), '\([+-]\?\d\+\|.\)\zs')
+    if c =~ '^[+-]'
+      let incrementer.step = str2nr(c)
+    elseif c =~ '^\d'
+      let incrementer.current = str2nr(c)
+    else
+      let options .= c
+    endif
+  endfor
+
+  function incrementer.call() dict
+    let next = printf(self.format, self.current)
+    let self.current += self.step
+    return next
+  endfunction
+
+  execute printf('%d,%ds/%s/\=incrementer.call()/%s',
+  \              a:firstline,
+  \              a:lastline,
+  \              escape(args[0], '/'),
+  \              options)
+endfunction
+
+
+
+
 " Toggle options  "{{{2
 
 function! s:toggle_grepprg(global_p)
@@ -928,10 +932,12 @@ endfunction
 
 " Vertical with  "{{{2
 
-let s:vertical_statement = '(winwidth(0) > winheight(0) * 5)'
+function! s:vertical_p()
+  return winwidth(0) > winheight(0) * 5
+endfunction
 
 function! s:vertical_with(command, args)
-  execute eval(s:vertical_statement) ? 'vertical' : ''
+  execute s:vertical_p() ? 'vertical' : ''
   \       a:command
   \       join(a:args)
 endfunction
@@ -1149,15 +1155,17 @@ endfunction
 
 
 function! s:operator_search(motion_wiseness)  "{{{2
+  let reg_0 = [@0, getregtype('0')]
+
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  let search_command = v:searchforward ? 'n' : 'N'
-  let region = join(map(s:region("'[", "']", visual_command),
-  \                     'escape(v:val, "\\/")'),
-  \                 '\n')
-  let @/ = '\V' . region
-  call histadd('/', '\V' . region)
-  silent execute 'normal!' search_command
+  execute 'normal!' '`['.visual_command.'`]"0y'
+
+  let @/ = '\V' . substitute(escape(@0, '\'), '\n', '\\n', 'g')
+  call histadd('/', @/)
+  execute 'normal!' v:searchforward ? 'n' : 'N'
+
+  call setreg('0', reg_0[0], reg_0[1])
 endfunction
 
 
@@ -1166,13 +1174,11 @@ endfunction
 function! s:operator_translate(motion_wiseness)  "{{{2
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  let text = join(s:region("'[", "']", visual_command), "\n")
-  let translated = s:translate_with_auto_detect(text)
+  execute 'normal!' '`['.visual_command.'`]y'
 
-  " Yank translated text into the unnamed register.
-  let @" = translated . (visual_command ==# 'V' ? "\n" : '')
+  let @" = s:translate_with_auto_detect(@0)
 
-  echo translated
+  echo @"
 endfunction
 
 
@@ -1189,43 +1195,6 @@ endfunction
 
 function! s:prefix_of_p(x, y)  "{{{2
   return a:x ==# strpart(a:y, 0, len(a:x))
-endfunction
-
-
-
-
-function! s:region(expr1, expr2, visual_command)  "{{{2
-  let [lnum1, col1] = getpos(a:expr1)[1:2]
-  let [lnum2, col2] = getpos(a:expr2)[1:2]
-  let region = getline(lnum1, lnum2)
-
-  if a:visual_command ==# "v"  " char
-    if lnum1 == lnum2  " single line
-      let region[0] = s:strpart(region[-1], col1 - 1, col2 - (col1 - 1))
-    else  " multi line
-      let region[0] = s:strpart(region[0], col1 - 1)
-      let region[-1] = s:strpart(region[-1], 0, col2)
-    endif
-  elseif a:visual_command ==# "V"  " line
-    let region += ['']
-  else  " block
-    call map(region, 's:strpart(v:val, col1 - 1, col2 - (col1 - 1))')
-  endif
-
-  return region
-endfunction
-
-
-
-
-function! s:strpart(src, start, ...)  "{{{2
-  let str = strpart(a:src, a:start)
-  if a:0 > 0
-    let i = byteidx(strpart(str, a:1 - 1), 1) - 1
-    return i == -1 ? str : strpart(str, 0, a:1 + i)
-  else
-    return str
-  endif
 endfunction
 
 
@@ -2581,7 +2550,7 @@ nnoremap <expr> <C-c>
 
 let g:quickrun_config = {
 \  '_': {
-\    'split': '%{'.s:vertical_statement.' ? "vertical" : ""}',
+\    'split': '%{'.s:SID_PREFIX().'vertical_p() ? "vertical" : ""}',
 \  },
 \  'actionscript': {
 \    'command': 'mxmlc',
