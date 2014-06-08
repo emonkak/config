@@ -26,4 +26,6 @@ BG='#171717'
 FONT='-nil-profont-medium-r-normal--11-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--10-*-*-*-*-*-*-*'
 conky | dzen2 -x 960 -y 0 -w 960 -h 14 -ta r -fg "$FG" -bg "$BG" -fn "$FONT" -dock -e '' &
 
+x11vnc -forever &
+
 exec dbus-launch --exit-with-session xmonad

@@ -136,7 +136,7 @@ def open_file (  #{{{2
     external -q "zipinfo -O cp932 $(ary ARGV 0) | $$(export PAGER)"
     break
   ) '^(aac|asf|avi|flv|mkv|mov|mp3|mp4|mpe?g|ogg|ogv|rm|ts|wav|webm|wma|wmv)$' (
-    external -q "mplayer -quiet $(ary ARGV 0)"
+    external -q "mpv -quiet $(ary ARGV 0)"
     break
   ) '^(bmp|gif|jpe?g|png)$' (
     external -q "feh $(ary ARGV 0)"
@@ -274,7 +274,6 @@ addmenu jump '.(V)im'      $(export key_V) "mcd $(export HOME)/.vim"
 addmenu jump '.(W)ine'     $(export key_W) "mcd $(export HOME)/.wine"
 addmenu jump '(e)tc'       $(export key_e) "mcd /etc"
 addmenu jump 'mn(t)'       $(export key_t) "mcd /mnt"
-addmenu jump '(s)hare'     $(export key_s) "mcd /mnt/share"
 addmenu jump '(u)sr'       $(export key_u) "mcd /usr"
 addmenu jump '(l)ocal'     $(export key_l) "mcd /usr/local"
 

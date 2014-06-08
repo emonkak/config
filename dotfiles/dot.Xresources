@@ -1,5 +1,15 @@
 ! My Xresources
 
+! XFT
+
+Xft.antialias: true
+Xft.autohint: false
+Xft.hinting: false
+Xft.hintstyle: hintnone
+Xft.lcdfilter: lcddefault
+Xft.rgbs: none
+
+
 ! CURSOR
 
 Xcursor.theme: Vanilla-DMZ
@@ -71,7 +81,7 @@ Rxvt.color7: rgb:a9/aa/a9
 Rxvt.color15: rgb:ff/ff/ff
 
 Rxvt.font: \
-  xft:Fira\ Mono\ OT:pixelsize=13, \
+  xft:Consolas:pixelsize=14, \
   xft:AXIS\ Std:pixelsize=14, \
   xft:Droid Sans Fallback:pixelsize=14
 Rxvt.imFont: \
@@ -85,12 +95,12 @@ Rxvt.url-launcher: google-chrome
 
 Rxvt.externalBorder: 0
 Rxvt.internalBorder: 2
-Rxvt.lineSpace: 4
-Rxvt.saveLines: 10000
+Rxvt.lineSpace: 6
+Rxv.saveLines: 10000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true
 Rxvt.secondaryScroll: true
-Rxvt.termName: rxvt-256color
+Rxvt.termName: rxvt-unicode-256color
 Rxvt.urgentOnBell: true
 Rxvt.visualBell: false
 

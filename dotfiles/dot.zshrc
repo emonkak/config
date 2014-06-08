@@ -215,6 +215,12 @@ if which xsel &>/dev/null; then
   alias pbpaste='xsel --output --clipboard'
 fi
 
+alias -s rb='ruby'
+alias -s py='python'
+alias -s hs='runhaskell'
+alias -s php='php -f'
+alias -s {gz,tar,zip,rar,7z}='aunpack' # preztoのarchiveモジュールのコマンド(https:
+
 
 
 
@@ -278,6 +284,14 @@ if [ -f "$HOME/.zsh/zaw/zaw.zsh" ]; then
   bindkey '^Xg' zaw-git-files
 fi
 
+if [ -f ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+  source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+
+if [ -f ~/.zsh/z/z.sh ]; then
+  source ~/.zsh/z/z.sh
+fi
+
 function static_httpd {
   if type plackup > /dev/null; then
     plackup -MPlack::App::Directory -e 'Plack::App::Directory->new(root => ".")->to_app'
@@ -308,3 +322,6 @@ function static_httpd {
 # __END__  #{{{1
 # vim: expandtab softtabstop=2 shiftwidth=2
 # vim: foldmethod=marker
+
+#THIS MUST BE AT THE END OF THE FILE FOR GVM TO WORK!!!
+[[ -s "/Users/emon/.gvm/bin/gvm-init.sh" ]] && source "/Users/emon/.gvm/bin/gvm-init.sh"
