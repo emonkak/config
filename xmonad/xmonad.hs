@@ -228,7 +228,7 @@ myKeys conf = mkKeymap conf $
   ]
   ++
   [ ("M-x " ++ m ++ k, safeSpawnProg a)
-  | (k, a) <- [ ("c", "google-chrome")
+  | (k, a) <- [ ("c", "google-chrome-stable")
               , ("e", "gvim")
               , ("f", "firefox-bin")
               , ("g", "gimp")
