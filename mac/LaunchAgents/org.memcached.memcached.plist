@@ -3,16 +3,12 @@
 <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>com.php.php-fpm</string>
+    <string>org.memcached.memcached</string>
     <key>RunAtLoad</key>
-    <true/>
-    <key>KeepAlive</key>
     <true/>
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/emon/Gentoo/usr/bin/php-fpm</string>
-        <string>--nodaemonize</string>
+      <string>/Users/emon/Gentoo/usr/bin/memcached</string>
     </array>
   </dict>
 </plist>
-

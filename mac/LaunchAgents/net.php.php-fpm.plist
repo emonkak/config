@@ -3,12 +3,15 @@
 <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>com.nginx.nginx</string>
+    <string>net.php.php-fpm</string>
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
     <true/>
-    <key>Program</key>
-    <string>/Users/emon/Gentoo/usr/sbin/nginx</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/emon/Gentoo/usr/bin/php-fpm</string>
+        <string>--nodaemonize</string>
+    </array>
   </dict>
 </plist>
