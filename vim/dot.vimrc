@@ -78,10 +78,10 @@ if has('gui_running')
     set guifont=Monospace\ 10
     set linespace=5
   elseif has('gui_macvim')
-    set guifont=Fira\ Mono\ OT:h14
-    set linespace=5
+    set guifont=Source\ Code\ Pro:h14
+    set linespace=6
     set macmeta
-    set transparency=10
+    set transparency=0
     set visualbell
   elseif has('gui_win32')
     set guifont=Consolas:h10.5
@@ -125,7 +125,14 @@ set spelllang=en_us
 set updatetime=1000
 set virtualedit=block
 
+if exists('+breakindent')
+  set breakindent
+endif
 set cmdheight=1
+if has('conceal')
+  set concealcursor=nc
+  set conceallevel=1
+endif
 set nocursorline
 set display=lastline
 set noequalalways
@@ -134,9 +141,10 @@ set nohlsearch
 set laststatus=2
 set linebreak
 set list
-let &listchars = "tab:\u00bb ,extends:<,trail:-"
+let &listchars = "tab:\u00bb ,trail:-,extends:>,precedes:<,conceal:|,nbsp:."
 set pumheight=20
 set ruler
+set scrolloff=4
 set showcmd
 set showtabline=1
 set splitbelow
@@ -153,7 +161,6 @@ set formatlistpat&
 let &formatlistpat .= '\|^\s*[*+-]\s*'
 set ignorecase
 set incsearch
-set infercase
 set shiftround
 set smartcase
 set smartindent
@@ -161,10 +168,9 @@ set smartindent
 set title
 set titlestring=Vim:\ %f\ %h%r%m
 if exists('$TMUX')
+  " Fix window title on tmux.
   let &t_fs = "\<C-g>"
   let &t_ts = "\<Esc>]2;"
-  let &t_ZH = "\<Esc>[3m"
-  let &t_ZR = "\<Esc>[23m"
 endif
 
 let &statusline = ''
@@ -331,45 +337,28 @@ endfunction
 
 " CD - wrapper of :cd to keep cwd for each tabpage  "{{{2
 
-command! -complete=dir -nargs=* CD  call s:cmd_CD(<q-args>)
-function! s:cmd_CD(path)
-  if a:path == ''
-    let cwd = expand('%:p:h')
-    let dirs = split(cwd, '/', !0)
-
-    while !empty(dirs)
-      let path = join(dirs, '/')
-      if isdirectory(path . '/.git')
-        cd `=path`
-        break
-      endif
-      call remove(dirs, -1)
-    endwhile
-
-    if empty(dirs)
-      cd `=cwd`
-    endif
-  else
-    cd `=a:path`
-  endif
-
-  let t:cwd = getcwd()
-  echo t:cwd
-endfunction
+command! -complete=dir -nargs=* CD
+\   execute 'cd' fnameescape(<q-args>)
+\ | let t:cwd = getcwd()
+\ | echo t:cwd
 
 AlterCommand cd  CD
 
 autocmd MyAutoCmd TabEnter *
-\   if exists('t:cwd')
-\ |   if isdirectory(t:cwd)
-\ |     cd `=t:cwd`
-\ |   else
-\ |     unlet t:cwd
-\ |   endif
+\   if !exists('t:cwd')
+\ |   let t:cwd = getcwd()
+\ | endif
+\ | if isdirectory(t:cwd)
+\ |   cd `=t:cwd`
 \ | endif
 
-autocmd MyAutoCmd TabLeave *
-\ let t:cwd = getcwd()
+
+
+
+" MessageClear  "{{{2
+
+command! -bar MessageClear
+\ for i in range(200) | echomsg '' | endfor | unlet i
 
 
 
@@ -387,14 +376,6 @@ function! s:cmd_HelpTagsAll(banged_p)
     endif
   endfor
 endfunction
-
-
-
-
-" MessageClear  "{{{2
-
-command! -bar MessageClear
-\ for i in range(200) | echomsg '' | endfor | unlet i
 
 
 
@@ -677,29 +658,11 @@ endfunction
 
 " Indent setter  "{{{2
 
-command! -bar -nargs=1 SetIndent  call s:cmd_SetIndent(<q-args>)
-function! s:cmd_SetIndent(expr)
-  let width = &l:shiftwidth
-  let expandtab = &l:expandtab
+command! -bar -nargs=1 TabIndent
+\ setlocal noexpandtab softtabstop< tabstop=<args> shiftwidth=<args>
 
-  for item in split(a:expr, '\(\d\+\|\a\+\)\zs\|.\zs')
-    if item =~# '\d\+'
-      let width = str2nr(item)
-    elseif item =~# 's\%[pace]'
-      let expandtab = !0
-    elseif item =~# 't\%[ab]'
-      let expandtab = 0
-    endif
-  endfor
-
-  if expandtab
-    setlocal expandtab tabstop<
-    let [&l:softtabstop, &l:shiftwidth] = [width, width]
-  else
-    setlocal noexpandtab softtabstop<
-    let [&l:tabstop, &l:shiftwidth] = [width, width]
-  endif
-endfunction
+command! -bar -nargs=1 SpaceIndent
+\ setlocal expandtab tabstop< softtabstop=<args> shiftwidth=<args>
 
 
 
@@ -835,19 +798,29 @@ endfunction
 command! -range -nargs=+ Seq
 \ <line1>,<line2>call s:cmd_Seq(<q-args>)
 function! s:cmd_Seq(args) range
-  let args = split(a:args, '\(^\|[^\\]\|[^\\]\\\\\)\zs' . a:args[0] . '\+')
-  call map(args, 'substitute(v:val, "\\\\" . a:args[0], a:args[0], "g")')
-  call map(args, 'substitute(v:val, "\\\\\\\\", "\\\\", "g")')
+  let parse_pattern = '\v^([\x00-\xff]&[^\\"|[:alnum:][:blank:]])'
+  \                 . '(%(\\.|.){-})'
+  \                 .   '%(\1(%(\\.|.){-})'
+  \                 .      '%(\1(%(\\.|.){-}))?)?$'
+  let _ = matchlist(a:args, parse_pattern)
+  if empty(_)
+    throw 'invalid arguments'
+  endif
+
+  let separator = _[1]
+  let pattern = _[2]
+  let format = _[3]
+  let options = _[4]
 
   let incrementer = {
-  \   'format': get(args, 1, '%d'),
+  \   'format': format,
   \   'current': 1,
   \   'step': 1,
   \ }
 
   let options = ''
-  for c in split(get(args, 2, ''), '\([+-]\?\d\+\|.\)\zs')
-    if c =~ '^[+-]'
+  for c in split(options, '\([+-]\?\d\+\|.\)\zs')
+    if c =~ '^[+-]\d\+'
       let incrementer.step = str2nr(c)
     elseif c =~ '^\d'
       let incrementer.current = str2nr(c)
@@ -862,10 +835,13 @@ function! s:cmd_Seq(args) range
     return next
   endfunction
 
-  execute printf('%d,%ds/%s/\=incrementer.call()/%s',
+  execute printf('%d,%dsubstitute%s%s%s\=incrementer.call()%s%s',
   \              a:firstline,
   \              a:lastline,
-  \              escape(args[0], '/'),
+  \              separator,
+  \              pattern,
+  \              separator,
+  \              separator,
   \              options)
 endfunction
 
@@ -875,7 +851,7 @@ endfunction
 " Toggle options  "{{{2
 
 function! s:toggle_grepprg(global_p)
-  let VALUES = ['ag --nogroup --nocolor', 'git grep -n']
+  let VALUES = ['git grep -n', 'ag --nogroup --nocolor', 'grep -nHE',]
   let grepprg = &l:grepprg == '' ? &grepprg : &l:grepprg
   let i = (index(VALUES, grepprg) + 1) % len(VALUES)
 
@@ -921,7 +897,7 @@ function! s:toggle_colorcolumn()
   else
     let b:textwidth = &l:textwidth
     if b:textwidth == 0
-      set textwidth=80
+      setlocal textwidth=80
     endif
     setlocal colorcolumn=+1 colorcolumn?
   endif
@@ -1737,7 +1713,6 @@ nnoremap <silent> [Space]c  :<C-u>call <SID>close_temporary_windows()<CR>
 nnoremap [Space]f  <Nop>
 nnoremap [Space]fe  :<C-u>SetFileEncoding<Space>
 nnoremap [Space]ff  :<C-u>SetFileFormat<Space>
-nnoremap [Space]fi  :<C-u>SetIndent<Space>
 nnoremap [Space]ft  :<C-u>setfiletype<Space>
 nnoremap [Space]fs  :<C-u>setlocal filetype? fileencoding? fileformat?<CR>
 
@@ -2055,9 +2030,9 @@ autocmd MyAutoCmd VimEnter,WinEnter *  match Underlined /[\u3000]/
 " actionscript  "{{{2
 
 autocmd MyAutoCmd FileType actionscript
-\   compiler ant
+\   TabIndent 4
 \ | setlocal commentstring=//%s
-\ | SetIndent 4tab
+\ | compiler ant
 
 
 
@@ -2077,15 +2052,15 @@ let g:changelog_username = 'Shota Nozaki <emonkak@gmail.com>'
 " coffee  "{{{2
 
 autocmd MyAutoCmd FileType coffee
-\ SetIndent 2space
+\ SpaceIndent 2
 
 
 
 
-" css  "{{{2
+" css, less, sass, scss  "{{{2
 
-autocmd MyAutoCmd FileType css,sass,scss
-\   SetIndent 2space
+autocmd MyAutoCmd FileType css,less,sass,scss
+\   SpaceIndent 2
 \ | setlocal iskeyword+=-
 
 
@@ -2123,8 +2098,17 @@ autocmd MyAutoCmd FileType gitcommit
 " haskell  "{{{2
 
 autocmd MyAutoCmd FileType haskell
-\   SetIndent 2space
-\ | compiler ghc
+\   SpaceIndent 2
+\ | setlocal omnifunc=necoghc#omnifunc
+\ | compiler cabal
+
+autocmd MyAutoCmd FileType cabal
+\ SpaceIndent 2
+
+" Fix for .hsc highlight
+let g:hs_allow_hash_operator = 1
+
+let g:haskell_conceal = 0
 
 
 
@@ -2132,7 +2116,7 @@ autocmd MyAutoCmd FileType haskell
 " haxe  "{{{2
 
 autocmd MyAutoCmd FileType haxe
-\   SetIndent 2space
+\   SpaceIndent 2
 \ | setlocal commentstring=//%s
 
 
@@ -2141,8 +2125,11 @@ autocmd MyAutoCmd FileType haxe
 " java  "{{{2
 
 autocmd MyAutoCmd FileType java
-\   setlocal cinoptions=:0,l1,g0,t0,(0,j1
-\ | compiler javac
+\   SpaceIndent 4
+\ | compiler gradle
+\ | setlocal cinoptions=:0,l1,g0,t0,(0,j1
+\ | setlocal foldmethod=syntax foldnestmax=2
+\ | setlocal textwidth=100
 
 
 
@@ -2150,7 +2137,7 @@ autocmd MyAutoCmd FileType java
 " javascript  "{{{2
 
 autocmd MyAutoCmd FileType javascript
-\   SetIndent 2space
+\   SpaceIndent 2
 \ | setlocal omnifunc=jscomplete#CompleteJS
 
 
@@ -2159,7 +2146,17 @@ autocmd MyAutoCmd FileType javascript
 " lua  "{{{2
 
 autocmd MyAutoCmd FileType lua
-\ SetIndent 2space
+\ SpaceIndent 2
+
+
+
+
+" markdown  "{{{2
+
+autocmd MyAutoCmd FileType markdown
+\ SpaceIndent 2
+
+let g:markdown_fenced_languages = ['objc']
 
 
 
@@ -2167,7 +2164,7 @@ autocmd MyAutoCmd FileType lua
 " objc  "{{{2
 
 autocmd MyAutoCmd FileType objc
-\   SetIndent 2space
+\   SpaceIndent 2
 \ | setlocal commentstring=//%s
 
 
@@ -2176,7 +2173,7 @@ autocmd MyAutoCmd FileType objc
 " ocaml  "{{{2
 
 autocmd MyAutoCmd FileType ocaml
-\   SetIndent 2space
+\   SpaceIndent 2
 \ | setlocal commentstring=(*%s*)
 
 
@@ -2185,7 +2182,7 @@ autocmd MyAutoCmd FileType ocaml
 " perl  "{{{2
 
 autocmd MyAutoCmd FileType perl
-\ SetIndent 2space
+\ SpaceIndent 2
 
 
 
@@ -2196,7 +2193,7 @@ autocmd MyAutoCmd FileType php
 \ call s:on_FileType_php()
 
 function! s:on_FileType_php()
-  SetIndent 4space
+  SpaceIndent 2
   setlocal commentstring=//%s
 
   inoreabbrev <buffer> /** /**<CR><CR>/<Up>
@@ -2208,7 +2205,7 @@ endfunction
 " python  "{{{2
 
 autocmd MyAutoCmd FileType python
-\ SetIndent 4space
+\ SpaceIndent 4
 
 let g:python_highlight_all = 1
 
@@ -2226,7 +2223,7 @@ autocmd MyAutoCmd FileType qf
 " ruby  "{{{2
 
 autocmd MyAutoCmd FileType ruby
-\ SetIndent 2space
+\ SpaceIndent 2
 
 
 
@@ -2238,21 +2235,21 @@ let g:is_gauche = 1
 
 
 
-" sql  "{{{2
-
-autocmd MyAutoCmd FileType sql
-\   SetIndent 2space
-\ | setlocal commentstring=--%s
-
-
-
-
 " sh, zsh  "{{{2
 
 autocmd MyAutoCmd FileType sh,zsh
-\ SetIndent 2space
+\ SpaceIndent 2
 
 let g:is_bash = 1
+
+
+
+
+" sql  "{{{2
+
+autocmd MyAutoCmd FileType sql
+\   SpaceIndent 2
+\ | setlocal commentstring=--%s
 
 
 
@@ -2264,7 +2261,7 @@ autocmd MyAutoCmd FileType tex,plaintex
 \ | compiler tex
 
 function! s:on_FileType_tex()
-  SetIndent 2space
+  SpaceIndent 2
 
   inoreabbrev <buffer> \b  \textbf{}<Left>
   inoreabbrev <buffer> \i  \textit{}<Left>
@@ -2282,12 +2279,22 @@ let g:tex_flavor = 'latex'
 
 
 
+" typescript  "{{{2
+
+autocmd MyAutoCmd FileType typescript
+\   SpaceIndent 4
+\ | setlocal commentstring=//%s
+
+
+
+
 " vim  "{{{2
 
 autocmd MyAutoCmd FileType vim
-\ SetIndent 2space
+\ SpaceIndent 2
 
 let g:vim_indent_cont = 0
+let g:vimsyn_embed = 'l'
 
 
 
@@ -2298,7 +2305,7 @@ autocmd MyAutoCmd FileType ant,docbk,html,xhtml,xml,xslt,smarty
 \ call s:on_FileType_xml()
 
 function! s:on_FileType_xml()
-  SetIndent 2space
+  SpaceIndent 2
 
   " Complete proper end-tags.
   " In the following description, {|} means the cursor position.
@@ -2327,7 +2334,7 @@ endfunction
 
 " For light weight template engines
 autocmd MyAutoCmd FileType haml,jade,slim
-\ SetIndent 2space
+\ SpaceIndent 2
 
 
 
@@ -2353,6 +2360,16 @@ call altr#define('%.m', '%.h')
 
 nmap <F1>  <Plug>(altr-back)
 nmap <F2>  <Plug>(altr-forward)
+
+
+
+
+" clang-complete  "{{{2
+
+if system('uname') =~# '^Darwin'
+  let g:clang_library_path = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/'
+  let g:clang_auto_user_options = 'path, .clang_complete'
+endif
 
 
 
@@ -2545,63 +2562,52 @@ vmap [Space]s  <Plug>(operator-sort)
 
 command! -complete=command -nargs=+ Capture  QuickRun vim -src <q-args>
 
-nnoremap <expr> <C-c>
-\ quickrun#is_running() ? quickrun#sweep_sessions() : "\<C-c>"
-
-let g:quickrun_config = {
-\  '_': {
-\    'split': '%{'.s:SID_PREFIX().'vertical_p() ? "vertical" : ""}',
-\  },
-\  'actionscript': {
-\    'command': 'mxmlc',
-\    'exec': ['%c %s', 'open -a "/Applications/Adobe Flash Builder 4.7/player/mac/11.1/Flash Player Debugger.app" %s:p:r.swf'],
-\    'hook/sweep/files': ['%S:p:r.swf'],
-\  },
-\  'dot': {
-\    'exec': ['%c -Tps:cairo -o %s:p:r.ps %s'],
-\  },
-\  'haxe': {
-\    'exec': ['%c %a --cwd %s:p:h -x %s:t:r'],
-\    'tempfile': '%{fnamemodify(tempname(), ":h")}/%{expand("%:t")}',
-\    'hook/sweep/files': ['%S:p:r.n'],
-\  },
-\  'java': {
-\    'exec': ['javac %s', '%c -cp %s:h %s:t:r %a'],
-\    'tempfile': '%{fnamemodify(tempname(), ":h")}/%{expand("%:t")}',
-\  },
-\  'javaapplet': {
-\    'exec': 'appletviewer %s:p:r.html',
-\    'tempfile': '%{fnamemodify(tempname(), ":h")}/%{expand("%:t")}',
-\    'hook/eval/template': '<applet code=%s:t:r width=500 height=500></applet>',
-\  },
-\  'javascript': {
-\    'type': 'javascript/v8',
-\  },
-\  'javascript/v8': {
-\    'command': executable('d8') ? 'd8' : 'v8',
-\    'tempfile': '%{tempname()}.js',
-\  },
-\  'markdown/Marked': {
-\    'outputter': 'null',
-\    'command': 'open',
-\    'cmdopt': '-g',
-\    'exec': '%c %o -a Marked %s',
-\  },
-\  'objc': {
-\    'command': 'gcc',
-\    'exec': ['%c %o %s -o %s:p:r', '%s:p:r %a'],
-\    'tempfile': '%{tempname()}.m',
-\  },
-\  'tex': {
-\    'type': executable('platex') ? 'platex' : '',
-\  },
-\  'tex/platex': {
-\    'exec': ['platex -kanji=utf8 -interaction=nonstopmode -shell-escape -output-directory=%s:p:h %s',
-\             'pxdvi %s:p:r.dvi'],
-\  },
-\  'xdefaults': {
-\    'exec': ['xrdb -remove', 'xrdb -merge %s', 'xrdb -query'],
-\  },
+let g:quickrun_config = {}
+let g:quickrun_config['_'] = {
+\   'split': '%{'.s:SID_PREFIX().'vertical_p() ? "vertical" : ""}'
+\ }
+let g:quickrun_config['c'] = {
+\   'type': 'c/clang'
+\ }
+let g:quickrun_config['cpp'] = {
+\  'type': 'cpp/clang'
+\ }
+let g:quickrun_config['dot'] = {
+\   'exec': ['%c -Tps:cairo -o %s:p:r.ps %s']
+\ }
+let g:quickrun_config['php/hhvm'] = {
+\   'command': 'hhvm',
+\   'exec': ['%c %a %s']
+\ }
+let g:quickrun_config['haxe'] = {
+\   'exec': ['%c %a --cwd %s:p:h -x %s:t:r'],
+\   'tempfile': '%{fnamemodify(tempname(), ":h")}/%{expand("%:t")}',
+\   'hook/sweep/files': ['%S:p:r.n']
+\ }
+let g:quickrun_config['json'] = {
+\  'command': 'jq',
+\  'exec': ["%c '.' %s"]
+\ }
+let g:quickrun_config['javascript'] = {
+\   'type': 'javascript/v8'
+\ }
+let g:quickrun_config['javascript/v8'] = {
+\   'command': executable('d8') ? 'd8' : 'v8',
+\   'tempfile': '%{tempname()}.js'
+\ }
+let g:quickrun_config['markdown/marked'] = {
+\   'outputter': 'null',
+\   'command': 'open',
+\   'cmdopt': '-g',
+\   'exec': '%c %o -a Marked %s'
+\ }
+let g:quickrun_config['objc'] = {
+\   'command': 'gcc',
+\   'exec': ['%c %o %s -o %s:p:r', '%s:p:r %a'],
+\   'tempfile': '%{tempname()}.m'
+\ }
+let g:quickrun_config['xdefaults'] = {
+\   'exec': ['xrdb -remove', 'xrdb -merge %s', 'xrdb -query']
 \ }
 
 

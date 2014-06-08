@@ -167,7 +167,7 @@ else
 endif
 
 call s:_.highlight('ColorColumn'  , {'bg': 8})
-call s:_.highlight('Conceal'      , {'bg': 8})
+call s:_.highlight('Conceal'      , {'fg': 8})
 call s:_.highlight('Cursor'       , {'bg': 2})
 call s:_.highlight('CursorIM'     , {'bg': 14})
 call s:_.highlight('CursorColumn' , {'bg': 0})
@@ -179,7 +179,7 @@ call s:_.highlight('DiffDelete'   , {'fg': 8})
 call s:_.highlight('DiffText'     , {'bg': 5})
 call s:_.highlight('ErrorMsg'     , {'bg': 1})
 call s:_.highlight('VertSplit'    , {'attr': 'r', 'fg': 8})
-call s:_.highlight('Folded'       , {'fg': 6})
+call s:_.highlight('Folded'       , {'attr': 'i', 'fg': 6})
 call s:_.highlight('FoldColumn'   , {'fg': 6})
 call s:_.highlight('SignColumn'   , {'fg': 14})
 call s:_.highlight('IncSearch'    , {'attr': 'r'})
@@ -223,7 +223,7 @@ call s:_.highlight('WildMenu'     , {'attr': 'br', 'fg': 11})
 
 " Syntax  "{{{2
 
-call s:_.highlight('Comment'      , {'fg': 14})
+call s:_.highlight('Comment'      , {'attr': 'i', 'fg': 14})
 call s:_.highlight('Constant'     , {'fg': 13})
 call s:_.highlight('Identifier'   , {'attr': 'b', 'fg': 14})
 call s:_.highlight('Statement'    , {'fg': 11})

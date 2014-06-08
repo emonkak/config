@@ -1,6 +1,6 @@
-" Vim compiler: javac
+" Vim indent: typescript
 " Version: 0.0.0
-" Copyright (C) 2011 emonkak <emonkak@gmail.com>
+" Copyright (C) 2013 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -22,22 +22,20 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-if exists('current_compiler')
+if exists('b:did_indent')
   finish
 endif
 
 
 
 
-CompilerSet makeprg=javac\ -Xlint:unchecked\ -Xlint:deprecation\ \"%\"
-CompilerSet errorformat=%E%f:%l:\ %m,
-                       \%C%\S%\+:\ %.%#\ %m,
-                       \%Z%p^,%C%.%#
+setlocal cindent
+setlocal cinoptions=0{,0},0),0#,!^F,o,O,e
 
 
 
 
-let current_compiler = 'javac'
+let b:did_indent = 1
 
 " __END__
 " vim: foldmethod=marker

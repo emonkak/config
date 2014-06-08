@@ -1,6 +1,6 @@
-" Vim compiler: javac
+" Vim additional ftplugin: typescript
 " Version: 0.0.0
-" Copyright (C) 2011 emonkak <emonkak@gmail.com>
+" Copyright (C) 2013 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -22,22 +22,36 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-if exists('current_compiler')
-  finish
+setlocal foldmethod=expr foldexpr=TypescriptFold(v:lnum)
+setlocal iskeyword-=58
+
+function! TypescriptFold(lnum)
+  let current = getline(a:lnum)
+
+  if current =~# '\s*}$'
+    let level = indent(a:lnum) / &l:shiftwidth + 1
+    return level > 3 ? '=' : '<' . level
+  endif
+
+  if current =~# '^\s*'
+             \ . '\(\(export\s*\)\?\(class\|function\|interface\|module\)'
+             \ . '\|\(\(private\|public\)\s\)\?\w\+\(<.*>\)\?(.*)'
+             \ . '\)'
+             \ . '[^;]*$'
+    let level = indent(a:lnum) / &l:shiftwidth + 1
+    return level > 3 ? '=' : level
+  endif
+
+  return '='
+endfunction
+
+if exists('b:undo_ftplugin')
+  let b:undo_ftplugin .= ' | '
+else
+  let b:undo_ftplugin = ''
 endif
 
-
-
-
-CompilerSet makeprg=javac\ -Xlint:unchecked\ -Xlint:deprecation\ \"%\"
-CompilerSet errorformat=%E%f:%l:\ %m,
-                       \%C%\S%\+:\ %.%#\ %m,
-                       \%Z%p^,%C%.%#
-
-
-
-
-let current_compiler = 'javac'
+let b:undo_ftplugin .= 'setlocal foldmethod< foldexpr<'
 
 " __END__
 " vim: foldmethod=marker

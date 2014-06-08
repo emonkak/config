@@ -1,4 +1,4 @@
-" Vim compiler: javac
+" Vim compiler: ghc
 " Version: 0.0.0
 " Copyright (C) 2011 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
@@ -27,17 +27,19 @@ if exists('current_compiler')
 endif
 
 
+CompilerSet makeprg=cabal\ build
+CompilerSet errorformat=%-Z\ %#,
+                       \%W%f:%l:%c:\ Warning:\ %m,
+                       \%E%f:%l:%c:\ %m,
+                       \%E%>%f:%l:%c:,
+                       \%+C\ \ %#%m,
+                       \%W%>%f:%l:%c:,
+                       \%+C\ \ %#%tarning:\ %m
 
 
-CompilerSet makeprg=javac\ -Xlint:unchecked\ -Xlint:deprecation\ \"%\"
-CompilerSet errorformat=%E%f:%l:\ %m,
-                       \%C%\S%\+:\ %.%#\ %m,
-                       \%Z%p^,%C%.%#
 
 
-
-
-let current_compiler = 'javac'
+let current_compiler = 'cabal'
 
 " __END__
 " vim: foldmethod=marker

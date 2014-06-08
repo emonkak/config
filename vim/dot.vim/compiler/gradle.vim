@@ -1,6 +1,6 @@
-" Vim compiler: javac
+" Vim compiler: gradle
 " Version: 0.0.0
-" Copyright (C) 2011 emonkak <emonkak@gmail.com>
+" Copyright (C) 2014 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -22,22 +22,20 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-if exists('current_compiler')
+if exists('g:current_compiler')
   finish
 endif
 
 
 
 
-CompilerSet makeprg=javac\ -Xlint:unchecked\ -Xlint:deprecation\ \"%\"
-CompilerSet errorformat=%E%f:%l:\ %m,
-                       \%C%\S%\+:\ %.%#\ %m,
-                       \%Z%p^,%C%.%#
+CompilerSet makeprg=./gradlew\ --daemon\ --quiet\ assembleDebug
+CompilerSet errorformat=%E%f:%l:\ %m,%-Z%p^,%-C%.%#,%-G%.%#
 
 
 
 
-let current_compiler = 'javac'
+let g:current_compiler = 'gradle'
 
 " __END__
 " vim: foldmethod=marker
