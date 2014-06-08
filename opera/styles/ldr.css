@@ -1,7 +1,8 @@
 @import url("user.css");
 
 * {
-  font-family: sans-serif !important;
+  font-family: "Lucida Grande", "Helvetica Neue", "AquaKana", sans-serif !important;
+  line-height: 1.5 !important;
 }
 
 pre {
@@ -10,7 +11,8 @@ pre {
 
 pre,
 pre * {
-  font-family: 'Consolas', monospace !important;
+  font-family: 'Source Code Pro', monospace !important;
+  line-height: 1.5 !important;
 }
 
 blockquote,
@@ -56,6 +58,15 @@ blockquote p {
 .channel_toolbar {
   border-bottom: 1px solid #cccccc !important;
   margin: 0px !important;
+}
+
+.channel_toolbar table {
+  height: 100% !important;
+}
+
+.channel_toolbar td {
+  vertical-align: middle !important;
+  padding: 0 !important;
 }
 
 .item_info {
