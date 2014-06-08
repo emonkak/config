@@ -1,7 +1,6 @@
+=dev-haskell/haddock-2.14* **
+=dev-lang/ghc-7.8* **
 =sys-apps/portage-2.2* **
-=sys-devel/gcc-4.6* **
-=sys-devel/gcc-config-1.5* **
 app-emulation/wine -~amd64
 dev-scheme/c-wrapper **
 dev-scheme/gambit **
-www-client/chromium-bin **

@@ -4,9 +4,9 @@ app-admin/eselect-php apache2
 app-arch/unzip natspec
 app-benchmarks/sysbench mysql
 app-crypt/gcr gtk
-app-editors/emacs gtk
+app-editors/emacs gtk xft
 app-editors/gvim gtk lua luajit python
-app-editors/vim gtk lua luajit lpython
+app-editors/vim gtk lua luajit python
 app-editors/yi gtk
 app-emulation/emul-linux-x86-soundlibs alsa
 app-emulation/libvirt python qemu virt-network
@@ -27,14 +27,17 @@ app-text/ghostscript-gpl gtk cups
 app-text/lcdf-typetools kpathsea
 app-text/poppler qt4 -abiword
 dev-db/mariadb pbxt
-dev-haskell/* doc
+dev-java/icedtea-bin -X -alsa -cups
 dev-lang/ghc doc ghcbootstrap llvm
 dev-lang/perl ithreads
 dev-lang/php apache2 gd mysql mysqli pcntl pdo sockets sqlite zip
 dev-lang/python sqlite
+dev-lang/scala binary
 dev-libs/boost python
+dev-libs/jemalloc stats
 dev-libs/libxml2 python
 dev-libs/nettle gmp
+dev-libs/oniguruma -parse-tree-node-recycle
 dev-qt/qtgui dbus gtkstyle
 dev-vcs/git cvs perl subversion
 dev-vcs/subversion -dso perl python
@@ -58,6 +61,7 @@ media-sound/easytag flac mp3 mp4 speex vorbis wavpack
 media-sound/mpd aac inotify lame ogg sqlite vorbis
 media-sound/ncmpcpp clock taglib
 media-sound/pulseaudio gnome
+media-sound/shntool flac
 media-sound/sonata dbus lyrics taglib trayicon
 media-tv/xawtv xv
 media-video/ffmpeg alsa faac mp3 network rtmp theora v4l2 vorbis x264 xvid
@@ -72,6 +76,7 @@ net-im/instantbird -system-libpurple
 net-im/pidgin gstreamer
 net-im/skype4pidgin dbus
 net-irc/irssi perl
+net-libs/c-client kerberos
 net-libs/gtk-vnc gtk3
 net-libs/gtk-vnc python
 net-misc/hotot gtk
