@@ -105,6 +105,7 @@ myManageHook = composeOne
   , className =? "XFontSel"                -?> doCenterFloat
   , className =? "Xmessage"                -?> doCenterFloat
   , className =? "feh"                     -?> doCenterFloat
+  , className =? "mpv"                     -?> doCenterFloat
   , className =? "Geeqie"                  -?> doShiftEmptyAndGo
   , className =? "Inkscape"                -?> doShiftEmptyAndGo
   , className =? "fontforge"               -?> doShiftEmptyAndGo <+> doFloat
