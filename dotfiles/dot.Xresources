@@ -95,7 +95,7 @@ Rxvt.url-launcher: google-chrome
 
 Rxvt.externalBorder: 0
 Rxvt.internalBorder: 2
-Rxvt.lineSpace: 6
+Rxvt.lineSpace: 4
 Rxv.saveLines: 10000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true

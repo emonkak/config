@@ -1,9 +1,9 @@
 ! My xmodmap
 
 ! Caps Lock -> Control_L
-remove Lock = Caps_Lock
-add Control = Caps_Lock
-keysym Caps_Lock = Control_L
+! remove Lock = Caps_Lock
+! add Control = Caps_Lock
+! keysym Caps_Lock = Control_L
 
 ! Semicolon <-> Colon
 keycode 47 = colon semicolon

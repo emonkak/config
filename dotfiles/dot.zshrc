@@ -71,7 +71,63 @@ unsetopt flow_control
 
 
 
-# Hooks  #{{{1
+# Autoloads  #{{{1
+
+autoload -Uz add-zsh-hook
+
+# cdr  #{{{2
+
+if [[ -n $(echo ${^fpath}/chpwd_recent_dirs(N)) && -n $(echo ${^fpath}/cdr(N)) ]]
+then
+  autoload -Uz chpwd_recent_dirs cdr
+
+  add-zsh-hook chpwd chpwd_recent_dirs
+
+  mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/shell"
+
+  zstyle ':completion:*:*:cdr:*:*' menu selection
+  zstyle ':completion:*' recent-dirs-insert both
+  zstyle ':chpwd:*' recent-dirs-max 500
+  zstyle ':chpwd:*' recent-dirs-default true
+  zstyle ':chpwd:*' recent-dirs-file "${XDG_CACHE_HOME:-$HOME/.cache}/shell/chpwd-recent-dirs"
+  zstyle ':chpwd:*' recent-dirs-pushd true
+fi
+
+
+
+
+# compinit  #{{{2
+
+autoload -Uz compinit
+
+compinit
+
+zstyle ':completion:*' completer _complete _expand _ignored _match _oldlist _prefix
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' menu select=1
+zstyle ':completion:*' use-cache true
+zstyle ':completion:*' verbose true
+zstyle ':completion:*:cd:*' ignore-parents parent pwd
+zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
+zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
+
+
+
+
+# select-word-style  #{{{2
+
+autoload -Uz select-word-style
+
+select-word-style default
+
+zstyle ':zle:*' word-chars " _-./;@"
+zstyle ':zle:*' word-style unspecified
+
+
+
+
+# vcs_info  #{{{2
 
 autoload -Uz vcs_info
 zstyle ':vcs_info:git:*' check-for-changes false
@@ -80,7 +136,39 @@ zstyle ':vcs_info:*' actionformats '[%s:%b%u|%a]'
 zstyle ':vcs_info:*' formats '[%s:%b%u]'
 zstyle ':vcs_info:bzr:*' use-simple true
 
-if [ -n "$WINDOW" ]; then  # is GNU screen
+add-zsh-hook precmd vcs_info
+
+
+
+
+# zargs  #{{{2
+
+autoload -Uz zargs
+
+
+
+
+# zmv  #{{{2
+
+autoload -Uz zmv
+alias zmv='noglob zmv'
+
+
+
+
+# zsh-syntax-highlighting  #{{{2
+
+if [ -f ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+  source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+
+
+
+
+# Hooks  #{{{1
+
+if [ -n "$WINDOW" ]  # is GNU screen
+then
   preexec() {
     local -a cmd; cmd=(${(z)2})
     case "$cmd[1]" in
@@ -100,11 +188,12 @@ if [ -n "$WINDOW" ]; then  # is GNU screen
   precmd() {
     print -Pn "\ek$ZSH_NAME\e\\"
   }
-elif [[ -n "$TMUX" ]]; then
+elif [[ -n "$TMUX" ]]
+then
   precmd() {
     print -Pn "\e]0;%m@%n:%~\a"
-    vcs_info
-    tmux show-environment | while read line; do
+    tmux show-environment | while read line
+    do
       if [ $line[1] = '-' ]; then
         unset ${line#-*}
       else
@@ -112,10 +201,10 @@ elif [[ -n "$TMUX" ]]; then
       fi
     done
   }
-elif [[ "$TERM" == (xterm*|rxvt*) ]]; then
+elif [[ "$TERM" == (xterm*|rxvt*) ]]
+then
   precmd() {
     print -Pn "\e]0;%m@%n:%~\a"
-    vcs_info
   }
 fi
 
@@ -124,6 +213,22 @@ accept-line() {
   zle .accept-line && region_highlight=("0 ${#BUFFER} bold")
 }
 zle -N accept-line
+
+# Adds node_modules/.bin to the PATH
+npm_chpwd_hook() {
+    if [ -n "${PRENPMPATH+x}" ]
+    then
+        PATH=$PRENPMPATH
+        unset PRENPMPATH
+    fi
+    if [ -d node_modules/.bin ]
+    then
+        PRENPMPATH=$PATH
+        PATH=$PWD/node_modules/.bin:$PATH
+    fi
+}
+
+add-zsh-hook preexec npm_chpwd_hook
 
 
 
@@ -191,9 +296,6 @@ else
 fi
 alias ln='ln -iv'
 
-autoload zmv
-alias zmv='noglob zmv'
-
 alias git='noglob git'
 alias g='git'
 alias sudo='sudo '
@@ -219,7 +321,7 @@ alias -s rb='ruby'
 alias -s py='python'
 alias -s hs='runhaskell'
 alias -s php='php -f'
-alias -s {gz,tar,zip,rar,7z}='aunpack' # preztoのarchiveモジュールのコマンド(https:
+alias -s {gz,tar,zip,rar,7z}='aunpack'
 
 
 
@@ -247,74 +349,40 @@ bindkey "\e[8~" end-of-line  # <End>
 bindkey "\e[F" end-of-line  # <End>
 bindkey "\e[H" beginning-of-line  # <Home>
 
-
-autoload -Uz select-word-style
-select-word-style default
-zstyle ':zle:*' word-chars " _-./;@"
-zstyle ':zle:*' word-style unspecified
-
-
-
-
-# Completion  #{{{1
-
-autoload -U compinit
-compinit
-zstyle ':completion:*' completer _complete _expand _ignored _match _oldlist _prefix
-zstyle ':completion:*' list-colors ''
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-zstyle ':completion:*' menu select=1
-zstyle ':completion:*' use-cache true
-zstyle ':completion:*' verbose true
-zstyle ':completion:*:cd:*' ignore-parents parent pwd
-zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
-zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
-
-
-
-
-# Packages  #{{{1
-
-autoload zargs
-
-if [ -f "$HOME/.zsh/zaw/zaw.zsh" ]; then
-  source ~/.zsh/zaw/zaw.zsh
-  bindkey '^Xh' zaw-history
-  bindkey '^Xc' zaw-dirstack
-  bindkey '^Xg' zaw-git-files
-fi
-
-if [ -f ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-  source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-fi
-
-if [ -f ~/.zsh/z/z.sh ]; then
-  source ~/.zsh/z/z.sh
-fi
-
-function static_httpd {
-  if type plackup > /dev/null; then
-    plackup -MPlack::App::Directory -e 'Plack::App::Directory->new(root => ".")->to_app'
-  elif type ruby > /dev/null; then
-    if ruby -v | grep -qm1 'ruby 2\.'; then
-      ruby -run -e httpd -- --port=5000 .
+if which peco &> /dev/null
+then
+  function peco-history() {
+    local tac
+    if which tac > /dev/null
+    then
+        tac='tac'
     else
-      ruby -rwebrick -e 'WEBrick::HTTPServer.new(:Port => 5000, :DocumentRoot => ".").start'
+        tac='tail -r'
     fi
-  elif type python > /dev/null; then
-    if python -V 2>&1 | grep -qm1 'Python 3\.'; then
-      python -m http.server 5000
-    else
-      python -m SimpleHTTPServer 5000
+
+    BUFFER=$(history -n 1 | eval $tac | peco --query "$LBUFFER")
+    CURSOR=$#BUFFER
+
+    zle clear-screen
+  }
+
+  function peco-cdr() {
+    local selected_dir=$(cdr -l | awk '{ print $2 }' | peco)
+
+    if [ -n "$selected_dir" ]; then
+        BUFFER="cd ${selected_dir}"
+        zle accept-line
     fi
-  elif type node > /dev/null; then
-    node -e "var c=require('connect'), d=process.env.PWD; c().use(c.logger()).use(c.static(d)).use(c.directory(d)).listen(5000);"
-  elif type php > /dev/null && php -v | grep -qm1 'PHP 5\.[45]\.'; then
-    php -S 0.0.0.0:5000
-  elif type erl > /dev/null; then
-    erl -eval 'inets:start(), inets:start(httpd, [{server_name, "httpd"}, {server_root, "."}, {document_root, "."}, {port, 5000}])'
-  fi
-}
+
+    zle clear-screen
+  }
+
+  zle -N peco-cdr
+  zle -N peco-history
+
+  bindkey '^Xc' peco-cdr
+  bindkey '^Xh' peco-history
+fi
 
 
 
@@ -322,6 +390,3 @@ function static_httpd {
 # __END__  #{{{1
 # vim: expandtab softtabstop=2 shiftwidth=2
 # vim: foldmethod=marker
-
-#THIS MUST BE AT THE END OF THE FILE FOR GVM TO WORK!!!
-[[ -s "/Users/emon/.gvm/bin/gvm-init.sh" ]] && source "/Users/emon/.gvm/bin/gvm-init.sh"

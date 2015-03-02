@@ -1,12 +1,13 @@
 # My zshenv
 
+export GOPATH="$HOME/go"
 export HAXEPATH="$HOME/haxe"
 export HAXE_LIBRARY_PATH="$HAXEPATH/std"
 export NEKOPATH="$HOME/neko"
 
 export LD_LIBRARY_PATH="$HOME/neko"
 
-export PATH="$HOME/bin:$HOME/.cabal/bin:$HOME/.gem/ruby/2.1.0/bin:$HAXEPATH:$NEKOPATH:$PATH"
+export PATH="$HOME/bin:$HOME/.cabal/bin:$HOME/.gem/ruby/2.1.0/bin:$HAXEPATH:$NEKOPATH:$GOPATH/bin:$PATH"
 
 export LANG='ja_JP.UTF-8'
 export LC_MESSAGES='C'
@@ -25,5 +26,8 @@ export no_proxy='localhost,192.168.0.0/16'
 export GIT_MERGE_AUTOEDIT=no
 
 export MPD_CONF="$HOME/.mpd/mpd.conf"
+
+# OPAM configuration
+. /home/emon/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
 
 # eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
