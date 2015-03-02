@@ -53,6 +53,7 @@ function! metarw#sudo#read(fakepath)  "{{{2
     endfor
     return ['browse', result]
   else
+    echoerr '!sudo cat ' . shellescape(path)
     return ['read', '!sudo cat ' . shellescape(path)]
   endif
 endfunction

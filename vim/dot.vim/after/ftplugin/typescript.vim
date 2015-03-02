@@ -23,7 +23,7 @@
 " }}}
 
 setlocal foldmethod=expr foldexpr=TypescriptFold(v:lnum)
-setlocal iskeyword-=58
+setlocal iskeyword-=:
 
 function! TypescriptFold(lnum)
   let current = getline(a:lnum)

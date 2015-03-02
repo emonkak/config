@@ -4,10 +4,12 @@
 
 if has('vim_starting')
   if has('win32') || has('win64')
-    set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
+    set runtimepath^=~\\vimfiles\\bundle\\*
+    set runtimepath+=~\\vimfiles\\bundle\\*\\after
+  else
+    set runtimepath^=~/.vim/bundle/*
+    set runtimepath+=~/.vim/bundle/*/after
   endif
-  set runtimepath^=~/.vim/bundle/*
-  set runtimepath+=~/.vim/bundle/*/after
 endif
 
 if has('kaoriya')
@@ -76,16 +78,18 @@ if has('gui_running')
   set guicursor=a:blinkwait4000-blinkon1500-blinkoff500
   if has('gui_gtk2')
     set guifont=Monospace\ 10
-    set linespace=5
-  elseif has('gui_macvim')
-    set guifont=Source\ Code\ Pro:h14
     set linespace=6
+  elseif has('gui_macvim')
+    set guifont=Monaco:h12
+    set linespace=5
     set macmeta
     set transparency=0
     set visualbell
   elseif has('gui_win32')
     set guifont=Consolas:h10.5
-    set linespace=2
+    set guifontwide=MS\ Gothic:h10.5
+    set renderoptions=type:directx,renmode:5
+    set linespace=6
   endif
   set guioptions=AcgM
 endif
@@ -105,7 +109,9 @@ set complete-=i
 set completeopt=menuone,longest
 set confirm
 set diffopt=filler,vertical
-set directory=~/tmp,/tmp
+set directory&
+set directory-=.
+set directory^=~/tmp
 set fileformats=unix,dos,mac
 set hidden
 set history=1000
@@ -114,11 +120,10 @@ if has('multi_byte_ime') || has('xim')
   set imsearch=0
 endif
 set keywordprg=:help
+set undofile
+set undodir=~/tmp,/tmp
 set nowritebackup
 if exists('+shellslash')
-  set shell=bash
-  set shellcmdflag=-c
-  set shellpipe=2>&1\|\ tee
   set shellslash
 endif
 set spelllang=en_us
@@ -131,7 +136,7 @@ endif
 set cmdheight=1
 if has('conceal')
   set concealcursor=nc
-  set conceallevel=1
+  set conceallevel=2
 endif
 set nocursorline
 set display=lastline
@@ -337,10 +342,29 @@ endfunction
 
 " CD - wrapper of :cd to keep cwd for each tabpage  "{{{2
 
-command! -complete=dir -nargs=* CD
-\   execute 'cd' fnameescape(<q-args>)
-\ | let t:cwd = getcwd()
-\ | echo t:cwd
+command! -nargs=*  -complete=customlist,s:complete_cdpath CD
+\ call s:cmd_CD(<q-args>)
+
+function! s:complete_cdpath(arglead, cmdline, cursorpos)
+  return split(globpath(&cdpath,
+  \                     join(split(a:cmdline, '\s', !0)[1:], ' ') . '*/'),
+  \            "\n")
+endfunction
+
+function! s:cmd_CD(path)
+  if a:path != ''
+    cd `=a:path`
+  else
+    let project_root = s:lookup_project_root(expand('%:p:h'))
+    if project_root != ''
+      cd `=project_root`
+    else
+      cd
+    endif
+  endif
+  let t:cwd = getcwd()
+  echo t:cwd
+endfunction
 
 AlterCommand cd  CD
 
@@ -358,7 +382,7 @@ autocmd MyAutoCmd TabEnter *
 " MessageClear  "{{{2
 
 command! -bar MessageClear
-\ for i in range(200) | echomsg '' | endfor | unlet i
+\ for s:i in range(200) | echomsg '' | endfor | unlet s:i
 
 
 
@@ -424,7 +448,7 @@ function! s:cmd_SuspendWithAutomticCD()
   let shell = split(&shell, '/')[-1]
 
   if has('gui_running') && has('macunix')
-    silent !open -a Terminal
+    silent !open -a iTerm
   elseif exists('$TMUX')
     let windows = split(vimproc#system('tmux list-windows'), '\n')
     call map(windows, 'split(v:val, "^\\d\\+\\zs:\\s")')
@@ -449,6 +473,17 @@ endfunction
 
 
 
+" ShowSyntax - show a syntax name under the cursor. "{{{2
+
+command! -bar -nargs=0 ShowSyntax
+\ echo join(<SID>syntax_name_on_the_cursor(), '/')
+function! s:syntax_name_on_the_cursor()
+  return map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
+endfunction
+
+
+
+
 " TabpageTitle - name the current tabpage  "{{{2
 
 command! -bar -nargs=* TabpageTitle
@@ -458,6 +493,20 @@ command! -bar -nargs=* TabpageTitle
 \ |   let t:title = <q-args>
 \ | endif
 \ | redraw!
+
+
+
+
+" Indent setters  "{{{2
+
+command! -bar -nargs=1 TabIndent
+\ setlocal noexpandtab softtabstop< tabstop=<args> shiftwidth=<args>
+
+command! -bar -nargs=1 SpaceIndent
+\ setlocal expandtab tabstop< softtabstop=<args> shiftwidth=<args>
+
+AlterCommand si  SpaceIndent
+AlterCommand ti  TabIndent
 
 
 
@@ -563,7 +612,7 @@ function! s:cmd_BufferCleaner(banged_p)
   for bufnr in _
     silent execute bufnr 'bdelete'.(a:banged_p ? '!' : '')
   endfor
-  echo len(_) 'buffer deleted'
+  echo printf('%d buffer%s deleted', len(_), len(_) > 1 ? 's' : '')
 endfunction
 
 
@@ -572,7 +621,7 @@ endfunction
 " Fold debugger  "{{{2
 
 command! -range=% FoldDebug
-\ <line1>,<line2>global/^/echo printf("%*d [%-2s] %s", len(line('$')), line('.'), eval(substitute(&l:foldexpr, 'v:lnum', line('.'), '')), getline('.'))
+\ <line1>,<line2>global/^/echo printf("%*d [%2s] %s", len(line('$')), line('.'), eval(substitute(&l:foldexpr, 'v:lnum', line('.'), '')), getline('.'))
 
 
 
@@ -656,17 +705,6 @@ endfunction
 
 
 
-" Indent setter  "{{{2
-
-command! -bar -nargs=1 TabIndent
-\ setlocal noexpandtab softtabstop< tabstop=<args> shiftwidth=<args>
-
-command! -bar -nargs=1 SpaceIndent
-\ setlocal expandtab tabstop< softtabstop=<args> shiftwidth=<args>
-
-
-
-
 " Plugin manager  "{{{2
 
 command! -bang -complete=customlist,s:complete_bundle -nargs=+ Bundle
@@ -696,16 +734,15 @@ function! s:bundle.install(package, banged_p) dict  "{{{3
   let m = matchlist(a:package, '^\(\%(git\|https\?\)://[^/]\+\)\?/*\(.\+\)')
 
   if !empty(m)
-    if m[1] == ''
-      let m[1] = 'git://github.com'
-    endif
-    let m[2] = substitute(m[2], '\.git$', '', '')
+    let repository = (m[1] == '' ? 'git://github.com' : m[1])
+    \              . '/'
+    \              . substitute(m[2], '\%(\.git\)\?$', '.git', '')
 
     let bundle = self.DIR . '/' . substitute(m[2], '/', '_', '')
     let command = join([
     \   'git',
     \   'clone',
-    \   shellescape(join(m[1:2], '/') . '.git'),
+    \   repository,
     \   shellescape(bundle)
     \ ])
 
@@ -814,35 +851,39 @@ function! s:cmd_Seq(args) range
 
   let incrementer = {
   \   'format': format,
+  \   'last_line': 0x7fffffff,
   \   'current': 1,
   \   'step': 1,
   \ }
 
-  let options = ''
+  let substitute_options = ''
   for c in split(options, '\([+-]\?\d\+\|.\)\zs')
-    if c =~ '^[+-]\d\+'
-      let incrementer.step = str2nr(c)
-    elseif c =~ '^\d'
+    if c =~ '^\d\+'
       let incrementer.current = str2nr(c)
+    elseif c =~ '^[+-]\d\+'
+      let incrementer.step = str2nr(c)
     else
-      let options .= c
+      let substitute_options .= c
     endif
   endfor
 
-  function incrementer.call() dict
+  function incrementer.call(line) dict
+    if a:line > self.last_line
+      let self.current += self.step
+    endif 
     let next = printf(self.format, self.current)
-    let self.current += self.step
+    let self.last_line = a:line
     return next
   endfunction
 
-  execute printf('%d,%dsubstitute%s%s%s\=incrementer.call()%s%s',
+  execute printf('%d,%dsubstitute%s%s%s\=incrementer.call(line(''.''))%s%s',
   \              a:firstline,
   \              a:lastline,
   \              separator,
   \              pattern,
   \              separator,
   \              separator,
-  \              options)
+  \              substitute_options)
 endfunction
 
 
@@ -1013,19 +1054,6 @@ endfunction
 
 
 
-function! s:all_combinations(xs)  "{{{2
-  let cs = []
-
-  for r in range(1, len(a:xs))
-    call extend(cs, s:combinations(a:xs, r))
-  endfor
-
-  return cs
-endfunction
-
-
-
-
 function! s:close_temporary_windows()  "{{{2
   let _ = range(1, winnr('$'))
   let pattern = '^nofile\|quickfix\|help'
@@ -1048,45 +1076,30 @@ endfunction
 
 
 
-function! s:combinations(pool, r)  "{{{2
-  let n = len(a:pool)
-  if n < a:r || a:r <= 0
-    return []
-  endif
-
-  let result = []
-
-  let indices = range(a:r)
-  call add(result, join(map(copy(indices), 'a:pool[v:val]'), ''))
-
-  while !0
-    let broken_p = 0
-    for i in reverse(range(a:r))
-      if indices[i] != i + n - a:r
-        let broken_p = !0
-        break
-      endif
-    endfor
-    if !broken_p
-      break
-    endif
-
-    let indices[i] += 1
-    for j in range(i + 1, a:r - 1)
-      let indices[j] = indices[j-1] + 1
-    endfor
-    call add(result, join(map(copy(indices), 'a:pool[v:val]'), ''))
-  endwhile
-
-  return result
+function! s:first_line(file)  "{{{2
+  let lines = readfile(a:file, '', 1)
+  return 1 <= len(lines) ? lines[0] : ''
 endfunction
 
 
 
 
-function! s:first_line(file)  "{{{2
-  let lines = readfile(a:file, '', 1)
-  return 1 <= len(lines) ? lines[0] : ''
+function! s:lookup_project_root(path)  "{{{2
+  let above_dir = a:path
+  while 1
+    let current_dir = above_dir
+    if !empty(filter(['.bzr', '.git', '.hg', '.svn', 'cvs'],
+    \                 'isdirectory(current_dir . "/" . v:val)'))
+      return current_dir  " Found the project root
+    endif
+
+    let above_dir = simplify(current_dir . '/..')
+    if above_dir >= current_dir
+      break
+    endif
+  endwhile
+
+  return ''  " Not found
 endfunction
 
 
@@ -1214,156 +1227,12 @@ endfunction
 " Mappings  "{{{1
 " Terminal-GUI interoperability  "{{{2
 
-" <M-{x}> => <Esc>x
-function! s:emulate_meta_esc_behavior_in_terminal()
-  " [key, acceptable-modifiers-except-meta]  "{{{
-  let keys = [
-  \   ['!', ''],
-  \   ['"', ''],
-  \   ['#', ''],
-  \   ['$', ''],
-  \   ['%', ''],
-  \   ['&', ''],
-  \   ['''', ''],
-  \   ['(', ''],
-  \   [')', ''],
-  \   ['*', ''],
-  \   ['+', ''],
-  \   [',', ''],
-  \   ['-', ''],
-  \   ['.', ''],
-  \   ['0', ''],
-  \   ['1', ''],
-  \   ['2', ''],
-  \   ['3', ''],
-  \   ['4', ''],
-  \   ['5', ''],
-  \   ['6', ''],
-  \   ['7', ''],
-  \   ['8', ''],
-  \   ['9', ''],
-  \   [':', ''],
-  \   [';', ''],
-  \   ['<BS>', 'CS'],
-  \   ['<Bar>', ''],
-  \   ['<Bslash>', 'C'],
-  \   ['<Del>', 'CS'],
-  \   ['<Down>', 'CS'],
-  \   ['<End>', 'CS'],
-  \   ['<Esc>', 'CS'],
-  \   ['<F10>', 'CS'],
-  \   ['<F11>', 'CS'],
-  \   ['<F12>', 'CS'],
-  \   ['<F1>', 'CS'],
-  \   ['<F2>', 'CS'],
-  \   ['<F3>', 'CS'],
-  \   ['<F4>', 'CS'],
-  \   ['<F5>', 'CS'],
-  \   ['<F6>', 'CS'],
-  \   ['<F7>', 'CS'],
-  \   ['<F9>', 'CS'],
-  \   ['<F9>', 'CS'],
-  \   ['<Home>', 'CS'],
-  \   ['<LT>', ''],
-  \   ['<Left>', 'CS'],
-  \   ['<PageDown>', 'CS'],
-  \   ['<PageUp>', 'CS'],
-  \   ['<Return>', 'CS'],
-  \   ['<Right>', 'CS'],
-  \   ['<Space>', 'CS'],
-  \   ['<Tab>', 'CS'],
-  \   ['<Up>', 'CS'],
-  \   ['=', ''],
-  \   ['>', ''],
-  \   ['@', 'C'],
-  \   ['A', ''],
-  \   ['B', ''],
-  \   ['C', ''],
-  \   ['D', ''],
-  \   ['E', ''],
-  \   ['F', ''],
-  \   ['G', ''],
-  \   ['H', ''],
-  \   ['I', ''],
-  \   ['J', ''],
-  \   ['K', ''],
-  \   ['L', ''],
-  \   ['M', ''],
-  \   ['N', ''],
-  \   ['O', ''],
-  \   ['P', ''],
-  \   ['Q', ''],
-  \   ['R', ''],
-  \   ['S', ''],
-  \   ['T', ''],
-  \   ['U', ''],
-  \   ['V', ''],
-  \   ['W', ''],
-  \   ['X', ''],
-  \   ['Y', ''],
-  \   ['Z', ''],
-  \   ['[', 'C'],
-  \   [']', 'C'],
-  \   ['^', 'C'],
-  \   ['_', 'C'],
-  \   ['`', ''],
-  \   ['a', 'C'],
-  \   ['b', 'C'],
-  \   ['c', 'C'],
-  \   ['d', 'C'],
-  \   ['e', 'C'],
-  \   ['f', 'C'],
-  \   ['g', 'C'],
-  \   ['h', 'C'],
-  \   ['i', 'C'],
-  \   ['j', 'C'],
-  \   ['k', 'C'],
-  \   ['l', 'C'],
-  \   ['m', 'C'],
-  \   ['n', 'C'],
-  \   ['o', 'C'],
-  \   ['p', 'C'],
-  \   ['q', 'C'],
-  \   ['r', 'C'],
-  \   ['s', 'C'],
-  \   ['t', 'C'],
-  \   ['u', 'C'],
-  \   ['v', 'C'],
-  \   ['w', 'C'],
-  \   ['x', 'C'],
-  \   ['y', 'C'],
-  \   ['z', 'C'],
-  \   ['{', ''],
-  \   ['}', ''],
-  \   ['~', ''],
-  \ ]
-  "}}}
-
-  for [key, modifiers] in keys
-    let k = matchstr(key, '^<\zs.*\ze>$\|.*')
-
-    for map in ['map', 'map!']
-      execute map '<M-'.k.'>'  '<Esc>'.key
-      for m in s:modifier_combinations(modifiers)
-        execute map '<M-'.m.k.'>'  '<Esc><'.m.k.'>'
-      endfor
-    endfor
-  endfor
-endfunction
-
-function! s:modifier_combinations(modifiers)
-  let prefixes = map(range(len(a:modifiers)), 'a:modifiers[v:val] . "-"')
-  return s:all_combinations(prefixes)
-endfunction
-
 if has('gui_running')
   " NUL
   map <C-Space>  <C-@>
   map! <C-Space>  <C-@>
 
   noremap! <S-Insert>  <C-r>*
-
-  call s:emulate_meta_esc_behavior_in_terminal()
 endif
 
 
@@ -1510,10 +1379,10 @@ nmap <C-t><C-t>  <C-t>j
 
 " GNU screen like mappings.
 " Note that the numbers in {lhs}s are 0-origin.  See also 'tabline'.
-for i in range(10)
-  execute 'nnoremap <silent>' ('<C-t>'.(i))  ((i+1).'gt')
+for s:i in range(10)
+  execute 'nnoremap <silent>' ('<C-t>'.(s:i))  ((s:i+1).'gt')
 endfor
-unlet i
+unlet s:i
 
 
 " Moving tabpages themselves.  "{{{3
@@ -1949,13 +1818,9 @@ function! s:search_forward_p()
   return exists('v:searchforward') ? v:searchforward : !0
 endfunction
 
-
-" Show the syntax name under the cursor.
-nnoremap <silent> gs
-\ :<C-u>echo join(<SID>syntax_name_the_cursor(), '/')<CR>
-function! s:syntax_name_the_cursor()
-  return map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-endfunction
+" 'gf' with split
+noremap <silent> gs  :<c-u>call <SID>vertical_with('wincmd', ['f'])<CR>
+noremap <silent> gS  :<c-u>call <SID>vertical_with('wincmd', ['F'])<CR>
 
 
 
@@ -2004,11 +1869,22 @@ function! s:on_FileType_any()
 endfunction
 
 
+" Protect large files from sourcing and other overhead.
+autocmd MyAutoCmd BufReadPre *
+\   if getfsize(expand("<afile>")) > 1024 * 1024 * 10
+\ |   set eventignore+=FileType
+\ |   setlocal noswapfile
+\ | else
+\ |   set eventignore-=FileType
+\ | endif
+
+
 " Fix 'fileencoding' to use 'encoding'.
 autocmd MyAutoCmd BufReadPost *
 \   if &l:modifiable && !search('[^\x00-\x7F]', 'cnw', 100)
 \ |   setlocal fileencoding=
 \ | endif
+
 
 " When editing a file, always jump to the last cursor position.
 autocmd MyAutoCmd BufReadPost *
@@ -2021,8 +1897,8 @@ autocmd MyAutoCmd BufReadPost *
 autocmd MyAutoCmd InsertLeave *  set nopaste
 
 
-" Visualization ideographic space.
-autocmd MyAutoCmd VimEnter,WinEnter *  match Underlined /[\u3000]/
+" Visualize ideographic spaces.
+autocmd MyAutoCmd VimEnter,WinEnter *  match Underlined /[\u3000\ufff9-\ufffc]/
 
 
 
@@ -2053,6 +1929,25 @@ let g:changelog_username = 'Shota Nozaki <emonkak@gmail.com>'
 
 autocmd MyAutoCmd FileType coffee
 \ SpaceIndent 2
+
+
+
+
+" cs  "{{{2
+
+let g:syntastic_cs_checkers = ['syntax', 'semantic', 'issues']
+
+autocmd MyAutoCmd FileType cs
+\ call s:on_FileType_cs()
+
+function! s:on_FileType_cs()
+  SpaceIndent 4
+
+  setlocal commentstring=//%s
+  setlocal textwidth=100
+
+  inoreabbrev <buffer> ///  /// <summary><CR><CR></summary><Up><Space>
+endfunction
 
 
 
@@ -2143,6 +2038,14 @@ autocmd MyAutoCmd FileType javascript
 
 
 
+" json  "{{{2
+
+autocmd MyAutoCmd FileType json
+\ SpaceIndent 4
+
+
+
+
 " lua  "{{{2
 
 autocmd MyAutoCmd FileType lua
@@ -2154,9 +2057,7 @@ autocmd MyAutoCmd FileType lua
 " markdown  "{{{2
 
 autocmd MyAutoCmd FileType markdown
-\ SpaceIndent 2
-
-let g:markdown_fenced_languages = ['objc']
+\ SpaceIndent 4
 
 
 
@@ -2164,7 +2065,7 @@ let g:markdown_fenced_languages = ['objc']
 " objc  "{{{2
 
 autocmd MyAutoCmd FileType objc
-\   SpaceIndent 2
+\   SpaceIndent 4
 \ | setlocal commentstring=//%s
 
 
@@ -2193,7 +2094,7 @@ autocmd MyAutoCmd FileType php
 \ call s:on_FileType_php()
 
 function! s:on_FileType_php()
-  SpaceIndent 2
+  SpaceIndent 4
   setlocal commentstring=//%s
 
   inoreabbrev <buffer> /** /**<CR><CR>/<Up>
@@ -2301,7 +2202,7 @@ let g:vimsyn_embed = 'l'
 
 " xml  "{{{2
 
-autocmd MyAutoCmd FileType ant,docbk,html,xhtml,xml,xslt,smarty
+autocmd MyAutoCmd FileType ant,docbk,html,mustache,smarty,xhtml,xml,xslt
 \ call s:on_FileType_xml()
 
 function! s:on_FileType_xml()
@@ -2340,7 +2241,7 @@ autocmd MyAutoCmd FileType haml,jade,slim
 
 
 " Plugins  "{{{1
-" acceleration  "{{{2
+" accelerate  "{{{2
 
 call accelerate#map('nv', 'e', '<C-u>', 'repeat("\<C-u>", v:count1)')
 call accelerate#map('nv', 'e', '<C-d>', 'repeat("\<C-d>", v:count1)')
@@ -2378,6 +2279,15 @@ endif
 
 nmap <Esc><C-j>  <Plug>(exjumplist-next-buffer)
 nmap <Esc><C-k>  <Plug>(exjumplist-previous-buffer)
+nmap <M-C-j>  <Plug>(exjumplist-next-buffer)
+nmap <M-C-k>  <Plug>(exjumplist-previous-buffer)
+
+
+
+
+" fakeclip  "{{{2
+
+let g:fakeclip_provide_clipboard_key_mappings = 1
 
 
 
@@ -2520,9 +2430,9 @@ nnoremap <silent> [Space]km  :<C-u>Ku file_mru<CR>
 nnoremap <silent> [Space]kk  :<C-u>call ku#restart()<CR>
 
 
-let g:ku_personal_runtime = expand('~/.vim')
 let g:ku_file_mru_ignore_pattern = '/$\|/\.git/\|^/\(/\|mnt\|tmp\)'
 let g:ku_file_mru_limit = 200
+
 
 
 
@@ -2530,6 +2440,14 @@ let g:ku_file_mru_limit = 200
 " metarw  "{{{2
 
 let g:metarw_gist_safe_write = 1
+
+
+
+
+" operator-camelize  "{{{2
+
+map <Leader>c <Plug>(operator-camelize)
+map <Leader>C <Plug>(operator-decamelize)
 
 
 
@@ -2570,7 +2488,15 @@ let g:quickrun_config['c'] = {
 \   'type': 'c/clang'
 \ }
 let g:quickrun_config['cpp'] = {
-\  'type': 'cpp/clang'
+\   'type': 'cpp/clang'
+\ }
+let g:quickrun_config['cs'] = {
+\   'type': 'cs/mono'
+\ }
+let g:quickrun_config['cs/mono'] = {
+\   'command': 'mcs',
+\   'exec': ['%c %o %s -out:%s:p:r.exe', 'mono %s:p:r.exe %a'],
+\   'hook/sweep/files': '%S:p:r.exe',
 \ }
 let g:quickrun_config['dot'] = {
 \   'exec': ['%c -Tps:cairo -o %s:p:r.ps %s']
@@ -2605,6 +2531,13 @@ let g:quickrun_config['objc'] = {
 \   'command': 'gcc',
 \   'exec': ['%c %o %s -o %s:p:r', '%s:p:r %a'],
 \   'tempfile': '%{tempname()}.m'
+\ }
+let g:quickrun_config['sql'] = {
+\   'type': 'sql/mysql'
+\ }
+let g:quickrun_config['sql/mysql'] = {
+\   'command': 'mysql',
+\   'exec': ['%c -u root < %s'],
 \ }
 let g:quickrun_config['xdefaults'] = {
 \   'exec': ['xrdb -remove', 'xrdb -merge %s', 'xrdb -query']
@@ -2714,6 +2647,16 @@ endfunction
 
 
 
+" smartword  "{{{2
+
+map w  <Plug>(smartword-w)
+map b  <Plug>(smartword-b)
+map e  <Plug>(smartword-e)
+map ge  <Plug>(smartword-ge)
+
+
+
+
 " smartinput  "{{{2
 
 let g:smartinput_no_default_key_mappings = 1
@@ -2744,16 +2687,6 @@ call smartinput#define_rule({
 " }}}
 
 call smartinput#map_trigger_keys()
-
-
-
-
-" smartword  "{{{2
-
-map w  <Plug>(smartword-w)
-map b  <Plug>(smartword-b)
-map e  <Plug>(smartword-e)
-map ge  <Plug>(smartword-ge)
 
 
 

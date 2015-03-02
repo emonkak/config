@@ -29,7 +29,7 @@ function! PHPFold(lnum)
 
   if current =~# '\s*}$'
     let level = indent(a:lnum) / &l:shiftwidth + 1
-    return level > 2 ? '=' : '<' . level
+    return level > 3 ? '=' : '<' . level
   endif
 
   if current =~# '^\s*\('
@@ -40,7 +40,7 @@ function! PHPFold(lnum)
              \ . '\|trait'
              \ . '\)[^;]*$'
     let level = indent(a:lnum) / &l:shiftwidth + 1
-    return level > 2 ? '=' : level
+    return level > 3 ? '=' : level
   endif
 
   return '='

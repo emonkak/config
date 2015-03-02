@@ -1,42 +1,38 @@
-" Vim syntax file for extending PHP to use Java-like syntaxing highlighting
-" for phpDoc.
+" Vim additional syntax: php
+" Version: 0.0.0
+" Copyright (C) 2015 emonkak <emonkak@gmail.com>
+" License: MIT license  {{{
+"     Permission is hereby granted, free of charge, to any person obtaining
+"     a copy of this software and associated documentation files (the
+"     "Software"), to deal in the Software without restriction, including
+"     without limitation the rights to use, copy, modify, merge, publish,
+"     distribute, sublicense, and/or sell copies of the Software, and to
+"     permit persons to whom the Software is furnished to do so, subject to
+"     the following conditions:
 "
-" Language:    php PHP 3/4/5
-" Maintainer:  Andrei Nicholson <andre@neo-anime.org>
-" Last Change: 2011-04-06
+"     The above copyright notice and this permission notice shall be included
+"     in all copies or substantial portions of the Software.
+"
+"     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+"     OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+"     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+"     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+"     CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+"     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+"     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+" }}}
 
-syntax sync fromstart
+if 0 && has('conceal')
+  syntax clear phpVarSelector
+  syntax match phpVarSelector "\$"  contained display conceal
 
-syntax match phpCommentStar contained "^\s*\*[^/]"me=e-1
-syntax match phpCommentStar contained "^\s*\*$"
+  syntax clear phpMemberSelector
+  syntax match phpMemberSelector "->"  contained display conceal cchar=.
 
-if !exists("php_ignore_phpdoc")
-    syntax case ignore
+  highlight! link Conceal Operator
 
-    syntax region phpDocComment   start="/\*\*" end="\*/" keepend contains=phpCommentTitle,phpDocTags,phpTodo
-    syntax region phpCommentTitle contained matchgroup=phpDocComment start="/\*\*" matchgroup=phpCommmentTitle keepend end="\.$" end="\.[ \t\r<&]"me=e-1 end="[^{]@"me=s-2,he=s-1 end="\*/"me=s-1,he=s-1 contains=phpCommentStar,phpTodo,phpDocTags containedin=phpComment
-
-    syntax region phpDocTags  start="{@\(example\|id\|internal\|inheritdoc\|link\|source\|toc\|tutorial\)" end="}" containedin=phpComment
-    syntax match  phpDocTags  "@\(abstract\|access\|author\|category\|copyright\|deprecated\|example\|final\|global\|ignore\|internal\|license\|link\|method\|name\|package\|param\|property\|return\|see\|since\|static\|staticvar\|subpackage\|throws\|todo\|tutorial\|uses\|var\|version\)\s\+\S\+" contains=phpDocParam containedin=phpComment
-    syntax match  phpDocParam contained "\s\S\+"
-    syntax match  phpDocTags  "@filesource" containedin=phpComment
-
-    syntax case match
+  setlocal conceallevel=2
 endif
 
-if version >= 508 || !exists("did_phpdoc_syn_inits")
-    if version < 508
-        let did_phpdoc_syn_inits = 1
-        command! -nargs=+ PhpHiLink hi link <args>
-    else
-        command! -nargs=+ PhpHiLink hi def link <args>
-    endif
-
-    PhpHiLink phpCommentTitle Comment
-    PhpHiLink phpDocComment   Comment
-    PhpHiLink phpDocTags      Special
-    PhpHiLink phpDocParam     Type
-    PhpHiLink phpCommentStar  Comment
-
-    delcommand PhpHiLink
-endif
+" __END__
+" vim: foldmethod=marker
