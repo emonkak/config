@@ -1,26 +1,24 @@
 @import url("user.css");
 
-.lhshdr {
-  right: 0px !important;
+#center_col {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
-#leftnav {
-  width: 160px !important;
-  right: 0px !important;
-  padding-right: 0px !important;
+#center_col,
+#foot {
+  width: 648px !important;
 }
 
-#center_col, #foot {
-  margin-left: 0px !important;
-  margin-right: 160px !important;
+#hdtb_msb .hdtb_mitem:first-child.hdtb_msel,
+#hdtb_msb .hdtb_mitem:first-child.hdtb_msel_pre {
+  margin-left: 8px !important;
 }
 
-#rhscol,
-#tads,
-#bottomads,
-#vspb,
-.hd,
-.vspi,
-.vspib {
+.ab_tnav_wrp {
+  margin-left: 0 !important;
+}
+  
+._Ak {
   display: none !important;
 }
