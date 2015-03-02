@@ -2,8 +2,7 @@
 =dev-db/mariadb-10*
 =dev-db/mysql-5.6*
 =media-video/libav-10*
-=sys-kernel/gentoo-sources-3.14.1
+=sys-kernel/gentoo-sources-3.19.0
 =virtual/mysql-5.6
+=x11-drivers/xf86-input-evdev-2.9*
 =x11-misc/dzen-9999
-www-client/opera
-www-client/opera-next

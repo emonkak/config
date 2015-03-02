@@ -1,6 +1,5 @@
-=dev-lang/php-5.5* ipv6
 app-admin/conky mpd lua vim-syntax
-app-admin/eselect-php apache2
+app-admin/eselect-php apache2 fpm
 app-arch/unzip natspec
 app-benchmarks/sysbench mysql
 app-crypt/gcr gtk
@@ -30,7 +29,7 @@ dev-db/mariadb pbxt
 dev-java/icedtea-bin -X -alsa -cups
 dev-lang/ghc doc ghcbootstrap llvm
 dev-lang/perl ithreads
-dev-lang/php apache2 gd mysql mysqli pcntl pdo sockets sqlite zip
+dev-lang/php apache2 curl fpm gd mysql mysqli pcntl pdo sockets sqlite zip
 dev-lang/python sqlite
 dev-lang/scala binary
 dev-libs/boost python
@@ -38,6 +37,7 @@ dev-libs/jemalloc stats
 dev-libs/libxml2 python
 dev-libs/nettle gmp
 dev-libs/oniguruma -parse-tree-node-recycle
+dev-php/hhvm hack
 dev-qt/qtgui dbus gtkstyle
 dev-vcs/git cvs perl subversion
 dev-vcs/subversion -dso perl python
@@ -66,12 +66,13 @@ media-sound/sonata dbus lyrics taglib trayicon
 media-tv/xawtv xv
 media-video/ffmpeg alsa faac mp3 network rtmp theora v4l2 vorbis x264 xvid
 media-video/gnome-mplayer dbus
-media-video/libav alsa faac mp3 rtmp theora v4l2 vorbis x264 xvid
+media-video/libav alsa encode faac mp3 rtmp theora threads v4l2 vaapi vorbis X x264 xvid
 media-video/mplayer faac libmpeg2 png rtmp v4l2 xvmc
 media-video/vlc aac alsa dvd flac fontconfig matroska mp3 mpeg ogg png stream theora truetype v4l2 vorbis x264 xv
 net-analyzer/wireshark gtk
+net-dns/dnsmasq script
 net-fs/cifs-utils ads upcall
-net-fs/samba winbind
+net-fs/samba client ewinbind
 net-im/instantbird -system-libpurple
 net-im/pidgin gstreamer
 net-im/skype4pidgin dbus
@@ -87,12 +88,13 @@ net-print/bjfilter ip3100
 net-print/cups samba
 net-proxy/tinyproxy minimal
 sys-apps/groff linguas_ja
-sys-apps/smartmontools minimal
+sys-apps/smartmontools -minimal
 sys-auth/consolekit policykit
 sys-auth/pambase consolekit
 sys-block/gparted fat ntfs
 sys-devel/gcc go
 sys-devel/llvm clang
+sys-fs/eudev gudev
 sys-fs/udev extras hwdb
 sys-fs/udev gudev
 sys-kernel/ck-sources symlink
@@ -124,3 +126,6 @@ x11-terms/rxvt-unicode -vanilla 256-color alt-font-width force-hints perl truety
 x11-themes/gtk-engines-murrine -themes
 x11-wm/xmonad doc
 x11-wm/xmonad-contrib doc
+# required by dev-php/hhvm-3.5.0::hhvm
+# required by hhvm (argument)
+sys-devel/binutils static-libs
