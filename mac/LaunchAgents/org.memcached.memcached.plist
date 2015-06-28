@@ -6,9 +6,11 @@
     <string>org.memcached.memcached</string>
     <key>RunAtLoad</key>
     <true/>
+    <key>NetworkState</key>
+    <true/>
     <key>ProgramArguments</key>
     <array>
-      <string>/Users/emon/Gentoo/usr/bin/memcached</string>
+      <string>/Users/emonkak/gentoo/usr/bin/memcached</string>
     </array>
   </dict>
 </plist>

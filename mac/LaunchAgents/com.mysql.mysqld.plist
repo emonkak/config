@@ -8,9 +8,11 @@
     <true/>
     <key>KeepAlive</key>
     <true/>
+    <key>NetworkState</key>
+    <true/>
     <key>Program</key>
-    <string>/Users/emon/Gentoo/usr/bin/mysqld_safe</string>
+    <string>/Users/emonkak/gentoo/usr/bin/mysqld_safe</string>
     <key>WorkingDirectory</key>
-    <string>/Users/emon/Gentoo/usr</string>
+    <string>/Users/emonkak/gentoo/usr</string>
   </dict>
 </plist>

@@ -1,9 +1,4 @@
-=dev-libs/libevent-2.1*
-=dev-ml/findlib-1.5.5
-=dev-php/hhvm-9999
-=dev-util/ccache-3.2
 =sys-boot/grub-2*
-=www-servers/nginx-9999
 >app-i18n/skk-jisyo-9999
 sys-fs/udev
 sys-kernel/gentoo-sources

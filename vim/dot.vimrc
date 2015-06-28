@@ -342,13 +342,15 @@ endfunction
 
 " CD - wrapper of :cd to keep cwd for each tabpage  "{{{2
 
-command! -nargs=*  -complete=customlist,s:complete_cdpath CD
+command! -nargs=* -complete=customlist,s:complete_cdpath CD
 \ call s:cmd_CD(<q-args>)
 
 function! s:complete_cdpath(arglead, cmdline, cursorpos)
-  return split(globpath(&cdpath,
-  \                     join(split(a:cmdline, '\s', !0)[1:], ' ') . '*/'),
-  \            "\n")
+  return map(uniq(globpath(&cdpath,
+  \                        join(split(a:cmdline, '\s', !0)[1:], ' ') . '*/',
+  \                        0,
+  \                        !0)),
+  \          'v:val[:-2]')
 endfunction
 
 function! s:cmd_CD(path)
@@ -2032,7 +2034,7 @@ autocmd MyAutoCmd FileType java
 " javascript  "{{{2
 
 autocmd MyAutoCmd FileType javascript
-\   SpaceIndent 2
+\   SpaceIndent 4
 \ | setlocal omnifunc=jscomplete#CompleteJS
 
 
@@ -2510,16 +2512,14 @@ let g:quickrun_config['haxe'] = {
 \   'tempfile': '%{fnamemodify(tempname(), ":h")}/%{expand("%:t")}',
 \   'hook/sweep/files': ['%S:p:r.n']
 \ }
+let g:quickrun_config['javascript/nodejs'] = {
+\   'args': '--harmony',
+\   'command': 'node',
+\   'tempfile': '%{tempname()}.js',
+\ }
 let g:quickrun_config['json'] = {
 \  'command': 'jq',
 \  'exec': ["%c '.' %s"]
-\ }
-let g:quickrun_config['javascript'] = {
-\   'type': 'javascript/v8'
-\ }
-let g:quickrun_config['javascript/v8'] = {
-\   'command': executable('d8') ? 'd8' : 'v8',
-\   'tempfile': '%{tempname()}.js'
 \ }
 let g:quickrun_config['markdown/marked'] = {
 \   'outputter': 'null',
@@ -2537,7 +2537,7 @@ let g:quickrun_config['sql'] = {
 \ }
 let g:quickrun_config['sql/mysql'] = {
 \   'command': 'mysql',
-\   'exec': ['%c -u root < %s'],
+\   'exec': ['%c --user root --password root %a < %s'],
 \ }
 let g:quickrun_config['xdefaults'] = {
 \   'exec': ['xrdb -remove', 'xrdb -merge %s', 'xrdb -query']

@@ -1,0 +1,4 @@
+=dev-db/mariadb-10*
+=virtual/mysql-10*
+dev-lang/v8
+dev-libs/libmemcached

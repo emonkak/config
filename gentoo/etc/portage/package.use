@@ -1,5 +1,4 @@
 app-admin/conky mpd lua vim-syntax
-app-admin/eselect-php apache2 fpm
 app-arch/unzip natspec
 app-benchmarks/sysbench mysql
 app-crypt/gcr gtk
@@ -10,7 +9,8 @@ app-editors/yi gtk
 app-emulation/emul-linux-x86-soundlibs alsa
 app-emulation/libvirt python qemu virt-network
 app-emulation/qemu alsa opengl qemu-ifup sdl
-app-emulation/wine -prelink alsa dbus fontconfig hardened jpeg mp3 png xml
+app-emulation/wine -mono -prelink alsa dbus fontconfig hardened jpeg mp3 png xml
+app-eselect/eselect-php apache2 fpm
 app-i18n/ibus gtk python
 app-i18n/ibus-mozc -ibus uim qt4
 app-i18n/uim -anthy gtk libnotify linguas_ja skk xft
@@ -32,7 +32,8 @@ dev-lang/perl ithreads
 dev-lang/php apache2 curl fpm gd mysql mysqli pcntl pdo sockets sqlite zip
 dev-lang/python sqlite
 dev-lang/scala binary
-dev-libs/boost python
+dev-libs/boost context python
+dev-libs/glib dbus
 dev-libs/jemalloc stats
 dev-libs/libxml2 python
 dev-libs/nettle gmp
@@ -78,12 +79,10 @@ net-im/pidgin gstreamer
 net-im/skype4pidgin dbus
 net-irc/irssi perl
 net-libs/c-client kerberos
-net-libs/gtk-vnc gtk3
-net-libs/gtk-vnc python
+net-libs/gtk-vnc gtk3 python
 net-misc/hotot gtk
 net-misc/rdesktop alsa
-net-misc/spice-gtk gtk3
-net-misc/spice-gtk python
+net-misc/spice-gtk gtk3 python
 net-print/bjfilter ip3100
 net-print/cups samba
 net-proxy/tinyproxy minimal
@@ -92,7 +91,8 @@ sys-apps/smartmontools -minimal
 sys-auth/consolekit policykit
 sys-auth/pambase consolekit
 sys-block/gparted fat ntfs
-sys-devel/gcc go
+sys-devel/binutils static-libs
+sys-devel/gcc -fortran go
 sys-devel/llvm clang
 sys-fs/eudev gudev
 sys-fs/udev extras hwdb
@@ -102,8 +102,7 @@ sys-kernel/gentoo-sources symlink
 sys-kernel/vanilla-sources symlink
 sys-libs/talloc python
 sys-libs/zlib minizip
-virtual/udev gudev
-virtual/udev hwdb
+virtual/udev gudev hwdb
 www-client/google-chrome linguas_ja
 www-client/jd migemo
 www-client/luakit luajit
@@ -126,6 +125,84 @@ x11-terms/rxvt-unicode -vanilla 256-color alt-font-width force-hints perl truety
 x11-themes/gtk-engines-murrine -themes
 x11-wm/xmonad doc
 x11-wm/xmonad-contrib doc
-# required by dev-php/hhvm-3.5.0::hhvm
-# required by hhvm (argument)
-sys-devel/binutils static-libs
+
+# for Wine
+app-arch/bzip2 abi_x86_32
+dev-libs/expat abi_x86_32
+dev-libs/glib abi_x86_32
+dev-libs/json-c abi_x86_32
+dev-libs/libgcrypt abi_x86_32
+dev-libs/libpthread-stubs abi_x86_32
+dev-libs/libtasn1 abi_x86_32
+dev-libs/libxml2 abi_x86_32
+dev-libs/libxslt abi_x86_32
+dev-libs/nettle abi_x86_32
+dev-util/pkgconfig abi_x86_32
+media-libs/alsa-lib abi_x86_32
+media-libs/flac abi_x86_32
+media-libs/fontconfig abi_x86_32
+media-libs/freetype abi_x86_32
+media-libs/glu abi_x86_32
+media-libs/jpeg abi_x86_32
+media-libs/libogg abi_x86_32
+media-libs/libpng abi_x86_32
+media-libs/libsndfile abi_x86_32
+media-libs/libvorbis abi_x86_32
+media-libs/mesa abi_x86_32
+media-plugins/alsa-plugins abi_x86_32
+media-sound/mpg123 abi_x86_32
+media-sound/pulseaudio abi_x86_32
+net-libs/gnutls abi_x86_32
+net-libs/libasyncns abi_x86_32
+sys-apps/attr abi_x86_32
+sys-apps/dbus abi_x86_32
+sys-apps/tcp-wrappers abi_x86_32
+sys-apps/util-linux abi_x86_32
+sys-devel/gettext abi_x86_32
+sys-devel/llvm abi_x86_32
+sys-fs/eudev abi_x86_32
+sys-libs/libcap abi_x86_32
+sys-libs/zlib abi_x86_32
+virtual/glu abi_x86_32
+virtual/jpeg abi_x86_32
+virtual/libffi abi_x86_32
+virtual/libiconv abi_x86_32
+virtual/libintl abi_x86_32
+virtual/libudev abi_x86_32
+virtual/opengl abi_x86_32
+virtual/pkgconfig abi_x86_32
+x11-libs/libICE abi_x86_32
+x11-libs/libSM abi_x86_32
+x11-libs/libX11 abi_x86_32
+x11-libs/libXau abi_x86_32
+x11-libs/libXcursor abi_x86_32
+x11-libs/libXdamage abi_x86_32
+x11-libs/libXdmcp abi_x86_32
+x11-libs/libXext abi_x86_32
+x11-libs/libXfixes abi_x86_32
+x11-libs/libXi abi_x86_32
+x11-libs/libXrandr abi_x86_32
+x11-libs/libXrender abi_x86_32
+x11-libs/libXtst abi_x86_32
+x11-libs/libXxf86vm abi_x86_32
+x11-libs/libdrm abi_x86_32
+x11-libs/libpciaccess abi_x86_32
+x11-libs/libxcb abi_x86_32
+x11-libs/libxshmfence abi_x86_32
+x11-proto/damageproto abi_x86_32
+x11-proto/dri2proto abi_x86_32
+x11-proto/dri3proto abi_x86_32
+x11-proto/fixesproto abi_x86_32
+x11-proto/glproto abi_x86_32
+x11-proto/inputproto abi_x86_32
+x11-proto/kbproto abi_x86_32
+x11-proto/presentproto abi_x86_32
+x11-proto/randrproto abi_x86_32
+x11-proto/recordproto abi_x86_32
+x11-proto/renderproto abi_x86_32
+x11-proto/xcb-proto abi_x86_32
+x11-proto/xextproto abi_x86_32
+x11-proto/xf86bigfontproto abi_x86_32
+x11-proto/xf86driproto abi_x86_32
+x11-proto/xf86vidmodeproto abi_x86_32
+x11-proto/xproto abi_x86_32

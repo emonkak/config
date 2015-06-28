@@ -3,14 +3,13 @@
 <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>org.nginx.nginx</string>
+    <string>io.redis.redis-server</string>
+    <key>ProgramArguments</key>
+    <array>
+      <string>/Users/emonkak/gentoo/usr/sbin/redis-server</string>
+      <string>/Users/emonkak/gentoo/etc/redis.conf</string>
+    </array>
     <key>RunAtLoad</key>
     <true/>
-    <key>KeepAlive</key>
-    <false/>
-    <key>NetworkState</key>
-    <true/>
-    <key>Program</key>
-    <string>/Users/emonkak/gentoo/usr/sbin/nginx</string>
   </dict>
 </plist>

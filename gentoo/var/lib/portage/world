@@ -16,7 +16,6 @@ app-benchmarks/sysbench
 app-cdr/bchunk
 app-cdr/dvd+rw-tools
 app-doc/php-docs
-app-editors/gvim
 app-editors/vim
 app-emulation/docker
 app-emulation/libvirt
@@ -44,13 +43,12 @@ app-text/lv
 app-text/tree
 dev-haskell/cabal-install
 dev-lang/ghc
-dev-lang/mono
 dev-lang/ocaml
 dev-lang/php
 dev-lang/ruby
 dev-lang/scala
-dev-ml/findlib
-dev-ml/opam
+dev-perl/Digest-SHA1
+dev-perl/WWW-Mechanize
 dev-php/hhvm
 dev-php/pecl-apcu
 dev-php/pecl-memcache
@@ -60,8 +58,6 @@ dev-php/xhprof
 dev-python/pip
 dev-ruby/rake
 dev-ruby/rubygems
-dev-scheme/c-wrapper
-dev-scheme/gauche
 dev-tcltk/expect
 dev-util/ccache
 dev-util/cloc
@@ -89,7 +85,6 @@ media-gfx/graphviz
 media-gfx/imagemagick
 media-gfx/optipng
 media-gfx/scrot
-media-libs/libgroove
 media-plugins/alsa-plugins
 media-sound/alsa-utils
 media-sound/mp3gain
@@ -111,15 +106,12 @@ net-dns/bind-tools
 net-dns/ddclient
 net-firewall/iptables
 net-fs/nfs-utils
-net-fs/samba
-net-im/skype
 net-libs/nodejs
 net-misc/bridge-utils
 net-misc/dropbox
 net-misc/gtkvncviewer
 net-misc/icecast
 net-misc/mimms
-net-misc/mosh
 net-misc/ntp
 net-misc/openvpn
 net-misc/pavuk
@@ -146,6 +138,7 @@ sys-apps/usbutils
 sys-apps/usermode-utilities
 sys-block/parted
 sys-boot/grub
+sys-devel/gdb
 sys-fs/ntfs3g
 sys-fs/zfs
 sys-kernel/genkernel
@@ -157,8 +150,6 @@ sys-process/vixie-cron
 www-client/elinks
 www-client/firefox-bin
 www-client/google-chrome
-www-client/jd
-www-client/opera-developer
 www-client/w3m
 www-servers/nginx
 x11-apps/xdpyinfo

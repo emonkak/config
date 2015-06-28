@@ -8,9 +8,11 @@
     <true/>
     <key>KeepAlive</key>
     <true/>
+    <key>NetworkState</key>
+    <true/>
     <key>ProgramArguments</key>
     <array>
-      <string>/Users/emon/Gentoo/usr/sbin/apache2</string>
+      <string>/Users/emonkak/gentoo/usr/sbin/apache2</string>
       <string>-D</string>
       <string>DEFAULT_VHOST</string>
       <string>-D</string>
