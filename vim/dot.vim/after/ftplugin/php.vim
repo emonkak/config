@@ -28,7 +28,7 @@ function! PHPFold(lnum)
   let current = getline(a:lnum)
 
   if current =~# '\s*}$'
-    let level = indent(a:lnum) / &l:shiftwidth + 1
+    let level = indent(a:lnum) / shiftwidth() + 1
     return level > 3 ? '=' : '<' . level
   endif
 
@@ -39,7 +39,7 @@ function! PHPFold(lnum)
              \ . '\|namespace'
              \ . '\|trait'
              \ . '\)[^;]*$'
-    let level = indent(a:lnum) / &l:shiftwidth + 1
+    let level = indent(a:lnum) / shiftwidth() + 1
     return level > 3 ? '=' : level
   endif
 

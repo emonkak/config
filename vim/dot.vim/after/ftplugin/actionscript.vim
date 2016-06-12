@@ -28,7 +28,7 @@ function! ActionScriptFold(lnum)
   let current = getline(a:lnum)
 
   if current =~# '\s*}$'
-    let level = indent(a:lnum) / &l:shiftwidth
+    let level = indent(a:lnum) / shiftwidth()
     return level > 2 ? '=' : '<' . (level + 1)
   endif
 
@@ -38,7 +38,7 @@ function! ActionScriptFold(lnum)
              \ . '\|interface'
              \ . '\|package'
              \ . '\)[^;]*$'
-    let level = indent(a:lnum) / &l:shiftwidth
+    let level = indent(a:lnum) / shiftwidth()
     return level > 2 ? '=' : '>' . (level + 1)
   endif
 

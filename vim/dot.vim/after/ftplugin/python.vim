@@ -26,7 +26,7 @@ setlocal foldmethod=expr foldexpr=PythonFold(v:lnum)
 
 function! PythonFold(lnum)
   if getline(a:lnum) =~# '^\s*\(class\|def\)\s'
-    return '>' . (indent(a:lnum) / &l:shiftwidth + 1)
+    return '>' . (indent(a:lnum) / shiftwidth() + 1)
   endif
 
   let next_lnum = nextnonblank(a:lnum + 1)
@@ -36,7 +36,7 @@ function! PythonFold(lnum)
 
   let next_indent = indent(next_lnum)
   if next_indent < indent(a:lnum)
-    return '<' . (next_indent / &l:shiftwidth + 1)
+    return '<' . (next_indent / shiftwidth() + 1)
   endif
 
   return '='

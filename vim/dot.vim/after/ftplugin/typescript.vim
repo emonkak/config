@@ -29,17 +29,18 @@ function! TypescriptFold(lnum)
   let current = getline(a:lnum)
 
   if current =~# '\s*}$'
-    let level = indent(a:lnum) / &l:shiftwidth + 1
+    let level = indent(a:lnum) / shiftwidth() + 1
     return level > 3 ? '=' : '<' . level
   endif
 
   if current =~# '^\s*'
-             \ . '\(\(export\s*\)\?\(class\|function\|interface\|module\)'
-             \ . '\|\(\(private\|public\)\s\)\?\w\+\(<.*>\)\?(.*)'
+             \ . '\%(\%(export\s\+\%(default\s\+\)\?\)\?\%(\%(abstract\s\+\)\?class\|function\|interface\|module\)'
+             \ . '\|\%(\%(private\|public\)\s\+\)\?\%(async\s\+\)\?\*\?\%(\w\+\|\[.\{-}\]\)\%(<.\+>\)\?('
+             \ . '\|\%(declare\s\+\)\%(module\|namespace\)\s\+'
              \ . '\)'
              \ . '[^;]*$'
-    let level = indent(a:lnum) / &l:shiftwidth + 1
-    return level > 3 ? '=' : level
+    let level = indent(a:lnum) / shiftwidth() + 1
+    return level > 2 ? '=' : level
   endif
 
   return '='

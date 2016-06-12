@@ -127,6 +127,7 @@ if exists('+shellslash')
   set shellslash
 endif
 set spelllang=en_us
+set synmaxcol=200
 set updatetime=1000
 set virtualedit=block
 
@@ -346,10 +347,10 @@ command! -nargs=* -complete=customlist,s:complete_cdpath CD
 \ call s:cmd_CD(<q-args>)
 
 function! s:complete_cdpath(arglead, cmdline, cursorpos)
-  return map(uniq(globpath(&cdpath,
-  \                        join(split(a:cmdline, '\s', !0)[1:], ' ') . '*/',
-  \                        0,
-  \                        !0)),
+  return map(uniq(sort(globpath(&cdpath,
+  \                             join(split(a:cmdline, '\s', !0)[1:], ' ') . '*/',
+  \                             0,
+  \                             !0))),
   \          'v:val[:-2]')
 endfunction
 
@@ -452,15 +453,19 @@ function! s:cmd_SuspendWithAutomticCD()
   if has('gui_running') && has('macunix')
     silent !open -a iTerm
   elseif exists('$TMUX')
-    let windows = split(vimproc#system('tmux list-windows'), '\n')
-    call map(windows, 'split(v:val, "^\\d\\+\\zs:\\s")')
-    call filter(windows, 'matchstr(v:val[1], "\\w\\+") ==# shell')
-    let select_command = empty(windows)
-    \                  ? 'new-window'
-    \                  : 'select-window -t ' . windows[0][0]
+    let select_command = 'new-window'
+    let target_pane = ':$'
+    for window in split(vimproc#system('tmux list-windows'), '\n')
+      let matches = matchlist(window, '^\(\d\+\):\s\(\w\+\)')
+      if !empty(matches) && matches[2] ==# shell
+        let select_command = 'select-window -t '.matches[1]
+        let target_pane = ':'.matches[1]
+        break
+      endif
+    endfor
     silent execute '!tmux'
     \              select_command '\;'
-    \              'send-keys C-u " cd \"'.getcwd().'\"" C-m'
+    \              'send-keys -t '.target_pane.' C-u " cd \"'.getcwd().'\"" C-m'
     redraw!
   elseif exists('$WINDOW')
     silent execute '!screen -X eval'
@@ -1087,21 +1092,26 @@ endfunction
 
 
 function! s:lookup_project_root(path)  "{{{2
-  let above_dir = a:path
-  while 1
-    let current_dir = above_dir
+  for dir in s:upper_dirs(a:path)
     if !empty(filter(['.bzr', '.git', '.hg', '.svn', 'cvs'],
-    \                 'isdirectory(current_dir . "/" . v:val)'))
-      return current_dir  " Found the project root
+    \                 'isdirectory(dir . "/" . v:val)'))
+      return dir
     endif
+  endfor
+  return ''
+endfunction
 
-    let above_dir = simplify(current_dir . '/..')
-    if above_dir >= current_dir
-      break
-    endif
-  endwhile
 
-  return ''  " Not found
+
+
+function! s:upper_dirs(path)  "{{{2
+  let dirs = []
+  let acc = ''
+  for dir in split(a:path, '/')
+    let acc .= '/' . dir
+    call add(dirs, acc)
+  endfor
+  return reverse(dirs)
 endfunction
 
 
@@ -1167,7 +1177,7 @@ function! s:operator_translate(motion_wiseness)  "{{{2
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   execute 'normal!' '`['.visual_command.'`]y'
 
-  let @" = s:translate_with_auto_detect(@0)
+  let @" = s:translate_with_auto_detection(@0)
 
   echo @"
 endfunction
@@ -1201,10 +1211,7 @@ function! s:translate(text, from, to)  "{{{2
 
   if response.status == 200
     let result = webapi#json#decode(response.content)
-    if has_key(result, 'sentences')
-      return join(map(result.sentences,
-      \           'has_key(v:val, "trans") ? v:val.trans : ""'))
-    endif
+    return result
   else
     throw printf("%d %s: %s", response.status, response.message, api)
   end
@@ -1215,7 +1222,7 @@ endfunction
 
 
 
-function! s:translate_with_auto_detect(text)  "{{{2
+function! s:translate_with_auto_detection(text)  "{{{2
   if a:text =~ '[^\x00-\x7F]'
     return s:translate(a:text, 'ja', 'en')
   else  " English given
@@ -1511,21 +1518,6 @@ inoremap <C-w>  <C-g>u<C-w>
 inoremap <C-u>  <C-g>u<C-u>
 
 
-" Make I/A available in characterwise-visual and linewise-visual.
-vnoremap <expr> I  <SID>force_blockwise_visual('I')
-vnoremap <expr> A  <SID>force_blockwise_visual('A')
-
-function! s:force_blockwise_visual(next_key)
-  if mode() ==# 'v'
-    return "\<C-v>" . a:next_key
-  elseif mode() ==# 'V'
-    return "\<C-v>0o$" . a:next_key
-  else  " mode() ==# "\<C-v>"
-    return a:next_key
-  endif
-endfunction
-
-
 " Complete or indent.
 inoremap <expr> <Tab>  pumvisible()
                    \ ? "\<C-n>"
@@ -1584,8 +1576,9 @@ nnoremap <silent> [Space]c  :<C-u>call <SID>close_temporary_windows()<CR>
 nnoremap [Space]f  <Nop>
 nnoremap [Space]fe  :<C-u>SetFileEncoding<Space>
 nnoremap [Space]ff  :<C-u>SetFileFormat<Space>
-nnoremap [Space]ft  :<C-u>setfiletype<Space>
+nnoremap [Space]fr  :<C-u>Rename <C-r>%
 nnoremap [Space]fs  :<C-u>setlocal filetype? fileencoding? fileformat?<CR>
+nnoremap [Space]ft  :<C-u>setfiletype<Space>
 
 " Append one character.
 nnoremap [Space]A  A<C-r>=<SID>keys_to_insert_one_character()<CR>
@@ -1888,11 +1881,17 @@ autocmd MyAutoCmd BufReadPost *
 \ | endif
 
 
-" When editing a file, always jump to the last cursor position.
-autocmd MyAutoCmd BufReadPost *
-\   if line('''"') > 0 && line('''"') <= line('$')
-\ |   execute 'normal! g''"'
-\ | endif
+" Load project-specific configuration.
+autocmd MyAutoCmd BufNewFile,BufReadPost *
+\ call s:load_local_vimrc(expand('<afile>:p:h'))
+function! s:load_local_vimrc(path)
+  for dir in s:upper_dirs(a:path)
+    if filereadable(dir . '/.vimrc.local')
+      source `=dir . '/.vimrc.local'`
+      return
+    endif
+  endfor
+endfunction
 
 
 " Unset 'paste' automatically.
@@ -2036,6 +2035,9 @@ autocmd MyAutoCmd FileType java
 autocmd MyAutoCmd FileType javascript
 \   SpaceIndent 4
 \ | setlocal omnifunc=jscomplete#CompleteJS
+\ | setlocal iskeyword-=58
+
+let g:jsx_ext_required = 0
 
 
 
@@ -2043,7 +2045,7 @@ autocmd MyAutoCmd FileType javascript
 " json  "{{{2
 
 autocmd MyAutoCmd FileType json
-\ SpaceIndent 4
+\ SpaceIndent 2
 
 
 
@@ -2101,6 +2103,8 @@ function! s:on_FileType_php()
 
   inoreabbrev <buffer> /** /**<CR><CR>/<Up>
 endfunction
+
+let g:PHP_vintage_case_default_indent = 1
 
 
 
@@ -2187,6 +2191,7 @@ let g:tex_flavor = 'latex'
 autocmd MyAutoCmd FileType typescript
 \   SpaceIndent 4
 \ | setlocal commentstring=//%s
+\ | setlocal iskeyword-=58
 
 
 
@@ -2242,14 +2247,22 @@ autocmd MyAutoCmd FileType haml,jade,slim
 
 
 
+" yaml  "{{{2
+
+autocmd MyAutoCmd FileType yaml
+\ SpaceIndent 2
+
+
+
+
 " Plugins  "{{{1
 " accelerate  "{{{2
 
 call accelerate#map('nv', 'e', '<C-u>', 'repeat("\<C-u>", v:count1)')
 call accelerate#map('nv', 'e', '<C-d>', 'repeat("\<C-d>", v:count1)')
 
-call accelerate#map('nv', '', 'j', 'gj')
-call accelerate#map('nv', '', 'k', 'gk')
+call accelerate#map('nv', 'e', 'j', 'v:count == 0 ? "gj" : "j"')
+call accelerate#map('nv', 'e', 'k', 'v:count == 0 ? "gk" : "k"')
 call accelerate#map('nv', '', 'h', 'h')
 call accelerate#map('nv', 'e', 'l', 'foldclosed(line(".")) != -1 ? "zo" : "l"')
 
@@ -2482,65 +2495,55 @@ vmap [Space]s  <Plug>(operator-sort)
 
 command! -complete=command -nargs=+ Capture  QuickRun vim -src <q-args>
 
-let g:quickrun_config = {}
-let g:quickrun_config['_'] = {
-\   'split': '%{'.s:SID_PREFIX().'vertical_p() ? "vertical" : ""}'
-\ }
-let g:quickrun_config['c'] = {
-\   'type': 'c/clang'
-\ }
-let g:quickrun_config['cpp'] = {
-\   'type': 'cpp/clang'
-\ }
-let g:quickrun_config['cs'] = {
-\   'type': 'cs/mono'
-\ }
-let g:quickrun_config['cs/mono'] = {
-\   'command': 'mcs',
-\   'exec': ['%c %o %s -out:%s:p:r.exe', 'mono %s:p:r.exe %a'],
-\   'hook/sweep/files': '%S:p:r.exe',
-\ }
-let g:quickrun_config['dot'] = {
-\   'exec': ['%c -Tps:cairo -o %s:p:r.ps %s']
-\ }
-let g:quickrun_config['php/hhvm'] = {
-\   'command': 'hhvm',
-\   'exec': ['%c %a %s']
-\ }
-let g:quickrun_config['haxe'] = {
-\   'exec': ['%c %a --cwd %s:p:h -x %s:t:r'],
-\   'tempfile': '%{fnamemodify(tempname(), ":h")}/%{expand("%:t")}',
-\   'hook/sweep/files': ['%S:p:r.n']
-\ }
-let g:quickrun_config['javascript/nodejs'] = {
-\   'args': '--harmony',
-\   'command': 'node',
-\   'tempfile': '%{tempname()}.js',
-\ }
-let g:quickrun_config['json'] = {
-\  'command': 'jq',
-\  'exec': ["%c '.' %s"]
-\ }
-let g:quickrun_config['markdown/marked'] = {
-\   'outputter': 'null',
-\   'command': 'open',
-\   'cmdopt': '-g',
-\   'exec': '%c %o -a Marked %s'
-\ }
-let g:quickrun_config['objc'] = {
-\   'command': 'gcc',
-\   'exec': ['%c %o %s -o %s:p:r', '%s:p:r %a'],
-\   'tempfile': '%{tempname()}.m'
-\ }
-let g:quickrun_config['sql'] = {
-\   'type': 'sql/mysql'
-\ }
-let g:quickrun_config['sql/mysql'] = {
-\   'command': 'mysql',
-\   'exec': ['%c --user root --password root %a < %s'],
-\ }
-let g:quickrun_config['xdefaults'] = {
-\   'exec': ['xrdb -remove', 'xrdb -merge %s', 'xrdb -query']
+let g:quickrun_config = {
+\   '_': {
+\     'split': '%{'.s:SID_PREFIX().'vertical_p() ? "vertical" : ""}'
+\   },
+\   'c': {
+\     'type': 'c/clang'
+\   },
+\   'cpp': {
+\     'type': 'cpp/clang++',
+\     'cmdopt': '-std=c++11'
+\   },
+\   'dot': {
+\     'exec': ['%c -Tps:cairo -o %s:p:r.ps %s']
+\   },
+\   'php/hhvm': {
+\     'command': 'hhvm',
+\     'exec': ['%c %a %s']
+\   },
+\   'haxe': {
+\     'exec': ['%c %a --cwd %s:p:h -x %s:t:r'],
+\     'tempfile': '%{fnamemodify(tempname(), ":h")}/%{expand("%:t")}',
+\     'hook/sweep/files': ['%S:p:r.n']
+\   },
+\   'javascript/nodejs': {
+\     'cmdopt': '--use_strict --harmony',
+\     'command': 'node',
+\     'tempfile': '%{tempname()}.js'
+\   },
+\   'json': {
+\     'cmdopt': '.',
+\     'command': 'jq',
+\   },
+\   'markdown/marked': {
+\     'outputter': 'null',
+\     'command': 'open',
+\     'cmdopt': '-g',
+\     'exec': '%c %o -a Marked %s'
+\   },
+\   'sql': {
+\     'type': 'sql/mysql'
+\   },
+\   'sql/mysql': {
+\     'command': 'mysql',
+\     'exec': ['%c --user root %a < %s']
+\   },
+\   'xdefaults': {
+\     'command': 'mysql',
+\     'exec': ['xrdb -remove', 'xrdb -merge %s', 'xrdb -query']
+\   }
 \ }
 
 
@@ -2767,11 +2770,6 @@ let g:vcsi_use_native_message_p = 1
 
 
 " Fin.  "{{{1
-
-if filereadable(expand('~/.vimrc.local'))
-  source ~/.vimrc.local
-endif
-
 
 " must be written at the last.  see :help 'secure'.
 set secure
