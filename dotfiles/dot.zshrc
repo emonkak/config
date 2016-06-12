@@ -68,6 +68,8 @@ setopt prompt_subst
 unsetopt beep
 unsetopt flow_control
 
+setopt no_global_rcs
+
 
 
 
@@ -284,6 +286,7 @@ alias git='noglob git'
 alias g='git'
 alias sudo='sudo '
 alias s='sudo'
+alias t='tmux'
 if which vim &>/dev/null && vim --version | grep -q +X11; then
   alias vim='vim --servername VIM'
 fi
@@ -374,3 +377,6 @@ fi
 # __END__  #{{{1
 # vim: expandtab softtabstop=2 shiftwidth=2
 # vim: foldmethod=marker
+
+export NVM_DIR="/Users/emonkak/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm

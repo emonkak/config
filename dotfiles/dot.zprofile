@@ -19,9 +19,9 @@ export PAGER='less'
 export LESS='-R'
 export LV='-c -l'
 
-export HTTP_PROXY='http://localhost:8118/'
-export http_proxy=$HTTP_PROXY
-export no_proxy='localhost,192.168.0.0/16'
+# export HTTP_PROXY='http://localhost:8118/'
+# export http_proxy=$HTTP_PROXY
+# export no_proxy='localhost,192.168.0.0/16'
 
 export GIT_MERGE_AUTOEDIT=no
 
