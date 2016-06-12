@@ -37,7 +37,6 @@ GROUP_DOTS_FILES=\
 GROUP_DOTS_RULE=$(patsubst dotfiles/dot.%, $(HOME)/.%, $(1))
 
 GROUP_GENTOO_FILES=\
-  gentoo/boot/grub/grub.conf \
   gentoo/etc/X11/xorg.conf \
   gentoo/etc/fstab \
   gentoo/etc/portage/make.conf \
