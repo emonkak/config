@@ -1,6 +1,11 @@
 * {
-  font-family: "Helvetica Neue", "Arial", sans-serif !important;
+  font-family: "Metro Nova Pro", "Helvetica Neue", "Arial", "YuGothic", sans-serif !important;
   line-height: 1.5 !important;
+}
+
+b, strong, h1, h2, h3, h4, h5 {
+  font-family: "Metro Nova Pro", "Helvetica Neue", "Arial", "YuGothic", sans-serif !important;
+  font-weight: bold;
 }
 
 pre {
@@ -91,8 +96,10 @@ blockquote p {
   margin-right: 0px !important;
 }
 
+.item_title,
+.item_info,
 .item_body {
-  max-width: 768px !important;
+  max-width: 42em !important;
 }
 
 .padding {
@@ -111,6 +118,7 @@ blockquote p {
 
 .body img {
   max-width: 100% !important;
+  height: auto !important;
 }
 
 #control,
@@ -145,6 +153,7 @@ blockquote p {
 #myfeed,
 #right_top_navi,
 #GuideHeadBox,
+.AdFrames,
 .adsWrapper,
 .fontpad,
 .item_buttons,
