@@ -1,208 +1,67 @@
-app-admin/conky mpd lua vim-syntax
-app-arch/unzip natspec
-app-benchmarks/sysbench mysql
-app-crypt/gcr gtk
-app-editors/emacs gtk xft
-app-editors/gvim gtk lua luajit python
-app-editors/vim gtk lua luajit python
-app-editors/yi gtk
-app-emulation/emul-linux-x86-soundlibs alsa
-app-emulation/libvirt python qemu virt-network
-app-emulation/qemu alsa opengl qemu-ifup sdl
-app-emulation/wine -mono -prelink alsa dbus fontconfig hardened jpeg mp3 png xml
+app-admin/conky lua mpd
+app-arch/unzip natspec  # natspec: ShiftJIS Supporting
+app-editors/gvim lua luajit
+app-editors/vim lua luajit
+app-emulation/libvirt qemu virt-network
+app-emulation/qemu opengl qemu-ifup sdl
+app-emulation/wine -mono -prelink fontconfig jpeg mp3 png xml
 app-eselect/eselect-php apache2 fpm
-app-i18n/ibus gtk python
-app-i18n/ibus-mozc -ibus uim qt4
-app-i18n/uim -anthy gtk libnotify linguas_ja skk xft
+app-i18n/uim -anthy gtk linguas_ja skk xft
 app-misc/mfiler3 migemo
-app-misc/tmux vim-syntax
-app-office/libreoffice-bin linguas_ja
-app-office/libreoffice-l10n linguas_ja
+app-misc/tmux -vim-syntax
 app-portage/eix sqlite
 app-shells/saphire migemo
-app-text/acroread minimal linguas_ja
-app-text/asciidoc graphviz highlight
-app-text/ghostscript-gpl gtk cups
-app-text/lcdf-typetools kpathsea
-app-text/poppler qt4 -abiword
-dev-db/mariadb pbxt
-dev-java/icedtea-bin -X -alsa -cups
-dev-lang/ghc doc ghcbootstrap llvm
+app-text/poppler cairo
+dev-lang/ghc binary
 dev-lang/perl ithreads
-dev-lang/php apache2 curl fpm gd mysql mysqli pcntl pdo sockets sqlite zip
+dev-lang/php apache2 bcmath curl fpm gd mysql mysqli pcntl pdo sockets sqlite zip
 dev-lang/python sqlite
 dev-lang/scala binary
-dev-libs/boost context python
-dev-libs/glib dbus
-dev-libs/jemalloc stats
-dev-libs/libxml2 python
-dev-libs/nettle gmp
-dev-libs/oniguruma -parse-tree-node-recycle
 dev-php/hhvm hack
-dev-qt/qtgui dbus gtkstyle
 dev-vcs/git cvs perl subversion
 dev-vcs/subversion -dso perl python
 media-gfx/comix rar
-media-gfx/fontforge pango svg
-media-gfx/gimp dbus exif jpeg pdf png python svg
+media-gfx/fontforge cairo pango png svg
+media-gfx/gimp exif jpeg pdf png python svg
+media-gfx/graphicsmagick png postscript truetype
 media-gfx/graphviz gtk
 media-gfx/imagemagick jpeg png
 media-libs/freetype utils infinality
 media-libs/gd fontconfig jpeg png truetype
 media-libs/imlib2 gif jpeg png
-media-libs/lcms python
-media-libs/libass enca
 media-libs/libpng apng
-media-libs/libsdl alsa xv
-media-libs/mesa gles xa
-media-libs/speex ogg
-media-plugins/gst-plugins-meta alsa
-media-sound/ario dbus taglib
-media-sound/easytag flac mp3 mp4 speex vorbis wavpack
 media-sound/mpd aac inotify lame ogg sqlite vorbis
 media-sound/ncmpcpp clock taglib
 media-sound/pulseaudio gnome
 media-sound/shntool flac
-media-sound/sonata dbus lyrics taglib trayicon
-media-tv/xawtv xv
-media-video/ffmpeg alsa faac mp3 network rtmp theora v4l2 vorbis x264 xvid
-media-video/gnome-mplayer dbus
-media-video/libav alsa encode faac mp3 rtmp theora threads v4l2 vaapi vorbis X x264 xvid
-media-video/mplayer faac libmpeg2 png rtmp v4l2 xvmc
-media-video/vlc aac alsa dvd flac fontconfig matroska mp3 mpeg ogg png stream theora truetype v4l2 vorbis x264 xv
-net-analyzer/wireshark gtk
-net-dns/dnsmasq script
-net-fs/cifs-utils ads upcall
-net-fs/samba client ewinbind
-net-im/instantbird -system-libpurple
-net-im/pidgin gstreamer
-net-im/skype4pidgin dbus
-net-irc/irssi perl
-net-libs/c-client kerberos
-net-libs/gtk-vnc gtk3 python
-net-misc/hotot gtk
-net-misc/rdesktop alsa
-net-misc/spice-gtk gtk3 python
-net-print/bjfilter ip3100
+media-video/ffmpeg faac mp3 network rtmp theora v4l2 vorbis x264 xvid
+media-video/libav encode faac mp3 rtmp theora threads v4l2 vaapi vorbis x264 xvid
+media-video/vlc aac dvd flac fontconfig matroska mp3 mpeg ogg png stream theora truetype v4l2 vorbis x264 xv
+net-fs/samba client
+net-misc/dropbox -X
 net-print/cups samba
-net-proxy/tinyproxy minimal
+sci-visualization/gnuplot cairo
 sys-apps/groff linguas_ja
 sys-apps/smartmontools -minimal
-sys-auth/consolekit policykit
-sys-auth/pambase consolekit
 sys-block/gparted fat ntfs
-sys-devel/binutils static-libs
-sys-devel/gcc -fortran go
+sys-devel/gcc -fortran
 sys-devel/llvm clang
 sys-fs/eudev gudev
-sys-fs/udev extras hwdb
-sys-fs/udev gudev
-sys-kernel/ck-sources symlink
 sys-kernel/gentoo-sources symlink
-sys-kernel/vanilla-sources symlink
-sys-libs/talloc python
-sys-libs/zlib minizip
 virtual/udev gudev hwdb
 www-client/google-chrome linguas_ja
 www-client/jd migemo
-www-client/luakit luajit
-www-client/opera gtk
-www-client/opera-next gtk
 www-client/w3m linguas_ja
-www-plugins/adobe-flash -32bit
-www-plugins/gnash gstreamer gtk nsplugin opengl openvg
 www-servers/apache userdir
 www-servers/nginx nginx_modules_http_headers_more
-x11-libs/cairo lcdfilter opengl svg
-x11-libs/gdk-pixbuf jpeg
-x11-libs/gtk+ jpeg
-x11-libs/libdrm libkms
-x11-libs/libva opengl
-x11-libs/vte python
-x11-plugins/purple-plugin_pack gtk
-x11-terms/evilvte savedconfig
+x11-libs/cairo opengl svg
 x11-terms/rxvt-unicode -vanilla 256-color alt-font-width force-hints perl truetype xft
-x11-themes/gtk-engines-murrine -themes
-x11-wm/xmonad doc
-x11-wm/xmonad-contrib doc
 
-# for Wine
-app-arch/bzip2 abi_x86_32
-dev-libs/expat abi_x86_32
-dev-libs/glib abi_x86_32
-dev-libs/json-c abi_x86_32
-dev-libs/libgcrypt abi_x86_32
-dev-libs/libpthread-stubs abi_x86_32
-dev-libs/libtasn1 abi_x86_32
-dev-libs/libxml2 abi_x86_32
-dev-libs/libxslt abi_x86_32
-dev-libs/nettle abi_x86_32
-dev-util/pkgconfig abi_x86_32
-media-libs/alsa-lib abi_x86_32
-media-libs/flac abi_x86_32
-media-libs/fontconfig abi_x86_32
-media-libs/freetype abi_x86_32
-media-libs/glu abi_x86_32
-media-libs/jpeg abi_x86_32
-media-libs/libogg abi_x86_32
-media-libs/libpng abi_x86_32
-media-libs/libsndfile abi_x86_32
-media-libs/libvorbis abi_x86_32
-media-libs/mesa abi_x86_32
-media-plugins/alsa-plugins abi_x86_32
-media-sound/mpg123 abi_x86_32
-media-sound/pulseaudio abi_x86_32
-net-libs/gnutls abi_x86_32
-net-libs/libasyncns abi_x86_32
-sys-apps/attr abi_x86_32
-sys-apps/dbus abi_x86_32
-sys-apps/tcp-wrappers abi_x86_32
-sys-apps/util-linux abi_x86_32
-sys-devel/gettext abi_x86_32
-sys-devel/llvm abi_x86_32
-sys-fs/eudev abi_x86_32
-sys-libs/libcap abi_x86_32
-sys-libs/zlib abi_x86_32
-virtual/glu abi_x86_32
-virtual/jpeg abi_x86_32
-virtual/libffi abi_x86_32
-virtual/libiconv abi_x86_32
-virtual/libintl abi_x86_32
-virtual/libudev abi_x86_32
-virtual/opengl abi_x86_32
-virtual/pkgconfig abi_x86_32
-x11-libs/libICE abi_x86_32
-x11-libs/libSM abi_x86_32
-x11-libs/libX11 abi_x86_32
-x11-libs/libXau abi_x86_32
-x11-libs/libXcursor abi_x86_32
-x11-libs/libXdamage abi_x86_32
-x11-libs/libXdmcp abi_x86_32
-x11-libs/libXext abi_x86_32
-x11-libs/libXfixes abi_x86_32
-x11-libs/libXi abi_x86_32
-x11-libs/libXrandr abi_x86_32
-x11-libs/libXrender abi_x86_32
-x11-libs/libXtst abi_x86_32
-x11-libs/libXxf86vm abi_x86_32
-x11-libs/libdrm abi_x86_32
-x11-libs/libpciaccess abi_x86_32
-x11-libs/libxcb abi_x86_32
-x11-libs/libxshmfence abi_x86_32
-x11-proto/damageproto abi_x86_32
-x11-proto/dri2proto abi_x86_32
-x11-proto/dri3proto abi_x86_32
-x11-proto/fixesproto abi_x86_32
-x11-proto/glproto abi_x86_32
-x11-proto/inputproto abi_x86_32
-x11-proto/kbproto abi_x86_32
-x11-proto/presentproto abi_x86_32
-x11-proto/randrproto abi_x86_32
-x11-proto/recordproto abi_x86_32
-x11-proto/renderproto abi_x86_32
-x11-proto/xcb-proto abi_x86_32
-x11-proto/xextproto abi_x86_32
-x11-proto/xf86bigfontproto abi_x86_32
-x11-proto/xf86driproto abi_x86_32
-x11-proto/xf86vidmodeproto abi_x86_32
-x11-proto/xproto abi_x86_32
+dev-libs/boost context icu  # context: Required by dev-php/hhvm, icu: Required by media-sound/ncmpcpp
+dev-libs/glib dbus  # dbus: Required by app-text/evince
+dev-libs/libxml2 python  # python: Required by app-text/evince
+media-libs/mesa gles2  # gles2: Required by app-emulation/qemu
+sys-devel/binutils static-libs  # static-libs: Required by dev-php/hhvm
+sys-libs/libseccomp static-libs  # static-libs: Required by app-emulation/docker
+sys-libs/tevent python  # python: net-fs/samba
+sys-libs/zlib minizip  # minizip: Required by media-video/vlc

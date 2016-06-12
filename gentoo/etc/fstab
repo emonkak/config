@@ -14,8 +14,8 @@
 
 /dev/cdrom                /mnt/cdrom       auto           noauto,user     0 0
 tmpfs                     /var/tmp/portage tmpfs          noatime,size=8g 0 0
-tmpfs                     /tmp             tmpfs          noatime,nosuid,noexec,size=1g 0 0
+tmpfs                     /tmp             tmpfs          noatime,nosuid,size=1g 0 0
 
 /dev/disk/by-id/ata-INTEL_SSDSC2CT180A4_CVKI302202AD180CGN-part1  /boot         ext2     noauto,noatime 1 2
 /dev/disk/by-id/ata-INTEL_SSDSC2CT180A4_CVKI302202AD180CGN-part2  /             ext4     noatime,discard 1 1
-/dev/disk/by-id/ata-WDC_WD25EZRX-00MMMB0_WD-WCAWZ2041438-part2    /mnt/windows  ntfs-3g  noatime,uid=1000,gid=users,fmask=0113,dmask=0022,hide_hid_files,windows_names 0 0
+# /dev/disk/by-id/ata-WDC_WD25EZRX-00MMMB0_WD-WCAWZ2041438-part2    /mnt/windows  ntfs-3g  noatime,uid=1000,gid=users,fmask=0113,dmask=0022,windows_names 0 0

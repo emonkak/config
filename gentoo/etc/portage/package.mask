@@ -1,4 +1,6 @@
-=sys-boot/grub-2*
 >app-i18n/skk-jisyo-9999
+media-libs/jpeg
 sys-fs/udev
-sys-kernel/gentoo-sources
+
+# http://vim-jp.org/blog/2016/03/23/take-care-of-patch-1577.html
+=app-editors/vim-7.4.1583
