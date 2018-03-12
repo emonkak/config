@@ -28,9 +28,7 @@ endif
 
 
 
-
-setlocal cindent
-setlocal cinoptions=0{,0},0),0#,!^F,o,O,e
+runtime! indent/javascript.vim
 
 
 

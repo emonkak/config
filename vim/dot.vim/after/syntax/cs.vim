@@ -1,6 +1,6 @@
-" Vim additional syntax: php
+" Vim additional syntax: cs
 " Version: 0.0.0
-" Copyright (C) 2015 emonkak <emonkak@gmail.com>
+" Copyright (C) 2016 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -22,15 +22,13 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-syntax keyword phpException  finally yield
+syntax keyword csType var dynamic
+syntax keyword csAsync async await
+syntax keyword csLinq from where select group into orderby join let in on equals by ascending descending
 
-if 0 && has('conceal')
-  syntax clear phpVarSelector
-  syntax match phpVarSelector "\$"  contained display conceal
+highlight default link csAsync Keyword
+highlight default link csLinq Keyword
 
-  syntax clear phpMemberSelector
-  syntax match phpMemberSelector "->"  contained display conceal cchar=.
-endif
 
 " __END__
 " vim: foldmethod=marker

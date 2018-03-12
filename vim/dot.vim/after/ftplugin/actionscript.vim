@@ -33,8 +33,8 @@ function! ActionScriptFold(lnum)
   endif
 
   if current =~# '^\s*\('
-             \ . '\(\(final\|internal\|private\|protected\|public\|override\|static\)\s\)*function'
-             \ . '\|\(\(abstract\|dynamic\|final\|internal\|public\)\s\)*class'
+             \ . '\(\(final\|internal\|private\|protected\|public\|override\|static\)\s\+\)*function'
+             \ . '\|\(\(abstract\|dynamic\|final\|internal\|public\)\s\+\)*class'
              \ . '\|interface'
              \ . '\|package'
              \ . '\)[^;]*$'

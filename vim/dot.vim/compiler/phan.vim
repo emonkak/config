@@ -1,6 +1,6 @@
-" Vim additional syntax: php
+" Vim compiler: phan
 " Version: 0.0.0
-" Copyright (C) 2015 emonkak <emonkak@gmail.com>
+" Copyright (C) 2016 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -22,15 +22,20 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-syntax keyword phpException  finally yield
-
-if 0 && has('conceal')
-  syntax clear phpVarSelector
-  syntax match phpVarSelector "\$"  contained display conceal
-
-  syntax clear phpMemberSelector
-  syntax match phpMemberSelector "->"  contained display conceal cchar=.
+if exists('g:current_compiler')
+  finish
 endif
+
+
+
+
+CompilerSet makeprg=phan
+CompilerSet errorformat=%f:%l\ %m
+
+
+
+
+let g:current_compiler = 'phan'
 
 " __END__
 " vim: foldmethod=marker

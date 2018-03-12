@@ -1,6 +1,6 @@
-" Vim additional syntax: php
+" Vim additional syntax: javascript
 " Version: 0.0.0
-" Copyright (C) 2015 emonkak <emonkak@gmail.com>
+" Copyright (C) 2016 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -22,15 +22,11 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-syntax keyword phpException  finally yield
+syntax keyword javascriptRepeat do while for in of
+syntax keyword javascriptBranch break continue yield await
+syntax keyword javascriptLabel case default async readonly
+syntax keyword javascriptReserved constructor declare as interface module abstract enum int short export interface static byte extends long super char final native synchronized class float package throws const goto private transient debugger implements protected volatile double import public type namespace from get set
 
-if 0 && has('conceal')
-  syntax clear phpVarSelector
-  syntax match phpVarSelector "\$"  contained display conceal
-
-  syntax clear phpMemberSelector
-  syntax match phpMemberSelector "->"  contained display conceal cchar=.
-endif
 
 " __END__
 " vim: foldmethod=marker

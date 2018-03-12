@@ -1,6 +1,6 @@
-" Vim additional syntax: php
+" Vim additional ftplugin: cs
 " Version: 0.0.0
-" Copyright (C) 2015 emonkak <emonkak@gmail.com>
+" Copyright (C) 2016 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -22,15 +22,34 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-syntax keyword phpException  finally yield
+setlocal foldmethod=expr foldexpr=CsFold(v:lnum)
 
-if 0 && has('conceal')
-  syntax clear phpVarSelector
-  syntax match phpVarSelector "\$"  contained display conceal
+function! CsFold(lnum)
+  let current = getline(a:lnum)
 
-  syntax clear phpMemberSelector
-  syntax match phpMemberSelector "->"  contained display conceal cchar=.
+  if current =~# '\s*}$'
+    let level = indent(a:lnum) / shiftwidth()
+    return level > 2 ? '=' : '<' . (level + 1)
+  endif
+
+  if current =~# '^\s*\('
+             \ . '\(\(abstract\|partial\|public\|private\|protected\|protected\|internal\|static\)\s\+\)*\(class\|enum\|interface\)'
+             \ . '\|namespace'
+             \ . '\)[^;]*$'
+    let level = indent(a:lnum) / shiftwidth()
+    return level > 2 ? '=' : '>' . (level + 1)
+  endif
+
+  return '='
+endfunction
+
+if exists('b:undo_ftplugin')
+  let b:undo_ftplugin .= ' | '
+else
+  let b:undo_ftplugin = ''
 endif
+
+let b:undo_ftplugin .= 'setlocal foldmethod< foldexpr<'
 
 " __END__
 " vim: foldmethod=marker

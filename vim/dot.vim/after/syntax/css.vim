@@ -1,6 +1,6 @@
-" Vim additional syntax: php
+" Vim additional syntax: css
 " Version: 0.0.0
-" Copyright (C) 2015 emonkak <emonkak@gmail.com>
+" Copyright (C) 2017 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -22,15 +22,11 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-syntax keyword phpException  finally yield
 
-if 0 && has('conceal')
-  syntax clear phpVarSelector
-  syntax match phpVarSelector "\$"  contained display conceal
+" Nested difinition
+syntax clear cssDefinition
+syntax region cssDefinition transparent matchgroup=cssBraces start='{' end='}' contains=css.*Attr,css.*Prop,cssComment,cssValue.*,cssClassName,cssColor,cssURL,cssImportant,cssError,cssStringQ,cssStringQQ,cssFunction,cssUnicodeEscape,cssVendor,cssDefinition,cssHacks,cssNoise fold
 
-  syntax clear phpMemberSelector
-  syntax match phpMemberSelector "->"  contained display conceal cchar=.
-endif
 
 " __END__
 " vim: foldmethod=marker

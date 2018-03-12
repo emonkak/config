@@ -34,9 +34,9 @@ function! TypescriptFold(lnum)
   endif
 
   if current =~# '^\s*'
-             \ . '\%(\%(export\s\+\%(default\s\+\)\?\)\?\%(\%(abstract\s\+\)\?class\|function\|interface\|module\)'
-             \ . '\|\%(\%(private\|public\)\s\+\)\?\%(async\s\+\)\?\*\?\%(\w\+\|\[.\{-}\]\)\%(<.\+>\)\?('
-             \ . '\|\%(declare\s\+\)\%(module\|namespace\)\s\+'
+             \ . '\%(\%(export\s\+\%(default\s\+\)\?\)\?\%(\%(abstract\s\+\)\?class\|\%(async\s\+\)\?function\|interface\|module\)'
+             \ . '\|\%(\%(private\|public\|async\|get\|set\)\s\+\)*\*\?\%(\w\+\|\[.\{-}\]\)\%(<.\+>\)\?('
+             \ . '\|\%(declare\s\+\)\%(module\|namespace\|interface\|class\)\s\+'
              \ . '\)'
              \ . '[^;]*$'
     let level = indent(a:lnum) / shiftwidth() + 1

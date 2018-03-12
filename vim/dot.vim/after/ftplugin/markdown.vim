@@ -25,12 +25,9 @@
 setlocal foldmethod=expr foldexpr=MarkdownFold(v:lnum)
 
 function! MarkdownFold(lnum)
-  let current = matchend(getline(a:lnum), '^#\{1,5}\ze\s\+\S')
-  let next = matchend(getline(a:lnum + 1), '^#\{1,5}\ze\s\+\S')
+  let current = matchend(getline(a:lnum), '^#\{1,5}\ze\s*\S')
   return current > 0
-  \    ? current
-  \    : next > 0
-  \    ? '<' . next
+  \    ? '>' . current
   \    : '='
 endfunction
 

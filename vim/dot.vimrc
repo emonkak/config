@@ -13,7 +13,7 @@ if has('vim_starting')
 endif
 
 if has('kaoriya')
-  " Hate default vimrc and gvimrc.
+  " Hates the default config
   call delete($VIM . '/vimrc')
   call delete($VIM . '/gvimrc')
 endif
@@ -64,21 +64,22 @@ endif
 
 " Options  "{{{2
 
-if (1 < &t_Co || has('gui')) && has('syntax')
+if (1 < &t_Co || has('gui')) && has('syntax') && !exists('g:syntax_on')
   syntax enable
   if !exists('g:colors_name')
     colorscheme basic256
   endif
 endif
 
+
 filetype plugin indent on
 
 
 if has('gui_running')
   set guicursor=a:blinkwait4000-blinkon1500-blinkoff500
-  if has('gui_gtk2')
+  if has('gui_gtk2') || has('gui_gtk3')
     set guifont=Monospace\ 10
-    set linespace=6
+    set linespace=4
   elseif has('gui_macvim')
     set guifont=Monaco:h12
     set linespace=5
@@ -94,27 +95,46 @@ if has('gui_running')
   set guioptions=AcgM
 endif
 
-if has('kaoriya') && has('gui_win32')
+
+if has('kaoriya')
   set ambiwidth=auto
 else
   set ambiwidth=double
 endif
 set backspace=indent,eol,start
 set nobackup
-if has('clientserver')
+if exists('+clipboard')
   set clipboard=autoselectml,exclude:cons\|linux
+  if has('unnamedplus')
+    set clipboard+=unnamedplus
+  endif
 endif
+set cmdheight=1
 set complete&
 set complete-=i
 set completeopt=menuone,longest
+if has('conceal')
+  set concealcursor=nc
+  set conceallevel=2
+endif
 set confirm
 set diffopt=filler,vertical
 set directory&
 set directory-=.
 set directory^=~/tmp
+set display=lastline
+set noequalalways
+set foldmethod=marker
 set fileformats=unix,dos,mac
 set hidden
 set history=1000
+if has('langmap') && exists('+langremap')
+  set nolangremap
+endif
+set laststatus=2
+set linebreak
+set list
+let &listchars = "tab:\u00bb ,trail:-,extends:>,precedes:<,conceal:|,nbsp:."
 if has('multi_byte_ime') || has('xim')
   set iminsert=0
   set imsearch=0
@@ -123,45 +143,35 @@ set keywordprg=:help
 set undofile
 set undodir=~/tmp,/tmp
 set nowritebackup
+set nrformats-=octal
+set pumheight=20
+set ruler
+set scrolloff=5
+set showcmd
+set showtabline=1
 if exists('+shellslash')
   set shellslash
 endif
 set spelllang=en_us
-set synmaxcol=200
+set splitbelow
+set splitright
+set synmaxcol=1000
+set title
+set titlestring=Vim:\ %f\ %h%r%m
+set ttimeoutlen=50
 set updatetime=1000
 set virtualedit=block
+set nowrapscan
+set wildmenu
+set wildmode=full
 
+
+" Indent and Formatting
+set autoindent
 if exists('+breakindent')
   set breakindent
 endif
-set cmdheight=1
-if has('conceal')
-  set concealcursor=nc
-  set conceallevel=2
-endif
-set nocursorline
-set display=lastline
-set noequalalways
-set foldmethod=marker
-set nohlsearch
-set laststatus=2
-set linebreak
-set list
-let &listchars = "tab:\u00bb ,trail:-,extends:>,precedes:<,conceal:|,nbsp:."
-set pumheight=20
-set ruler
-set scrolloff=4
-set showcmd
-set showtabline=1
-set splitbelow
-set splitright
-set ttimeoutlen=50
-set wildmenu
-set wildmode=full
-set nowrapscan
-
-set autoindent
-set cinoptions=:0,l1,g0,t0,(0,W1s
+set cinoptions=:1s,l1,g0,t0,(0,W1s
 set formatoptions=roqnlmM1
 set formatlistpat&
 let &formatlistpat .= '\|^\s*[*+-]\s*'
@@ -170,14 +180,10 @@ set incsearch
 set shiftround
 set smartcase
 set smartindent
-
-set title
-set titlestring=Vim:\ %f\ %h%r%m
-if exists('$TMUX')
-  " Fix window title on tmux.
-  let &t_fs = "\<C-g>"
-  let &t_ts = "\<Esc>]2;"
+if exists('+tagcase')
+  set tagcase=match
 endif
+
 
 let &statusline = ''
 let &statusline .= '%<%f %h%m%r%w'
@@ -188,6 +194,7 @@ let &statusline .=   '%{&l:bomb ? "/BOM" : ""}'
 let &statusline .= ']'
 let &statusline .= '[%{&l:fileformat}]'
 let &statusline .= '   %-14.(%l,%c%V%) %P'
+
 
 function! s:my_tabline()  "{{{
   let s = ''
@@ -218,8 +225,15 @@ function! s:my_tabline()  "{{{
   let s .= ' | %<'
   let s .= fnamemodify(getcwd(), ':t')
   return s
-endfunction "}}}
+endfunction  "}}}
 let &tabline = '%!' . s:SID_PREFIX() . 'my_tabline()'
+
+
+if exists('$TMUX')
+  " Fix window title on tmux.
+  let &t_fs = "\<C-g>"
+  let &t_ts = "\<Esc>]2;"
+endif
 
 
 let g:mapleader = ','
@@ -243,17 +257,69 @@ call metarw#define_wrapper_commands(0)
 
 
 
-" Syntax  {{{1
+" Commands  {{{1
+" :grep wrappers  "{{{2
+
+command! -complete=file -nargs=+ Grep  call s:grep('grep', [<f-args>])
+command! -complete=file -nargs=+ Lgrep  call s:grep('lgrep', [<f-args>])
+function! s:grep(command, args)
+  let target = join(a:args[:-2], ' ')
+  let grepprg = &l:grepprg == '' ? &grepprg : &l:grepprg
+
+  if grepprg ==# 'internal'
+    execute a:command '/'.escape(a:args[-1], '|/ ').'/j' target
+  else
+    execute a:command.'!' escape(shellescape(a:args[-1]), '|') target
+  endif
+
+  if a:command ==# 'grep'
+    cwindow
+  else  " lgrep
+    lwindow
+  endif
+endfunction
+
+AlterCommand gr[ep]  Grep
+AlterCommand lgr[ep]  Lgrep
+
+
+
+
+" :make wrappers  "{{{2
+
+command! -bar -complete=file -nargs=* Make  call s:make('make', [<f-args>])
+command! -bar -complete=file -nargs=* Lmake  call s:make('lmake', [<f-args>])
+function! s:make(command, args)
+  let original_winnr = winnr()
+  try
+    execute a:command.'!' join(a:args)
+  catch
+    echohl ErrorMsg
+    echo v:exception
+    echohl None
+  endtry
+
+  if a:command ==# 'make'
+    cwindow
+  else  " lmake
+    lwindow
+  endif
+  execute original_winnr 'wincmd w'
+endfunction
+
+AlterCommand mak[e]  Make
+AlterCommand lmak[e]  Lmake
+
+
+
+
 " :setlocal wrappers  "{{{2
 
-command! -nargs=? -complete=customlist,s:complete_fileencoding SetFileEncoding
+command! -nargs=? -complete=customlist,s:complete_fileencoding FileEncoding
 \ setlocal fileencoding=<args>
-command! -nargs=? -complete=customlist,s:complete_fileformats SetFileFormat
-\ setlocal fileformat=<args>
-
 function! s:complete_fileencoding(arglead, cmdline, cursorpos)
-  " {encoding: 0} see :help encoding-values.  "{{{
-  let _ = {
+  " from :help encoding-values.  "{{{
+  let ENCODINGS = {
   \  'ansi': 0,
   \  'big5': 0,
   \  'chinese': 0,
@@ -330,12 +396,38 @@ function! s:complete_fileencoding(arglead, cmdline, cursorpos)
   \  'utf8': 0,
   \ }  " }}}
   for encoding in split(&fileencodings, ',')
-    let _[encoding] = 0
+    let ENCODINGS[encoding] = 0
   endfor
-  return sort(filter(keys(_), 's:prefix_of_p(a:arglead, v:val)'))
+  return sort(filter(keys(ENCODINGS), 's:starts_with(a:arglead, v:val)'))
 endfunction
+
+command! -nargs=? -complete=customlist,s:complete_fileformats FileFormat
+\ setlocal fileformat=<args>
 function! s:complete_fileformats(arglead, cmdline, cursorpos)
-  return sort(filter(split(&fileformats, ','), 's:prefix_of_p(a:arglead, v:val)'))
+  return sort(filter(split(&fileformats, ','), 's:starts_with(a:arglead, v:val)'))
+endfunction
+
+command! -bar -nargs=1 TabIndent
+\ setlocal noexpandtab softtabstop< tabstop=<args> shiftwidth=<args>
+command! -bar -nargs=1 SpaceIndent
+\ setlocal expandtab tabstop< softtabstop=<args> shiftwidth=<args>
+
+
+
+
+" BufferCleaner  "{{{2
+
+command! -bang -nargs=0 BufferCleaner  call s:cmd_BufferCleaner(<bang>0)
+function! s:cmd_BufferCleaner(banged_p)
+  let bufnrs = range(1, bufnr('$'))
+  call filter(bufnrs, 'bufexists(v:val)
+  \               && buflisted(v:val)
+  \               && (bufname(v:val) == "" || !filereadable(bufname(v:val)))
+  \               && (a:banged_p || !getbufvar(v:val, "&modified"))')
+  for bufnr in bufnrs
+    silent execute bufnr 'bdelete'.(a:banged_p ? '!' : '')
+  endfor
+  echo printf('%d buffer(s) deleted', len(bufnrs))
 endfunction
 
 
@@ -358,7 +450,7 @@ function! s:cmd_CD(path)
   if a:path != ''
     cd `=a:path`
   else
-    let project_root = s:lookup_project_root(expand('%:p:h'))
+    let project_root = s:find_project_root(expand('%:p:h'))
     if project_root != ''
       cd `=project_root`
     else
@@ -378,6 +470,36 @@ autocmd MyAutoCmd TabEnter *
 \ | if isdirectory(t:cwd)
 \ |   cd `=t:cwd`
 \ | endif
+
+
+
+
+" DiffOrig   "{{{2
+
+command! DiffOrig
+\   vertical new
+\ | setlocal buftype=nofile
+\ | read ++edit #
+\ | 0d_
+\ | diffthis
+\ | wincmd p
+\ | diffthis
+
+
+
+
+" FoldExprDebug  "{{{2
+
+command! -range=% FoldExprDebug
+\ <line1>,<line2>global/^/echo printf("%*d [%2s] %s", len(line('$')), line('.'), eval(substitute(&l:foldexpr, 'v:lnum', line('.'), '')), getline('.'))
+
+
+
+
+" Note  "{{{2
+
+command! -bar -nargs=? Note
+\ execute 'edit' printf('%s/Dropbox/Documents/Notes/%s%s.md', $HOME, strftime('%Y-%m-%d'), <q-args> != '' ? '_' . <q-args> : '')
 
 
 
@@ -407,7 +529,7 @@ endfunction
 
 
 
-" Rename - rename file and buffer  "{{{2
+" Rename - rename a file and a buffer  "{{{2
 
 command! -complete=file -nargs=1 Rename  call s:cmd_Rename(<q-args>)
 function! s:cmd_Rename(name)
@@ -427,6 +549,88 @@ function! s:cmd_Rename(name)
     redraw
     echo 'Renamed:' current '->' a:name
   endif
+endfunction
+
+
+
+
+" Reverse  {{{2
+
+command! -bar -range=% Reverse  <line1>,<line2>g/^/m<line1>-1 | nohlsearch
+
+
+
+
+" Say  "{{{2
+
+command! -range -nargs=? Say
+\ call system('say', <q-args> != '' ? <q-args> : getline(<line1>, <line2>))
+
+
+
+
+" Seq - sequence number substitutions  "{{{2
+"
+" :Seq /{pattern}[/format][/options]
+"
+" Example: Prints the number in front of each line
+" :Seq/^/%03d /
+"
+" Example: Sets the start number and the step
+" :Seq/^/%d /100+2
+
+command! -range -nargs=+ Seq
+\ <line1>,<line2>call s:cmd_Seq(<q-args>)
+function! s:cmd_Seq(args) range
+  let parse_pattern = '\v^([\x00-\xff]&[^\\"|[:alnum:][:blank:]])'
+  \                 . '(%(\\.|.){-})'
+  \                 .   '%(\1(%(\\.|.){-})'
+  \                 .      '%(\1(%(\\.|.){-}))?)?$'
+  let matches = matchlist(a:args, parse_pattern)
+  if empty(matches)
+    throw 'invalid arguments'
+  endif
+
+  let separator = matches[1]
+  let pattern = matches[2]
+  let format = matches[3]
+  let options = matches[4]
+
+  let incrementer = {
+  \   'format': format,
+  \   'last_line': 0x7fffffff,
+  \   'current': 1,
+  \   'step': 1,
+  \ }
+
+  let substitute_options = ''
+  for c in split(options, '\([+-]\?\d\+\|.\)\zs')
+    if c =~ '^\d\+'
+      let incrementer.current = str2nr(c)
+    elseif c =~ '^[+-]\d\+'
+      let incrementer.step = str2nr(c)
+    else
+      let substitute_options .= c
+    endif
+  endfor
+
+  function incrementer.call(line) dict
+    if a:line > self.last_line
+      let self.current += self.step
+    endif
+    let next = printf(self.format, self.current)
+    let self.last_line = a:line
+    return next
+  endfunction
+
+  execute printf('%d,%dsubstitute%s%s%s\=incrementer.call(line(''.''))%s%s',
+  \              a:firstline,
+  \              a:lastline,
+  \              separator,
+  \              pattern,
+  \              separator,
+  \              separator,
+  \              substitute_options)
 endfunction
 
 
@@ -480,12 +684,25 @@ endfunction
 
 
 
-" ShowSyntax - show a syntax name under the cursor. "{{{2
+" SyntaxName - shows the syntax name under the cursor. "{{{2
 
-command! -bar -nargs=0 ShowSyntax
-\ echo join(<SID>syntax_name_on_the_cursor(), '/')
-function! s:syntax_name_on_the_cursor()
-  return map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
+command! -bar -nargs=0 SyntaxName
+\ echo join(<SID>syntax_name(line('.'), col('.')), '/')
+function! s:syntax_name(line, col)
+  let names = []
+
+  for syn_id in synstack(a:line, a:col)
+    let syn_trans_id = synIDtrans(syn_id)
+    let name = synIDattr(syn_id, 'name')
+
+    if syn_id != syn_trans_id
+      let name .= '<' . synIDattr(syn_trans_id, 'name') . '>'
+    endif
+
+    call add(names, name)
+  endfor
+
+  return names
 endfunction
 
 
@@ -504,16 +721,31 @@ command! -bar -nargs=* TabpageTitle
 
 
 
-" Indent setters  "{{{2
+" Total  "{{{2
 
-command! -bar -nargs=1 TabIndent
-\ setlocal noexpandtab softtabstop< tabstop=<args> shiftwidth=<args>
+function! s:reduce_matched_items(func, initial, first_line, last_line, pattern, options)
+  let reducer = { 'func': a:func, 'acc': a:initial }
 
-command! -bar -nargs=1 SpaceIndent
-\ setlocal expandtab tabstop< softtabstop=<args> shiftwidth=<args>
+  function reducer.step(value) dict
+    let self.acc = call(self.func, [self.acc, a:value])
+  endfunction
 
-AlterCommand si  SpaceIndent
-AlterCommand ti  TabIndent
+  execute printf('silent %d,%dsubstitute/%s/\=reducer.step(submatch(0))/%s',
+  \              a:first_line,
+  \              a:last_line,
+  \              a:pattern,
+  \              a:options)
+
+  let @/ = a:pattern
+
+  return reducer.acc
+endfunction
+
+function! s:total(acc, value)
+  return a:acc + a:value
+endfunction
+command! -bang -range -nargs=+ Total
+\ echo s:reduce_matched_items(s:SID_PREFIX() . 'total', 0, <line1>, <line2>, <q-args>, <bang>0 ? 'en' : 'egn')
 
 
 
@@ -552,94 +784,13 @@ command! -bang -bar -complete=file -nargs=? Unicode  Utf16<bang> <args>
 
 
 " Utilities  "{{{1
-" :grep wrappers  "{{{2
-
-command! -bar -complete=file -nargs=+ Grep  call s:grep('grep', [<f-args>])
-command! -bar -complete=file -nargs=+ Lgrep  call s:grep('lgrep', [<f-args>])
-function! s:grep(command, args)
-  let target = join(a:args[:-2], ' ')
-  let grepprg = &l:grepprg == '' ? &grepprg : &l:grepprg
-
-  if grepprg ==# 'internal'
-    execute a:command '/'.escape(a:args[-1], '/ ').'/j' target
-  else
-    execute a:command.'!' shellescape(a:args[-1]) target
-  endif
-
-  if a:command ==# 'grep'
-    cwindow
-  else  " lgrep
-    lwindow
-  endif
-endfunction
-
-AlterCommand gr[ep]  Grep
-AlterCommand lgr[ep]  Lgrep
-
-
-
-
-" :make wrappers  "{{{2
-
-command! -bar -complete=file -nargs=* Make  call s:make('make', [<f-args>])
-command! -bar -complete=file -nargs=* Lmake  call s:make('lmake', [<f-args>])
-function! s:make(command, args)
-  let original_winnr = winnr()
-  try
-    execute a:command.'!' join(a:args)
-  catch
-    echohl ErrorMsg
-    echo v:exception
-    echohl None
-  endtry
-
-  if a:command ==# 'make'
-    cwindow
-  else  " lmake
-    lwindow
-  endif
-  execute original_winnr 'wincmd w'
-endfunction
-
-AlterCommand mak[e]  Make
-AlterCommand lmak[e]  Lmake
-
-
-
-
-" Buffer cleaner  "{{{2
-
-command! -bang -nargs=0 BufferCleaner  call s:cmd_BufferCleaner(<bang>0)
-function! s:cmd_BufferCleaner(banged_p)
-  let _ = range(1, bufnr('$'))
-  call filter(_, 'bufexists(v:val)
-  \               && buflisted(v:val)
-  \               && (bufname(v:val) == "" || !filereadable(bufname(v:val)))
-  \               && (a:banged_p || !getbufvar(v:val, "&modified"))')
-  for bufnr in _
-    silent execute bufnr 'bdelete'.(a:banged_p ? '!' : '')
-  endfor
-  echo printf('%d buffer%s deleted', len(_), len(_) > 1 ? 's' : '')
-endfunction
-
-
-
-
-" Fold debugger  "{{{2
-
-command! -range=% FoldDebug
-\ <line1>,<line2>global/^/echo printf("%*d [%2s] %s", len(line('$')), line('.'), eval(substitute(&l:foldexpr, 'v:lnum', line('.'), '')), getline('.'))
-
-
-
-
 " High-level key sequences  "{{{2
 
 function! s:keys_to_complete()
-  if &l:completefunc != ''
-    return "\<C-x>\<C-u>"
-  elseif &l:filetype ==# 'vim'
+  if &l:filetype ==# 'vim'
     return "\<C-x>\<C-v>"
+  elseif &l:completefunc != ''
+    return "\<C-x>\<C-u>"
   elseif &l:omnifunc != ''
     return "\<C-x>\<C-o>"
   else
@@ -715,17 +866,17 @@ endfunction
 " Plugin manager  "{{{2
 
 command! -bang -complete=customlist,s:complete_bundle -nargs=+ Bundle
-\ call s:bundle._call(<f-args>, <bang>0)
+\ call s:bundle._dispatch(<f-args>, <bang>0)
 function! s:complete_bundle(arglead, cmdline, cursorpos)
   return filter(keys(s:bundle),
-  \             'v:val =~# "^[a-z]" && s:prefix_of_p(a:arglead, v:val)')
+  \             'v:val =~# "^[a-z]" && s:starts_with(a:arglead, v:val)')
 endfunction
 
 let s:bundle = {
 \   'DIR': $HOME . '/.vim/bundle'
 \ }
 
-function! s:bundle._call(action, ...) dict  "{{{3
+function! s:bundle._dispatch(action, ...) dict  "{{{3
   call call(get(self, a:action, self.help), a:000, self)
 endfunction
 
@@ -805,14 +956,14 @@ function! s:bundle.update(banged_p) dict  "{{{3
     \   shellescape(bundle)
     \ ])
 
-    let remote = split(system(git . ' remote -v'), '\n', !0)
+    echohl Title
+    echo 'Updating' fnamemodify(bundle, ':t') '...'
+    echohl None
+
+    let remote = split(system(git . ' remote -v'), '\n', 1)
     if v:shell_error != 0 || remote[0] !~# '^origin\s\(git\|https\?\)://'
       continue
     endif
-
-    echohl Title
-    echo 'Update' fnamemodify(bundle, ':t') '...'
-    echohl None
 
     let result = system(git . ' pull --rebase')
     if v:shell_error == 0
@@ -824,73 +975,6 @@ function! s:bundle.update(banged_p) dict  "{{{3
       echohl None
     endif
   endfor
-endfunction
-
-
-
-
-" Sequence number substitutions  "{{{2
-"
-" :Seq /{pattern}[/format][/options]
-"
-" Example: Print the number in front of each line:
-" :Seq/^/%03d /
-"
-" Example: Set start number and step
-" :Seq/^/%d /100+2
-
-command! -range -nargs=+ Seq
-\ <line1>,<line2>call s:cmd_Seq(<q-args>)
-function! s:cmd_Seq(args) range
-  let parse_pattern = '\v^([\x00-\xff]&[^\\"|[:alnum:][:blank:]])'
-  \                 . '(%(\\.|.){-})'
-  \                 .   '%(\1(%(\\.|.){-})'
-  \                 .      '%(\1(%(\\.|.){-}))?)?$'
-  let _ = matchlist(a:args, parse_pattern)
-  if empty(_)
-    throw 'invalid arguments'
-  endif
-
-  let separator = _[1]
-  let pattern = _[2]
-  let format = _[3]
-  let options = _[4]
-
-  let incrementer = {
-  \   'format': format,
-  \   'last_line': 0x7fffffff,
-  \   'current': 1,
-  \   'step': 1,
-  \ }
-
-  let substitute_options = ''
-  for c in split(options, '\([+-]\?\d\+\|.\)\zs')
-    if c =~ '^\d\+'
-      let incrementer.current = str2nr(c)
-    elseif c =~ '^[+-]\d\+'
-      let incrementer.step = str2nr(c)
-    else
-      let substitute_options .= c
-    endif
-  endfor
-
-  function incrementer.call(line) dict
-    if a:line > self.last_line
-      let self.current += self.step
-    endif 
-    let next = printf(self.format, self.current)
-    let self.last_line = a:line
-    return next
-  endfunction
-
-  execute printf('%d,%dsubstitute%s%s%s\=incrementer.call(line(''.''))%s%s',
-  \              a:firstline,
-  \              a:lastline,
-  \              separator,
-  \              pattern,
-  \              separator,
-  \              separator,
-  \              substitute_options)
 endfunction
 
 
@@ -912,7 +996,7 @@ function! s:toggle_grepprg(global_p)
   endif
 endfunction
 if has('vim_starting')
-  silent call s:toggle_grepprg(!0)
+  silent call s:toggle_grepprg(1)
 endif
 
 
@@ -945,7 +1029,7 @@ function! s:toggle_colorcolumn()
   else
     let b:textwidth = &l:textwidth
     if b:textwidth == 0
-      setlocal textwidth=80
+      setlocal textwidth=100
     endif
     setlocal colorcolumn=+1 colorcolumn?
   endif
@@ -954,7 +1038,7 @@ endfunction
 
 
 
-" Vertical with  "{{{2
+" Window helpers  "{{{2
 
 function! s:vertical_p()
   return winwidth(0) > winheight(0) * 5
@@ -989,7 +1073,6 @@ AlterCommand new  New
 
 " VCS branch name  "{{{2
 " Returns the name of the current branch of the given directory.
-" BUGS: git is only supported.
 let s:_vcs_branch_name_cache = {}  " dir_path = [branch_name, cache_key]
 
 
@@ -1083,15 +1166,7 @@ endfunction
 
 
 
-function! s:first_line(file)  "{{{2
-  let lines = readfile(a:file, '', 1)
-  return 1 <= len(lines) ? lines[0] : ''
-endfunction
-
-
-
-
-function! s:lookup_project_root(path)  "{{{2
+function! s:find_project_root(path)  "{{{2
   for dir in s:upper_dirs(a:path)
     if !empty(filter(['.bzr', '.git', '.hg', '.svn', 'cvs'],
     \                 'isdirectory(dir . "/" . v:val)'))
@@ -1099,6 +1174,14 @@ function! s:lookup_project_root(path)  "{{{2
     endif
   endfor
   return ''
+endfunction
+
+
+
+
+function! s:first_line(file)  "{{{2
+  let lines = readfile(a:file, '', 1)
+  return 1 <= len(lines) ? lines[0] : ''
 endfunction
 
 
@@ -1155,6 +1238,24 @@ endfunction
 
 
 
+function! s:operator_increment(motion_wiseness)  "{{{2
+  let visual_command =
+  \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
+  execute 'normal!' '`['.visual_command.'`]g'."\<C-a>"
+endfunction
+
+
+
+
+function! s:operator_decrement(motion_wiseness)  "{{{2
+  let visual_command =
+  \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
+  execute 'normal!' '`['.visual_command.'`]g'."\<C-x>"
+endfunction
+
+
+
+
 function! s:operator_search(motion_wiseness)  "{{{2
   let reg_0 = [@0, getregtype('0')]
 
@@ -1172,12 +1273,35 @@ endfunction
 
 
 
+function! s:operator_speak(motion_wiseness)  "{{{2
+  let visual_command =
+  \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
+  execute 'normal!' '`['.visual_command.'`]y'
+
+  let text = @0
+
+  if text =~ '[^\x00-\x7F]'
+    call google_translate#speak(text, 'ja')
+  else
+    call google_translate#speak(text, 'en')
+  endif
+endfunction
+
+
+
+
 function! s:operator_translate(motion_wiseness)  "{{{2
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   execute 'normal!' '`['.visual_command.'`]y'
 
-  let @" = s:translate_with_auto_detection(@0)
+  let text = @0
+
+  if text =~ '[^\x00-\x7F]'
+    let @" = google_translate#translate(text, 'ja', 'en')
+  else
+    let @" = google_translate#translate(text, 'en', 'ja')
+  endif
 
   echo @"
 endfunction
@@ -1194,40 +1318,8 @@ endfunction
 
 
 
-function! s:prefix_of_p(x, y)  "{{{2
+function! s:starts_with(x, y)  "{{{2
   return a:x ==# strpart(a:y, 0, len(a:x))
-endfunction
-
-
-
-
-function! s:translate(text, from, to)  "{{{2
-  let api = 'http://translate.google.com/translate_a/t'
-  let options = {'sl': a:from, 'tl': a:to}
-  let response = webapi#http#post(api, extend({
-  \   'client': '0',
-  \   'q': a:text
-  \ }, options), {'User-Agent': 'Mozilla/5.0'})
-
-  if response.status == 200
-    let result = webapi#json#decode(response.content)
-    return result
-  else
-    throw printf("%d %s: %s", response.status, response.message, api)
-  end
-
-  return ''
-endfunction
-
-
-
-
-function! s:translate_with_auto_detection(text)  "{{{2
-  if a:text =~ '[^\x00-\x7F]'
-    return s:translate(a:text, 'ja', 'en')
-  else  " English given
-    return s:translate(a:text, 'en', 'ja')
-  endif
 endfunction
 
 
@@ -1574,8 +1666,8 @@ nnoremap <silent> [Space]/  :<C-u>call <SID>toggle_option('hlsearch')<CR>
 nnoremap <silent> [Space]c  :<C-u>call <SID>close_temporary_windows()<CR>
 
 nnoremap [Space]f  <Nop>
-nnoremap [Space]fe  :<C-u>SetFileEncoding<Space>
-nnoremap [Space]ff  :<C-u>SetFileFormat<Space>
+nnoremap [Space]fe  :<C-u>FileEncoding<Space>
+nnoremap [Space]ff  :<C-u>FileFormat<Space>
 nnoremap [Space]fr  :<C-u>Rename <C-r>%
 nnoremap [Space]fs  :<C-u>setlocal filetype? fileencoding? fileformat?<CR>
 nnoremap [Space]ft  :<C-u>setfiletype<Space>
@@ -1589,7 +1681,7 @@ nnoremap [Space]I  I<C-r>=<SID>keys_to_insert_one_character()<CR>
 nnoremap [Space]i  i<C-r>=<SID>keys_to_insert_one_character()<CR>
 
 " Put from clipboard.
-nmap [Space]p  "*p
+nmap [Space]p  "+p
 
 " Open a fold.
 nnoremap [Space]l  zo
@@ -1699,6 +1791,16 @@ vnoremap )  t)
 
 
 " Operators  "{{{2
+" operator-increment and decrement "{{{3
+
+call operator#user#define('increment',
+\                         s:SID_PREFIX() . 'operator_increment')
+call operator#user#define('search-backward',
+\                         s:SID_PREFIX() . 'operator_decrement')
+map g<C-a>  <Plug>(operator-increment)
+map g<C-x>  <Plug>(operator-deincrement)
+
+
 " operator-search  "{{{3
 
 call operator#user#define('search-forward',
@@ -1810,7 +1912,7 @@ onoremap <expr> n  <SID>search_forward_p() ? 'n' : 'N'
 onoremap <expr> N  <SID>search_forward_p() ? 'N' : 'n'
 
 function! s:search_forward_p()
-  return exists('v:searchforward') ? v:searchforward : !0
+  return exists('v:searchforward') ? v:searchforward : 1
 endfunction
 
 " 'gf' with split
@@ -1827,6 +1929,10 @@ autocmd MyAutoCmd FileType *
 \ call s:on_FileType_any()
 
 function! s:on_FileType_any()
+  if &l:omnifunc == '' && &l:completefunc == ''
+    setlocal completefunc=autoprogramming#complete
+  endif
+
   " Make omni completion available for all filetypes.
   if &l:omnifunc == ''
     setlocal omnifunc=syntaxcomplete#Complete
@@ -1902,6 +2008,14 @@ autocmd MyAutoCmd InsertLeave *  set nopaste
 autocmd MyAutoCmd VimEnter,WinEnter *  match Underlined /[\u3000\ufff9-\ufffc]/
 
 
+" When editing a file, always jump to the last known cursor position.
+" Don't do it when the position is invalid or when inside an event handler.
+autocmd MyAutoCmd BufReadPost *
+\   if line("'\"") >= 1 && line("'\"") <= line("$")
+\ |   execute "normal! g`\""
+\ | endif
+
+
 
 
 " actionscript  "{{{2
@@ -1910,6 +2024,14 @@ autocmd MyAutoCmd FileType actionscript
 \   TabIndent 4
 \ | setlocal commentstring=//%s
 \ | compiler ant
+
+
+
+
+" blade  "{{{2
+
+autocmd MyAutoCmd FileType blade
+\ SpaceIndent 4
 
 
 
@@ -1947,7 +2069,7 @@ function! s:on_FileType_cs()
   setlocal commentstring=//%s
   setlocal textwidth=100
 
-  inoreabbrev <buffer> ///  /// <summary><CR><CR></summary><Up><Space>
+  inoreabbrev <buffer> ///  /// <summary><CR><CR></summary><Up>
 endfunction
 
 
@@ -2023,7 +2145,7 @@ autocmd MyAutoCmd FileType haxe
 autocmd MyAutoCmd FileType java
 \   SpaceIndent 4
 \ | compiler gradle
-\ | setlocal cinoptions=:0,l1,g0,t0,(0,j1
+\ | setlocal cinoptions=:1s,l1,g0,t0,(0,j1
 \ | setlocal foldmethod=syntax foldnestmax=2
 \ | setlocal textwidth=100
 
@@ -2034,8 +2156,7 @@ autocmd MyAutoCmd FileType java
 
 autocmd MyAutoCmd FileType javascript
 \   SpaceIndent 4
-\ | setlocal omnifunc=jscomplete#CompleteJS
-\ | setlocal iskeyword-=58
+\ | setlocal iskeyword-=58 iskeyword+=$
 
 let g:jsx_ext_required = 0
 
@@ -2099,7 +2220,9 @@ autocmd MyAutoCmd FileType php
 
 function! s:on_FileType_php()
   SpaceIndent 4
+  compiler phan
   setlocal commentstring=//%s
+  setlocal iskeyword+=$
 
   inoreabbrev <buffer> /** /**<CR><CR>/<Up>
 endfunction
@@ -2135,6 +2258,14 @@ autocmd MyAutoCmd FileType ruby
 
 
 
+" scala  "{{{2
+
+autocmd MyAutoCmd FileType scala
+\ SpaceIndent 2
+
+
+
+
 " scheme  "{{{2
 
 let g:is_gauche = 1
@@ -2157,6 +2288,14 @@ let g:is_bash = 1
 autocmd MyAutoCmd FileType sql
 \   SpaceIndent 2
 \ | setlocal commentstring=--%s
+
+
+
+
+" swift  "{{{2
+
+autocmd MyAutoCmd FileType swift
+\ SpaceIndent 4
 
 
 
@@ -2190,6 +2329,7 @@ let g:tex_flavor = 'latex'
 
 autocmd MyAutoCmd FileType typescript
 \   SpaceIndent 4
+\ | setlocal makeprg=./node_modules/.bin/tsc
 \ | setlocal commentstring=//%s
 \ | setlocal iskeyword-=58
 
@@ -2209,7 +2349,7 @@ let g:vimsyn_embed = 'l'
 
 " xml  "{{{2
 
-autocmd MyAutoCmd FileType ant,docbk,html,mustache,smarty,xhtml,xml,xslt
+autocmd MyAutoCmd FileType ant,docbk,html,mustache,smarty,svg,xhtml,xml,xslt
 \ call s:on_FileType_xml()
 
 function! s:on_FileType_xml()
@@ -2330,7 +2470,7 @@ autocmd MyAutoCmd FileType ku
 \ call s:on_FileType_ku()
 
 function! s:on_FileType_ku()
-  call ku#default_key_mappings(!0)
+  call ku#default_key_mappings(1)
 
   iunmap <buffer> <C-j>
   iunmap <buffer> <C-k>
@@ -2431,6 +2571,8 @@ nnoremap <silent> [Space]kg  :<C-u>Ku metarw/git<CR>
 nnoremap <silent> [Space]kh  :<C-u>Ku history<CR>
 nnoremap <silent> [Space]kj  :<C-u>Ku file/current<CR>
 nnoremap <silent> [Space]kl  :<C-u>Ku file_project<CR>
+nnoremap <silent> [Space]kn  :<C-u>Ku file<CR>~/Documents/Notes/
+nnoremap <silent> [Space]ko  :<C-u>Ku oldfiles<CR>
 nnoremap <silent> [Space]kq  :<C-u>Ku quickfix<CR>
 nnoremap <silent> [Space]kr  :<C-u>Ku register<CR>
 nnoremap <silent> [Space]ks  :<C-u>Ku source<CR>
@@ -2446,7 +2588,7 @@ nnoremap <silent> [Space]kk  :<C-u>call ku#restart()<CR>
 
 
 let g:ku_file_mru_ignore_pattern = '/$\|/\.git/\|^/\(/\|mnt\|tmp\)'
-let g:ku_file_mru_limit = 200
+let g:ku_file_mru_limit = 1000
 
 
 
@@ -2461,8 +2603,8 @@ let g:metarw_gist_safe_write = 1
 
 " operator-camelize  "{{{2
 
-map <Leader>c <Plug>(operator-camelize)
-map <Leader>C <Plug>(operator-decamelize)
+map <Leader>c  <Plug>(operator-camelize)
+map <Leader>C  <Plug>(operator-decamelize)
 
 
 
@@ -2485,6 +2627,7 @@ Arpeggio map or  <Plug>(operator-replace)
 " operator-sort  "{{{2
 
 nmap [Space]S  <Plug>(operator-sort)$
+vmap [Space]S  <Plug>(operator-sort)$
 nmap [Space]s  <Plug>(operator-sort)
 vmap [Space]s  <Plug>(operator-sort)
 
@@ -2507,7 +2650,7 @@ let g:quickrun_config = {
 \     'cmdopt': '-std=c++11'
 \   },
 \   'dot': {
-\     'exec': ['%c -Tps:cairo -o %s:p:r.ps %s']
+\     'exec': ['%c -Tsvg -o %s:p:r.svg %s']
 \   },
 \   'php/hhvm': {
 \     'command': 'hhvm',
@@ -2517,6 +2660,9 @@ let g:quickrun_config = {
 \     'exec': ['%c %a --cwd %s:p:h -x %s:t:r'],
 \     'tempfile': '%{fnamemodify(tempname(), ":h")}/%{expand("%:t")}',
 \     'hook/sweep/files': ['%S:p:r.n']
+\   },
+\   'javascript': {
+\     'type': 'javascript/nodejs'
 \   },
 \   'javascript/nodejs': {
 \     'cmdopt': '--use_strict --harmony',
@@ -2539,6 +2685,12 @@ let g:quickrun_config = {
 \   'sql/mysql': {
 \     'command': 'mysql',
 \     'exec': ['%c --user root %a < %s']
+\   },
+\   'typescript': {
+\     'command': 'tsc',
+\     'exec': ['%c --strict --target es2017 --module es2015 %o %s', 'node %s:r.js'],
+\     'tempfile': '%{tempname()}.ts',
+\     'hook/sweep/files': ['%S:p:r.js'],
 \   },
 \   'xdefaults': {
 \     'command': 'mysql',
@@ -2636,7 +2788,7 @@ autocmd MyAutoCmd User plugin-skeleton-loaded
 \ call s:on_User_plugin_skeleton_loaded()
 
 function! s:on_User_plugin_skeleton_loaded()
-  silent %s/<%=\(.\{-}\)%>/\=eval(submatch(1))/ge
+  silent %s/<%=\s*\(.\{-}\)\s*%>/\=eval(submatch(1))/ge
   if search('<%|%>', 'w')
     if foldclosed(line('.'))
       normal! zv
