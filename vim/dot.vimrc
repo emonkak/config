@@ -79,7 +79,7 @@ if has('gui_running')
   set guicursor=a:blinkwait4000-blinkon1500-blinkoff500
   if has('gui_gtk2') || has('gui_gtk3')
     set guifont=Monospace\ 10
-    set linespace=4
+    set linespace=0
   elseif has('gui_macvim')
     set guifont=Monaco:h12
     set linespace=5
@@ -90,7 +90,7 @@ if has('gui_running')
     set guifont=Consolas:h10.5
     set guifontwide=MS\ Gothic:h10.5
     set renderoptions=type:directx,renmode:5
-    set linespace=6
+    set linespace=5
   endif
   set guioptions=AcgM
 endif
@@ -103,7 +103,7 @@ else
 endif
 set backspace=indent,eol,start
 set nobackup
-if exists('+clipboard')
+if has('gui_running') && exists('+clipboard')
   set clipboard=autoselectml,exclude:cons\|linux
   if has('unnamedplus')
     set clipboard+=unnamedplus
@@ -488,9 +488,9 @@ command! DiffOrig
 
 
 
-" FoldExprDebug  "{{{2
+" FoldDump  "{{{2
 
-command! -range=% FoldExprDebug
+command! -range=% FoldDump
 \ <line1>,<line2>global/^/echo printf("%*d [%2s] %s", len(line('$')), line('.'), eval(substitute(&l:foldexpr, 'v:lnum', line('.'), '')), getline('.'))
 
 
@@ -534,7 +534,7 @@ endfunction
 command! -complete=file -nargs=1 Rename  call s:cmd_Rename(<q-args>)
 function! s:cmd_Rename(name)
   let current = expand('%')
-  if &l:readonly || !&l:modifiable || !(filereadable(a:name) || filewritable(current))
+  if &l:readonly || !&l:modifiable || (filereadable(current) && !filewritable(current))
     echohl ErrorMsg
     echo 'This file cannot be changes:' a:name
     echohl None
@@ -721,7 +721,7 @@ command! -bar -nargs=* TabpageTitle
 
 
 
-" Total  "{{{2
+" Sum  "{{{2
 
 function! s:reduce_matched_items(func, initial, first_line, last_line, pattern, options)
   let reducer = { 'func': a:func, 'acc': a:initial }
@@ -741,11 +741,11 @@ function! s:reduce_matched_items(func, initial, first_line, last_line, pattern, 
   return reducer.acc
 endfunction
 
-function! s:total(acc, value)
-  return a:acc + a:value
+function! s:sum(acc, value)
+  return a:acc + eval(a:value)
 endfunction
-command! -bang -range -nargs=+ Total
-\ echo s:reduce_matched_items(s:SID_PREFIX() . 'total', 0, <line1>, <line2>, <q-args>, <bang>0 ? 'en' : 'egn')
+command! -bang -range -nargs=* Sum
+\ call append(line('$'), string(s:reduce_matched_items(s:SID_PREFIX() . 'sum', 0, <line1>, <line2>, <q-args> != '' ? <q-args> : '\d\+\%(\.\d\+\)\?', <bang>0 ? 'en' : 'egn')))
 
 
 
@@ -789,10 +789,10 @@ command! -bang -bar -complete=file -nargs=? Unicode  Utf16<bang> <args>
 function! s:keys_to_complete()
   if &l:filetype ==# 'vim'
     return "\<C-x>\<C-v>"
-  elseif &l:completefunc != ''
-    return "\<C-x>\<C-u>"
   elseif &l:omnifunc != ''
     return "\<C-x>\<C-o>"
+  elseif &l:completefunc != ''
+    return "\<C-x>\<C-u>"
   else
     return "\<C-n>"
   endif
@@ -1489,9 +1489,9 @@ unlet s:i
 " Moving tabpages themselves.  "{{{3
 
 nnoremap <silent> <C-t>l
-\ :<C-u>execute 'tabmove' min([tabpagenr() + v:count1 - 1, tabpagenr('$')])<CR>
+\ :<C-u>execute 'tabmove' '+'.v:count1<CR>
 nnoremap <silent> <C-t>h
-\ :<C-u>execute 'tabmove' max([tabpagenr() - v:count1 - 1, 0])<CR>
+\ :<C-u>execute 'tabmove' '-'.v:count1<CR>
 nnoremap <silent> <C-t>L  :<C-u>tabmove<CR>
 nnoremap <silent> <C-t>H  :<C-u>tabmove 0<CR>
 
@@ -1929,7 +1929,7 @@ autocmd MyAutoCmd FileType *
 \ call s:on_FileType_any()
 
 function! s:on_FileType_any()
-  if &l:omnifunc == '' && &l:completefunc == ''
+  if &l:completefunc == ''
     setlocal completefunc=autoprogramming#complete
   endif
 
@@ -2084,6 +2084,14 @@ autocmd MyAutoCmd FileType css,less,sass,scss
 
 
 
+" dockerfile "{{{2
+
+autocmd MyAutoCmd FileType dockerfile
+\ SpaceIndent 4
+
+
+
+
 " dosini (.ini)  "{{{2
 
 autocmd MyAutoCmd FileType dosini
@@ -2166,7 +2174,7 @@ let g:jsx_ext_required = 0
 " json  "{{{2
 
 autocmd MyAutoCmd FileType json
-\ SpaceIndent 2
+\ SpaceIndent 4
 
 
 
@@ -2182,6 +2190,14 @@ autocmd MyAutoCmd FileType lua
 " markdown  "{{{2
 
 autocmd MyAutoCmd FileType markdown
+\ SpaceIndent 4
+
+
+
+
+" nginx  "{{{2
+
+autocmd MyAutoCmd FileType nginx
 \ SpaceIndent 4
 
 
@@ -2684,7 +2700,7 @@ let g:quickrun_config = {
 \   },
 \   'sql/mysql': {
 \     'command': 'mysql',
-\     'exec': ['%c --user root %a < %s']
+\     'exec': ['%c --host 127.0.0.1 --user root %a < %s']
 \   },
 \   'typescript': {
 \     'command': 'tsc',

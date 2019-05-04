@@ -35,7 +35,8 @@ function! TypescriptFold(lnum)
 
   if current =~# '^\s*'
              \ . '\%(\%(export\s\+\%(default\s\+\)\?\)\?\%(\%(abstract\s\+\)\?class\|\%(async\s\+\)\?function\|interface\|module\)'
-             \ . '\|\%(\%(private\|public\|async\|get\|set\)\s\+\)*\*\?\%(\w\+\|\[.\{-}\]\)\%(<.\+>\)\?('
+             \ . '\|\%(\%(private\|protected\|public\|async\|get\|set\)\s\+\)*\*\?\%(\w\+\|\[.\{-}\]\)\s*\%(<.\+>\)\?\s*('
+             \ . '\|\%(\%(private\|protected\|public\)\s\+\)\?\w\+\s*=\s*('
              \ . '\|\%(declare\s\+\)\%(module\|namespace\|interface\|class\)\s\+'
              \ . '\)'
              \ . '[^;]*$'

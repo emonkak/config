@@ -63,8 +63,8 @@ function! google_translate#token(text)  "{{{2
   let iB = str2nr(cD[0])
 
   let e = []
-
   let g = 0
+
   while g < len(a)
     let l = char2nr(a[g])
     if 128 > l
@@ -90,6 +90,7 @@ function! google_translate#token(text)  "{{{2
     endif
     let g += 1
   endwhile
+
 
   let a = iB
   for ff in e
@@ -132,56 +133,61 @@ endfunction
 
 
 " Misc.  "{{{1
-function! s:to_32bit(n)  "{{{2
-  return and(a:n, 2147483648) ? or(a:n, -2147483648) : a:n
+function! s:is_negative(n)  "{{{2
+  return and(a:n, 2147483648) != 0
+endfunction
+
+
+
+
+function! s:int32(n)  "{{{2
+  return s:is_negative(a:n) ? or(a:n, -2147483648) : and(a:n, 2147483647)
 endfunction
 
 
 
 
 function! s:left_shift32(n, i)  "{{{2
-  let bs = (a:n < 0) . printf('%032b', a:n)[-31:]
+  let bs = (s:is_negative(a:n)) . printf('%032b', a:n)[-31:]
   let bs = bs[a:i:] . repeat('0', a:i)
-  return s:to_32bit(str2nr(bs, 2))
+  return s:int32(str2nr(bs, 2))
 endfunction
 
 
 
 
-function! s:logical_right_shift32(n, i)  "{{{2
-  let bs = (a:n < 0) . printf('%032b', a:n)[-31:]
+function! s:right_shift32(n, i)  "{{{2
+  let bs = (s:is_negative(a:n)) . printf('%032b', a:n)[-31:]
   let bs = repeat('0', a:i) . bs[:-(a:i + 1)]
-  return s:to_32bit(str2nr(bs, 2))
+  return s:int32(str2nr(bs, 2))
 endfunction
-
 
 
 
 function! s:signed_right_shift32(n, i)  "{{{2
-  let bs = (a:n < 0) . printf('%032b', a:n)[-31:]
-  let bs = (a:n < 0) . repeat('0', a:i - 1) . bs[:-(a:i + 1)]
-  return s:to_32bit(str2nr(bs, 2))
+  let bs = (s:is_negative(a:n)) . printf('%032b', a:n)[-31:]
+  let bs = (s:is_negative(a:n)) . repeat('0', a:i - 1) . bs[:-(a:i + 1)]
+  return s:int32(str2nr(bs, 2))
 endfunction
 
 
 
-
 function! s:and32(x, y)  "{{{2
-  return s:to_32bit(and(a:x, a:y))
+  return s:int32(and(a:x, a:y))
 endfunction
 
 
 
 
 function! s:or32(x, y)  "{{{2
-  return s:to_32bit(or(a:x, a:y))
+  return s:int32(or(a:x, a:y))
 endfunction
 
 
 
 
 function! s:xor32(x, y)  "{{{2
-  return xor(s:to_32bit(a:x), s:to_32bit(a:y))
+  return s:int32(xor(a:x, a:y))
 endfunction
 
 
@@ -195,7 +201,8 @@ function! s:xr(a, b)  "{{{2
   for c in range(0, strlen(a:b) - 2, 3)
     let d = a:b[c + 2]
     let d = d >= 'a' ? char2nr(d) - 87 : str2nr(d)
-    let d = '+' == a:b[c + 1] ? s:logical_right_shift32(a, d) : s:left_shift32(a, d)
+    echo a:b[c + 1] a d
+    let d = '+' == a:b[c + 1] ? s:right_shift32(a, d) : s:left_shift32(a, d)
     let a = '+' == a:b[c] ? s:and32(a + d, 4294967295) : s:xor32(a, d)
   endfor
   return a
@@ -203,6 +210,11 @@ endfunction
 
 
 
+echo google_translate#token('test')
+" echo s:left_shift32(409382, 10)
+" echo s:xr(425755099 + 129, '+-a^+6')
+" echo s:signed_right_shift32(-1687555492, 6)
+" echo s:right_shift32(-1687555492, 6)
 
 " __END__  "{{{1
 " vim: foldmethod=marker

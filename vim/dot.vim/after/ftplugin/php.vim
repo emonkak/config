@@ -46,37 +46,76 @@ function! PHPFold(lnum)  "{{{
   return '='
 endfunction "}}}
 
-command! -range -nargs=? -buffer PhpInsertGetters
-\ <line1>,<line2>call s:insert_getters(<q-args> != '' ? <q-args> : 'public')
-command! -range -nargs=? -buffer PhpInsertSetters
-\ <line1>,<line2>call s:insert_setters(<q-args> != '' ? <q-args> : 'protected')
+command! -range -nargs=0 -buffer PhpInsertAccessors
+\ <line1>,<line2>call s:insert_accessors()
+command! -range -nargs=0 -buffer PhpInsertGetters
+\ <line1>,<line2>call s:insert_getters()
+command! -range -nargs=0 -buffer PhpInsertSetters
+\ <line1>,<line2>call s:insert_setters()
 
-function! s:insert_getters(visibility) range  " {{{
+function! s:insert_accessors() range  " {{{
   let properties = s:collect_properties(a:firstline, a:lastline)
 
   call cursor(a:lastline, 1)
 
-  for property in properties
-    let [name, type] = property
-    silent put =''
-    silent put =s:create_getter(a:visibility, name, type)
-  endfor
+  call s:render_getters(properties)
+  call s:render_setters(properties)
 
   call cursor(a:firstline, 1)
 endfunction  "}}}
 
-function! s:insert_setters(visibility) range  " {{{
+function! s:insert_getters() range  " {{{
   let properties = s:collect_properties(a:firstline, a:lastline)
 
   call cursor(a:lastline, 1)
 
-  for property in properties
-    let [name, type] = property
-    silent put =''
-    silent put =s:create_setter(a:visibility, name, type)
-  endfor
+  call s:render_getters(properties)
 
   call cursor(a:firstline, 1)
+endfunction  "}}}
+
+function! s:insert_setters() range  " {{{
+  let properties = s:collect_properties(a:firstline, a:lastline)
+
+  call cursor(a:lastline, 1)
+
+  call s:render_setters(properties)
+
+  call cursor(a:firstline, 1)
+endfunction  "}}}
+
+function! s:render_getters(properties)  "{{{
+  for property in a:properties
+    let [_, name, type] = property
+    silent put =''
+    silent put =s:create_getter('public', name, type)
+  endfor
+endfunction  "}}}
+
+function! s:render_setters(properties)  "{{{
+  for property in a:properties
+    let [visibility, name, type] = property
+    silent put =''
+    silent put =s:create_setter(visibility, name, type)
+  endfor
+endfunction  "}}}
+
+function! s:create_getter(visibility, name, type)  " {{{
+  return join([
+  \    '    ' . a:visibility . ' function get' . s:camelize(a:name) . '(): ' . a:type,
+  \    '    {',
+  \    '        return $this->' . a:name . ';',
+  \    '    }'
+  \ ], "\n")
+endfunction  "}}}
+
+function! s:create_setter(visibility, name, type)  " {{{
+  return join([
+  \   '    ' . a:visibility . ' function set' . s:camelize(a:name) . '(' . a:type . ' $' . a:name . '): void',
+  \   '    {',
+  \   '        $this->' . a:name . ' = ' . '$' . a:name . ';',
+  \   '    }'
+  \ ], "\n")
 endfunction  "}}}
 
 function! s:collect_properties(first, last)  " {{{
@@ -85,39 +124,19 @@ function! s:collect_properties(first, last)  " {{{
 
   for line_num in range(a:first, a:last)
     let line = getline(line_num)
-    let matches = matchlist(line, '@var\s\+\([A-Za-z0-9_\\]\+\)')
+    let matches = matchlist(line, '@var\s\+\(\S\+\)')
     if len(matches) > 0
       call add(types, matches[1])
     endif
 
-    let matches = matchlist(line, '\%(private\|public\|protected\)\s\+\$\(\w\+\)')
+    let matches = matchlist(line, '\(private\|public\|protected\)\s\+\$\(\w\+\)')
     if len(matches) > 0
       let type = len(types) > 0 ? remove(types, 0) : 'mixed'
-      call add(properties, [matches[1], type])
+      call add(properties, [matches[1], matches[2], type])
     endif
   endfor
 
   return properties
-endfunction  "}}}
-
-function! s:create_getter(visibility, name, type)  " {{{
-  return '    /**' . "\n"
-  \    . '     * @return ' . a:type . "\n"
-  \    . '     */' . "\n"
-  \    . '    ' . a:visibility . ' function get' . s:camelize(a:name) . '()' . "\n"
-  \    . '    {' . "\n"
-  \    . '        return $this->' . a:name . ';' . "\n"
-  \    . '    }'
-endfunction  "}}}
-
-function! s:create_setter(visibility, name, type)  " {{{
-  return '    /**' . "\n"
-  \    . '     * @param ' . a:type . ' $' . a:name . "\n"
-  \    . '     */' . "\n"
-  \    . '    ' . a:visibility . ' function set' . s:camelize(a:name) . '($' . a:name . ')' . "\n"
-  \    . '    {' . "\n"
-  \    . '        $this->' . a:name . ' = ' . '$' . a:name . ';' . "\n"
-  \    . '    }'
 endfunction  "}}}
 
 function! s:camelize(word)  " {{{
