@@ -62,7 +62,7 @@ GROUP_OPERA_FILES=\
   opera/styles/user.css
 GROUP_OPERA_RULE=$(patsubst opera/%, $(HOME)/.opera/%, $(1))
 
-GROUP_VIM_FILES=$(patsubst $(HOME)/.%, vim/dot.%, $(shell find $(HOME)/.vim/{after,autoload,compiler,dict,indent,plugin,syntax} -type f)) \
+GROUP_VIM_FILES=$(patsubst $(HOME)/.%, vim/dot.%, $(shell find $(HOME)/.vim/{after,autoload,compiler,dict,indent,syntax} -type f)) \
   vim/dot.vim/colors/basic256.vim \
   vim/dot.vimrc
 GROUP_VIM_RULE=$(patsubst vim/dot.%, $(HOME)/.%, $(1))
