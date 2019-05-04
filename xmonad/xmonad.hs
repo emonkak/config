@@ -4,36 +4,33 @@
 import XMonad hiding (Tall)
 import XMonad.Actions.CycleWS
 import XMonad.Actions.FloatSnap
+import XMonad.Actions.NoBorders
 import XMonad.Actions.Promote
+import XMonad.Actions.Submap
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.UrgencyHook
-import XMonad.Layout.IM
-import XMonad.Layout.Named
 import XMonad.Layout.NoBorders
-import XMonad.Layout.PerWorkspace
-import XMonad.Layout.Reflect
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.ToggleLayouts
-import XMonad.Layout.TrackFloating
 import XMonad.Prompt
 import XMonad.Prompt.Shell
 import XMonad.Util.Cursor
-import XMonad.Util.EZConfig
 import XMonad.Util.Run
 import XMonad.Util.WorkspaceCompare
 
 import qualified XMonad.StackSet as W
 
 import Control.Monad (filterM)
-import Data.List (isInfixOf)
-import Graphics.X11.Xlib.Extras (changeProperty8, propModeReplace)
+import Data.Monoid (All(..))
 import System.Directory (getHomeDirectory)
 import System.Exit (exitWith, ExitCode(..))
-import Text.Printf (printf)
+import System.IO (BufferMode(..), hSetBuffering)
+import System.Posix.IO (FdOption(..), closeFd, createPipe, dupTo, fdToHandle, setFdOption, stdInput, stdOutput)
+import System.Posix.Process (executeFile)
 
 import qualified Data.Map as M
 
@@ -42,12 +39,12 @@ import qualified Data.Map as M
 
 -- Config  --{{{1
 
-myFont = "-nil-profont-medium-r-normal--11-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--10-*-*-*-*-*-*-*"
-
+myTerminal = "urxvt"
 myBorderWidth = 2
-myStatusbarHeight = 14
+myModMask = mod4Mask
 myWorkspaces = map show [1..9]
 
+myFont = "-artwiz-gelly-medium-*-*-*-*-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--10-*-*-*-*-*-*-*"
 myNormalBorderColor = "#474747"
 myNormalFGColor = "#e2e2e2"
 myNormalBGColor = "#171717"
@@ -55,10 +52,9 @@ myFocusedBorderColor = "#4580c3"
 myFocusedBGColor = "#4580c3"
 myFocusedFGColor = "#171717"
 
-myStatusbar = printf "dzen2 -x 0 -y 0 -w 960 -h %d -ta l -fg '%s' -bg '%s' -fn '%s' -dock -e 'onstart=lower'"
-                     myStatusbarHeight myNormalFGColor myNormalBGColor myFont
+myStatusbarHeight = 14
 
-myXPConfig = defaultXPConfig
+myXPConfig ref = defaultXPConfig
   { font              = myFont
   , fgColor           = myNormalFGColor
   , bgColor           = myNormalBGColor
@@ -69,89 +65,62 @@ myXPConfig = defaultXPConfig
   , position          = Top
   , height            = myStatusbarHeight
   , historyFilter     = deleteAllDuplicates
+  , promptKeymap      = M.union myKeymap emacsLikeXPKeymap
   }
+  where
+    myKeymap = M.fromList $
+      [ ((controlMask, xK_u), setInput "")
+      , ((controlMask, xK_h), deleteString Prev)
+      , ((controlMask, xK_w), killWord Prev)
+      , ((controlMask, xK_p), historyUpMatching ref)
+      , ((controlMask, xK_n), historyDownMatching ref)
+      ]
 
 
 
 
--- Lauout  --{{{1
+-- EventHook  --{{{1
 
-myLayoutHook = avoidStruts $ smartBorders $
-  toggleLayouts Full $ imLayout $ tallLayout ||| wideLayout
+removeBorderEventHook :: Query Bool -> Event -> X All
+removeBorderEventHook query ev = do
+  whenX (query `runQuery` w) $ do
+    d <- asks display
+    io $ setWindowBorderWidth d w 0
+  return (All True)
+  where
+    w = ev_window ev
+
+myEventHook = fullscreenEventHook
+          <+> docksEventHook
+          <+> removeBorderEventHook (className =? "Wine")
+
+
+
+
+-- LayoutHook  --{{{1
+
+myLayoutHook = avoidStruts $ smartBorders $ toggleLayouts Full $
+               (tallLayout ||| wideLayout)
   where
     basicLayout = ResizableTall 1 (2/100) (1/2) []
-    tallLayout = named "Tall" $ basicLayout
-    wideLayout = named "Wide" $ Mirror basicLayout
-    imLayout = reflectHoriz . withIM 0.15 imWindows
-             . reflectHoriz . trackFloating
-    imWindows = foldr1 Or [ ClassName "Pidgin" `And` Role "buddy_list"
-                          , ClassName "Skype" `And` Role "MainWindow"
-                          ]
+    tallLayout = basicLayout
+    wideLayout = Mirror basicLayout
 
 
 
 
--- Manage  --{{{1
-
-myManageHook = composeOne
-  [ isDialog                               -?> doCenterFloat
-  , isFullscreen                           -?> doFullFloat
-  , className =? "Uim-tomoe-gtk"           -?> doFloat
-  , className =? "Firefox"
-    <&&> appName /=? "Navigator"           -?> doFloat
-  , className =? "qemu-system-x86_64"      -?> doFloat
-  , className =? "rdesktop"                -?> doFloat
-  , className =? "MPlayer"                 -?> doCenterFloat
-  , className =? "XFontSel"                -?> doCenterFloat
-  , className =? "Xmessage"                -?> doCenterFloat
-  , className =? "feh"                     -?> doCenterFloat
-  , className =? "mpv"                     -?> doCenterFloat
-  , className =? "Geeqie"                  -?> doShiftEmptyAndGo
-  , className =? "Inkscape"                -?> doShiftEmptyAndGo
-  , className =? "fontforge"               -?> doShiftEmptyAndGo <+> doFloat
-  , className =? "libreoffice-startcenter" -?> doShiftEmptyAndGo
-  , className =? "Gimp"
-    <&&> role /=? "gimp-toolbox"
-    <&&> role /=? "gimp-dock"
-    <&&> role /=? "gimp-image-window"       -?> doShiftEmptyAndGo <+> doFloat
-  , className =? "Gimp"                     -?> doShiftEmptyAndGo
-  , className =? "Skype"
-    <&&> fmap (isInfixOf "(Beta)") title    -?> addProperty "WM_WINDOW_ROLE" "MainWindow"
-  ]
-  where
-    role = stringProperty "WM_WINDOW_ROLE"
-    addProperty prop value = do
-      d <- liftX $ asks display
-      w <- ask
-      a <- io $ internAtom d prop False
-      t <- io $ internAtom d "STRING" False
-      io $ changeProperty8 d w a t propModeReplace $ map (fromIntegral . fromEnum) value
-      idHook
-    doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
-    doShiftEmptyAndGo = do
-      w <- ask
-      c <- liftX $ runQuery className w
-      xs <- liftX $ withWindowSet $ filterM (runQuery $ className =? c) . W.index
-      case xs of
-        [] -> do
-          ws <- liftX $ findWorkspace getSortByIndex Next EmptyWS 1
-          doShiftAndGo ws
-        _  -> idHook
-
-
-
-
--- Log  --{{{1
+-- LogHook  --{{{1
 
 myLogHook h = do
   home  <- io getHomeDirectory
   floated <- withWindowSet isFloat
   let dzenIcon     = wrap ("^i(" ++ home ++ "/.dzen/xmonad/") ")"
-      layoutIcon x = case last $ words x of
-        "Tall" -> dzenIcon "layout-tall-black.xbm"
-        "Wide" -> dzenIcon "layout-mirror-black.xbm"
-        "Full" -> dzenIcon "layout-full-black.xbm"
-        _      -> x
+      layoutIcon name = case name of
+        "ResizableTall"        -> dzenIcon "layout-tall-black.xbm"
+        "Mirror ResizableTall" -> dzenIcon "layout-mirror-black.xbm"
+        "Full"                 -> dzenIcon "layout-full-black.xbm"
+        "Spiral"               -> dzenIcon "layout-spiral-black.xbm"
+        _                      -> name
   dynamicLogWithPP $ defaultPP
     { ppCurrent         = dzenColor myFocusedFGColor myFocusedBGColor
                         . wrap (dzenIcon "square.xbm") " "
@@ -173,93 +142,185 @@ myLogHook h = do
 
 
 
+-- ManageHook  --{{{1
+
+myManageHook = manageDocks
+  <+> composeOne
+    [ isDialog                               -?> doCenterFloat
+    , isFullscreen                           -?> doFullFloat
+    ]
+  <+> composeAll
+    [ title     =? "Wine System Tray"                     --> doHideIgnore
+    , className =? "Uim-tomoe-gtk"                        --> doFloat
+    , className =? "Firefox" <&&> appName /=? "Navigator" --> doFloat
+    , className =? "qemu-system-x86_64"                   --> doFloat
+    , className =? "rdesktop"                             --> doFloat
+    , className =? "XFontSel"                             --> doCenterFloat
+    , className =? "Xmessage"                             --> doCenterFloat
+    , className =? "feh"                                  --> doCenterFloat
+    , className =? "mpv"                                  --> doCenterFloat
+    , className =? "Geeqie"                               --> doShiftEmptyAndGo
+    , className =? "Inkscape"                             --> doShiftEmptyAndGo
+    , className =? "fontforge"                            --> doShiftEmptyAndGo <+> doFloat
+    , className =? "libreoffice-startcenter"              --> doShiftEmptyAndGo
+    , className =? "Gimp"                                 --> doShiftEmptyAndGo
+    , className =? "Gimp-2.8"                             --> doShiftEmptyAndGo
+    , className =? "Gimp-2.8"                             --> doShiftEmptyAndGo
+    , role      =? "pop-up"                               --> doFloat
+    ]
+  where
+    isSticky = isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_STATE_STICKY"
+    doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
+    doShiftEmptyAndGo = do
+      w <- ask
+      c <- liftX $ runQuery className w
+      xs <- liftX $ withWindowSet $ filterM (runQuery $ className =? c) . W.index
+      case xs of
+        [] -> do
+          ws <- liftX $ findWorkspace getSortByIndex Next EmptyWS 1
+          doShiftAndGo ws
+        _  -> idHook
+    role = stringProperty "WM_WINDOW_ROLE"
+
+
+
+
+-- StartupHook  --{{{1
+
+spawnConkybar = do
+  (rd, wd) <- createPipe
+
+  setFdOption rd CloseOnExec True
+
+  fdToHandle wd >>= \h -> hSetBuffering h LineBuffering
+
+  _ <- xfork $ do
+    _ <- dupTo rd stdInput
+    executeFile "dzen2"
+                True
+                [ "-x" , "960"
+                , "-y" , "0"
+                , "-w" , "960"
+                , "-h" , show myStatusbarHeight
+                , "-ta" , "r"
+                , "-fg" , myNormalFGColor
+                , "-bg" , myNormalBGColor
+                , "-fn" , myFont
+                , "-dock"
+                , "-e" , "'onstart=lower'"
+                ]
+                Nothing
+
+  _ <- xfork $ do
+    _ <- dupTo wd stdOutput
+    executeFile "conky" True [] Nothing
+
+  closeFd rd
+  closeFd wd
+
+  return ()
+
+myStartupHook = do
+  setWMName "LG3D"
+  setDefaultCursor xC_left_ptr
+  io spawnConkybar
+
+
+
+
 -- Keys  --{{{1
 
-myKeys conf = mkKeymap conf $
-  [ ("M-<Return>",   promote)
-  , ("M-<Space>",    sendMessage NextLayout)
-  , ("M-S-<Return>", safeSpawnProg $ terminal conf)
-  , ("M-S-<Space>",  setLayout $ layoutHook conf)
+myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
+  [ ((modMask,                 xK_Return),       promote)
+  , ((modMask .|. shiftMask,   xK_Return),       safeSpawnProg $ terminal conf)
 
-  , ("M-<Tab>",      moveTo Next NonEmptyWS)
-  , ("M-S-<Tab>",    moveTo Prev NonEmptyWS)
+  , ((modMask,                 xK_space),        sendMessage NextLayout)
+  , ((modMask .|. shiftMask,   xK_space),        setLayout $ layoutHook conf)
 
-  , ("M-j",          windows W.focusDown)
-  , ("M-k",          windows W.focusUp)
-  , ("M-m",          windows W.focusMaster)
-  , ("M-S-j",        windows W.swapDown)
-  , ("M-S-k",        windows W.swapUp)
+  , ((modMask,                 xK_Tab),          moveTo Next NonEmptyWS)
+  , ((modMask .|. shiftMask,   xK_Tab),          moveTo Prev NonEmptyWS)
 
-  , ("M-h",          sendMessage Shrink)
-  , ("M-l",          sendMessage Expand)
-  , ("M-S-h",        sendMessage MirrorExpand)
-  , ("M-S-l",        sendMessage MirrorShrink)
+  , ((modMask,                 xK_j),            windows W.focusDown)
+  , ((modMask,                 xK_k),            windows W.focusUp)
+  , ((modMask .|. shiftMask,   xK_j),            windows W.swapDown)
+  , ((modMask .|. shiftMask,   xK_k),            windows W.swapUp)
 
-  , ("M-t",          withFocused $ windows . W.sink)
-  , ("M-,",          sendMessage $ IncMasterN 1)
-  , ("M-.",          sendMessage $ IncMasterN (-1))
+  , ((modMask,                 xK_h),            sendMessage Shrink)
+  , ((modMask,                 xK_l),            sendMessage Expand)
+  , ((modMask .|. shiftMask,   xK_h),            sendMessage MirrorExpand)
+  , ((modMask .|. shiftMask,   xK_l),            sendMessage MirrorShrink)
 
-  , ("M-f",          sendMessage ToggleLayout)
+  , ((modMask,                 xK_f),            sendMessage ToggleLayout)
+  , ((modMask,                 xK_m),            windows W.focusMaster)
+  , ((modMask,                 xK_t),            withFocused $ windows . W.sink)
+  , ((modMask,                 xK_b),            withFocused toggleBorder)
 
-  , ("M-S-c",        kill)
-  , ("M-S-q",        io $ exitWith ExitSuccess)
-  , ("M-q",          spawn "xmonad --recompile && xmonad --restart")
-  , ("M-r",          refresh)
+  , ((modMask,                 xK_comma),        sendMessage $ IncMasterN 1)
+  , ((modMask,                 xK_period),       sendMessage $ IncMasterN (-1))
 
-  , ("M-p",          shellPrompt myXPConfig)
+  , ((modMask .|. shiftMask,   xK_c),            kill)
+  , ((modMask .|. shiftMask,   xK_q),            io $ exitWith ExitSuccess)
+  , ((modMask,                 xK_r),            refresh)
+  , ((modMask .|. shiftMask,   xK_r),            spawn "killall dzen2; xmonad --recompile && xmonad --restart")
 
-  , ("M-M1-j",       withFocused $ snapMove D Nothing)
-  , ("M-M1-k",       withFocused $ snapMove U Nothing)
-  , ("M-M1-h",       withFocused $ snapMove L Nothing)
-  , ("M-M1-l",       withFocused $ snapMove R Nothing)
+  , ((modMask,                 xK_p),            initMatches >>= shellPrompt . myXPConfig)
 
-  , ("M-=",          safeSpawn "amixer" ["-q", "set", "Master", "5%+"])
-  , ("M--",          safeSpawn "amixer" ["-q", "set", "Master", "5%-"])
-  , ("M-0",          safeSpawn "amixer" ["-q", "set", "Master", "toggle"])
+  , ((modMask,                 xK_equal),        safeSpawn "amixer" ["-q", "set", "Master", "5%+"])
+  , ((modMask,                 xK_minus),        safeSpawn "amixer" ["-q", "set", "Master", "5%-"])
+  , ((modMask,                 xK_0),            safeSpawn "amixer" ["-q", "set", "Master", "toggle"])
 
-  , ("M-\\",         safeSpawn "ncmpcpp" ["toggle"])
-  , ("M-[",          safeSpawn "ncmpcpp" ["prev"])
-  , ("M-]",          safeSpawn "ncmpcpp" ["next"])
+  , ((modMask,                 xK_Print),        safeSpawn "scrot" ["-e", "mv $f \\$HOME/Desktop/"])
 
-  , ("M-<Esc>",      safeSpawnProg "keytray")
-  , ("M-C-l",        spawn "sleep 1; xset dpms force off")
-  , ("M-C-y",        do home <- io getHomeDirectory
-                        safeSpawn "scrot"
-                                  ["-e", printf "mv $f %s/Desktop" home, "%Y-%m-%d_%H-%M-%S.png"])
-  ]
-  ++
-  [ ("M-x " ++ m ++ k, safeSpawnProg a)
-  | (k, a) <- [ ("c", "google-chrome-stable")
-              , ("e", "gvim")
-              , ("f", "firefox-bin")
-              , ("g", "gimp")
-              , ("j", "jd")
-              , ("o", "opera-next")
-              , ("v", "geeqie")
-              ]
-  , m <- [ "", "M-"]
-  ]
-  ++
-  [ (m ++ k, windows $ f w)
-  | (w, k) <- zip (XMonad.workspaces conf) (map show [1..9])
-  , (m, f) <- [("M-", W.greedyView), ("M-S-", W.shift)]
-  ]
+  , ((modMask,                 xK_backslash),    safeSpawn "mpc" ["toggle"])
+  , ((modMask,                 xK_bracketleft),  safeSpawn "mpc" ["prev"])
+  , ((modMask,                 xK_bracketright), safeSpawn "mpc" ["next"])
+
+  , ((modMask .|. controlMask, xK_l),            spawn "sleep 1; xset dpms force off")
+
+  , ((modMask .|. mod1Mask,    xK_j),            withFocused $ snapMove D Nothing)
+  , ((modMask .|. mod1Mask,    xK_k),            withFocused $ snapMove U Nothing)
+  , ((modMask .|. mod1Mask,    xK_h),            withFocused $ snapMove L Nothing)
+  , ((modMask .|. mod1Mask,    xK_l),            withFocused $ snapMove R Nothing)
+
+  , ((modMask,                 xK_grave),        safeSpawnProg "keytray")
+
+  , ((modMask,                 xK_x),            submap $ M.fromList $
+                                                        [ ((m, k), safeSpawnProg p)
+                                                        | m <- [0, modMask]
+                                                        , (k, p) <- lancherKeys
+                                                        ])
+
+  , ((0, xK_Super_L), return ())
+  , ((0, xK_Super_R), return ())
+  ] ++ workspaceKeys
+  where
+    workspaceKeys = [ ((m, k), windows $ f w)
+                    | (m, f) <- [(modMask, W.greedyView), (modMask .|. shiftMask, W.shift)]
+                    , (k, w) <- zip [xK_1 .. xK_9] (XMonad.workspaces conf)
+                    ]
+
+    lancherKeys = [ (xK_2, "v2c")
+                  , (xK_c, "google-chrome-stable")
+                  , (xK_f, "firefox-bin")
+                  , (xK_p, "pavucontrol")
+                  , (xK_t, "transmission-gtk")
+                  , (xK_v, "geeqie")
+                  ]
 
 
 
 
--- MouseBondings  --{{{1
+-- Mouse  --{{{1
 
 myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList
   [ ((modMask, button1), \w -> focus w >> mouseMoveWindow w
                                        >> windows W.shiftMaster)
   , ((modMask, button2), windows . (W.shiftMaster .) . W.focusWindow)
-  , ((modMask, button3), \w -> focus w >> mouseResizeWindow w
-                                       >> windows W.shiftMaster)
-  , ((modMask, 8), \w -> focus w >> findWorkspace getSortByIndex Prev AnyWS 1
-                                 >>= windows . W.shift)
-  , ((modMask, 9), \w -> focus w >> findWorkspace getSortByIndex Next AnyWS 1
-                                 >>= windows . W.shift)
+  , ((modMask, button3), \w -> focus w >> mouseResizeWindow w >> windows W.shiftMaster)
+  , ((modMask, 8),       \w -> focus w >> findWorkspace getSortByIndex Prev AnyWS 1
+                                       >>= windows . W.shift)
+  , ((modMask, 9),       \w -> focus w >> findWorkspace getSortByIndex Next AnyWS 1
+                                       >>= windows . W.shift)
   ]
 
 
@@ -267,24 +328,56 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList
 
 -- Main  --{{{1
 
+spawnStatusbar = do
+  (rd, wd) <- createPipe
+
+  setFdOption rd CloseOnExec True
+
+  h <- fdToHandle wd
+
+  hSetBuffering h LineBuffering
+
+  _ <- xfork $ do
+    _ <- dupTo rd stdInput
+    executeFile "dzen2"
+                True
+                [ "-x" , "0"
+                , "-y" , "0"
+                , "-w" , "960"
+                , "-h" , show myStatusbarHeight
+                , "-ta" , "l"
+                , "-fg" , myNormalFGColor
+                , "-bg" , myNormalBGColor
+                , "-fn" , myFont
+                , "-dock"
+                , "-e" , "'onstart=lower'"
+                ]
+                Nothing
+
+  closeFd rd
+
+  return h
+
 main = do
-  statusPipe <- spawnPipe myStatusbar
-  xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-    { borderWidth        = myBorderWidth
+  statusPipe <- spawnStatusbar
+
+  xmonad $ withUrgencyHook NoUrgencyHook $ ewmh $ def
+    { terminal           = myTerminal
+    , borderWidth        = myBorderWidth
+    , modMask            = myModMask
     , workspaces         = myWorkspaces
-    , terminal           = "urxvt"
+
     , normalBorderColor  = myNormalBorderColor
     , focusedBorderColor = myFocusedBorderColor
 
-    , modMask            = mod4Mask
     , keys               = myKeys
     , mouseBindings      = myMouseBindings
 
+    , handleEventHook    = myEventHook
     , layoutHook         = myLayoutHook
     , logHook            = myLogHook statusPipe
-    , startupHook        = setDefaultCursor xC_left_ptr <+> setWMName "LG3D"
-    , manageHook         = manageDocks <+> myManageHook
-    , handleEventHook    = fullscreenEventHook
+    , manageHook         = myManageHook
+    , startupHook        = myStartupHook
 
     , focusFollowsMouse  = True
     }
