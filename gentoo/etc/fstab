@@ -10,14 +10,14 @@
 #
 # See the manpage fstab(5) for more information.
 #
-# # <fs>                  <mountpoint>    <type>          <opts>          <dump/pass>
+# <fs>				<mountpoint>	<type>		<opts> <dump/pass>
 
-/dev/cdrom                /mnt/cdrom       auto           noauto,user     0 0
-tmpfs                     /var/tmp/portage tmpfs          noatime,size=8g 0 0
-tmpfs                     /tmp             tmpfs          noatime,nosuid,size=1g 0 0
+UUID="6BCA-C8F7"				/boot			vfat	noauto,noatime 1 2
+UUID="87e6f0cb-ad69-4350-be53-6635df35f8a8"	/			ext4	noatime,discard 1 1
+UUID="9A126E41126E230D"				/mnt/windows		ntfs-3g	noatime,uid=1000,gid=users,fmask=0113,dmask=0022,windows_names 0 0
+UUID="016A613E6864FAED"				/mnt/tank		ntfs-3g	noatime,uid=1000,gid=users,fmask=0113,dmask=0022,windows_names 0 0
+UUID="13515171286949975459"			/mnt/backup		ntfs-3g	noatime,uid=1000,gid=users,fmask=0113,dmask=0022,windows_names 0 0
 
-UUID="ad1db86d-53a3-44ae-b0fa-13960556d6ee"  /boot         ext2     noauto,noatime 1 2
-UUID="87e6f0cb-ad69-4350-be53-6635df35f8a8"  /             ext4     noatime,discard 1 1
-UUID="9A126E41126E230D"                      /mnt/windows  ntfs-3g  noatime,uid=1000,gid=users,fmask=0113,dmask=0022,windows_names 0 0
-UUID="016A613E6864FAED"                      /mnt/tank     ntfs-3g  noatime,uid=1000,gid=users,fmask=0113,dmask=0022,windows_names 0 0
-UUID="13515171286949975459"                  /mnt/backup   ntfs-3g  noatime,uid=1000,gid=users,fmask=0113,dmask=0022,windows_names 0 0
+/dev/cdrom					/mnt/cdrom		auto	noauto,user 0 0
+#tmpfs						/var/tmp/portage	tmpfs	noatime,size=8g 0 0
+#tmpfs						/tmp			tmpfs	noatime,nosuid,size=1g 0 0

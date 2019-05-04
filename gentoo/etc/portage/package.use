@@ -1,7 +1,7 @@
 app-admin/conky imlib lua mpd
 app-arch/unzip natspec  # natspec: ShiftJIS Supporting
 app-editors/gvim gtk3 lua luajit
-app-editors/vim lua luajit
+app-editors/vim lua luajit terminal
 app-emulation/libvirt qemu virt-network
 app-emulation/qemu opengl qemu-ifup sdl
 app-emulation/wine -mono fontconfig jpeg mp3 png xml
@@ -16,9 +16,10 @@ app-text/poppler cairo qt4
 dev-java/icedtea-bin -cjk
 dev-lang/ghc binary
 dev-lang/perl ithreads
-dev-lang/php apache2 bcmath curl fpm gd mysql mysqli pcntl pdo sockets sqlite xslt zip
+dev-lang/php apache2 bcmath curl fpm gd mysql mysqli pcntl pdo sockets sqlite xmlwriter xslt zip
 dev-lang/python sqlite
 dev-lang/scala binary
+dev-lua/* luajit
 dev-php/hhvm hack
 dev-vcs/git cvs perl subversion
 dev-vcs/subversion -dso perl python
@@ -47,7 +48,9 @@ net-print/gutenprint cups ppds
 sci-visualization/gnuplot cairo
 sys-apps/groff linguas_ja
 sys-apps/smartmontools -minimal
+sys-auth/polkit consolekit
 sys-block/gparted fat ntfs
+sys-boot/grub mount
 sys-devel/gcc -fortran go
 sys-devel/llvm clang
 sys-fs/eudev gudev
@@ -61,20 +64,24 @@ www-servers/apache userdir
 www-servers/nginx nginx_modules_http_headers_more
 x11-libs/cairo opengl svg
 x11-libs/gtk+ cups
+x11-misc/xmobar xpm mpd
 x11-terms/rxvt-unicode -vanilla 256-color perl truetype xft
 x11-terms/xterm truetype
 
-app-crypt/gcr gtk  # required by app-editors/visual-studio-code-1.16.1::jorgicio
-app-crypt/pinentry gnome-keyring  # required by app-editors/visual-studio-code-1.16.1::jorgicio
+app-crypt/gcr gtk  # required by app-editors/visual-studio-code
+app-crypt/pinentry gnome-keyring  # required by app-editors/visual-studio-code
 app-text/xmlto text  # required by (x11-misc/xdg-utils)
 dev-libs/boost context icu  # context: required by dev-php/hhvm, icu: required by media-sound/ncmpcpp
 dev-libs/glib dbus  # required by app-text/evince
+dev-libs/libpcre2 pcre16 # required by app-emulation/genymotion-bin
 dev-libs/libpcre2 pcre32  # required by app-shells/fish
 dev-libs/libxml2 python  # required by app-text/evince
+media-libs/gegl cairo # required by media-gfx/gimp
 media-libs/mesa gles2  # required by app-emulation/qemu
 net-dns/dnsmasq script  # required by app-emulation/libvirt
 net-misc/spice-gtk gtk3  # required by app-emulation/virt-viewer
 sys-devel/binutils static-libs  # required by dev-php/hhvm
+sys-devel/clang xml  # required by dotnetcore-sdk-bin
 sys-libs/libseccomp static-libs  # required by app-emulation/docker
 sys-libs/tevent python  # required by net-fs/samba
 sys-libs/zlib minizip  # required by media-video/vlc
@@ -126,11 +133,15 @@ sys-apps/dbus abi_x86_32
 sys-apps/tcp-wrappers abi_x86_32
 sys-apps/util-linux abi_x86_32
 sys-auth/consolekit policykit
+sys-devel/flex abi_x86_32
 sys-devel/gettext abi_x86_32
 sys-devel/llvm abi_x86_32
 sys-fs/eudev abi_x86_32
+sys-libs/cracklib abi_x86_32
+sys-libs/db abi_x86_32
 sys-libs/libcap abi_x86_32
 sys-libs/ncurses abi_x86_32
+sys-libs/pam abi_x86_32
 sys-libs/zlib abi_x86_32
 virtual/glu abi_x86_32
 virtual/jpeg abi_x86_32
@@ -139,7 +150,9 @@ virtual/libiconv abi_x86_32
 virtual/libintl abi_x86_32
 virtual/libudev abi_x86_32
 virtual/opengl abi_x86_32
+virtual/pam abi_x86_32
 virtual/pkgconfig abi_x86_32
+x11-base/xcb-proto abi_x86_32
 x11-libs/libICE abi_x86_32
 x11-libs/libSM abi_x86_32
 x11-libs/libX11 abi_x86_32
@@ -171,9 +184,12 @@ x11-proto/presentproto abi_x86_32
 x11-proto/randrproto abi_x86_32
 x11-proto/recordproto abi_x86_32
 x11-proto/renderproto abi_x86_32
-x11-proto/xcb-proto abi_x86_32
 x11-proto/xextproto abi_x86_32
 x11-proto/xf86bigfontproto abi_x86_32
 x11-proto/xf86driproto abi_x86_32
 x11-proto/xf86vidmodeproto abi_x86_32
 x11-proto/xproto abi_x86_32
+
+# for freetype (harfbuzz)
+media-libs/harfbuzz abi_x86_32
+media-gfx/graphite2 abi_x86_32
