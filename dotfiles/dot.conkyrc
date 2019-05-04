@@ -1,24 +1,24 @@
-background no
-out_to_console yes
-out_to_x no
-total_run_times 0
-update_interval 1.0
-use_spacer none
+conky.config = {
+  out_to_console = true,
+  out_to_x = false,
+  total_run_times = 0,
+  update_interval = 1.0,
+  use_spacer = 'none',
+  template0 = [[^fg(\1)^i($HOME/.dzen/xbm8x8/\2)^fg()]],
+  template1 = [[^fg(\\#474747)^p(;2)^r(1x8)^p()^fg()]]
+};
 
-template0 ^fg(\1)^i($HOME/.dzen/xbm8x8/\2)^fg()
-template1 ^fg(\\\\#474747)^p(;2)^r(1x8)^p()^fg()
-
-TEXT
-${template0 \\#679b00 note.xbm} ${if_mpd_playing}${mpd_smart 100}${else}No Playing${endif} \
+conky.text = [[
+${template0 \\#679b00 note.xbm} ${if_mpd_playing}${if_match "${mpd_status}" != "Playing"}[${mpd_status}] ${endif}${mpd_smart 100}${else}<No Playing>${endif} \
 ${template1} \
-${template0 \\#c49300 cpu.xbm} ${cpu}% (${hwmon 2 temp 1}°C) \
+${template0 \\#c49300 cpu.xbm} ${cpu}% (${hwmon 2 temp 1}C) \
 ${template1} \
 ${template0 \\#c49300 mem.xbm} ${memperc}% \
 ${template1} \
 ${template0 \\#c41700 net_up_01.xbm} ${upspeedf eth0}K \
 ${template0 \\#4581c4 net_down_01.xbm} ${downspeedf eth0}K \
 ${template1} \
-${if_mixer_mute}\
-${template0 \\#679b00 spkr_02.xbm}${else}\
-${template0 \\#679b00 spkr_01.xbm}${endif} ${mixer}% \
-${template1} ${time %m/%d %a %H:%M:%S}
+${if_pa_sink_muted}${template0 \\#474747 spkr_02.xbm}${else}${template0 \\#679b00 spkr_01.xbm}${endif} ${pa_sink_volume}% \
+${template1} \
+${time %m/%d %a %H:%M:%S} \
+]];

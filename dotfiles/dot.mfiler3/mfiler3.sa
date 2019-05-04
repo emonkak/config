@@ -135,14 +135,11 @@ def open_file (  #{{{2
   ) '^zip$' (
     external -q "zipinfo -O cp932 $(ary ARGV 0) | $$(export PAGER)"
     break
-  ) '^(aac|asf|avi|flv|mkv|mov|mp3|mp4|mpe?g|ogg|ogv|rm|ts|wav|webm|wma|wmv)$' (
+  ) '^(aac|asf|avi|flv|mkv|mov|mp3|mp4|mpe?g|ogg|ogv|rm|wav|webm|wma|wmv)$' (
     external -q "mpv -quiet $(ary ARGV 0)"
     break
-  ) '^(bmp|gif|jpe?g|png)$' (
+  ) '^(bmp|gif|jpe?g|jpg_orig|png)$' (
     external -q "feh $(ary ARGV 0)"
-    break
-  ) '^(eps|pdf|ps)$' (
-    external -q "evince $(ary ARGV 0)"
     break
   ) '.*' (
     external -q "$$(export PAGER) $(ary ARGV 0)"
@@ -451,7 +448,7 @@ keycommand2 $(export key_D) -f .mark (
   mchoise "DELETE file ok?" yes no | [ = yes ] && mrm
 )
 keycommand2 $(export key_d) -f .mark (
-  mchoise "move file to trashbox ok?" yes no | [ = yes ] && mtrashbox -f
+  mchoise "move file to trashbox ok?" yes no | [ = yes ] && trash-put -f -- @@(markfiles) && reread -d all
 )
 
 keycommand2 $(export key_I) -f .mark ( external "du --si -sc @@(markfiles)" )

@@ -9,7 +9,9 @@
 (define bridge-show-with? 'mode)
 
 (define uim-xim-use-xft-font? #t)
-(define uim-xim-xft-font-name "Hiragino Sans")
+(define uim-xim-xft-font-name "YuGothic")
+
+(define candidate-window-style 'horizontal)
 
 
 
@@ -19,10 +21,10 @@
 
 (define ja-rk-rule-basic
   (append '(
-            ((("z" " ") . ()) ("¡¡" "¡¡" "¡¡"))
-            ((("z" "0") . ()) ("¡Û" "¡Û" "¡Û"))
-            ((("z" "9") . ()) ("¡Ú" "¡Ú" "¡Ú"))
-            ((("z" "w") . ("z")) ("£÷" "£÷" "£÷")))
+            ((("z" " ") . ()) ("ã€€" "ã€€" "ã€€"))
+            ((("z" "0") . ()) ("ã€‘" "ã€‘" "ã€‘"))
+            ((("z" "9") . ()) ("ã€" "ã€" "ã€"))
+            ((("z" "w") . ("z")) ("ï½—" "ï½—" "ï½—")))
           ja-rk-rule-basic))
 
 (define ja-rk-rule-additional
@@ -39,7 +41,7 @@
 
 (define skk-use-with-vi? #t)
 (define skk-egg-like-newline? #t)
-(define skk-dic-file-name "/home/emonkak/.skk/SKK-JISYO.LL")
+(define skk-dic-file-name "/home/emonkak/.skk/SKK-JISYO.LL.utf8")
 
 (define skk-on-key '("zenkaku-hankaku" "<Shift> "))
 (define skk-on-key? (make-key-predicate '("zenkaku-hankaku" "<Shift> ")))

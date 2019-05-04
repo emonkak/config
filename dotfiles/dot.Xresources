@@ -5,9 +5,9 @@
 Xft.antialias: true
 Xft.autohint: false
 Xft.hinting: false
-Xft.hintstyle: hintnone
-Xft.lcdfilter: lcddefault
-Xft.rgbs: none
+Xft.hintstyle: hintslight
+Xft.lcdfilter: lcdlight
+Xft.rgba: rgb
 
 
 ! CURSOR
@@ -24,79 +24,126 @@ Xcursor.size: 24
 ! Rxvt.foreground: rgb:e2/e2/e2
 ! Rxvt.cursorColor: rgb:67/9b/00
 !
-! Black
+! ! Black
 ! Rxvt.color0: rgb:29/29/29
 ! Rxvt.color8: rgb:47/47/47
-! Red
+! ! Red
 ! Rxvt.color1: rgb:c4/17/00
 ! Rxvt.color9: rgb:ff/61/4c
-! Green
+! ! Green
 ! Rxvt.color2: rgb:67/9b/00
 ! Rxvt.color10: rgb:b9/f7/3e
-! Yellow
+! ! Yellow
 ! Rxvt.color3: rgb:c4/93/00
 ! Rxvt.color11: rgb:ff/d2/4c
-! Blue
+! ! Blue
 ! Rxvt.color4: rgb:07/40/80
 ! Rxvt.color12: rgb:45/81/c4
-! Magenta
+! ! Magenta
 ! Rxvt.color5: rgb:9d/00/59
 ! Rxvt.color13: rgb:dd/42/9a
-! Cyan
+! ! Cyan
 ! Rxvt.color6: rgb:00/76/76
 ! Rxvt.color14: rgb:37/bb/bb
-! White
+! ! White
 ! Rxvt.color7: rgb:81/81/81
 ! Rxvt.color15: rgb:ff/ff/ff
 
 ! Bitter Color
 ! ------------
-Rxvt.background: rgb:20/20/20
-Rxvt.foreground: rgb:cb/cb/cb
-Rxvt.cursorColor: rgb:2b/79/38
+! Rxvt.background: rgb:20/20/20
+! Rxvt.foreground: rgb:cb/cb/cb
+! Rxvt.cursorColor: rgb:2b/79/38
+!
+! ! Black
+! Rxvt.color0: rgb:32/32/32
+! Rxvt.color8: rgb:41/41/41
+! ! Red
+! Rxvt.color1: rgb:97/2c/27
+! Rxvt.color9: rgb:e1/13/37
+! ! Green
+! Rxvt.color2: rgb:2b/79/38
+! Rxvt.color10: rgb:45/ae/51
+! ! Yellow
+! Rxvt.color3: rgb:9d/79/30
+! Rxvt.color11: rgb:ec/b0/45
+! ! Blue
+! Rxvt.color4: rgb:00/52/71
+! Rxvt.color12: rgb:00/75/a0
+! ! Magenta
+! Rxvt.color5: rgb:9a/27/54
+! Rxvt.color13: rgb:e2/37/74
+! ! Cyan
+! Rxvt.color6: rgb:32/83/81
+! Rxvt.color14: rgb:46/ab/aa
+! ! White
+! Rxvt.color7: rgb:a9/aa/a9
+! Rxvt.color15: rgb:ff/ff/ff
 
-! Black
-Rxvt.color0: rgb:32/32/32
-Rxvt.color8: rgb:41/41/41
-! Red
-Rxvt.color1: rgb:97/2c/27
-Rxvt.color9: rgb:e1/13/37
-! Green
-Rxvt.color2: rgb:2b/79/38
-Rxvt.color10: rgb:45/ae/51
-! Yellow
-Rxvt.color3: rgb:9d/79/30
-Rxvt.color11: rgb:ec/b0/45
-! Blue
-Rxvt.color4: rgb:00/52/71
-Rxvt.color12: rgb:00/75/a0
-! Magenta
-Rxvt.color5: rgb:9a/27/54
-Rxvt.color13: rgb:e2/37/74
-! Cyan
-Rxvt.color6: rgb:32/83/81
-Rxvt.color14: rgb:46/ab/aa
-! White
-Rxvt.color7: rgb:a9/aa/a9
-Rxvt.color15: rgb:ff/ff/ff
+! Japanese Color
+! --------------
+Rxvt.background: rgb:29/24/22
+Rxvt.foreground: rgb:cb/c7/c7
+Rxvt.cursorColor: rgb:40/7a/52
+
+Rxvt.color0: rgb:17/14/12
+Rxvt.color1: rgb:dc/30/23
+Rxvt.color2: rgb:40/7a/52
+Rxvt.color3: rgb:bb/81/41
+Rxvt.color4: rgb:1d/69/7c
+Rxvt.color5: rgb:db/5a/6b
+Rxvt.color6: rgb:87/5f/9a
+Rxvt.color7: rgb:cc/c7/c7
+Rxvt.color8: rgb:39/34/32
+Rxvt.color9: rgb:fa/7b/62
+Rxvt.color10: rgb:8d/b2/55
+Rxvt.color11: rgb:ff/b6/1e
+Rxvt.color12: rgb:4d/8f/ac
+Rxvt.color13: rgb:f0/8f/90
+Rxvt.color14: rgb:a8/7c/a0
+Rxvt.color15: rgb:f7/f3/f3
+
+! Rxvt.font: \
+!   -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \
+!   -mplus-gothic-medium-r-normal--12-120-75-75-c-60-jisx0201.1976-0, \
+!   -mplus-gothic-medium-r-normal--12-120-75-75-c-120-jisx0208.1990-0
+! Rxvt.italicFont: \
+!   -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \
+!   -mplus-gothic-medium-r-normal--12-120-75-75-c-60-jisx0201.1976-0, \
+!   -mplus-gothic-medium-r-normal--12-120-75-75-c-120-jisx0208.1990-0
+! Rxvt.boldFont: \
+!   -envy-code_b-bold-r-normal--14-130-75-75-c-70-iso8859-1, \
+!   -mplus-gothic-bold-r-normal--12-120-75-75-c-60-jisx0201.1976-0, \
+!   -mplus-gothic-bold-r-normal--12-120-75-75-c-120-jisx0208.1990-0
+! Rxvt.lineSpace: 7
+
+! Rxvt.font: \
+!   -neco-fixed-medium-r-normal--16-150-75-75-c-160-iso10646-1
+! Rxvt.italicFont: \
+!   -neco-fixed-medium-r-normal--16-150-75-75-c-160-iso10646-1
+! Rxvt.boldFont: \
+!   -neco-fixed-bold-r-normal--16-150-75-75-c-160-iso10646-1
+! Rxvt.lineSpace: 4
 
 Rxvt.font: \
-  xft:Consolas:pixelsize=13, \
-  xft:AXIS\ Std:pixelsize=13, \
-  xft:Droid Sans Fallback:pixelsize=13
+  xft:Input Mono:pixelsize=13, \
+  xft:YuGothic:pixelsize=13, \
+  xft:Droid Sans Fallback:pixelsize=13, \
+  xft:Noto Color Emoji
+Rxvt.lineSpace: 3
+
 Rxvt.imFont: \
   -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \
   -mplus-gothic-medium-r-normal--12-120-75-75-c-60-jisx0201.1976-0, \
   -mplus-gothic-medium-r-normal--12-120-75-75-c-120-jisx0208.1990-0
 
-Rxvt.matcher.button: 1
+Rxvt.matcher.button: 3
 Rxvt.perl-ext-common: default,matcher
-Rxvt.url-launcher: google-chrome
+Rxvt.url-launcher: google-chrome-stable
 
 Rxvt.externalBorder: 0
 Rxvt.internalBorder: 2
-Rxvt.lineSpace: 3
-Rxv.saveLines: 10000
+Rxvt.saveLines: 10000
 Rxvt.scrollBar: false
 Rxvt.secondaryScreen: true
 Rxvt.secondaryScroll: true
@@ -126,5 +173,4 @@ XTerm*color13: #cc00cc
 XTerm*color14: #00cccc
 XTerm*color15: #ffffff
 
-XTerm*font: \
-  -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1
+XTerm*faceName: xft:Monospace:size=10.5

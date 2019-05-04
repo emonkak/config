@@ -32,43 +32,35 @@ zshaddhistory() {
 
 # Options  #{{{1
 
+setopt append_history
 setopt auto_cd
-setopt auto_pushd
-setopt pushd_ignore_dups
-setopt pushd_silent
-
 setopt auto_list
 setopt auto_menu
 setopt auto_param_keys
 setopt auto_param_slash
-setopt list_packed
-setopt list_types
-
+setopt auto_pushd
 setopt brace_ccl
-setopt equals
-setopt extended_glob
-setopt glob_complete
-setopt magic_equal_subst
-setopt mark_dirs
 setopt complete_in_word
-setopt no_clobber
-
-setopt append_history
+setopt equals
 setopt hist_ignore_all_dups
 setopt hist_ignore_dups
 setopt hist_ignore_space
 setopt hist_no_store
 setopt hist_reduce_blanks
-setopt inc_append_history
-setopt share_history
-unsetopt extended_history
-
 setopt ignore_eof
-setopt prompt_subst
-unsetopt beep
-unsetopt flow_control
-
+setopt inc_append_history
+setopt list_packed
+setopt list_types
+setopt magic_equal_subst
+setopt no_clobber
 setopt no_global_rcs
+setopt prompt_subst
+setopt pushd_ignore_dups
+setopt pushd_silent
+setopt share_history
+unsetopt beep
+unsetopt extended_history
+unsetopt flow_control
 
 
 
@@ -100,9 +92,7 @@ fi
 
 # compinit  #{{{2
 
-autoload -Uz compinit
-
-compinit
+autoload -Uz compinit && compinit -u
 
 zstyle ':completion:*' completer _complete _expand _ignored _match _oldlist _prefix
 zstyle ':completion:*' list-colors ''
@@ -194,14 +184,6 @@ elif [[ -n "$TMUX" ]]
 then
   precmd() {
     print -Pn "\e]0;%m@%n:%~\a"
-    tmux show-environment | while read line
-    do
-      if [ $line[1] = '-' ]; then
-        unset ${line#-*}
-      else
-        eval ${line// /\\ }
-      fi
-    done
   }
 elif [[ "$TERM" == (xterm*|rxvt*) ]]
 then
@@ -264,7 +246,8 @@ unset -f prompt_setup
 
 # Aliases  #{{{1
 
-if ls --color=never --directory / >/dev/null 2>&1; then
+if ls --color=never --directory / >/dev/null 2>&1
+then
   alias ls='ls -Fh --color=auto --show-control-chars'
 else
   alias ls='ls -FGh'
@@ -275,7 +258,8 @@ alias lla='ls -la'
 
 alias cp='cp -iv'
 alias mv='mv -iv'
-if which safe-rm &>/dev/null; then
+if which safe-rm &>/dev/null
+then
   alias rm='safe-rm -Iv'
 else
   alias rm='rm -Iv'
@@ -287,21 +271,20 @@ alias g='git'
 alias sudo='sudo '
 alias s='sudo'
 alias t='tmux'
-if which vim &>/dev/null && vim --version | grep -q +X11; then
-  alias vim='vim --servername VIM'
-fi
 alias v='vim'
 
-if which colordiff &>/dev/null; then
+if which colordiff &>/dev/null
+then
   alias diff='colordiff -u'
 fi
 alias grep='grep --binary-files=without-match --color -E'
 alias lv='lv -c'
 alias pstree='pstree -A'
 
-if which xsel &>/dev/null; then
-  alias pbcopy='xsel --input --clipboard'
-  alias pbpaste='xsel --output --clipboard'
+if which xsel &>/dev/null
+then
+  alias pbcopy='xsel --clipboard --input'
+  alias pbpaste='xsel --clipboard --output'
 fi
 
 alias -s rb='ruby'
@@ -368,7 +351,9 @@ then
   zle -N peco-history
 
   bindkey '^Xc' peco-cdr
+  bindkey '^X^c' peco-cdr
   bindkey '^Xh' peco-history
+  bindkey '^X^h' peco-history
 fi
 
 
@@ -377,6 +362,3 @@ fi
 # __END__  #{{{1
 # vim: expandtab softtabstop=2 shiftwidth=2
 # vim: foldmethod=marker
-
-export NVM_DIR="/Users/emonkak/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
