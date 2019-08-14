@@ -43,20 +43,20 @@ app-portage/g-cpan
 app-portage/gentoolkit
 app-portage/layman
 app-shells/fish
+app-shells/gentoo-zsh-completions
 app-shells/zsh
+app-shells/zsh-completions
 app-text/convmv
 app-text/lv
 app-text/tree
 dev-db/mysql
 dev-db/schemalex
-dev-dotnet/dotnetcore-sdk-bin
 dev-haskell/cabal-install
 dev-java/gradle-bin
 dev-java/sbt-bin
 dev-lang/ghc
 dev-lang/php
 dev-lang/php:5.6
-dev-lang/php:7.1
 dev-lang/ruby
 dev-lang/scala
 dev-php/pecl-apcu
@@ -101,6 +101,7 @@ media-sound/abcde
 media-sound/alsa-utils
 media-sound/cdparanoia
 media-sound/gmpc
+media-sound/jack2
 media-sound/mpc
 media-sound/mpd
 media-sound/ncmpcpp
@@ -166,6 +167,7 @@ sys-kernel/gentoo-sources
 sys-kernel/pt3
 sys-libs/libfaketime
 sys-power/acpid
+sys-power/acpitool
 sys-power/hibernate-script
 sys-process/htop
 sys-process/lsof
@@ -174,6 +176,7 @@ sys-process/tiptop
 sys-process/vixie-cron
 virtual/wine
 www-client/elinks
+www-client/firefox-bin
 www-client/google-chrome
 www-client/v2c
 www-plugins/adobe-flash
@@ -192,6 +195,8 @@ x11-apps/xwininfo
 x11-base/xorg-server
 x11-misc/dzen
 x11-misc/gbdfed
+x11-misc/i3status
+x11-misc/polybar
 x11-misc/slim
 x11-misc/trayer
 x11-misc/x11vnc
@@ -202,6 +207,7 @@ x11-misc/xsel
 x11-terms/kitty
 x11-terms/lilyterm
 x11-terms/rxvt-unicode
+x11-themes/clearlooks-phenix
 x11-themes/gnome-colors-themes
 x11-themes/gtk-engines
 x11-themes/notification-daemon-engine-coco

@@ -15,6 +15,7 @@ app-misc/ranger ~amd64
 app-misc/tmux ~amd64
 app-misc/trash-cli ~amd64
 app-misc/yq ~amd64
+app-portage/hackport ~amd64
 dev-go/glide ~amd64
 dev-haskell/* ~amd64
 dev-java/gradle-bin ~amd64
@@ -27,6 +28,7 @@ dev-python/fonttools ~amd64
 dev-util/kbuild ~amd64
 media-gfx/gyazo ~amd64
 media-libs/freetype ~amd64
+media-video/shotcut ~amd64
 net-libs/http-parser ~amd64
 net-libs/nodejs ~amd64
 net-misc/dropbox ~amd64
@@ -40,6 +42,7 @@ www-client/google-chrome ~amd64
 www-client/jd ~amd64
 x11-libs/cairo ~amd64
 x11-misc/xcape ~amd64
+x11-misc/xmobar ~amd64
 x11-terms/kitty ~amd64
 x11-terms/lilyterm ~amd64
 x11-terms/rxvt-unicode ~amd64
@@ -57,3 +60,6 @@ dev-python/sphinx ~amd64
 # genymotion
 dev-util/patchelf ~amd64
 dev-libs/hiredis ~amd64
+
+# jack2
+media-sound/jack2 ~amd64

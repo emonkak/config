@@ -1,6 +1,6 @@
 app-admin/conky imlib lua mpd
 app-arch/unzip natspec  # natspec: ShiftJIS Supporting
-app-editors/gvim gtk3 lua luajit
+app-editors/gvim gtk lua luajit
 app-editors/vim lua luajit terminal
 app-emulation/libvirt qemu virt-network
 app-emulation/qemu opengl qemu-ifup sdl
@@ -16,7 +16,7 @@ app-text/poppler cairo qt4
 dev-java/icedtea-bin -cjk
 dev-lang/ghc binary
 dev-lang/perl ithreads
-dev-lang/php apache2 bcmath curl fpm gd mysql mysqli pcntl pdo sockets sqlite xmlwriter xslt zip
+dev-lang/php apache2 bcmath curl fpm gd gmp mysql mysqli pcntl pdo sockets sqlite xmlwriter xslt zip
 dev-lang/python sqlite
 dev-lang/scala binary
 dev-lua/* luajit
@@ -62,9 +62,10 @@ www-client/jd migemo
 www-client/w3m linguas_ja
 www-servers/apache userdir
 www-servers/nginx nginx_modules_http_headers_more
-x11-libs/cairo opengl svg
+x11-libs/cairo opengl svg xcb
 x11-libs/gtk+ cups
-x11-misc/xmobar xpm mpd
+x11-misc/polybar mpd network
+x11-misc/xmobar mpd xft xpm
 x11-terms/rxvt-unicode -vanilla 256-color perl truetype xft
 x11-terms/xterm truetype
 
