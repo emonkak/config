@@ -17,7 +17,7 @@
 
 
 ; Japanese
-(require "japanese.scm")
+(require "japanese-utf8.scm")
 
 (define ja-rk-rule-basic
   (append '(
@@ -52,4 +52,4 @@
 
 
 ; __END__
-; vim: filetype=scheme
+; vim: filetype=scheme:fileencoding=utf8
