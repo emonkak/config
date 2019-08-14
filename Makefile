@@ -15,7 +15,6 @@ ALL_GROUPS=\
   DOTS \
   GENTOO \
   LINUX \
-  OPERA \
   VIM \
   XMONAD
 
@@ -23,8 +22,9 @@ GROUP_DOTS_FILES=\
   dotfiles/dot.Xmodmap \
   dotfiles/dot.Xresources \
   dotfiles/dot.bashrc \
-  dotfiles/dot.conkyrc \
   dotfiles/dot.config/fontconfig/fonts.conf \
+  dotfiles/dot.config/xmobar/xmobarrc \
+  dotfiles/dot.conkyrc \
   dotfiles/dot.ghci \
   dotfiles/dot.inputrc \
   dotfiles/dot.mfiler3/mfiler3.sa \
@@ -51,16 +51,6 @@ GROUP_GENTOO_RULE=$(patsubst gentoo/%, /%, $(1))
 GROUP_LINUX_FILES=\
   linux/dot.config
 GROUP_LINUX_RULE=$(patsubst linux/dot.%, /usr/src/linux/.%, $(1))
-
-GROUP_OPERA_FILES=\
-  opera/keyboard/my-keyboard.ini \
-  opera/menu/my-menu.ini \
-  opera/mouse/my-mouse.ini \
-  opera/search.ini \
-  opera/styles/google.css \
-  opera/styles/ldr.css \
-  opera/styles/user.css
-GROUP_OPERA_RULE=$(patsubst opera/%, $(HOME)/.opera/%, $(1))
 
 GROUP_VIM_FILES=$(patsubst $(HOME)/.%, vim/dot.%, $(shell find $(HOME)/.vim/{after,autoload,compiler,dict,indent,syntax} -type f)) \
   vim/dot.vim/colors/basic256.vim \

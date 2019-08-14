@@ -31,35 +31,37 @@ import System.Exit (exitWith, ExitCode(..))
 import System.IO (BufferMode(..), hSetBuffering)
 import System.Posix.IO (FdOption(..), closeFd, createPipe, dupTo, fdToHandle, setFdOption, stdInput, stdOutput)
 import System.Posix.Process (executeFile)
+import System.Posix.Signals (Handler(..), installHandler, sigKILL, sigTERM, signalProcess)
 
 import qualified Data.Map as M
 
 
 
 
--- Config  --{{{1
+-- Configs  --{{{1
 
 myTerminal = "urxvt"
 myBorderWidth = 2
 myModMask = mod4Mask
 myWorkspaces = map show [1..9]
 
-myFont = "-artwiz-gelly-medium-*-*-*-*-*-*-*-*-*-*-*, -mplus-gothic-medium-r-normal--10-*-*-*-*-*-*-*"
-myNormalBorderColor = "#474747"
-myNormalFGColor = "#e2e2e2"
-myNormalBGColor = "#171717"
-myFocusedBorderColor = "#4580c3"
-myFocusedBGColor = "#4580c3"
-myFocusedFGColor = "#171717"
+myFont = "xft:Input Mono:pixelsize=11,Noto Sans CJK JP:pixelsize=11"
+myNormalBorderColor = "#869096"
+myNormalFGColor = "#f5f6f7"
+myNormalBGColor = "#21272b"
 
-myStatusbarHeight = 14
+myFocusedBorderColor = "#1c95e6"
+myFocusedFGColor = "#5ebaf7"
+myFocusedBGColor = "#21272b"
+
+myStatusbarHeight = 21
 
 myXPConfig ref = defaultXPConfig
   { font              = myFont
   , fgColor           = myNormalFGColor
   , bgColor           = myNormalBGColor
-  , fgHLight          = myFocusedBGColor
-  , bgHLight          = myNormalBGColor
+  , fgHLight          = myFocusedFGColor
+  , bgHLight          = myFocusedBGColor
   , borderColor       = myNormalBorderColor
   , promptBorderWidth = 0
   , position          = Top
@@ -79,25 +81,27 @@ myXPConfig ref = defaultXPConfig
 
 
 
--- EventHook  --{{{1
-
-removeBorderEventHook :: Query Bool -> Event -> X All
-removeBorderEventHook query ev = do
-  whenX (query `runQuery` w) $ do
-    d <- asks display
-    io $ setWindowBorderWidth d w 0
-  return (All True)
-  where
-    w = ev_window ev
+-- Hooks  --{{{1
+-- EventHook  --{{{2
 
 myEventHook = fullscreenEventHook
           <+> docksEventHook
           <+> removeBorderEventHook (className =? "Wine")
 
+removeBorderEventHook :: Query Bool -> Event -> X All
+removeBorderEventHook query e = do
+  whenX (query `runQuery` w) $ do
+    d <- asks display
+    io $ setWindowBorderWidth d w 0
+  return $ All True
+  where
+    w = ev_window e
 
 
 
--- LayoutHook  --{{{1
+
+
+-- LayoutHook  --{{{2
 
 myLayoutHook = avoidStruts $ smartBorders $ toggleLayouts Full $
                (tallLayout ||| wideLayout)
@@ -109,30 +113,28 @@ myLayoutHook = avoidStruts $ smartBorders $ toggleLayouts Full $
 
 
 
--- LogHook  --{{{1
+-- LogHook  --{{{2
 
 myLogHook h = do
   home  <- io getHomeDirectory
   floated <- withWindowSet isFloat
-  let dzenIcon     = wrap ("^i(" ++ home ++ "/.dzen/xmonad/") ")"
+  let icon = wrap ("<icon=" ++ home ++ "/.xmonad/icons/") "/>"
       layoutIcon name = case name of
-        "ResizableTall"        -> dzenIcon "layout-tall-black.xbm"
-        "Mirror ResizableTall" -> dzenIcon "layout-mirror-black.xbm"
-        "Full"                 -> dzenIcon "layout-full-black.xbm"
-        "Spiral"               -> dzenIcon "layout-spiral-black.xbm"
+        "ResizableTall"        -> icon "layout-tall-black.xbm"
+        "Mirror ResizableTall" -> icon "layout-mirror-black.xbm"
+        "Full"                 -> icon "layout-full-black.xbm"
+        "Spiral"               -> icon "layout-spiral-black.xbm"
         _                      -> name
   dynamicLogWithPP $ defaultPP
-    { ppCurrent         = dzenColor myFocusedFGColor myFocusedBGColor
-                        . wrap (dzenIcon "square.xbm") " "
-    , ppHidden          = wrap (dzenIcon "square3.xbm") " "
-    , ppHiddenNoWindows = wrap "^p(8)" " "
-    , ppUrgent          = dzenColor myNormalBGColor myNormalFGColor
-                        . wrap (dzenIcon "square3.xbm") " "
-    , ppSep             = dzenColor myNormalBorderColor "" " ^p(;2)^r(1x8)^p() "
+    { ppOutput          = hPutStrLn h
+    , ppCurrent         = xmobarColor myFocusedFGColor "" . wrap "[" "]"
+    , ppHidden          = wrap "*" " "
+    , ppHiddenNoWindows = xmobarColor myNormalBorderColor "" . wrap " " " "
+    , ppUrgent          = xmobarColor myFocusedFGColor "" . wrap "*" " "
+    , ppSep             = xmobarColor myNormalBorderColor "" " | "
     , ppWsSep           = ""
-    , ppTitle           = if floated then (dzenIcon "square.xbm" ++) . dzenEscape else dzenEscape
-    , ppLayout          = dzenColor myFocusedBGColor "" . layoutIcon
-    , ppOutput          = hPutStrLn h
+    , ppTitle           = if floated then ("<fn=1>\xf2d0</fn> " ++) . xmobarRaw else xmobarRaw
+    , ppLayout          = xmobarColor myFocusedFGColor "" . layoutIcon
     }
   where
     isFloat ws = return $ case W.peek ws of
@@ -142,7 +144,7 @@ myLogHook h = do
 
 
 
--- ManageHook  --{{{1
+-- ManageHook  --{{{2
 
 myManageHook = manageDocks
   <+> composeOne
@@ -177,7 +179,7 @@ myManageHook = manageDocks
       xs <- liftX $ withWindowSet $ filterM (runQuery $ className =? c) . W.index
       case xs of
         [] -> do
-          ws <- liftX $ findWorkspace getSortByIndex Next EmptyWS 1
+          ws <- liftX $ findWorkspace getSortByIndex Next EmptyWS 0
           doShiftAndGo ws
         _  -> idHook
     role = stringProperty "WM_WINDOW_ROLE"
@@ -185,45 +187,12 @@ myManageHook = manageDocks
 
 
 
--- StartupHook  --{{{1
-
-spawnConkybar = do
-  (rd, wd) <- createPipe
-
-  setFdOption rd CloseOnExec True
-
-  fdToHandle wd >>= \h -> hSetBuffering h LineBuffering
-
-  _ <- xfork $ do
-    _ <- dupTo rd stdInput
-    executeFile "dzen2"
-                True
-                [ "-x" , "960"
-                , "-y" , "0"
-                , "-w" , "960"
-                , "-h" , show myStatusbarHeight
-                , "-ta" , "r"
-                , "-fg" , myNormalFGColor
-                , "-bg" , myNormalBGColor
-                , "-fn" , myFont
-                , "-dock"
-                , "-e" , "'onstart=lower'"
-                ]
-                Nothing
-
-  _ <- xfork $ do
-    _ <- dupTo wd stdOutput
-    executeFile "conky" True [] Nothing
-
-  closeFd rd
-  closeFd wd
-
-  return ()
+-- StartupHook  --{{{2
 
 myStartupHook = do
   setWMName "LG3D"
   setDefaultCursor xC_left_ptr
-  io spawnConkybar
+  return ()
 
 
 
@@ -261,7 +230,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask .|. shiftMask,   xK_c),            kill)
   , ((modMask .|. shiftMask,   xK_q),            io $ exitWith ExitSuccess)
   , ((modMask,                 xK_r),            refresh)
-  , ((modMask .|. shiftMask,   xK_r),            spawn "killall dzen2; xmonad --recompile && xmonad --restart")
+  , ((modMask .|. shiftMask,   xK_r),            spawn "xmonad --recompile && xmonad --restart")
 
   , ((modMask,                 xK_p),            initMatches >>= shellPrompt . myXPConfig)
 
@@ -310,7 +279,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
 
 
--- Mouse  --{{{1
+-- Mouse Bindings --{{{1
 
 myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList
   [ ((modMask, button1), \w -> focus w >> mouseMoveWindow w
@@ -328,38 +297,8 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList
 
 -- Main  --{{{1
 
-spawnStatusbar = do
-  (rd, wd) <- createPipe
-
-  setFdOption rd CloseOnExec True
-
-  h <- fdToHandle wd
-
-  hSetBuffering h LineBuffering
-
-  _ <- xfork $ do
-    _ <- dupTo rd stdInput
-    executeFile "dzen2"
-                True
-                [ "-x" , "0"
-                , "-y" , "0"
-                , "-w" , "960"
-                , "-h" , show myStatusbarHeight
-                , "-ta" , "l"
-                , "-fg" , myNormalFGColor
-                , "-bg" , myNormalBGColor
-                , "-fn" , myFont
-                , "-dock"
-                , "-e" , "'onstart=lower'"
-                ]
-                Nothing
-
-  closeFd rd
-
-  return h
-
 main = do
-  statusPipe <- spawnStatusbar
+  statusPipe <- spawnPipe "xmobar"
 
   xmonad $ withUrgencyHook NoUrgencyHook $ ewmh $ def
     { terminal           = myTerminal
