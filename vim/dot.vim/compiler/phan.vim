@@ -29,7 +29,7 @@ endif
 
 
 
-CompilerSet makeprg=./vendor/bin/phan
+CompilerSet makeprg=composer\ -v\ exec\ phan
 CompilerSet errorformat=%f:%l\ %m
 
 

@@ -2031,7 +2031,8 @@ autocmd MyAutoCmd FileType actionscript
 " blade  "{{{2
 
 autocmd MyAutoCmd FileType blade
-\ SpaceIndent 4
+\   SpaceIndent 4
+\ | setlocal iskeyword+=-
 
 
 
@@ -2244,6 +2245,7 @@ function! s:on_FileType_php()
 endfunction
 
 let g:PHP_vintage_case_default_indent = 1
+let g:PHP_noArrowMatching = 1
 
 
 
@@ -2347,7 +2349,7 @@ autocmd MyAutoCmd FileType typescript
 \   SpaceIndent 4
 \ | setlocal makeprg=./node_modules/.bin/tsc
 \ | setlocal commentstring=//%s
-\ | setlocal iskeyword-=58
+\ | setlocal iskeyword-=:
 
 
 
@@ -2391,8 +2393,8 @@ function! s:on_FileType_xml()
                        \<CR><C-o><Up><BS>
 
   " To deal with namespace prefixes and tag-name-including-hyphens.
-  setlocal iskeyword+=45  " hyphen (-)
-  setlocal iskeyword+=58  " colon (:)
+  setlocal iskeyword+=-
+  setlocal iskeyword+=:
 endfunction
 
 
