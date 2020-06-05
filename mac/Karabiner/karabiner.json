@@ -159,7 +159,7 @@
             ]
           },
           {
-            "description": "C-h to Backspace (Sequel Pro)",
+            "description": "C-h to Backspace on Sequel Pro",
             "manipulators": [
               {
                 "from": {
