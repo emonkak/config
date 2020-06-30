@@ -1,6 +1,6 @@
-" Vim additional ftplugin: typescript
+" Vim compiler: psalm
 " Version: 0.0.0
-" Copyright (C) 2013 emonkak <emonkak@gmail.com>
+" Copyright (C) 2020 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -22,38 +22,20 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-setlocal foldmethod=expr foldexpr=TypescriptFold(v:lnum)
-setlocal iskeyword-=:
-
-function! TypescriptFold(lnum)
-  let current = getline(a:lnum)
-
-  if current =~# '\s*}$'
-    let level = indent(a:lnum) / shiftwidth() + 1
-    return level > 3 ? '=' : '<' . level
-  endif
-
-  if current =~# '^\s*'
-             \ . '\%(\%(export\s\+\%(default\s\+\)\?\)\?\%(\%(abstract\s\+\)\?class\|\%(async\s\+\)\?function\|interface\|module\)'
-             \ . '\|\%(\%(private\|protected\|public\|async\|get\|set\)\s\+\)*\*\?\%(\w\+\|\[.\{-}\]\)\s*\%(<.\+>\)\?\s*('
-             \ . '\|\%(\%(private\|protected\|public\)\s\+\)\?\w\+\s*=\s*\(async\s*\)\?('
-             \ . '\|\%(declare\s\+\)\%(module\|namespace\|interface\|class\)\s\+'
-             \ . '\)'
-             \ . '[^;]*$'
-    let level = indent(a:lnum) / shiftwidth() + 1
-    return level > 2 ? '=' : level
-  endif
-
-  return '='
-endfunction
-
-if exists('b:undo_ftplugin')
-  let b:undo_ftplugin .= ' | '
-else
-  let b:undo_ftplugin = ''
+if exists('g:current_compiler')
+  finish
 endif
 
-let b:undo_ftplugin .= 'setlocal foldmethod< foldexpr<'
+
+
+
+CompilerSet makeprg=composer\ -v\ exec\ --\ psalm\ --output-format=emacs
+CompilerSet errorformat=%f:%l:%m
+
+
+
+
+let g:current_compiler = 'psalm'
 
 " __END__
 " vim: foldmethod=marker

@@ -29,7 +29,7 @@ function! PHPFold(lnum)  "{{{
 
   if current =~# '\s*}$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return level > 3 ? '=' : '<' . level
+    return level > 2 ? '=' : '<' . level
   endif
 
   if current =~# '^\s*\('
@@ -40,7 +40,7 @@ function! PHPFold(lnum)  "{{{
              \ . '\|trait'
              \ . '\)[^;]*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return level > 3 ? '=' : level
+    return level > 2 ? '=' : level
   endif
 
   return '='
@@ -101,8 +101,9 @@ function! s:render_setters(properties)  "{{{
 endfunction  "}}}
 
 function! s:create_getter(visibility, name, type)  " {{{
+  let type_definition = a:type ==# 'mixed' ? '' : ': ' . a:type
   return join([
-  \    '    ' . a:visibility . ' function get' . s:camelize(a:name) . '(): ' . a:type,
+  \    '    ' . a:visibility . ' function get' . s:camelize(a:name) . '()' . type_definition,
   \    '    {',
   \    '        return $this->' . a:name . ';',
   \    '    }'
@@ -110,10 +111,11 @@ function! s:create_getter(visibility, name, type)  " {{{
 endfunction  "}}}
 
 function! s:create_setter(visibility, name, type)  " {{{
+  let type_definition = a:type ==# 'mixed' ? '' : a:type . ' '
   return join([
-  \   '    ' . a:visibility . ' function set' . s:camelize(a:name) . '(' . a:type . ' $' . a:name . '): void',
+  \   '    ' . a:visibility . ' function set' . s:camelize(a:name) . '(' . type_definition . '$' . s:lowerCamelize(a:name) . '): void',
   \   '    {',
-  \   '        $this->' . a:name . ' = ' . '$' . a:name . ';',
+  \   '        $this->' . a:name . ' = ' . '$' . s:lowerCamelize(a:name) . ';',
   \   '    }'
   \ ], "\n")
 endfunction  "}}}
@@ -129,21 +131,29 @@ function! s:collect_properties(first, last)  " {{{
       call add(types, matches[1])
     endif
 
-    let matches = matchlist(line, '\(private\|public\|protected\)\s\+\$\(\w\+\)')
+    let matches = matchlist(line, '\(private\|public\|protected\)\s\+\%(\(?\?\w\+\)\s\+\)\?\$\(\w\+\)')
     if len(matches) > 0
-      let type = len(types) > 0 ? remove(types, 0) : 'mixed'
-      call add(properties, [matches[1], matches[2], type])
+      let alternate_type = len(types) > 0 ? remove(types, 0) : 'mixed'
+      let type = matches[2] != '' ? matches[2] : alternate_type
+      call add(properties, [matches[1], matches[3], type])
     endif
   endfor
 
   return properties
 endfunction  "}}}
 
-function! s:camelize(word)  " {{{
-    return substitute(a:word,
+function! s:camelize(string)  " {{{
+    return substitute(a:string,
     \                 '\%([_-]\|^\)\([a-z]\)\([a-z]\+\)',
     \                 '\=toupper(submatch(1)) . tolower(submatch(2))',
     \                 'gi')
+endfunction  "}}}
+
+function! s:lowerCamelize(string)  " {{{
+    return substitute(s:camelize(a:string),
+    \                 '^[a-z]',
+    \                 '\=tolower(submatch(0))',
+    \                 '')
 endfunction  "}}}
 
 if exists('b:undo_ftplugin')

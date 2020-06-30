@@ -13,7 +13,7 @@ if has('vim_starting')
 endif
 
 if has('kaoriya')
-  " Hates the default config
+  " Kill default configs
   call delete($VIM . '/vimrc')
   call delete($VIM . '/gvimrc')
 endif
@@ -33,16 +33,14 @@ if has('iconv')
   let s:enc_euc = 'euc-jp'
   let s:enc_jis = 'iso-2022-jp'
 
-  " Does iconv support JIS X 0213 ?
   if iconv("\x87\x64\x87\x6a", 'cp932', 'euc-jisx0213') ==# "\xad\xc5\xad\xcb"
     let s:enc_euc = 'euc-jisx0213'
     let s:enc_jis = 'iso-2022-jp-3'
   endif
 
-  " Make fileencodings
-  let &fileencodings = s:enc_jis
+  let &fileencodings = 'utf-8'
+  let &fileencodings .= ',' . s:enc_jis
   let &fileencodings .= ',' . s:enc_euc
-  let &fileencodings .= ',' . 'utf-8'
   let &fileencodings .= ',' . 'cp932'
   let &fileencodings .= ',' . 'ucs-bom'
 
@@ -115,7 +113,7 @@ set complete-=i
 set completeopt=menuone,longest
 if has('conceal')
   set concealcursor=nc
-  set conceallevel=2
+  set conceallevel=0
 endif
 set confirm
 set diffopt=filler,vertical
@@ -166,7 +164,6 @@ set wildmenu
 set wildmode=full
 
 
-" Indent and Formatting
 set autoindent
 if exists('+breakindent')
   set breakindent
@@ -244,7 +241,6 @@ let g:maplocalleader = '.'
 
 " Misc.  "{{{2
 
-" Use this group for any autocmd defined in this file.
 augroup MyAutoCmd
   autocmd!
 augroup END
@@ -318,7 +314,7 @@ AlterCommand lmak[e]  Lmake
 command! -nargs=? -complete=customlist,s:complete_fileencoding FileEncoding
 \ setlocal fileencoding=<args>
 function! s:complete_fileencoding(arglead, cmdline, cursorpos)
-  " from :help encoding-values.  "{{{
+  " :help encoding-values.  "{{{
   let ENCODINGS = {
   \  'ansi': 0,
   \  'big5': 0,
@@ -433,7 +429,7 @@ endfunction
 
 
 
-" CD - wrapper of :cd to keep cwd for each tabpage  "{{{2
+" CD  "{{{2
 
 command! -nargs=* -complete=customlist,s:complete_cdpath CD
 \ call s:cmd_CD(<q-args>)
@@ -499,7 +495,7 @@ command! -range=% FoldDump
 " Note  "{{{2
 
 command! -bar -nargs=? Note
-\ execute 'edit' printf('%s/Dropbox/Documents/Notes/%s%s.md', $HOME, strftime('%Y-%m-%d'), <q-args> != '' ? '_' . <q-args> : '')
+\ execute 'edit' printf('%s/Sync/Documents/Notes/%s%s.md', $HOME, strftime('%Y-%m-%d'), <q-args> != '' ? '_' . <q-args> : '')
 
 
 
@@ -529,7 +525,7 @@ endfunction
 
 
 
-" Rename - rename a file and a buffer  "{{{2
+" Rename  "{{{2
 
 command! -complete=file -nargs=1 Rename  call s:cmd_Rename(<q-args>)
 function! s:cmd_Rename(name)
@@ -543,6 +539,10 @@ function! s:cmd_Rename(name)
     echo 'Renamed file already exists:' a:name
     echohl None
   else
+    let directory = fnamemodify(a:name, ':p:h')
+    if !isdirectory(directory)
+      call mkdir(directory, 'p')
+    endif
     file `=a:name`
     call delete(current)
     write
@@ -569,7 +569,7 @@ command! -range -nargs=? Say
 
 
 
-" Seq - sequence number substitutions  "{{{2
+" Seq  "{{{2
 "
 " :Seq /{pattern}[/format][/options]
 "
@@ -636,7 +636,7 @@ endfunction
 
 
 
-" Source - wrapper of :source with echo  "{{{2
+" Source  "{{{2
 
 command! -bar -complete=file -nargs=1 Source
 \   echo 'Sourcing ...' expand(<q-args>)
@@ -684,7 +684,7 @@ endfunction
 
 
 
-" SyntaxName - shows the syntax name under the cursor. "{{{2
+" SyntaxName "{{{2
 
 command! -bar -nargs=0 SyntaxName
 \ echo join(<SID>syntax_name(line('.'), col('.')), '/')
@@ -708,7 +708,7 @@ endfunction
 
 
 
-" TabpageTitle - name the current tabpage  "{{{2
+" TabpageTitle  "{{{2
 
 command! -bar -nargs=* TabpageTitle
 \   if <q-args> == ''
@@ -1278,7 +1278,7 @@ function! s:operator_speak(motion_wiseness)  "{{{2
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   execute 'normal!' '`['.visual_command.'`]y'
 
-  let text = @0
+  let text = @"
 
   if text =~ '[^\x00-\x7F]'
     call google_translate#speak(text, 'ja')
@@ -1295,7 +1295,7 @@ function! s:operator_translate(motion_wiseness)  "{{{2
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   execute 'normal!' '`['.visual_command.'`]y'
 
-  let text = @0
+  let text = @"
 
   if text =~ '[^\x00-\x7F]'
     let @" = google_translate#translate(text, 'ja', 'en')
@@ -1303,7 +1303,7 @@ function! s:operator_translate(motion_wiseness)  "{{{2
     let @" = google_translate#translate(text, 'en', 'ja')
   endif
 
-  echo @"
+  echo trim(@", "\n") . "\n"
 endfunction
 
 
@@ -1536,6 +1536,8 @@ cnoremap <Right> <Space><BS><Right>
 cmap <C-b>  <Left>
 cmap <C-f>  <Right>
 
+cnoremap <C-o>  <C-f>
+
 cnoremap <C-a>  <Home>
 cnoremap <C-d>  <Delete>
 cnoremap <C-y>  <C-r>"
@@ -1703,6 +1705,7 @@ nnoremap <silent> [Space]ol  :<C-u>call <SID>toggle_option('cursorline')<CR>
 nnoremap <silent> [Space]on  :<C-u>call <SID>toggle_option('number')<CR>
 nnoremap <silent> [Space]op  :<C-u>call <SID>toggle_option('paste')<CR>
 nnoremap <silent> [Space]os  :<C-u>call <SID>toggle_option('spell')<CR>
+nnoremap <silent> [Space]ot  :<C-u>TableModeToggle<CR>
 nnoremap <silent> [Space]ow  :<C-u>call <SID>toggle_option('wrap')<CR>
 nnoremap <silent> [Space]oz  :<C-u>call <SID>toggle_foldmethod(0)<CR>
 
@@ -2031,8 +2034,7 @@ autocmd MyAutoCmd FileType actionscript
 " blade  "{{{2
 
 autocmd MyAutoCmd FileType blade
-\   SpaceIndent 4
-\ | setlocal iskeyword+=-
+\ SpaceIndent 4
 
 
 
@@ -2166,6 +2168,7 @@ autocmd MyAutoCmd FileType java
 autocmd MyAutoCmd FileType javascript
 \   SpaceIndent 4
 \ | setlocal iskeyword-=58 iskeyword+=$
+\ | setlocal cinoptions-=(0
 
 let g:jsx_ext_required = 0
 
@@ -2237,11 +2240,11 @@ autocmd MyAutoCmd FileType php
 
 function! s:on_FileType_php()
   SpaceIndent 4
-  compiler phan
+  compiler psalm
   setlocal commentstring=//%s
   setlocal iskeyword+=$
 
-  inoreabbrev <buffer> /** /**<CR><CR>/<Up>
+  inoreabbrev <buffer> /** /**<Space>*/<Left><Left><Left>
 endfunction
 
 let g:PHP_vintage_case_default_indent = 1
@@ -2589,7 +2592,7 @@ nnoremap <silent> [Space]kg  :<C-u>Ku metarw/git<CR>
 nnoremap <silent> [Space]kh  :<C-u>Ku history<CR>
 nnoremap <silent> [Space]kj  :<C-u>Ku file/current<CR>
 nnoremap <silent> [Space]kl  :<C-u>Ku file_project<CR>
-nnoremap <silent> [Space]kn  :<C-u>Ku file<CR>~/Documents/Notes/
+nnoremap <silent> [Space]kn  :<C-u>Ku file<CR>~/Sync/Documents/Notes/
 nnoremap <silent> [Space]ko  :<C-u>Ku oldfiles<CR>
 nnoremap <silent> [Space]kq  :<C-u>Ku quickfix<CR>
 nnoremap <silent> [Space]kr  :<C-u>Ku register<CR>
@@ -2705,6 +2708,9 @@ let g:quickrun_config = {
 \     'exec': ['%c --host 127.0.0.1 --user root %a < %s']
 \   },
 \   'typescript': {
+\     'type': 'typescript/tsc'
+\   },
+\   'typescript/tsc': {
 \     'command': 'tsc',
 \     'exec': ['%c --strict --target es2017 --module es2015 %o %s', 'node %s:r.js'],
 \     'tempfile': '%{tempname()}.ts',
@@ -2842,6 +2848,9 @@ endif
 call smartinput#define_rule({
 \   'at': '\%#', 'char': '{', 'input': '{',
 \   'syntax': ['Comment']
+\ })
+call smartinput#define_rule({
+\   'at': '/\*\*\%#', 'char': '<CR>', 'input': '<CR><CR>/<Up><Space>',
 \ })
 
 " for PHP  "{{{
