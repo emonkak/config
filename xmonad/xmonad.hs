@@ -13,8 +13,10 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.UrgencyHook
+import XMonad.Layout.Gaps
 import XMonad.Layout.NoBorders
 import XMonad.Layout.ResizableTile
+import XMonad.Layout.Spacing
 import XMonad.Layout.ToggleLayouts
 import XMonad.Prompt
 import XMonad.Prompt.Shell
@@ -45,7 +47,7 @@ myBorderWidth = 2
 myModMask = mod4Mask
 myWorkspaces = map show [1..9]
 
-myFont = "xft:Input Mono:pixelsize=11,Noto Sans CJK JP:pixelsize=11"
+myFont = "xft:Monospace:pixelsize=11,Noto Sans CJK JP:pixelsize=11"
 myNormalBorderColor = "#869096"
 myNormalFGColor = "#f5f6f7"
 myNormalBGColor = "#21272b"
@@ -106,7 +108,7 @@ removeBorderEventHook query e = do
 myLayoutHook = avoidStruts $ smartBorders $ toggleLayouts Full $
                (tallLayout ||| wideLayout)
   where
-    basicLayout = ResizableTall 1 (2/100) (1/2) []
+    basicLayout = spacing 2 $ gaps [(U, 2), (D, 2), (L, 2), (R, 2)] $ ResizableTall 1 (2/100) (1/2) []
     tallLayout = basicLayout
     wideLayout = Mirror basicLayout
 
@@ -120,17 +122,17 @@ myLogHook h = do
   floated <- withWindowSet isFloat
   let icon = wrap ("<icon=" ++ home ++ "/.xmonad/icons/") "/>"
       layoutIcon name = case name of
-        "ResizableTall"        -> icon "layout-tall-black.xbm"
-        "Mirror ResizableTall" -> icon "layout-mirror-black.xbm"
-        "Full"                 -> icon "layout-full-black.xbm"
-        "Spiral"               -> icon "layout-spiral-black.xbm"
-        _                      -> name
+        "Spacing ResizableTall"        -> icon "layout-tall-black.xbm"
+        "Mirror Spacing ResizableTall" -> icon "layout-mirror-black.xbm"
+        "Full"                         -> icon "layout-full-black.xbm"
+        "Spiral"                       -> icon "layout-spiral-black.xbm"
+        _                              -> name
   dynamicLogWithPP $ defaultPP
     { ppOutput          = hPutStrLn h
     , ppCurrent         = xmobarColor myFocusedFGColor "" . wrap "[" "]"
-    , ppHidden          = wrap "*" " "
+    , ppHidden          = wrap " " " "
     , ppHiddenNoWindows = xmobarColor myNormalBorderColor "" . wrap " " " "
-    , ppUrgent          = xmobarColor myFocusedFGColor "" . wrap "*" " "
+    , ppUrgent          = wrap "*" " "
     , ppSep             = xmobarColor myNormalBorderColor "" " | "
     , ppWsSep           = ""
     , ppTitle           = if floated then ("<fn=1>\xf2d0</fn> " ++) . xmobarRaw else xmobarRaw
@@ -147,31 +149,29 @@ myLogHook h = do
 -- ManageHook  --{{{2
 
 myManageHook = manageDocks
-  <+> composeOne
-    [ isDialog                               -?> doCenterFloat
-    , isFullscreen                           -?> doFullFloat
-    ]
   <+> composeAll
-    [ title     =? "Wine System Tray"                     --> doHideIgnore
+    [ className =? "Firefox" <&&> appName /=? "Navigator" --> doFloat
+    , className =? "Geeqie"                               --> doShiftEmptyAndGo
+    , className =? "Gimp"                                 --> doShiftEmptyAndGo
+    , className =? "Inkscape"                             --> doShiftEmptyAndGo
+    , className =? "Pavucontrol"                          --> doCenterFloat
     , className =? "Uim-tomoe-gtk"                        --> doFloat
-    , className =? "Firefox" <&&> appName /=? "Navigator" --> doFloat
-    , className =? "qemu-system-x86_64"                   --> doFloat
-    , className =? "rdesktop"                             --> doFloat
     , className =? "XFontSel"                             --> doCenterFloat
     , className =? "Xmessage"                             --> doCenterFloat
     , className =? "feh"                                  --> doCenterFloat
-    , className =? "mpv"                                  --> doCenterFloat
-    , className =? "Geeqie"                               --> doShiftEmptyAndGo
-    , className =? "Inkscape"                             --> doShiftEmptyAndGo
     , className =? "fontforge"                            --> doShiftEmptyAndGo <+> doFloat
     , className =? "libreoffice-startcenter"              --> doShiftEmptyAndGo
-    , className =? "Gimp"                                 --> doShiftEmptyAndGo
-    , className =? "Gimp-2.8"                             --> doShiftEmptyAndGo
-    , className =? "Gimp-2.8"                             --> doShiftEmptyAndGo
+    , className =? "mpv"                                  --> doCenterFloat
+    , className =? "qemu-system-x86_64"                   --> doFloat
+    , className =? "rdesktop"                             --> doFloat
+    , title     =? "Wine System Tray"                     --> doHideIgnore
     , role      =? "pop-up"                               --> doFloat
     ]
+  <+> composeOne
+    [ isDialog     -?> doCenterFloat
+    , isFullscreen -?> doFullFloat
+    ]
   where
-    isSticky = isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_STATE_STICKY"
     doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
     doShiftEmptyAndGo = do
       w <- ask
@@ -179,9 +179,11 @@ myManageHook = manageDocks
       xs <- liftX $ withWindowSet $ filterM (runQuery $ className =? c) . W.index
       case xs of
         [] -> do
-          ws <- liftX $ findWorkspace getSortByIndex Next EmptyWS 0
-          doShiftAndGo ws
-        _  -> idHook
+          workspace <- liftX (W.workspace . W.current <$> gets windowset)
+          case W.stack workspace of
+            Nothing -> doShiftAndGo (W.tag workspace)
+            _       -> liftX (findWorkspace getSortByIndex Next EmptyWS 1) >>= doShiftAndGo
+        _ -> idHook
     role = stringProperty "WM_WINDOW_ROLE"
 
 
@@ -269,7 +271,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
                     ]
 
     lancherKeys = [ (xK_2, "v2c")
-                  , (xK_c, "google-chrome-stable")
+                  , (xK_c, "brave-bin")
                   , (xK_f, "firefox-bin")
                   , (xK_p, "pavucontrol")
                   , (xK_t, "transmission-gtk")
