@@ -1,69 +1,80 @@
-Config { font = "xft:Input Mono:pixelsize=11,Noto Sans CJK JP:pixelsize=11"
+Config { font = "xft:Monospace:pixelsize=11,Noto Sans CJK JP:pixelsize=11"
        , additionalFonts =
          [ "xft:FontAwesome:pixelsize=12"
          ]
        , bgColor = "#21272b"
        , fgColor = "#f5f6f7"
        , position = Top
+       , overrideRedirect = False
        , commands = [ Run StdinReader
                     , Run MPD
                       [ "-t", "<statei> <title><fc=#869096>/</fc><artist>"
+                      , "-M", "20"
+                      , "-e", "..."
                       , "--"
-                      , "-P", "<fc=#1dc2a1><fn=1>\xf001</fn></fc>"
-                      , "-Z", "<fc=#869096><fn=1>\xf001</fn></fc>"
-                      , "-S", "<fc=#869096><fn=1>\xf001</fn></fc>"
+                      , "-P", "<fc=#5ebaf7><fn=1>\xf001</fn></fc>"
+                      , "-S", "<fc=#869096><fn=1>\xf04d</fn></fc>"
+                      , "-Z", "<fc=#869096><fn=1>\xf04c</fn></fc>"
+                      , "-h", "127.0.0.1"
+                      , "-p", "6600"
                       ] 10
                     , Run Cpu
-                      [ "-t", "<fc=#5ebaf7><fn=1>\xf0e4</fn></fc> <total>"
-                      , "-p", "3"
+                      [ "-t", "<fc=#5ebaf7><fn=1>\xf013</fn></fc> <total>"
                       , "-L", "50"
-                      , "-H", "80"
+                      , "-H", "75"
+                      , "-n", "#5ebaf7"
+                      , "-h", "#fc8e88"
                       , "-S", "True"
-                      , "--normal", "#5ebaf7"
-                      , "--high", "#fc8e88"
+                      , "-p", "3"
+                      ] 10
+                    , Run CoreTemp
+                      [ "-t", "<fc=#5ebaf7><fn=1>\xf2c7</fn></fc> <core0>°C"
+                      , "-L", "40"
+                      , "-H", "60"
+                      , "-m", "3"
                       ] 10
                     , Run Memory
                       [ "-t", "<fc=#5ebaf7><fn=1>\xf2db</fn></fc> <usedratio>"
-                      , "-p", "3"
                       , "-L", "50"
-                      , "-H", "80"
+                      , "-H", "75"
+                      , "-n", "#5ebaf7"
+                      , "-h", "#fc8e88"
                       , "-S", "True"
-                      , "--normal", "#5ebaf7"
-                      , "--high", "#fc8e88"
+                      , "-p", "3"
                       ] 10
                     , Run DiskU
-                      [ ("sda2", "<fc=#5ebaf7><fn=1>\xf1c0</fn></fc> <usedp>")
+                      [ ("/", "<fc=#5ebaf7><fn=1>\xf1c0</fn></fc> <usedp>")
                       ]
-                      [ "-m", "1"
-                      , "-p", "3"
-                      , "-L", "50"
-                      , "-H", "80"
+                      [ "-L", "50"
+                      , "-H", "75"
                       , "-S", "True"
+                      , "-p", "3"
+                      , "-m", "1"
                       ] 100
                     , Run Network "eth0"
-                      [ "-t", "<fc=#fc8e88><fn=1>\xf062</fn></fc> <rx> <fc=#5ebaf7><fn=1>\xf063</fn></fc> <tx>"
+                      [ "-t", "<fc=#5ebaf7><fn=1>\xf062</fn></fc> <tx> <fc=#5ebaf7><fn=1>\xf063</fn></fc> <rx>"
+                      , "-L", "1000"
+                      , "-H", "1000000"
+                      , "-l", "#869096"
+                      , "-n", "#5ebaf7"
+                      , "-h", "#fc8e88"
+                      , "-S", "True"
                       , "-d", "1"
                       , "-m", "9"
-                      , "-L", "100000"
-                      , "-H", "1000000"
-                      , "-S", "True"
-                      , "--normal", "#5ebaf7"
-                      , "--high", "#fc8e88"
                       ] 10
                     , Run Alsa "pulse" "Master"
                       [ "-t", "<status> <volume>"
                       , "-S", "True"
+                      , "-p", "3"
                       , "--"
                       , "--on", "<fn=1>\xf028</fn>"
                       , "--onc", "#5ebaf7"
-                      , "--off", "<fn=1>\xf026</fn>"
-                      , "--offc", "#fc8e88"
+                      , "--off", "<fn=1>\xf026  </fn>"
+                      , "--offc", "#869096"
                       ]
                     , Run Date "%Y/%m/%d %H:%M:%S" "date" 10
                     ]
-       , sepChar = "%"
-       , alignSep = "}{"
-       , template = "%StdinReader% }{ %mpd%  %cpu%  %memory%  %disku%  %eth0%  %alsa:pulse:Master%  %date% "
+       , template = " %StdinReader% }{ %mpd%  %cpu%  %coretemp%  %memory%  %disku%  %eth0%  %alsa:pulse:Master%  %date% "
        }
 
 

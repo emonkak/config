@@ -1,19 +1,29 @@
-export PATH="$HOME/bin:$HOME/.composer/vendor/bin:$HOME/.cabal/bin:$HOME/.gem/ruby/2.2.0/bin:$HOME/.local/bin:$GOPATH/bin:$PATH"
+export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
 export LANG='ja_JP.UTF-8'
 export LC_MESSAGES='C'
 export LC_TIME='C'
 
-export BROWSER='google-chrome-stable'
+export BROWSER='brave-bin'
 export EDITOR='vim'
 export PAGER='less'
 
-export LESS='-R'
+export LESS='-c -R -L'
 export LV='-c -l'
 
 export WINEARCH="win32"
 
 export MPD_CONF="$HOME/.mpd/mpd.conf"
+
+if [ -d "$HOME/.cabal" ]
+then
+  PATH="$PATH:$HOME/.cabal/bin"
+fi
+
+if [ -d "$HOME/.composer" ]
+then
+  PATH="$PATH:$HOME/.composer/vendor/bin"
+fi
 
 if [ -d "$HOME/go" ]
 then
@@ -31,4 +41,9 @@ if [ -d "$HOME/.nvm" ]
 then
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+fi
+
+if which ruby >/dev/null && which gem >/dev/null; then
+  PATH="$PATH:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin"
 fi

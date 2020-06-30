@@ -6,6 +6,11 @@ ulimit -c 0  # Don't create core file
 stty stop undef
 stty start undef
 
+if [ -f "$HOME/.colorrc" ]
+then
+  eval `dircolors "$HOME/.colorrc"`
+fi
+
 
 
 # Parameters  #{{{1
@@ -95,7 +100,7 @@ fi
 autoload -Uz compinit && compinit -u
 
 zstyle ':completion:*' completer _complete _expand _ignored _match _oldlist _prefix
-zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' menu select=1
 zstyle ':completion:*' use-cache true
@@ -319,9 +324,9 @@ bindkey "\e[8~" end-of-line  # <End>
 bindkey "\e[F" end-of-line  # <End>
 bindkey "\e[H" beginning-of-line  # <Home>
 
-if which peco &> /dev/null
+if which fzf &> /dev/null
 then
-  function peco-history() {
+  function fzf-history() {
     local tac
     if which tac > /dev/null
     then
@@ -330,14 +335,14 @@ then
         tac='tail -r'
     fi
 
-    BUFFER=$(history -n 1 | eval $tac | peco --query "$LBUFFER")
+    BUFFER=$(history -n 1 | eval $tac | fzf --query "$LBUFFER" --layout reverse)
     CURSOR=$#BUFFER
 
     zle clear-screen
   }
 
-  function peco-cdr() {
-    local selected_dir=$(cdr -l | awk '{ print $2 }' | peco)
+  function fzf-cdr() {
+    local selected_dir=$(cdr -l | awk '{ print $2 }' | fzf --layout reverse)
 
     if [ -n "$selected_dir" ]; then
         BUFFER="cd ${selected_dir}"
@@ -347,13 +352,13 @@ then
     zle clear-screen
   }
 
-  zle -N peco-cdr
-  zle -N peco-history
+  zle -N fzf-cdr
+  zle -N fzf-history
 
-  bindkey '^Xc' peco-cdr
-  bindkey '^X^c' peco-cdr
-  bindkey '^Xh' peco-history
-  bindkey '^X^h' peco-history
+  bindkey '^Xc' fzf-cdr
+  bindkey '^X^c' fzf-cdr
+  bindkey '^Xh' fzf-history
+  bindkey '^X^h' fzf-history
 fi
 
 

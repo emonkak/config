@@ -20,88 +20,119 @@ Xcursor.size: 24
 
 ! Modern Color
 ! ------------
-! Rxvt.background: rgb:17/17/17
-! Rxvt.foreground: rgb:e2/e2/e2
-! Rxvt.cursorColor: rgb:67/9b/00
+! Rxvt.background: #171717
+! Rxvt.foreground: #e2e2e2
+! Rxvt.cursorColor: #679b00
 !
 ! ! Black
-! Rxvt.color0: rgb:29/29/29
-! Rxvt.color8: rgb:47/47/47
+! Rxvt.color0: #292929
+! Rxvt.color8: #474747
 ! ! Red
-! Rxvt.color1: rgb:c4/17/00
-! Rxvt.color9: rgb:ff/61/4c
+! Rxvt.color1: #c41700
+! Rxvt.color9: #ff614c
 ! ! Green
-! Rxvt.color2: rgb:67/9b/00
-! Rxvt.color10: rgb:b9/f7/3e
+! Rxvt.color2: #679b00
+! Rxvt.color10: #b9f73e
 ! ! Yellow
-! Rxvt.color3: rgb:c4/93/00
-! Rxvt.color11: rgb:ff/d2/4c
+! Rxvt.color3: #c49300
+! Rxvt.color11: #ffd24c
 ! ! Blue
-! Rxvt.color4: rgb:07/40/80
-! Rxvt.color12: rgb:45/81/c4
+! Rxvt.color4: #074080
+! Rxvt.color12: #4581c4
 ! ! Magenta
-! Rxvt.color5: rgb:9d/00/59
-! Rxvt.color13: rgb:dd/42/9a
+! Rxvt.color5: #9d0059
+! Rxvt.color13: #dd429a
 ! ! Cyan
-! Rxvt.color6: rgb:00/76/76
-! Rxvt.color14: rgb:37/bb/bb
+! Rxvt.color6: #007676
+! Rxvt.color14: #37bbbb
 ! ! White
-! Rxvt.color7: rgb:81/81/81
-! Rxvt.color15: rgb:ff/ff/ff
+! Rxvt.color7: #818181
+! Rxvt.color15: #ffffff
 
 ! Bitter Color
 ! ------------
-! Rxvt.background: rgb:20/20/20
-! Rxvt.foreground: rgb:cb/cb/cb
-! Rxvt.cursorColor: rgb:2b/79/38
+! Rxvt.background: #202020
+! Rxvt.foreground: #cbcbcb
+! Rxvt.cursorColor: #2b7938
 !
 ! ! Black
-! Rxvt.color0: rgb:32/32/32
-! Rxvt.color8: rgb:41/41/41
+! Rxvt.color0: #323232
+! Rxvt.color8: #414141
 ! ! Red
-! Rxvt.color1: rgb:97/2c/27
-! Rxvt.color9: rgb:e1/13/37
+! Rxvt.color1: #972c27
+! Rxvt.color9: #e11337
 ! ! Green
-! Rxvt.color2: rgb:2b/79/38
-! Rxvt.color10: rgb:45/ae/51
+! Rxvt.color2: #2b7938
+! Rxvt.color10: #45ae51
 ! ! Yellow
-! Rxvt.color3: rgb:9d/79/30
-! Rxvt.color11: rgb:ec/b0/45
+! Rxvt.color3: #9d7930
+! Rxvt.color11: #ecb045
 ! ! Blue
-! Rxvt.color4: rgb:00/52/71
-! Rxvt.color12: rgb:00/75/a0
+! Rxvt.color4: #005271
+! Rxvt.color12: #0075a0
 ! ! Magenta
-! Rxvt.color5: rgb:9a/27/54
-! Rxvt.color13: rgb:e2/37/74
+! Rxvt.color5: #9a2754
+! Rxvt.color13: #e23774
 ! ! Cyan
-! Rxvt.color6: rgb:32/83/81
-! Rxvt.color14: rgb:46/ab/aa
+! Rxvt.color6: #328381
+! Rxvt.color14: #46abaa
 ! ! White
-! Rxvt.color7: rgb:a9/aa/a9
-! Rxvt.color15: rgb:ff/ff/ff
+! Rxvt.color7: #a9aaa9
+! Rxvt.color15: #ffffff
 
 ! Japanese Color
 ! --------------
-Rxvt.background: rgb:29/24/22
-Rxvt.foreground: rgb:cb/c7/c7
-Rxvt.cursorColor: rgb:40/7a/52
+! Rxvt.background: #292422
+! Rxvt.foreground: #cbc7c7
+! Rxvt.cursorColor: #407a52
+!
+! Rxvt.color0: #171412
+! Rxvt.color1: #dc3023
+! Rxvt.color2: #407a52
+! Rxvt.color3: #bb8141
+! Rxvt.color4: #1d697c
+! Rxvt.color5: #db5a6b
+! Rxvt.color6: #875f9a
+! Rxvt.color7: #ccc7c7
+! Rxvt.color8: #393432
+! Rxvt.color9: #fa7b62
+! Rxvt.color10: #8db255
+! Rxvt.color11: #ffb61e
+! Rxvt.color12: #4d8fac
+! Rxvt.color13: #f08f90
+! Rxvt.color14: #a87ca0
+! Rxvt.color15: #f7f3f3
 
-Rxvt.color0: rgb:17/14/12
-Rxvt.color1: rgb:dc/30/23
-Rxvt.color2: rgb:40/7a/52
-Rxvt.color3: rgb:bb/81/41
-Rxvt.color4: rgb:1d/69/7c
-Rxvt.color5: rgb:db/5a/6b
-Rxvt.color6: rgb:87/5f/9a
-Rxvt.color7: rgb:cc/c7/c7
-Rxvt.color8: rgb:39/34/32
-Rxvt.color9: rgb:fa/7b/62
-Rxvt.color10: rgb:8d/b2/55
-Rxvt.color11: rgb:ff/b6/1e
-Rxvt.color12: rgb:4d/8f/ac
-Rxvt.color13: rgb:f0/8f/90
-Rxvt.color14: rgb:a8/7c/a0
-Rxvt.color15: rgb:f7/f3/f3
+! logmi Color
+! --------------
+Rxvt.background: #21272b
+Rxvt.foreground: #e8eaeb
+Rxvt.cursorColor: #10a184
+
+! Black
+Rxvt.color0: #363f45
+Rxvt.color8: #657078
+! Red
+Rxvt.color1: #f7554d
+Rxvt.color9: #ffb6b3
+! Green
+Rxvt.color2: #10a184
+Rxvt.color10: #38e0bf
+! Yellow
+Rxvt.color3: #c97a12
+Rxvt.color11: #f7ba6a
+! Blue
+Rxvt.color4: #1c95e6
+Rxvt.color12: #8dd0fc
+! Magenta
+Rxvt.color5: #f74d90
+Rxvt.color13: #fcb3d0
+! Cyan
+Rxvt.color6: #9d77fc
+Rxvt.color14: #cfbdff
+! White
+Rxvt.color7: #869096
+Rxvt.color15: #c5c6c7
 
 ! Rxvt.font: \
 !   -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \
@@ -125,12 +156,17 @@ Rxvt.color15: rgb:f7/f3/f3
 !   -neco-fixed-bold-r-normal--16-150-75-75-c-160-iso10646-1
 ! Rxvt.lineSpace: 4
 
+/* Rxvt.font: \
+  xft:Input Mono:weight=Light:pixelsize=13, \
+  xft:YuGothic:pixelsize=13, \
+  xft:Droid Sans Fallback:pixelsize=13, \
+  xft:Noto Color Emoji */
 Rxvt.font: \
-  xft:Input Mono:pixelsize=13, \
+  xft:Consolas:pixelsize=14, \
   xft:YuGothic:pixelsize=13, \
   xft:Droid Sans Fallback:pixelsize=13, \
   xft:Noto Color Emoji
-Rxvt.lineSpace: 3
+Rxvt.lineSpace: 4
 
 Rxvt.imFont: \
   -envy-code_b-medium-r-normal--14-130-75-75-c-70-iso8859-1, \

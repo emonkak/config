@@ -6,13 +6,13 @@ usermodmap="${HOME}/.Xmodmap"
 [ -f "${userresources}" ] && xrdb -merge "${userresources}"
 [ -f "${usermodmap}" ] && xmodmap "${usermodmap}"
 
+xsetroot -solid '#363f45'
+
 xinput --set-ptr-feedback "ThinkPS/2 Kensington ThinkingMouse" 4 2 1
 
-xcape -e '#134=Zenkaku_Hankaku'
+xcape -e '#133=Escape;#134=Zenkaku_Hankaku'
 
 eval `ssh-agent`
-
-export FREETYPE_PROPERTIES="truetype:interpreter-version=40"
 
 export BROWSER='google-chrome-stable'
 
@@ -24,16 +24,11 @@ export GTK_IM_MODULE='uim'
 export QT_IM_MODULE='uim'
 uim-xim &
 
-dropbox &
-
-rslsync
+dunst &
 
 case ${1##*/} in
   fluxbox)
     exec dbus-launch --exit-with-session startfluxbox
-    ;;
-  xmonad)
-    exec dbus-launch --exit-with-session xmonad
     ;;
   *)
     exec dbus-launch --exit-with-session xmonad

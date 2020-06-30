@@ -16,7 +16,23 @@
 
 
 
+; Color
+
+(define uim-color-white
+  '((reversed-preedit-foreground   . "black")
+    (reversed-preedit-background   . "white")
+    (separator-foreground          . "black")
+    (separator-background          . "white")
+    (reversed-separator-foreground . "black")
+    (reversed-separator-background . "white")))
+
+(define uim-color 'uim-color-white)
+
+
+
+
 ; Japanese
+
 (require "japanese-utf8.scm")
 
 (define ja-rk-rule-basic
@@ -37,6 +53,7 @@
 
 
 ; SKK
+
 (require-module "skk")
 
 (define skk-use-with-vi? #t)

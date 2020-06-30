@@ -8,7 +8,10 @@ keysym Caps_Lock = Control_L
 ! Semicolon <-> Colon
 keycode 47 = colon semicolon
 
-! Zenkaku_Hankaku and Super
+! Super_L -> Escape and Super
+keycode 133 = Super_L
+
+! Super_R -> Zenkaku_Hankaku and Super
 keycode 255 = Zenkaku_Hankaku Kanji
 keycode 134 = Super_R
 
