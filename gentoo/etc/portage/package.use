@@ -6,7 +6,7 @@ app-emulation/libvirt qemu virt-network
 app-emulation/qemu opengl qemu-ifup sdl
 app-emulation/wine -mono fontconfig jpeg mp3 png xml
 app-eselect/eselect-php apache2 fpm
-app-i18n/uim -anthy gtk linguas_ja skk xft
+app-i18n/uim -anthy gtk gtk2 linguas_ja skk xft
 app-misc/mfiler3 migemo
 app-misc/tmux -vim-syntax
 app-portage/eix sqlite
@@ -65,7 +65,7 @@ www-servers/nginx nginx_modules_http_headers_more
 x11-libs/cairo opengl svg xcb
 x11-libs/gtk+ cups
 x11-misc/polybar mpd network
-x11-misc/xmobar mpd xft xpm
+x11-misc/xmobar mpd xft xpm -with_weather
 x11-terms/rxvt-unicode -vanilla 256-color perl truetype xft
 x11-terms/xterm truetype
 
@@ -95,6 +95,7 @@ x11-libs/libxcb xkb
 
 # for Wine
 app-arch/bzip2 abi_x86_32
+app-arch/zstd abi_x86_32
 app-emulation/wine-gecko abi_x86_32
 dev-libs/expat abi_x86_32
 dev-libs/glib abi_x86_32
@@ -120,6 +121,7 @@ media-libs/lcms abi_x86_32
 media-libs/libjpeg-turbo abi_x86_32
 media-libs/libogg abi_x86_32
 media-libs/libpng abi_x86_32
+media-libs/libsdl2 abi_x86_32
 media-libs/libsndfile abi_x86_32
 media-libs/libvorbis abi_x86_32
 media-libs/mesa abi_x86_32
@@ -146,6 +148,7 @@ sys-libs/pam abi_x86_32
 sys-libs/zlib abi_x86_32
 virtual/glu abi_x86_32
 virtual/jpeg abi_x86_32
+virtual/libcrypt abi_x86_32
 virtual/libffi abi_x86_32
 virtual/libiconv abi_x86_32
 virtual/libintl abi_x86_32
@@ -191,6 +194,9 @@ x11-proto/xf86driproto abi_x86_32
 x11-proto/xf86vidmodeproto abi_x86_32
 x11-proto/xproto abi_x86_32
 
-# for freetype (harfbuzz)
+# required by freetype (harfbuzz)
 media-libs/harfbuzz abi_x86_32
 media-gfx/graphite2 abi_x86_32
+
+# required by media-video/mpv
+media-libs/libglvnd abi_x86_32

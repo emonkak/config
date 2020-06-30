@@ -40,7 +40,7 @@ GROUP_GENTOO_FILES=\
   gentoo/etc/X11/xorg.conf \
   gentoo/etc/fstab \
   gentoo/etc/portage/make.conf \
-  gentoo/etc/portage/package.keywords \
+  gentoo/etc/portage/package.accept_keywords \
   gentoo/etc/portage/package.mask \
   gentoo/etc/portage/package.unmask \
   gentoo/etc/portage/package.use \
