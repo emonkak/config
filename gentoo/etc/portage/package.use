@@ -1,3 +1,6 @@
+*/* PYTHON_TARGETS: -python2_7
+*/* PYTHON_SINGLE_TARGET: -python2_7
+
 app-admin/conky imlib lua mpd
 app-arch/unzip natspec  # natspec: ShiftJIS Supporting
 app-editors/gvim gtk lua luajit
@@ -12,7 +15,7 @@ app-misc/tmux -vim-syntax
 app-portage/eix sqlite
 app-shells/saphire migemo
 app-text/ghostscript-gpl cups
-app-text/poppler cairo qt4
+app-text/poppler cairo qt5
 dev-java/icedtea-bin -cjk
 dev-lang/ghc binary
 dev-lang/perl ithreads
@@ -21,7 +24,7 @@ dev-lang/python sqlite
 dev-lang/scala binary
 dev-lua/* luajit
 dev-php/hhvm hack
-dev-vcs/git cvs perl subversion
+dev-vcs/git perl
 dev-vcs/subversion -dso perl python
 media-gfx/comix rar
 media-gfx/fontforge cairo pango png svg
@@ -65,7 +68,7 @@ www-servers/nginx nginx_modules_http_headers_more
 x11-libs/cairo opengl svg xcb
 x11-libs/gtk+ cups
 x11-misc/polybar mpd network
-x11-misc/xmobar mpd xft xpm -with_weather
+x11-misc/xmobar -with_weather mpd xft xpm
 x11-terms/rxvt-unicode -vanilla 256-color perl truetype xft
 x11-terms/xterm truetype
 
@@ -87,11 +90,6 @@ sys-libs/libseccomp static-libs  # required by app-emulation/docker
 sys-libs/tevent python  # required by net-fs/samba
 sys-libs/zlib minizip  # required by media-video/vlc
 sys-process/tini static  # required by app-emulation/docker
-
-# for Dropbox
-dev-libs/libpcre pcre16
-dev-qt/qtcore icu
-x11-libs/libxcb xkb
 
 # for Wine
 app-arch/bzip2 abi_x86_32
@@ -200,3 +198,6 @@ media-gfx/graphite2 abi_x86_32
 
 # required by media-video/mpv
 media-libs/libglvnd abi_x86_32
+
+# required by x11-base/xorg-server
+sys-auth/pambase elogind

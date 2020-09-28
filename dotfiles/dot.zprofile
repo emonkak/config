@@ -1,4 +1,4 @@
-export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
+export PATH="$HOME/bin:$HOME/.local/bin:$HOME/opt/bin:$PATH"
 
 export LANG='ja_JP.UTF-8'
 export LC_MESSAGES='C'

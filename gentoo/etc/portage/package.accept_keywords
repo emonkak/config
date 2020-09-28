@@ -1,13 +1,12 @@
 =media-video/rtmpdump-9999 **
 =net-print/cnijfilter-3.60* ~amd64
+app-admin/haskell-updater ~amd64
 app-admin/python-updater ~amd64
 app-editors/gvim ~amd64
 app-editors/vim ~amd64
 app-editors/vim-core ~amd64
 app-editors/vscode-bin ~amd64
 app-emulation/genymotion-bin ~amd64
-app-emulation/virtualbox-bin ~amd64
-app-emulation/virtualbox-modules ~amd64
 app-eselect/eselect-php ~amd64
 app-i18n/skk-jisyo ~amd64
 app-i18n/skktools ~amd64
@@ -20,6 +19,7 @@ app-shells/fzf ~amd64
 dev-go/glide ~amd64
 dev-haskell/* ~amd64
 dev-java/gradle-bin ~amd64
+dev-java/javatoolkit ~amd64
 dev-java/sbt-bin ~amd64
 dev-lang/ghc ~amd64
 dev-lang/php ~amd64
@@ -45,6 +45,7 @@ www-client/brave-bin ~amd64
 www-client/firefox-bin ~amd64
 www-client/google-chrome ~amd64
 www-client/jd ~amd64
+www-client/torbrowser ~amd64
 x11-libs/cairo ~amd64
 x11-misc/notify-osd ~amd64
 x11-misc/xcape ~amd64
@@ -56,15 +57,18 @@ x11-themes/* ~amd64
 x11-wm/xmonad ~amd64
 x11-wm/xmonad-contrib ~amd64
 
-# awscli
+# for awscli
 dev-python/awscli ~amd64
 dev-python/botocore ~amd64
 dev-python/rsa ~amd64
 dev-python/s3transfer ~amd64
 
-# kitty
+# for kitty
 dev-python/sphinx ~amd64
 
-# genymotion
+# for genymotion
 dev-util/patchelf ~amd64
 dev-libs/hiredis ~amd64
+
+# for polkit
+dev-lang/duktape ~amd64

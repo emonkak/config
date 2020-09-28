@@ -19,9 +19,10 @@ export BROWSER='google-chrome-stable'
 export XDG_CACHE_HOME="/tmp/.${USER}/cache"
 [ ! -d "${XDG_CACHE_HOME}" ] && install -dm0700 "${XDG_CACHE_HOME}"
 
-export XMODIFIERS='@im=uim'
 export GTK_IM_MODULE='uim'
 export QT_IM_MODULE='uim'
+export QT_QPA_PLATFORMTHEME=qt5ct
+export XMODIFIERS='@im=uim'
 uim-xim &
 
 dunst &

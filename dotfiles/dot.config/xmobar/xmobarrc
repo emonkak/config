@@ -72,7 +72,7 @@ Config { font = "xft:Monospace:pixelsize=11,Noto Sans CJK JP:pixelsize=11"
                       , "--off", "<fn=1>\xf026  </fn>"
                       , "--offc", "#869096"
                       ]
-                    , Run Date "%Y/%m/%d %H:%M:%S" "date" 10
+                    , Run Date "%Y/%m/%d %a %H:%M:%S" "date" 10
                     ]
        , template = " %StdinReader% }{ %mpd%  %cpu%  %coretemp%  %memory%  %disku%  %eth0%  %alsa:pulse:Master%  %date% "
        }

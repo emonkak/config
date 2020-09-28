@@ -292,11 +292,7 @@ then
   alias pbpaste='xsel --clipboard --output'
 fi
 
-alias -s rb='ruby'
-alias -s py='python'
-alias -s hs='runhaskell'
-alias -s php='php -f'
-alias -s {gz,tar,zip,rar,7z}='aunpack'
+alias -s {7z,gz,rar,tar,xz,zip}='aunpack'
 
 
 

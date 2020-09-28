@@ -246,6 +246,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask,                 xK_bracketleft),  safeSpawn "mpc" ["prev"])
   , ((modMask,                 xK_bracketright), safeSpawn "mpc" ["next"])
 
+  , ((modMask .|. shiftMask,   xK_bracketleft),  safeSpawn "pactl" ["set-card-profile", "1", "output:analog-stereo"])
+  , ((modMask .|. shiftMask,   xK_bracketright), safeSpawn "pactl" ["set-card-profile", "1", "output:hdmi-stereo"])
+
   , ((modMask .|. controlMask, xK_l),            spawn "sleep 1; xset dpms force off")
 
   , ((modMask .|. mod1Mask,    xK_j),            withFocused $ snapMove D Nothing)
