@@ -42,12 +42,12 @@ import qualified Data.Map as M
 
 -- Configs  --{{{1
 
-myTerminal = "urxvt"
+myTerminal = "alacritty"
 myBorderWidth = 2
 myModMask = mod4Mask
 myWorkspaces = map show [1..9]
 
-myFont = "xft:Monospace:pixelsize=11,Noto Sans CJK JP:pixelsize=11"
+myFont = "xft:Monospace:pixelsize=11"
 myNormalBorderColor = "#869096"
 myNormalFGColor = "#f5f6f7"
 myNormalBGColor = "#21272b"
@@ -170,6 +170,7 @@ myManageHook = manageDocks
   <+> composeOne
     [ isDialog     -?> doCenterFloat
     , isFullscreen -?> doFullFloat
+    , (not <$> hasProperty "WM_CLASS") <&&> (not <$> hasProperty "WM_WINDOW_ROLE") -?> doFloat
     ]
   where
     doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
@@ -184,6 +185,8 @@ myManageHook = manageDocks
             Nothing -> doShiftAndGo (W.tag workspace)
             _       -> liftX (findWorkspace getSortByIndex Next EmptyWS 1) >>= doShiftAndGo
         _ -> idHook
+    hasProperty p = ask >>= \w -> liftX $ withDisplay $ \d ->
+      maybe False (const True) <$> getStringProperty d w p
     role = stringProperty "WM_WINDOW_ROLE"
 
 
@@ -239,6 +242,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask,                 xK_equal),        safeSpawn "amixer" ["-q", "set", "Master", "5%+"])
   , ((modMask,                 xK_minus),        safeSpawn "amixer" ["-q", "set", "Master", "5%-"])
   , ((modMask,                 xK_0),            safeSpawn "amixer" ["-q", "set", "Master", "toggle"])
+
+  , ((modMask .|. shiftMask,   xK_equal),        safeSpawn "mpc" ["volume", "+5"])
+  , ((modMask .|. shiftMask,   xK_minus),        safeSpawn "mpc" ["volume", "-5"])
 
   , ((modMask,                 xK_Print),        safeSpawn "scrot" ["-e", "mv $f \\$HOME/Desktop/"])
 

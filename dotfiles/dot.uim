@@ -9,7 +9,7 @@
 (define bridge-show-with? 'mode)
 
 (define uim-xim-use-xft-font? #t)
-(define uim-xim-xft-font-name "YuGothic")
+(define uim-xim-xft-font-name "Noto Sans CJK JP")
 
 (define candidate-window-style 'horizontal)
 
@@ -56,9 +56,16 @@
 
 (require-module "skk")
 
-(define skk-use-with-vi? #t)
+(define skk-candidate-op-count 3)
 (define skk-egg-like-newline? #t)
-(define skk-dic-file-name "/home/emonkak/.skk/SKK-JISYO.LL.utf8")
+(define skk-show-annotation-in-preedit? #t)
+(define skk-show-annotation? #f)
+(define skk-use-with-vi? #t)
+
+(define skk-use-look? #t)
+(define skk-look-dict "/usr/share/dict/words")
+
+(define skk-dic-file-name (string-append (or (home-directory (user-name)) "") "/.skk/SKK-JISYO.LL.utf8"))
 
 (define skk-on-key '("zenkaku-hankaku" "<Shift> "))
 (define skk-on-key? (make-key-predicate '("zenkaku-hankaku" "<Shift> ")))

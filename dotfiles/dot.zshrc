@@ -282,7 +282,7 @@ if which colordiff &>/dev/null
 then
   alias diff='colordiff -u'
 fi
-alias grep='grep --binary-files=without-match --color -E'
+alias grep='grep --binary-files=without-match --color -P'
 alias lv='lv -c'
 alias pstree='pstree -A'
 

@@ -33,14 +33,28 @@ let g:colors_name = expand('<sfile>:t:r')
 
 " Variables  "{{{1
 
-let s:color_table = [
-\   '#323232', '#972c27', '#2b7938', '#9d7930',
-\   '#005271', '#9a2753', '#328381', '#a9aaa9',
-\   '#414141', '#e13e37', '#45ae51', '#ecb045',
-\   '#0075a0', '#e23774', '#46abaa', '#ffffff',
+let s:foreground_color = '#e8eaeb'
+let s:background_color = '#21272b'
+let s:basic_colors = [
+\   '#363f45',
+\   '#f7554d',
+\   '#10a184',
+\   '#c97a12',
+\   '#1c95e6',
+\   '#f74d90',
+\   '#9d77fc',
+\   '#869096',
+\   '#657078',
+\   '#ffb6b3',
+\   '#38e0bf',
+\   '#f7ba6a',
+\   '#8dd0fc',
+\   '#fcb3d0',
+\   '#cfbdff',
+\   '#c5c6c7',
 \ ]
 
-function! s:xterm_colors() "{{{
+function! s:xterm_256colors() "{{{
   let _ = []
   let [r, g, b] = [0, 0, 0]
 
@@ -79,7 +93,7 @@ function! s:xterm_colors() "{{{
   return _
 endfunction  "}}}
 
-call extend(s:color_table, s:xterm_colors())
+let s:color_table = s:basic_colors + s:xterm_256colors()
 
 
 
@@ -163,7 +177,7 @@ endfunction
 " Basic  "{{{2
 
 if has('gui_running')
-  highlight Normal guifg=#CBCBCB guibg=#202020
+  execute 'highlight Normal' 'guifg='.s:foreground_color 'guibg='.s:background_color
 else
   call s:highlight('Normal', {})
 endif
@@ -190,8 +204,8 @@ call s:highlight('CursorLineNr' , {'bg': 0})
 call s:highlight('MatchParen'   , {'attr': 'b', 'fg': 0, 'bg': 14})
 call s:highlight('ModeMsg'      , {'bg': 4})
 call s:highlight('MoreMsg'      , {'bg': 2})
-call s:highlight('NonText'      , {'fg': 12})
-call s:highlight('Pmenu'        , {'attr': 'u'})
+call s:highlight('NonText'      , {'fg': 8})
+call s:highlight('Pmenu'        , {'bg': 0})
 call s:highlight('PmenuSbar'    , {})
 call s:highlight('PmenuSel'     , {'attr': 'r', 'fg': 11})
 call s:highlight('PmenuThumb'   , {'bg': 11})
@@ -237,6 +251,16 @@ call s:highlight('Underlined'   , {'attr': 'u', 'fg': 12})
 call s:highlight('Ignore'       , {'fg': 0})
 call s:highlight('Error'        , {'bg': 1})
 call s:highlight('Todo'         , {'attr': 'u', 'fg': 11})
+
+call s:highlight('LspError'           , {'fg': 9})
+call s:highlight('LspErrorText'       , {'fg': 9})
+call s:highlight('LspWarning'         , {'fg': 9})
+call s:highlight('LspWarningText'     , {'fg': 9})
+call s:highlight('LspInformation'     , {'fg': 12})
+call s:highlight('LspInformationText' , {'fg': 12})
+call s:highlight('LspHint'            , {'fg': 12})
+call s:highlight('LspHintText'        , {'fg': 12})
+
 
 
 

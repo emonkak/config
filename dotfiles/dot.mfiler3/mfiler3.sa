@@ -138,8 +138,8 @@ def open_file (  #{{{2
   ) '^(aac|asf|avi|flv|mkv|mov|mp3|mp4|mpe?g|ogg|ogv|rm|wav|webm|wma|wmv)$' (
     external -q "mpv -quiet $(ary ARGV 0)"
     break
-  ) '^(bmp|gif|jpe?g|jpg_orig|png)$' (
-    external -q "feh $(ary ARGV 0)"
+  ) '^(bmp|gif|jpe?g|jpg_orig|png|webp)$' (
+    external -q "feh -. $(ary ARGV 0)"
     break
   ) '.*' (
     external -q "$$(export PAGER) $(ary ARGV 0)"

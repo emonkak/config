@@ -18,7 +18,7 @@ if has('kaoriya')
   call delete($VIM . '/gvimrc')
 endif
 
-function! s:SID_PREFIX()
+function! s:SID_PREFIX() abort
   return matchstr(expand('<sfile>'), '<SNR>\d\+_')
 endfunction
 
@@ -86,7 +86,7 @@ if has('gui_running')
     set visualbell
   elseif has('gui_win32')
     set guifont=Consolas:h10.5
-    set guifontwide=MS\ Gothic:h10.5
+    set guifontwide=Meiryo:h10.5
     set renderoptions=type:directx,renmode:5
     set linespace=5
   endif
@@ -193,7 +193,7 @@ let &statusline .= '[%{&l:fileformat}]'
 let &statusline .= '   %-14.(%l,%c%V%) %P'
 
 
-function! s:my_tabline()  "{{{
+function! s:my_tabline() abort  "{{{
   let s = ''
 
   for i in range(1, tabpagenr('$'))
@@ -256,17 +256,30 @@ call metarw#define_wrapper_commands(0)
 " Commands  {{{1
 " :grep wrappers  "{{{2
 
-command! -complete=file -nargs=+ Grep  call s:grep('grep', [<f-args>])
-command! -complete=file -nargs=+ Lgrep  call s:grep('lgrep', [<f-args>])
-function! s:grep(command, args)
-  let target = join(a:args[:-2], ' ')
-  let grepprg = &l:grepprg == '' ? &grepprg : &l:grepprg
+command! -complete=file -nargs=+ Grep  call s:grep('grep', s:suitable_grepprg(), [<f-args>])
+command! -complete=file -nargs=+ Lgrep  call s:grep('lgrep', s:suitable_grepprg(), [<f-args>])
+command! -complete=file -nargs=+ GnuGrep  call s:grep('grep', 'grep -nHE', [<f-args>])
+command! -complete=file -nargs=+ LGnuGrep  call s:grep('lgrep', 'grep -nHE', [<f-args>])
+command! -complete=file -nargs=+ GitGrep  call s:grep('grep', 'git grep -n', [<f-args>])
+command! -complete=file -nargs=+ LGitGrep  call s:grep('lgrep', 'git grep -n', [<f-args>])
+command! -complete=file -nargs=+ Rg  call s:grep('grep', 'rg --vimgrep --no-heading --no-column', [<f-args>])
+command! -complete=file -nargs=+ LRg  call s:grep('lgrep', 'rg --vimgrep --no-heading --no-column', [<f-args>])
 
-  if grepprg ==# 'internal'
-    execute a:command '/'.escape(a:args[-1], '|/ ').'/j' target
-  else
-    execute a:command.'!' escape(shellescape(a:args[-1]), '|') target
-  endif
+function! s:grep(command, grepprg, args) abort
+  let target = join(a:args[:-2], ' ')
+  let original_grepprg = &l:grepprg
+
+  let &l:grepprg = a:grepprg
+
+  try
+    if a:grepprg ==# 'internal'
+      execute a:command '/'.escape(a:args[-1], '|/ ').'/j' target
+    else
+      execute a:command.'!' escape(shellescape(a:args[-1]), '|') target
+    endif
+  finally
+    let &l:grepprg = original_grepprg
+  endtry
 
   if a:command ==# 'grep'
     cwindow
@@ -275,8 +288,20 @@ function! s:grep(command, args)
   endif
 endfunction
 
+function! s:suitable_grepprg() abort
+  return s:find_nearest_parent_file_or_directory(getcwd(), '.git/') != ''
+  \    ? 'git grep -n'
+  \    : executable('rg')
+  \    ? 'rg --vimgrep --no-heading --no-column'
+  \    : executable('grep')
+  \    ? 'grep -nHE'
+  \    : &l:grepprg != ''
+  \    ? &l:grepprg
+  \    : &grepprg
+endfunction
+
 AlterCommand gr[ep]  Grep
-AlterCommand lgr[ep]  Lgrep
+AlterCommand lgr[ep]  LGrep
 
 
 
@@ -285,7 +310,7 @@ AlterCommand lgr[ep]  Lgrep
 
 command! -bar -complete=file -nargs=* Make  call s:make('make', [<f-args>])
 command! -bar -complete=file -nargs=* Lmake  call s:make('lmake', [<f-args>])
-function! s:make(command, args)
+function! s:make(command, args) abort
   let original_winnr = winnr()
   try
     execute a:command.'!' join(a:args)
@@ -313,7 +338,7 @@ AlterCommand lmak[e]  Lmake
 
 command! -nargs=? -complete=customlist,s:complete_fileencoding FileEncoding
 \ setlocal fileencoding=<args>
-function! s:complete_fileencoding(arglead, cmdline, cursorpos)
+function! s:complete_fileencoding(arglead, cmdline, cursorpos) abort
   " :help encoding-values.  "{{{
   let ENCODINGS = {
   \  'ansi': 0,
@@ -399,7 +424,7 @@ endfunction
 
 command! -nargs=? -complete=customlist,s:complete_fileformats FileFormat
 \ setlocal fileformat=<args>
-function! s:complete_fileformats(arglead, cmdline, cursorpos)
+function! s:complete_fileformats(arglead, cmdline, cursorpos) abort
   return sort(filter(split(&fileformats, ','), 's:starts_with(a:arglead, v:val)'))
 endfunction
 
@@ -414,7 +439,7 @@ command! -bar -nargs=1 SpaceIndent
 " BufferCleaner  "{{{2
 
 command! -bang -nargs=0 BufferCleaner  call s:cmd_BufferCleaner(<bang>0)
-function! s:cmd_BufferCleaner(banged_p)
+function! s:cmd_BufferCleaner(banged_p) abort
   let bufnrs = range(1, bufnr('$'))
   call filter(bufnrs, 'bufexists(v:val)
   \               && buflisted(v:val)
@@ -434,7 +459,7 @@ endfunction
 command! -nargs=* -complete=customlist,s:complete_cdpath CD
 \ call s:cmd_CD(<q-args>)
 
-function! s:complete_cdpath(arglead, cmdline, cursorpos)
+function! s:complete_cdpath(arglead, cmdline, cursorpos) abort
   return map(uniq(sort(globpath(&cdpath,
   \                             join(split(a:cmdline, '\s', !0)[1:], ' ') . '*/',
   \                             0,
@@ -442,11 +467,11 @@ function! s:complete_cdpath(arglead, cmdline, cursorpos)
   \          'v:val[:-2]')
 endfunction
 
-function! s:cmd_CD(path)
+function! s:cmd_CD(path) abort
   if a:path != ''
     cd `=a:path`
   else
-    let project_root = s:find_project_root(expand('%:p:h'))
+    let project_root = s:find_nearest_parent_file_or_directory(expand('%:p:h'), '.git/')
     if project_root != ''
       cd `=project_root`
     else
@@ -500,18 +525,10 @@ command! -bar -nargs=? Note
 
 
 
-" MessageClear  "{{{2
-
-command! -bar MessageClear
-\ for s:i in range(200) | echomsg '' | endfor | unlet s:i
-
-
-
-
 " HelpTagsAll  "{{{2
 
 command! -bang -nargs=0 HelpTagsAll  call s:cmd_HelpTagsAll(<bang>0)
-function! s:cmd_HelpTagsAll(banged_p)
+function! s:cmd_HelpTagsAll(banged_p) abort
   for path in split(globpath(&runtimepath, 'doc'), '\n')
     if filewritable(path)
       helptags `=path`
@@ -528,7 +545,7 @@ endfunction
 " Rename  "{{{2
 
 command! -complete=file -nargs=1 Rename  call s:cmd_Rename(<q-args>)
-function! s:cmd_Rename(name)
+function! s:cmd_Rename(name) abort
   let current = expand('%')
   if &l:readonly || !&l:modifiable || (filereadable(current) && !filewritable(current))
     echohl ErrorMsg
@@ -561,14 +578,6 @@ command! -bar -range=% Reverse  <line1>,<line2>g/^/m<line1>-1 | nohlsearch
 
 
 
-" Say  "{{{2
-
-command! -range -nargs=? Say
-\ call system('say', <q-args> != '' ? <q-args> : getline(<line1>, <line2>))
-
-
-
-
 " Seq  "{{{2
 "
 " :Seq /{pattern}[/format][/options]
@@ -581,7 +590,7 @@ command! -range -nargs=? Say
 
 command! -range -nargs=+ Seq
 \ <line1>,<line2>call s:cmd_Seq(<q-args>)
-function! s:cmd_Seq(args) range
+function! s:cmd_Seq(args) abort range
   let parse_pattern = '\v^([\x00-\xff]&[^\\"|[:alnum:][:blank:]])'
   \                 . '(%(\\.|.){-})'
   \                 .   '%(\1(%(\\.|.){-})'
@@ -598,7 +607,6 @@ function! s:cmd_Seq(args) range
 
   let incrementer = {
   \   'format': format,
-  \   'last_line': 0x7fffffff,
   \   'current': 1,
   \   'step': 1,
   \ }
@@ -614,16 +622,13 @@ function! s:cmd_Seq(args) range
     endif
   endfor
 
-  function incrementer.call(line) dict
-    if a:line > self.last_line
-      let self.current += self.step
-    endif
+  function incrementer.call() dict
     let next = printf(self.format, self.current)
-    let self.last_line = a:line
+    let self.current += self.step
     return next
   endfunction
 
-  execute printf('%d,%dsubstitute%s%s%s\=incrementer.call(line(''.''))%s%s',
+  execute printf('%d,%dsubstitute%s%s%s\=incrementer.call()%s%s',
   \              a:firstline,
   \              a:lastline,
   \              separator,
@@ -651,7 +656,7 @@ AlterCommand so[urce]  Source
 
 command! -bar -nargs=0 SuspendWithAutomticCD
 \ call s:cmd_SuspendWithAutomticCD()
-function! s:cmd_SuspendWithAutomticCD()
+function! s:cmd_SuspendWithAutomticCD() abort
   let shell = split(&shell, '/')[-1]
 
   if has('gui_running') && has('macunix')
@@ -688,7 +693,7 @@ endfunction
 
 command! -bar -nargs=0 SyntaxName
 \ echo join(<SID>syntax_name(line('.'), col('.')), '/')
-function! s:syntax_name(line, col)
+function! s:syntax_name(line, col) abort
   let names = []
 
   for syn_id in synstack(a:line, a:col)
@@ -723,7 +728,7 @@ command! -bar -nargs=* TabpageTitle
 
 " Sum  "{{{2
 
-function! s:reduce_matched_items(func, initial, first_line, last_line, pattern, options)
+function! s:reduce_matched_items(func, initial, first_line, last_line, pattern, options) abort
   let reducer = { 'func': a:func, 'acc': a:initial }
 
   function reducer.step(value) dict
@@ -741,7 +746,7 @@ function! s:reduce_matched_items(func, initial, first_line, last_line, pattern, 
   return reducer.acc
 endfunction
 
-function! s:sum(acc, value)
+function! s:sum(acc, value) abort
   return a:acc + eval(a:value)
 endfunction
 command! -bang -range -nargs=* Sum
@@ -786,7 +791,7 @@ command! -bang -bar -complete=file -nargs=? Unicode  Utf16<bang> <args>
 " Utilities  "{{{1
 " High-level key sequences  "{{{2
 
-function! s:keys_to_complete()
+function! s:keys_to_complete() abort
   if &l:filetype ==# 'vim'
     return "\<C-x>\<C-v>"
   elseif &l:omnifunc != ''
@@ -799,7 +804,7 @@ function! s:keys_to_complete()
 endfunction
 
 
-function! s:keys_to_insert_one_character()
+function! s:keys_to_insert_one_character() abort
   echohl ModeMsg
   echo '-- INSERT (one char) --'
   echohl None
@@ -807,7 +812,7 @@ function! s:keys_to_insert_one_character()
 endfunction
 
 
-function! s:keys_to_stop_insert_mode_completion()
+function! s:keys_to_stop_insert_mode_completion() abort
   if pumvisible()
     return "\<C-e>"
   else
@@ -821,7 +826,7 @@ endfunction
 " Jump sections  "{{{2
 
 " for normal mode.  a:pattern is '/regexp' or '?regexp'.
-function! s:jump_section_n(pattern)
+function! s:jump_section_n(pattern) abort
   let pattern = a:pattern[1:]
   let forward_p = a:pattern[0] == '/'
   let flags = forward_p ? 'W' : 'Wb'
@@ -843,7 +848,7 @@ endfunction
 
 
 " for visual mode.  a:motion is '[[', '[]', ']]' or ']['.
-function! s:jump_section_v(motion)
+function! s:jump_section_v(motion) abort
   execute 'normal!' "gv\<Esc>"
   execute 'normal' v:count1 . a:motion
   let line = line('.')
@@ -855,7 +860,7 @@ endfunction
 
 
 " for operator-pending mode.  a:motion is '[[', '[]', ']]' or ']['.
-function! s:jump_section_o(motion)
+function! s:jump_section_o(motion) abort
   execute 'normal' v:count1 . a:motion
 endfunction
 
@@ -867,7 +872,7 @@ endfunction
 
 command! -bang -complete=customlist,s:complete_bundle -nargs=+ Bundle
 \ call s:bundle._dispatch(<f-args>, <bang>0)
-function! s:complete_bundle(arglead, cmdline, cursorpos)
+function! s:complete_bundle(arglead, cmdline, cursorpos) abort
   return filter(keys(s:bundle),
   \             'v:val =~# "^[a-z]" && s:starts_with(a:arglead, v:val)')
 endfunction
@@ -876,19 +881,19 @@ let s:bundle = {
 \   'DIR': $HOME . '/.vim/bundle'
 \ }
 
-function! s:bundle._dispatch(action, ...) dict  "{{{3
+function! s:bundle._dispatch(action, ...) abort dict  "{{{3
   call call(get(self, a:action, self.help), a:000, self)
 endfunction
 
 
-function! s:bundle.help(banged_p) dict  "{{{3
+function! s:bundle.help(banged_p) abort dict  "{{{3
   echo 'Usage:'
   echo printf('  :Bundle [%s]',
   \           join(filter(keys(self), 'v:val =~# "^[a-z]"'), '|'))
 endfunction
 
 
-function! s:bundle.install(package, banged_p) dict  "{{{3
+function! s:bundle.install(package, banged_p) abort dict  "{{{3
   let m = matchlist(a:package, '^\(\%(git\|https\?\)://[^/]\+\)\?/*\(.\+\)')
 
   if !empty(m)
@@ -920,7 +925,7 @@ function! s:bundle.install(package, banged_p) dict  "{{{3
 endfunction
 
 
-function! s:bundle.list(banged_p) dict  "{{{3
+function! s:bundle.list(banged_p) abort dict  "{{{3
   let bundles = split(glob(self.DIR . '/*'), "\n")
 
   echohl Title
@@ -938,7 +943,7 @@ function! s:bundle.list(banged_p) dict  "{{{3
 endfunction
 
 
-function! s:bundle.update(banged_p) dict  "{{{3
+function! s:bundle.update(banged_p) abort dict  "{{{3
   for bundle in split(glob(self.DIR . '/*'), "\n")
     if !a:banged_p
     \  && localtime() - getftime(bundle . '/.git/FETCH_HEAD') < 60 * 60 * 24
@@ -982,25 +987,7 @@ endfunction
 
 " Toggle options  "{{{2
 
-function! s:toggle_grepprg(global_p)
-  let VALUES = ['git grep -n', 'ag --nogroup --nocolor', 'grep -nHE',]
-  let grepprg = &l:grepprg == '' ? &grepprg : &l:grepprg
-  let i = (index(VALUES, grepprg) + 1) % len(VALUES)
-
-  if a:global_p
-    let &grepprg = VALUES[i]
-    set grepprg?
-  else
-    let &l:grepprg = VALUES[i]
-    setlocal grepprg?
-  endif
-endfunction
-if has('vim_starting')
-  silent call s:toggle_grepprg(1)
-endif
-
-
-function! s:toggle_foldmethod(global_p)
+function! s:toggle_foldmethod(global_p) abort
   let VALUES = ['marker', 'expr']
   let foldmethod = &l:foldmethod == '' ? &foldmethod : &l:foldmethod
   let i = (index(VALUES, foldmethod) + 1) % len(VALUES)
@@ -1015,13 +1002,13 @@ function! s:toggle_foldmethod(global_p)
 endfunction
 
 
-function! s:toggle_option(option_name)
+function! s:toggle_option(option_name) abort
   execute 'setlocal' a:option_name.'!'
   execute 'setlocal' a:option_name.'?'
 endfunction
 
 
-function! s:toggle_colorcolumn()
+function! s:toggle_colorcolumn() abort
   if exists('b:textwidth')
     let &l:textwidth = b:textwidth
     unlet b:textwidth
@@ -1040,11 +1027,11 @@ endfunction
 
 " Window helpers  "{{{2
 
-function! s:vertical_p()
+function! s:vertical_p() abort
   return winwidth(0) > winheight(0) * 5
 endfunction
 
-function! s:vertical_with(command, args)
+function! s:vertical_with(command, args) abort
   execute s:vertical_p() ? 'vertical' : ''
   \       a:command
   \       join(a:args)
@@ -1076,7 +1063,7 @@ AlterCommand new  New
 let s:_vcs_branch_name_cache = {}  " dir_path = [branch_name, cache_key]
 
 
-function! s:vcs_branch_name(dir)
+function! s:vcs_branch_name(dir) abort
   let cache_entry = get(s:_vcs_branch_name_cache, a:dir, 0)
   if cache_entry is 0
   \  || cache_entry[1] !=# s:_vcs_branch_name_cache_key(a:dir)
@@ -1089,12 +1076,12 @@ function! s:vcs_branch_name(dir)
 endfunction
 
 
-function! s:_vcs_branch_name_cache_key(dir)
+function! s:_vcs_branch_name_cache_key(dir) abort
   return getftime(a:dir . '/.git/HEAD') . getftime(a:dir . '/.git/MERGE_HEAD')
 endfunction
 
 
-function! s:_vcs_branch_name(dir)
+function! s:_vcs_branch_name(dir) abort
   if isdirectory(a:dir)
     if isdirectory(a:dir . '/rebase-apply')
       if filereadable(a:dir . '/rebase-apply/rebasing')
@@ -1144,7 +1131,7 @@ endfunction
 
 
 
-function! s:close_temporary_windows()  "{{{2
+function! s:close_temporary_windows() abort  "{{{2
   let _ = range(1, winnr('$'))
   let pattern = '^nofile\|quickfix\|help'
   call filter(_, '!buflisted(winbufnr(v:val)) &&
@@ -1166,11 +1153,18 @@ endfunction
 
 
 
-function! s:find_project_root(path)  "{{{2
-  for dir in s:upper_dirs(a:path)
-    if !empty(filter(['.bzr', '.git', '.hg', '.svn', 'cvs'],
-    \                 'isdirectory(dir . "/" . v:val)'))
-      return dir
+function! s:find_nearest_parent_file_or_directory(path, filenames) abort  "{{{2
+  let filenames = type(a:filenames) == type([]) ? a:filenames : [a:filenames]
+  for filename in filenames
+    if filename[-1:] ==# '/'
+        let modifiers = ':p:h:h'
+        let found_path = finddir(filename, a:path . ';')
+    else
+        let modifiers = ':p:h'
+        let found_path = findfile(filename, a:path . ';')
+    endif
+    if !empty(found_path)
+      return fnamemodify(found_path, modifiers)
     endif
   endfor
   return ''
@@ -1179,7 +1173,7 @@ endfunction
 
 
 
-function! s:first_line(file)  "{{{2
+function! s:first_line(file) abort  "{{{2
   let lines = readfile(a:file, '', 1)
   return 1 <= len(lines) ? lines[0] : ''
 endfunction
@@ -1187,20 +1181,7 @@ endfunction
 
 
 
-function! s:upper_dirs(path)  "{{{2
-  let dirs = []
-  let acc = ''
-  for dir in split(a:path, '/')
-    let acc .= '/' . dir
-    call add(dirs, acc)
-  endfor
-  return reverse(dirs)
-endfunction
-
-
-
-
-function! s:move_window_into_tabpage(target_tabpagenr)  "{{{2
+function! s:move_window_into_tabpage(target_tabpagenr) abort  "{{{2
   " Move the current window into a:target_tabpagenr.
   if a:target_tabpagenr <= 0  " ignore invalid number.
     return
@@ -1238,7 +1219,7 @@ endfunction
 
 
 
-function! s:operator_increment(motion_wiseness)  "{{{2
+function! s:operator_increment(motion_wiseness) abort  "{{{2
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   execute 'normal!' '`['.visual_command.'`]g'."\<C-a>"
@@ -1247,7 +1228,7 @@ endfunction
 
 
 
-function! s:operator_decrement(motion_wiseness)  "{{{2
+function! s:operator_decrement(motion_wiseness) abort  "{{{2
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   execute 'normal!' '`['.visual_command.'`]g'."\<C-x>"
@@ -1256,7 +1237,7 @@ endfunction
 
 
 
-function! s:operator_search(motion_wiseness)  "{{{2
+function! s:operator_search(motion_wiseness) abort  "{{{2
   let reg_0 = [@0, getregtype('0')]
 
   let visual_command =
@@ -1273,7 +1254,7 @@ endfunction
 
 
 
-function! s:operator_speak(motion_wiseness)  "{{{2
+function! s:operator_speak(motion_wiseness) abort  "{{{2
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   execute 'normal!' '`['.visual_command.'`]y'
@@ -1290,7 +1271,7 @@ endfunction
 
 
 
-function! s:operator_translate(motion_wiseness)  "{{{2
+function! s:operator_translate(motion_wiseness) abort  "{{{2
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   execute 'normal!' '`['.visual_command.'`]y'
@@ -1309,7 +1290,7 @@ endfunction
 
 
 
-function! s:operator_yank_clipboard(motion_wiseness)  "{{{2
+function! s:operator_yank_clipboard(motion_wiseness) abort  "{{{2
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   execute 'normal' '`['.visual_command.'`]"+y'
@@ -1318,7 +1299,7 @@ endfunction
 
 
 
-function! s:starts_with(x, y)  "{{{2
+function! s:starts_with(x, y) abort  "{{{2
   return a:x ==# strpart(a:y, 0, len(a:x))
 endfunction
 
@@ -1434,7 +1415,7 @@ nnoremap <silent> qwn  :<C-u>lnewer<CR>
 nnoremap <silent> qwm  :<C-u>Lmake<CR>
 nnoremap qwM  :<C-u>Lmake<Space>
 nnoremap qw<Space>  :<C-u>Lmake<Space>
-nnoremap qwg  :<C-u>Lgrep<Space>
+nnoremap qwg  :<C-u>LGrep<Space>
 
 
 
@@ -1567,7 +1548,7 @@ cnoremap <expr> /  getcmdtype() == '/' ? '\/' : '/'
 autocmd MyAutoCmd CmdwinEnter *
 \ call s:on_CmdwinEnter()
 
-function! s:on_CmdwinEnter()
+function! s:on_CmdwinEnter() abort
   nnoremap <buffer> <Esc><Esc>  <Esc><C-w>q
   inoremap <buffer> <Esc><Esc>  <Esc><C-w>q
   inoremap <buffer> <expr> <C-c>  pumvisible() ? "\<Esc>" : "\<C-c>\<C-c>"
@@ -1624,7 +1605,7 @@ inoremap <expr> <S-Tab>  pumvisible()
                      \ ? "\<C-i>"
                      \ : <SID>keys_to_complete()
 
-function! s:should_indent_rather_than_complete_p()
+function! s:should_indent_rather_than_complete_p() abort
   return getline('.')[col('.') - 2] !~ '^\S'
 endfunction
 
@@ -1700,7 +1681,6 @@ xnoremap [Space]:  q:
 
 nnoremap [Space]o  <Nop>
 nnoremap <silent> [Space]oc  :<C-u>call <SID>toggle_colorcolumn()<CR>
-nnoremap <silent> [Space]og  :<C-u>call <SID>toggle_grepprg(0)<CR>
 nnoremap <silent> [Space]ol  :<C-u>call <SID>toggle_option('cursorline')<CR>
 nnoremap <silent> [Space]on  :<C-u>call <SID>toggle_option('number')<CR>
 nnoremap <silent> [Space]op  :<C-u>call <SID>toggle_option('paste')<CR>
@@ -1734,7 +1714,7 @@ nnoremap <C-w>#  :<C-u>Split \| normal! #<CR>
 " But I rarely use its {lhs}s, so this mapping is not problematic.
 nnoremap <silent> <C-w>t
 \ :call <SID>move_window_into_tabpage(<SID>ask_tabpage_number())<CR>
-function! s:ask_tabpage_number()
+function! s:ask_tabpage_number() abort
   echon 'Which tabpage to move this window into? '
 
   let c = nr2char(getchar())
@@ -1875,7 +1855,7 @@ nnoremap <expr> <Plug>(arpeggio-default:o)
 \        <SID>start_insert_mode_with_blank_lines('o')
 nnoremap <expr> O
 \        <SID>start_insert_mode_with_blank_lines('O')
-function! s:start_insert_mode_with_blank_lines(command)
+function! s:start_insert_mode_with_blank_lines(command) abort
   if v:count != v:count1
     return a:command  " Behave the same as the default commands.
   endif
@@ -1914,7 +1894,7 @@ vnoremap <expr> N  <SID>search_forward_p() ? 'Nzv' : 'nzv'
 onoremap <expr> n  <SID>search_forward_p() ? 'n' : 'N'
 onoremap <expr> N  <SID>search_forward_p() ? 'N' : 'n'
 
-function! s:search_forward_p()
+function! s:search_forward_p() abort
   return exists('v:searchforward') ? v:searchforward : 1
 endfunction
 
@@ -1931,12 +1911,11 @@ noremap <silent> gS  :<c-u>call <SID>vertical_with('wincmd', ['F'])<CR>
 autocmd MyAutoCmd FileType *
 \ call s:on_FileType_any()
 
-function! s:on_FileType_any()
+function! s:on_FileType_any() abort
   if &l:completefunc == ''
     setlocal completefunc=autoprogramming#complete
   endif
 
-  " Make omni completion available for all filetypes.
   if &l:omnifunc == ''
     setlocal omnifunc=syntaxcomplete#Complete
   endif
@@ -1973,7 +1952,7 @@ function! s:on_FileType_any()
 endfunction
 
 
-" Protect large files from sourcing and other overhead.
+" Optimize a huge file loading.
 autocmd MyAutoCmd BufReadPre *
 \   if getfsize(expand("<afile>")) > 1024 * 1024 * 10
 \ |   set eventignore+=FileType
@@ -1990,16 +1969,14 @@ autocmd MyAutoCmd BufReadPost *
 \ | endif
 
 
-" Load project-specific configuration.
+" Load project-specific vimrc.
 autocmd MyAutoCmd BufNewFile,BufReadPost *
 \ call s:load_local_vimrc(expand('<afile>:p:h'))
-function! s:load_local_vimrc(path)
-  for dir in s:upper_dirs(a:path)
-    if filereadable(dir . '/.vimrc.local')
-      source `=dir . '/.vimrc.local'`
-      return
-    endif
-  endfor
+function! s:load_local_vimrc(path) abort
+  let path = s:find_nearest_parent_file_or_directory(a:path, '.vimrc.local')
+  if !empty(path)
+    source `path`
+  endif
 endfunction
 
 
@@ -2066,7 +2043,7 @@ let g:syntastic_cs_checkers = ['syntax', 'semantic', 'issues']
 autocmd MyAutoCmd FileType cs
 \ call s:on_FileType_cs()
 
-function! s:on_FileType_cs()
+function! s:on_FileType_cs() abort
   SpaceIndent 4
 
   setlocal commentstring=//%s
@@ -2100,7 +2077,7 @@ autocmd MyAutoCmd FileType dockerfile
 autocmd MyAutoCmd FileType dosini
 \ call s:on_FileType_dosini()
 
-function! s:on_FileType_dosini()
+function! s:on_FileType_dosini() abort
   " Jumping around sections.
   nnoremap <buffer> <silent> ]]  :<C-u>call <SID>jump_section_n('/^\[')<CR>
   nnoremap <buffer> <silent> ][  :<C-u>call <SID>jump_section_n('/\n\[\@=')<CR>
@@ -2128,13 +2105,12 @@ autocmd MyAutoCmd FileType gitcommit
 
 autocmd MyAutoCmd FileType haskell
 \   SpaceIndent 2
-\ | setlocal omnifunc=necoghc#omnifunc
 \ | compiler cabal
 
 autocmd MyAutoCmd FileType cabal
 \ SpaceIndent 2
 
-" Fix for .hsc highlight
+" Fix hsc highlighting
 let g:hs_allow_hash_operator = 1
 
 let g:haskell_conceal = 0
@@ -2238,7 +2214,7 @@ autocmd MyAutoCmd FileType perl
 autocmd MyAutoCmd FileType php
 \ call s:on_FileType_php()
 
-function! s:on_FileType_php()
+function! s:on_FileType_php() abort
   SpaceIndent 4
   compiler psalm
   setlocal commentstring=//%s
@@ -2327,7 +2303,7 @@ autocmd MyAutoCmd FileType tex,plaintex
 \   call s:on_FileType_tex()
 \ | compiler tex
 
-function! s:on_FileType_tex()
+function! s:on_FileType_tex() abort
   SpaceIndent 2
 
   inoreabbrev <buffer> \b  \textbf{}<Left>
@@ -2373,7 +2349,7 @@ let g:vimsyn_embed = 'l'
 autocmd MyAutoCmd FileType ant,docbk,html,mustache,smarty,svg,xhtml,xml,xslt
 \ call s:on_FileType_xml()
 
-function! s:on_FileType_xml()
+function! s:on_FileType_xml() abort
   SpaceIndent 2
 
   " Complete proper end-tags.
@@ -2490,7 +2466,7 @@ vmap gd  <Plug>(operator-grex-delete)
 autocmd MyAutoCmd FileType ku
 \ call s:on_FileType_ku()
 
-function! s:on_FileType_ku()
+function! s:on_FileType_ku() abort
   call ku#default_key_mappings(1)
 
   iunmap <buffer> <C-j>
@@ -2530,7 +2506,7 @@ call ku#custom_action('file/current', 'open-sudo',
 call ku#custom_action('metarw/git', 'checkout',
 \                     s:SID_PREFIX().'ku_metarw_git_action_checkout')
 
-function! s:ku_common_action_my_cd(item)
+function! s:ku_common_action_my_cd(item) abort
   if isdirectory(a:item.word)
     execute 'CD' a:item.word
   else  " treat a:item as a file name
@@ -2538,18 +2514,18 @@ function! s:ku_common_action_my_cd(item)
   endif
 endfunction
 
-function! s:ku_common_action_yank(item)
+function! s:ku_common_action_yank(item) abort
   call setreg('"', a:item.word, 'c')
 endfunction
-function! s:ku_common_action_Yank(item)
+function! s:ku_common_action_Yank(item) abort
   call setreg('"', a:item.word, 'l')
 endfunction
 
-function! s:ku_file_action_open_sudo(item)
+function! s:ku_file_action_open_sudo(item) abort
   edit `='sudo:' . fnamemodify(a:item.word, ':p')`
 endfunction
 
-function! s:ku_metarw_git_action_checkout(item)
+function! s:ku_metarw_git_action_checkout(item) abort
   if a:item.ku__completed_p
     let branch_name = matchstr(a:item.word, '^git:\zs[^:]\+\ze:')
     let message = system('git checkout ' . shellescape(branch_name))
@@ -2611,6 +2587,75 @@ nnoremap <silent> [Space]kk  :<C-u>call ku#restart()<CR>
 let g:ku_file_mru_ignore_pattern = '/$\|/\.git/\|^/\(/\|mnt\|tmp\)'
 let g:ku_file_mru_limit = 1000
 
+
+
+
+
+" lsp  "{{{2
+
+autocmd MyAutoCmd User lsp_buffer_enabled
+\ call s:on_lsp_buffer_enabled()
+function! s:on_lsp_buffer_enabled() abort
+  setlocal omnifunc=lsp#complete
+  setlocal signcolumn=yes
+
+  if &l:foldmethod != 'expr'
+    setlocal foldmethod=expr
+    setlocal foldexpr=lsp#ui#vim#folding#foldexpr()
+    setlocal foldtext=lsp#ui#vim#folding#foldtext()
+  endif
+
+  if exists('+tagfunc')
+    setlocal tagfunc=lsp#tagfunc
+  endif
+
+  nmap <buffer> <silent> K  <Plug>(lsp-hover)
+
+  nnoremap <buffer> <LocalLeader>l  <Nop>
+  nmap <buffer> <silent> <LocalLeader>la  <Plug>(lsp-code-action)
+  nmap <buffer> <silent> <LocalLeader>ld  <Plug>(lsp-definition)
+  nmap <buffer> <silent> <LocalLeader>li  <Plug>(lsp-implementation)
+  nmap <buffer> <silent> <LocalLeader>lr  <Plug>(lsp-references)
+  nmap <buffer> <silent> <LocalLeader>lt  <Plug>(lsp-type-definition)
+endfunction
+
+autocmd MyAutoCmd User lsp_setup
+\ call s:on_lsp_setup()
+function! s:on_lsp_setup() abort
+  if executable('haskell-language-server-wrapper')
+    call lsp#register_server({
+    \   'name': 'haskell-language-server',
+    \   'cmd': {server_info -> [
+    \     'haskell-language-server-wrapper',
+    \     '--lsp',
+    \     '--cwd', lsp#utils#uri_to_path(server_info['root_uri'](server_info)),
+    \   ]},
+    \   'root_uri':{server_info -> lsp#utils#path_to_uri(
+    \      lsp#utils#find_nearest_parent_file_directory(
+    \        lsp#utils#get_buffer_path(),
+    \        ['.git/', 'Setup.hs', 'stack.yml']
+    \      )
+    \   )},
+    \   'allowlist': ['haskell'],
+    \ })
+  endif
+endfunction
+
+let g:lsp_diagnostics_float_cursor = 1
+let g:lsp_highlight_references_enabled = 0
+let g:lsp_highlights_enabled = 0
+let g:lsp_signs_enabled = 1
+let g:lsp_tagfunc_source_methods = ['definition']
+let g:lsp_textprop_enabled = 0
+let g:lsp_virtual_text_enabled = 0
+
+let g:lsp_signs_error = {'text': 'X'}
+let g:lsp_signs_warning = {'text': '!'}
+let g:lsp_signs_information = {'text': 'i'}
+let g:lsp_signs_hint = {'text': '?'}
+
+" let g:lsp_log_verbose = 1
+" let g:lsp_log_file = expand('~/.vim/info/vim-lsp.log')
 
 
 
@@ -2730,7 +2775,7 @@ let g:quickrun_config = {
 autocmd MyAutoCmd FileType ref
 \ call s:on_FileType_ref()
 
-function! s:on_FileType_ref()
+function! s:on_FileType_ref() abort
   nmap <buffer> <silent> <CR>  <Plug>(ref-keyword)
   vmap <buffer> <silent> <CR>  <Plug>(ref-keyword)
   nmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
@@ -2766,7 +2811,7 @@ nmap <Leader>s  <Plug>(scratch-open)
 autocmd MyAutoCmd User PluginScratchInitializeAfter
 \ call s:on_User_plugin_scratch_initialize_after()
 
-function! s:on_User_plugin_scratch_initialize_after()
+function! s:on_User_plugin_scratch_initialize_after() abort
   map <buffer> <CR>  <Plug>(scratch-evaluate!)
 endfunction
 
@@ -2781,7 +2826,7 @@ let g:scratch_show_command = 'SplitTop | hide buffer'
 autocmd MyAutoCmd User plugin-skeleton-detect
 \ call s:on_User_plugin_skeleton_detect()
 
-function! s:on_User_plugin_skeleton_detect()
+function! s:on_User_plugin_skeleton_detect() abort
   let _ = split(expand('%:p'), '/')
   if len(_) == 0
     return
@@ -2811,7 +2856,7 @@ endfunction
 autocmd MyAutoCmd User plugin-skeleton-loaded
 \ call s:on_User_plugin_skeleton_loaded()
 
-function! s:on_User_plugin_skeleton_loaded()
+function! s:on_User_plugin_skeleton_loaded() abort
   silent %s/<%=\s*\(.\{-}\)\s*%>/\=eval(submatch(1))/ge
   if search('<%|%>', 'w')
     if foldclosed(line('.'))
@@ -2892,7 +2937,7 @@ call submode#enter_with('winsize', 'n', '', '<C-w><Space>',
 \                       ':<C-u>call '.s:SID_PREFIX().'submode_winsize()<CR>')
 call submode#enter_with('winsize', 'n', '', '<C-w><C-@>',
 \                       ':<C-u>call '.s:SID_PREFIX().'submode_winsize()<CR>')
-function! s:submode_winsize()
+function! s:submode_winsize() abort
   let current = winnr()
   wincmd k | let above = winnr() | execute current 'wincmd w'
   wincmd j | let below = winnr() | execute current 'wincmd w'

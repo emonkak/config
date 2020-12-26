@@ -23,7 +23,7 @@ GROUP_DOTS_FILES=\
   dotfiles/dot.Xresources \
   dotfiles/dot.bashrc \
   dotfiles/dot.config/fontconfig/fonts.conf \
-  dotfiles/dot.config/xmobar/xmobarrc \
+  dotfiles/dot.config/xmobar/xmobar.hs \
   dotfiles/dot.conkyrc \
   dotfiles/dot.ghci \
   dotfiles/dot.inputrc \

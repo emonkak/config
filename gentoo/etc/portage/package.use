@@ -22,23 +22,25 @@ dev-lang/perl ithreads
 dev-lang/php apache2 bcmath curl fpm gd gmp mysql mysqli pcntl pdo sockets sqlite xmlwriter xslt zip
 dev-lang/python sqlite
 dev-lang/scala binary
+dev-libs/libdbusmenu gtk3
 dev-lua/* luajit
 dev-php/hhvm hack
 dev-vcs/git perl
 dev-vcs/subversion -dso perl python
 media-gfx/comix rar
 media-gfx/fontforge cairo pango png svg
-media-gfx/gimp exif jpeg pdf png python svg
+media-gfx/gimp exif jpeg pdf png python svg webp
 media-gfx/graphicsmagick png postscript truetype
 media-gfx/graphviz gtk
-media-gfx/imagemagick jpeg png
-media-libs/freetype cleartype_hinting utils
+media-gfx/imagemagick jpeg png webp
+media-libs/freetype cleartype_hinting png utils
 media-libs/gd fontconfig jpeg png truetype
 media-libs/imlib2 gif jpeg png
 media-libs/libpng apng
+media-libs/mesa vulkan
 media-sound/mpd aac inotify lame ogg sqlite vorbis
 media-sound/ncmpcpp clock taglib
-media-sound/pulseaudio gnome
+media-sound/pulseaudio -X gnome system-wide
 media-sound/shntool flac
 media-video/ffmpeg faac mp3 network openssl rtmp theora v4l2 vorbis x264 xvid
 media-video/libav encode faac mp3 rtmp theora threads v4l2 vaapi vorbis x264 xvid
@@ -50,6 +52,7 @@ net-print/cups samba
 net-print/gutenprint cups ppds
 sci-visualization/gnuplot cairo
 sys-apps/groff linguas_ja
+sys-apps/lm-sensors contrib
 sys-apps/smartmontools -minimal
 sys-auth/polkit consolekit
 sys-block/gparted fat ntfs
@@ -69,9 +72,10 @@ x11-libs/cairo opengl svg xcb
 x11-libs/gtk+ cups
 x11-misc/polybar mpd network
 x11-misc/xmobar -with_weather mpd xft xpm
-x11-terms/rxvt-unicode -vanilla 256-color perl truetype xft
+x11-terms/rxvt-unicode -vanilla 256-color perl truetype xft unicode3
 x11-terms/xterm truetype
 
+app-arch/libarchive zstd # required by media-fonts/twemoji
 app-crypt/gcr gtk  # required by app-editors/visual-studio-code
 app-crypt/pinentry gnome-keyring  # required by app-editors/visual-studio-code
 app-text/xmlto text  # required by (x11-misc/xdg-utils)
@@ -91,10 +95,11 @@ sys-libs/tevent python  # required by net-fs/samba
 sys-libs/zlib minizip  # required by media-video/vlc
 sys-process/tini static  # required by app-emulation/docker
 
-# for Wine
+# required by app-emulation/wine-vanilla (harfbuzz)
 app-arch/bzip2 abi_x86_32
 app-arch/zstd abi_x86_32
 app-emulation/wine-gecko abi_x86_32
+dev-libs/elfutils abi_x86_32
 dev-libs/expat abi_x86_32
 dev-libs/glib abi_x86_32
 dev-libs/gmp abi_x86_32
@@ -147,6 +152,7 @@ sys-libs/zlib abi_x86_32
 virtual/glu abi_x86_32
 virtual/jpeg abi_x86_32
 virtual/libcrypt abi_x86_32
+virtual/libelf abi_x86_32
 virtual/libffi abi_x86_32
 virtual/libiconv abi_x86_32
 virtual/libintl abi_x86_32
@@ -201,3 +207,9 @@ media-libs/libglvnd abi_x86_32
 
 # required by x11-base/xorg-server
 sys-auth/pambase elogind
+
+# required by sys-power/suspend
+dev-libs/lzo static-libs
+
+# required by x11-drivers/xf86-video-ati
+x11-libs/libdrm video_cards_radeon
