@@ -1,0 +1,34 @@
+#!/sbin/nft -f
+
+flush ruleset
+
+table inet filter {
+	chain input {
+		type filter hook input priority 0; policy drop;
+		ct state invalid counter drop
+		iif != lo ip daddr 127.0.0.1/8 counter drop
+		iif != lo ip6 daddr ::1/128 counter drop
+		ip daddr 255.255.255.255 counter drop
+		ip daddr 224.0.0.0/4 counter drop
+		ip6 daddr FF00::/8 counter drop
+		ip frag-off & 0x1fff != 0 counter drop
+		iif lo accept
+		ip daddr 192.168.0.0/16 counter accept
+		ip protocol icmp counter accept
+		ip6 nexthdr icmpv6 counter accept
+		ct state { established, related } counter accept
+		tcp dport { 60000, 60001 } counter accept
+		udp dport { 60000, 60001 } counter accept
+		log prefix "nft.dropInput: " counter
+	}
+
+	chain forward {
+		type filter hook forward priority 0; policy drop;
+		log prefix "nft.dropForward: " counter
+	}
+
+	chain output {
+		type filter hook output priority 0; policy accept;
+		counter
+	}
+}

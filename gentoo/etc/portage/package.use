@@ -47,6 +47,7 @@ media-video/libav encode faac mp3 rtmp theora threads v4l2 vaapi vorbis x264 xvi
 media-video/vlc aac dvd flac fontconfig matroska mp3 mpeg ogg png stream theora truetype v4l2 vorbis x264 xv
 net-fs/samba cups client
 net-libs/libvncserver threads
+net-misc/bfgminer opencl
 net-p2p/transmission gtk
 net-print/cups samba
 net-print/gutenprint cups ppds
@@ -57,7 +58,6 @@ sys-apps/smartmontools -minimal
 sys-auth/polkit consolekit
 sys-block/gparted fat ntfs
 sys-boot/grub mount
-sys-devel/gcc -fortran go
 sys-devel/llvm clang
 sys-fs/eudev gudev
 sys-kernel/gentoo-sources symlink
@@ -213,3 +213,7 @@ dev-libs/lzo static-libs
 
 # required by x11-drivers/xf86-video-ati
 x11-libs/libdrm video_cards_radeon
+
+# required by sys-power/suspend::gentoo[crypt]
+dev-libs/libgcrypt static-libs
+dev-libs/libgpg-error static-libs

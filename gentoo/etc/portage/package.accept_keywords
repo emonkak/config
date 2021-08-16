@@ -1,13 +1,18 @@
 =media-video/rtmpdump-9999 **
+=sys-kernel/gentoo-sources-5.10* ~amd64
 =x11-terms/alacritty-9999 **
 app-admin/haskell-updater ~amd64
 app-admin/python-updater ~amd64
 app-editors/gvim ~amd64
 app-editors/neovim ~amd64
 app-editors/vim ~amd64
-app-editors/vim ~amd64
 app-editors/vscode-bin ~amd64
 app-emulation/genymotion-bin ~amd64
+app-emulation/virtualbox ~amd64
+app-emulation/virtualbox-additions  ~amd64
+app-emulation/virtualbox-extpack-oracle  ~amd64
+app-emulation/virtualbox-guest-additions  ~amd64
+app-emulation/virtualbox-modules ~amd64
 app-eselect/eselect-php ~amd64
 app-i18n/skk-jisyo ~amd64
 app-i18n/skktools ~amd64
@@ -22,9 +27,11 @@ dev-java/gradle-bin ~amd64
 dev-java/javatoolkit ~amd64
 dev-java/sbt-bin ~amd64
 dev-lang/ghc ~amd64
+dev-lang/lua ~amd64
 dev-lang/php ~amd64
 dev-php/* ~amd64
 dev-python/fonttools ~amd64
+dev-util/clinfo ~amd64
 dev-util/kbuild ~amd64
 games-emulation/pcsx2 ~amd64
 games-util/joystick ~amd64
@@ -47,7 +54,6 @@ net-p2p/resilio-sync ~amd64
 net-print/cups-bjnp ~amd64
 net-proxy/mitmproxy ~amd64
 sys-apps/ripgrep ~amd64
-sys-kernel/gentoo-sources ~amd64
 sys-libs/db ~amd64
 www-client/brave-bin ~amd64
 www-client/firefox-bin ~amd64
@@ -65,18 +71,26 @@ x11-themes/* ~amd64
 x11-wm/xmonad ~amd64
 x11-wm/xmonad-contrib ~amd64
 
-# for awscli
+# for dev-python/awscli
 dev-python/awscli ~amd64
 dev-python/botocore ~amd64
 dev-python/rsa ~amd64
 dev-python/s3transfer ~amd64
 
-# for kitty
-dev-python/sphinx ~amd64
-
-# for genymotion
+# for app-emulation/genymotion
 dev-util/patchelf ~amd64
 dev-libs/hiredis ~amd64
 
-# for polkit
+# for sys-auth/polkit
 dev-lang/duktape ~amd64
+
+# AMD ROCm
+dev-libs/rocclr ~amd64
+dev-libs/rocm-comgr ~amd64
+dev-libs/rocm-device-libs ~amd64
+dev-libs/rocm-opencl-runtime ~amd64
+dev-libs/rocr-runtime ~amd64
+dev-libs/roct-thunk-interface ~amd64
+dev-util/rocm-cmake ~amd64
+dev-util/rocminfo ~amd64
+sys-devel/llvm-roc ~amd64
