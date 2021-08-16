@@ -75,9 +75,10 @@ myXPConfig ref = defaultXPConfig
     myKeymap = M.fromList $
       [ ((controlMask, xK_u), setInput "")
       , ((controlMask, xK_h), deleteString Prev)
-      , ((controlMask, xK_w), killWord Prev)
-      , ((controlMask, xK_p), historyUpMatching ref)
+      , ((controlMask, xK_m), setSuccess True >> setDone True)
       , ((controlMask, xK_n), historyDownMatching ref)
+      , ((controlMask, xK_p), historyUpMatching ref)
+      , ((controlMask, xK_w), killWord Prev)
       ]
 
 
@@ -158,6 +159,7 @@ myManageHook = manageDocks
     , className =? "Uim-tomoe-gtk"                        --> doFloat
     , className =? "XFontSel"                             --> doCenterFloat
     , className =? "Xmessage"                             --> doCenterFloat
+    , className =? "commeon.exe"                          --> doCenterFloat
     , className =? "feh"                                  --> doCenterFloat
     , className =? "fontforge"                            --> doShiftEmptyAndGo <+> doFloat
     , className =? "libreoffice-startcenter"              --> doShiftEmptyAndGo
@@ -224,10 +226,11 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask .|. shiftMask,   xK_h),            sendMessage MirrorExpand)
   , ((modMask .|. shiftMask,   xK_l),            sendMessage MirrorShrink)
 
+  , ((modMask,                 xK_b),            sendMessage ToggleStruts)
   , ((modMask,                 xK_f),            sendMessage ToggleLayout)
+  , ((modMask,                 xK_g),            withFocused toggleBorder)
   , ((modMask,                 xK_m),            windows W.focusMaster)
   , ((modMask,                 xK_t),            withFocused $ windows . W.sink)
-  , ((modMask,                 xK_b),            withFocused toggleBorder)
 
   , ((modMask,                 xK_comma),        sendMessage $ IncMasterN 1)
   , ((modMask,                 xK_period),       sendMessage $ IncMasterN (-1))
@@ -252,8 +255,8 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask,                 xK_bracketleft),  safeSpawn "mpc" ["prev"])
   , ((modMask,                 xK_bracketright), safeSpawn "mpc" ["next"])
 
-  , ((modMask .|. shiftMask,   xK_bracketleft),  safeSpawn "pactl" ["set-card-profile", "1", "output:analog-stereo"])
-  , ((modMask .|. shiftMask,   xK_bracketright), safeSpawn "pactl" ["set-card-profile", "1", "output:hdmi-stereo"])
+  , ((modMask .|. shiftMask,   xK_bracketleft),  spawn "pactl set-card-profile alsa_card.pci-0000_00_1f.3 output:analog-stereo && pactl set-card-profile alsa_card.pci-0000_03_00.1 off")
+  , ((modMask .|. shiftMask,   xK_bracketright), spawn "pactl set-card-profile alsa_card.pci-0000_03_00.1 output:hdmi-stereo && pactl set-card-profile alsa_card.pci-0000_00_1f.3 off")
 
   , ((modMask .|. controlMask, xK_l),            spawn "sleep 1; xset dpms force off")
 

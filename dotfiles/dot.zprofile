@@ -15,14 +15,26 @@ export WINEARCH="win32"
 
 export MPD_CONF="$HOME/.mpd/mpd.conf"
 
-if [ -d "$HOME/.cabal" ]
+if [ -d "$HOME/.cabal/bin" ]
 then
   PATH="$PATH:$HOME/.cabal/bin"
 fi
 
-if [ -d "$HOME/.composer" ]
+if [ -d "$HOME/.composer/vendor/bin" ]
 then
   PATH="$PATH:$HOME/.composer/vendor/bin"
+fi
+
+if [ -d "$HOME/.cargo/bin" ]
+then
+  PATH="$PATH:$HOME/.cargo/bin"
+fi
+
+if [ -d "$HOME/.nvm" ]
+then
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
 fi
 
 if [ -d "$HOME/go" ]
@@ -31,17 +43,10 @@ then
   PATH="$PATH:$GOPATH/bin"
 fi
 
-if [ -d "$HOME/android" ]
+if [ -d "$HOME/android_sdk" ]
 then
-  export ANDROID_HOME="$HOME/android"
-  PATH="$PATH:$ANDROID_HOME/tools/bin:$ANDROID_HOME/build-tools/26.0.1:$ANDROID_HOME/platform-tools"
-fi
-
-if [ -d "$HOME/.nvm" ]
-then
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+  export ANDROID_SDK_ROOT="$HOME/android_sdk"
+  PATH="$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools"
 fi
 
 if which ruby >/dev/null && which gem >/dev/null; then

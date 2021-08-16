@@ -1,6 +1,6 @@
-" Vim additional ftplugin: typescript
+" Vim additional ftplugin: rust
 " Version: 0.0.0
-" Copyright (C) 2013 emonkak <emonkak@gmail.com>
+" Copyright (C) 2021 emonkak <emonkak@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -22,26 +22,24 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-setlocal foldmethod=expr foldexpr=TypescriptFold(v:lnum)
-setlocal iskeyword-=:
+setlocal foldmethod=expr foldexpr=RustFold(v:lnum)
 
-function! TypescriptFold(lnum)
+function! RustFold(lnum)
   let current = getline(a:lnum)
 
-  if current =~# '\s*}$'
+  if current =~# '^\s*}\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return level > 3 ? '=' : '<' . level
+    return level <= 2 ? '<' . level : '='
   endif
 
-  if current =~# '^\s*'
-             \ . '\%(\%(export\s\+\%(default\s\+\)\?\)\?\%(\%(abstract\s\+\)\?class\|\%(async\s\+\)\?function\|interface\|module\)'
-             \ . '\|\%(\%(static\|private\|protected\|public\|async\|get\|set\)\s\+\)*\*\?\%(\w\+\|\[.\{-}\]\)\s*\%(<.\+>\)\?\s*('
-             \ . '\|\%(\%(static\|private\|protected\|public\)\s\+\)\?\w\+\s*=\s*\(async\s*\)\?('
-             \ . '\|\%(declare\s\+\)\%(module\|namespace\|interface\|class\)\s\+'
-             \ . '\)'
-             \ . '[^;]*$'
+  if current =~# '^\s*\('
+  \            . 'macro_rules!\|'
+  \            . 'impl\|'
+  \            . '\(pub\(\s*(\s*crate\s*)\)\?\s\+\)\?\(async\s\+\)\?\(unsafe\s\+\)\?\(extern\s\+"C"\s\+\)\?\(enum\|\(const\s\+\)\?fn\|mod\|struct\|trait\|union\)'
+  \            . '\)'
+  \  && current !~# '[;}]\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return level > 2 ? '=' : level
+    return level <= 2 ? level : '='
   endif
 
   return '='
@@ -53,7 +51,7 @@ else
   let b:undo_ftplugin = ''
 endif
 
-let b:undo_ftplugin .= 'setlocal foldmethod< foldexpr<'
+let b:undo_ftplugin .= ''
 
 " __END__
 " vim: foldmethod=marker

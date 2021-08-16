@@ -20,16 +20,19 @@ HISTSIZE=100000
 SAVEHIST=100000
 
 
-# Don't add "rm" and "rmdir" to history.
 zshaddhistory() {
-  local -a args; args=(${(z)1})
-  local cmd
-  if [[ $args[1] = s(udo|) ]]; then
-    cmd=$args[2]
-  else
-    cmd=$args[1]
-  fi
-  [[ $cmd != rm(|dir) ]]
+  line=(${(z)1})
+
+  # Save "rm" and "rmdir" only to internal history.
+  [[ $line[1] = rm(|dir) ]] && return 2
+  [[ $line[1] = s(|udo) && $line[2] = rm(|dir) ]] && return 2
+
+  # Suppress to save often-useed commands.
+  [[ $line[1] = (exit|pwd) ]] && return 1
+  [[ $line[1] = (ls|la|ll|lla) && $line[2] = ';' ]] && return 1
+
+  # Suppress to save invalid command.
+  whence $line[1] >| /dev/null || return 1
 }
 
 

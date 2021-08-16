@@ -664,7 +664,7 @@ function! s:cmd_SuspendWithAutomticCD() abort
   elseif exists('$TMUX')
     let select_command = 'new-window'
     let target_pane = ':$'
-    for window in split(vimproc#system('tmux list-windows'), '\n')
+    for window in split(system('tmux list-windows'), '\n')
       let matches = matchlist(window, '^\(\d\+\):\s\(\w\+\)')
       if !empty(matches) && matches[2] ==# shell
         let select_command = 'select-window -t '.matches[1]
@@ -750,7 +750,7 @@ function! s:sum(acc, value) abort
   return a:acc + eval(a:value)
 endfunction
 command! -bang -range -nargs=* Sum
-\ call append(line('$'), string(s:reduce_matched_items(s:SID_PREFIX() . 'sum', 0, <line1>, <line2>, <q-args> != '' ? <q-args> : '\d\+\%(\.\d\+\)\?', <bang>0 ? 'en' : 'egn')))
+\ call append(<line2>, string(s:reduce_matched_items(s:SID_PREFIX() . 'sum', 0, <line1>, <line2>, <q-args> != '' ? <q-args> : '\d\+\%(\.\d\+\)\?', <bang>0 ? 'en' : 'egn')))
 
 
 
@@ -1996,6 +1996,10 @@ autocmd MyAutoCmd BufReadPost *
 \ | endif
 
 
+" Prevent doubly `filetype` setting on `*.ebuild` and `*.eclass` files.
+let g:ft_ignore_pat = 'e\(build\|class\)$'
+
+
 
 
 " actionscript  "{{{2
@@ -2012,6 +2016,14 @@ autocmd MyAutoCmd FileType actionscript
 
 autocmd MyAutoCmd FileType blade
 \ SpaceIndent 4
+
+
+
+
+" c  "{{{2
+
+autocmd MyAutoCmd FileType c
+\ setlocal commentstring=//%s
 
 
 
@@ -2097,6 +2109,14 @@ endfunction
 
 autocmd MyAutoCmd FileType gitcommit
 \ setlocal nofoldenable
+
+
+
+
+" glsl  "{{{2
+
+autocmd MyAutoCmd FileType glsl
+\ SpaceIndent 4
 
 
 
@@ -2255,6 +2275,17 @@ autocmd MyAutoCmd FileType ruby
 
 
 
+" rust  "{{{2
+
+autocmd MyAutoCmd FileType rust
+\   SpaceIndent 4
+\ | compiler cargo
+
+let g:cargo_makeprg_params = 'build'
+
+
+
+
 " scala  "{{{2
 
 autocmd MyAutoCmd FileType scala
@@ -2336,7 +2367,8 @@ autocmd MyAutoCmd FileType typescript
 " vim  "{{{2
 
 autocmd MyAutoCmd FileType vim
-\ SpaceIndent 2
+\   SpaceIndent 2
+\ | setlocal keywordprg=:help
 
 let g:vim_indent_cont = 0
 let g:vimsyn_embed = 'l'
@@ -2413,16 +2445,6 @@ call altr#define('%.m', '%.h')
 
 nmap <F1>  <Plug>(altr-back)
 nmap <F2>  <Plug>(altr-forward)
-
-
-
-
-" clang-complete  "{{{2
-
-if system('uname') =~# '^Darwin'
-  let g:clang_library_path = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/'
-  let g:clang_auto_user_options = 'path, .clang_complete'
-endif
 
 
 
@@ -2584,6 +2606,7 @@ nnoremap <silent> [Space]km  :<C-u>Ku file_mru<CR>
 nnoremap <silent> [Space]kk  :<C-u>call ku#restart()<CR>
 
 
+let g:ku_file_mru_file = expand('~/.vim/info/ku/file_mru')
 let g:ku_file_mru_ignore_pattern = '/$\|/\.git/\|^/\(/\|mnt\|tmp\)'
 let g:ku_file_mru_limit = 1000
 
@@ -2630,7 +2653,7 @@ function! s:on_lsp_setup() abort
     \     '--lsp',
     \     '--cwd', lsp#utils#uri_to_path(server_info['root_uri'](server_info)),
     \   ]},
-    \   'root_uri':{server_info -> lsp#utils#path_to_uri(
+    \   'root_uri': {server_info -> lsp#utils#path_to_uri(
     \      lsp#utils#find_nearest_parent_file_directory(
     \        lsp#utils#get_buffer_path(),
     \        ['.git/', 'Setup.hs', 'stack.yml']
@@ -2639,20 +2662,33 @@ function! s:on_lsp_setup() abort
     \   'allowlist': ['haskell'],
     \ })
   endif
+  if executable('rls')
+    call lsp#register_server({
+    \   'name': 'rls',
+    \   'cmd': {server_info -> ['rls']},
+    \   'root_uri': {server_info -> lsp#utils#path_to_uri(
+    \      lsp#utils#find_nearest_parent_file_directory(
+    \        lsp#utils#get_buffer_path(),
+    \        ['.git/', 'Cargo.toml']
+    \      )
+    \   )},
+    \   'allowlist': ['rust'],
+    \ })
+  endif
 endfunction
 
 let g:lsp_diagnostics_float_cursor = 1
-let g:lsp_highlight_references_enabled = 0
-let g:lsp_highlights_enabled = 0
-let g:lsp_signs_enabled = 1
-let g:lsp_tagfunc_source_methods = ['definition']
-let g:lsp_textprop_enabled = 0
-let g:lsp_virtual_text_enabled = 0
+let g:lsp_diagnostics_highlights_enabled = 1
+let g:lsp_diagnostics_signs_error = {'text': 'X'}
+let g:lsp_diagnostics_signs_hint = {'text': '?'}
+let g:lsp_diagnostics_signs_information = {'text': 'i'}
+let g:lsp_diagnostics_signs_warning = {'text': '!'}
+let g:lsp_diagnostics_virtual_text_enabled = 0
 
-let g:lsp_signs_error = {'text': 'X'}
-let g:lsp_signs_warning = {'text': '!'}
-let g:lsp_signs_information = {'text': 'i'}
-let g:lsp_signs_hint = {'text': '?'}
+let g:lsp_document_highlight_enabled = 0
+let g:lsp_document_code_action_signs_enabled = 0
+
+let g:lsp_tagfunc_source_methods = ['definition']
 
 " let g:lsp_log_verbose = 1
 " let g:lsp_log_file = expand('~/.vim/info/vim-lsp.log')
@@ -2706,10 +2742,20 @@ command! -complete=command -nargs=+ Capture  QuickRun vim -src <q-args>
 
 let g:quickrun_config = {
 \   '_': {
-\     'split': '%{'.s:SID_PREFIX().'vertical_p() ? "vertical" : ""}'
+\     'outputter/buffer/opener': '%{'.s:SID_PREFIX().'vertical_p() ? "vsplit" : "split"}',
 \   },
 \   'c': {
 \     'type': 'c/clang'
+\   },
+\   'objc': {
+\     'type': 'objc/clang'
+\   },
+\   'objc/clang': {
+\     'command': 'clang',
+\     'cmdopt': '-framework Foundation -framework AppKit',
+\     'exec': ['%c %o -o %s:p:r %s', '%s:p:r %a'],
+\     'tempfile': '%{fnamemodify(tempname(), ":r")}.m',
+\     'hook/sweep/files': '%S:p:r',
 \   },
 \   'cpp': {
 \     'type': 'cpp/clang++',
@@ -2721,11 +2767,6 @@ let g:quickrun_config = {
 \   'php/hhvm': {
 \     'command': 'hhvm',
 \     'exec': ['%c %a %s']
-\   },
-\   'haxe': {
-\     'exec': ['%c %a --cwd %s:p:h -x %s:t:r'],
-\     'tempfile': '%{fnamemodify(tempname(), ":h")}/%{expand("%:t")}',
-\     'hook/sweep/files': ['%S:p:r.n']
 \   },
 \   'javascript': {
 \     'type': 'javascript/nodejs'
@@ -2745,6 +2786,14 @@ let g:quickrun_config = {
 \     'cmdopt': '-g',
 \     'exec': '%c %o -a Marked %s'
 \   },
+\   'rust': {
+\     'cmdopt': '-A dead_code --edition 2018',
+\     'command': 'rustc',
+\     'exec': ['%c %o %s -o %s:p:r', 'RUST_BACKTRACE=1 %s:p:r %a'],
+\     'tempfile': '%{fnamemodify(tempname(), ":r")}.rs',
+\     'hook/shebang/enable': 0,
+\     'hook/sweep/files': '%S:p:r',
+\   },
 \   'sql': {
 \     'type': 'sql/mysql'
 \   },
@@ -2753,19 +2802,21 @@ let g:quickrun_config = {
 \     'exec': ['%c --host 127.0.0.1 --user root %a < %s']
 \   },
 \   'typescript': {
-\     'type': 'typescript/tsc'
+\     'type': 'typescript/ts-node'
 \   },
-\   'typescript/tsc': {
-\     'command': 'tsc',
-\     'exec': ['%c --strict --target es2017 --module es2015 %o %s', 'node %s:r.js'],
-\     'tempfile': '%{tempname()}.ts',
-\     'hook/sweep/files': ['%S:p:r.js'],
+\   'typescript/ts-node': {
+\     'command': 'ts-node',
+\     'cmdopt': ' O "{\"strict\": true, \"target\": \"ES2021\"}"',
+\     'exec': ['%c %o %s %a'],
 \   },
 \   'xdefaults': {
 \     'command': 'mysql',
 \     'exec': ['xrdb -remove', 'xrdb -merge %s', 'xrdb -query']
 \   }
 \ }
+
+nmap <Leader>r  <Plug>(quickrun)
+vmap <Leader>r  <Plug>(quickrun)
 
 
 
@@ -2823,6 +2874,9 @@ let g:scratch_show_command = 'SplitTop | hide buffer'
 
 " skeleton  "{{{2
 
+autocmd MyAutoCmd BufNewFile LICENSE
+\ SkeletonLoad license-mit
+
 autocmd MyAutoCmd User plugin-skeleton-detect
 \ call s:on_User_plugin_skeleton_detect()
 
@@ -2836,13 +2890,9 @@ function! s:on_User_plugin_skeleton_detect() abort
 
   if filename =~# '\.user\.js$'
     SkeletonLoad userjs
-  endif
-
-  if filename =~# '\.txt$' && get(directories, -1) ==# 'doc'
-    SkeletonLoad help-doc
-  endif
-
-  if filename =~# '\.vim$'
+  elseif filename =~# '\.txt$' && get(directories, -1) ==# 'doc'
+    SkeletonLoad vim-doc
+  elseif filename =~# '\.vim$'
   \  && get(directories, -1) =~#
   \     '^\v(autoload|colors|compiler|ftdetect|ftplugin|indent|plugin|syntax)'
     if get(directories, -2) ==# 'after'
@@ -2909,9 +2959,15 @@ call smartinput#define_rule({
 \ })
 call smartinput#define_rule({
 \   'at': '\%#', 'char': '@', 'input': '@',
-\   'filetype': ['php'], 'syntax': ['Comment', 'Constant', 'None']
+\   'filetype': ['php'],
+\   'syntax': ['Comment', 'Constant', 'None']
 \ })
 " }}}
+
+call smartinput#define_rule({
+\   'at': '\%#', 'char': "'", 'input': "'",
+\   'filetype': ['rust'],
+\ })
 
 call smartinput#map_trigger_keys()
 

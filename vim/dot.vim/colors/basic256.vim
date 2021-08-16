@@ -240,9 +240,9 @@ call s:highlight('lCursor'      , {'bg': 14})
 
 " Syntax  "{{{2
 
-call s:highlight('Comment'      , {'attr': 'i', 'fg': 14})
+call s:highlight('Comment'      , {'attr': 'i', 'fg': 7})
 call s:highlight('Constant'     , {'fg': 13})
-call s:highlight('Identifier'   , {'attr': 'b', 'fg': 14})
+call s:highlight('Identifier'   , {'fg': 14})
 call s:highlight('Statement'    , {'fg': 11})
 call s:highlight('PreProc'      , {'fg': 12})
 call s:highlight('Type'         , {'fg': 10})
@@ -252,14 +252,18 @@ call s:highlight('Ignore'       , {'fg': 0})
 call s:highlight('Error'        , {'bg': 1})
 call s:highlight('Todo'         , {'attr': 'u', 'fg': 11})
 
-call s:highlight('LspError'           , {'fg': 9})
-call s:highlight('LspErrorText'       , {'fg': 9})
-call s:highlight('LspWarning'         , {'fg': 9})
-call s:highlight('LspWarningText'     , {'fg': 9})
-call s:highlight('LspInformation'     , {'fg': 12})
-call s:highlight('LspInformationText' , {'fg': 12})
-call s:highlight('LspHint'            , {'fg': 12})
-call s:highlight('LspHintText'        , {'fg': 12})
+call s:highlight('LspError'               , {'fg': 9})
+call s:highlight('LspErrorText'           , {'fg': 9})
+call s:highlight('LspErrorHighlight'      , {'attr': 'c'})
+call s:highlight('LspWarning'             , {'fg': 9})
+call s:highlight('LspWarningText'         , {'fg': 9})
+call s:highlight('LspWarningHighlight'    , {'attr': 'c'})
+call s:highlight('LspInformation'         , {'fg': 12})
+call s:highlight('LspInformationText'     , {'fg': 12})
+call s:highlight('LspInformationHighlight', {'attr': 'c'})
+call s:highlight('LspHint'                , {'fg': 12})
+call s:highlight('LspHintText'            , {'fg': 12})
+call s:highlight('LspHintHighlight'       , {'attr': 'c'})
 
 
 

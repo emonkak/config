@@ -1,30 +1,11 @@
-import Data.Maybe (fromMaybe)
-import Text.Read (readMaybe)
-
 import Xmobar
--- import Xmobar.Plugins.Monitors.Common.Run (runM)
--- import Xmobar.Plugins.Monitors.Common.Types (MConfig, Monitor, io, mkMConfig)
--- import Xmobar.Plugins.Monitors.Common.Parsers (parseTemplate)
 
--- data CatIntDiv = CatIntDiv String FilePath Int Args Rate
---   deriving (Read, Show)
---
--- catIntConfig :: IO MConfig
--- catIntConfig = mkMConfig "<v>" ["v"]
---
--- runCatIntDiv :: FilePath -> Int -> [String] -> Monitor String
--- runCatIntDiv path base _ = parseTemplate <$> return $ io $ format <$> readFile path
---   where
---     format = show . (`div` base) . fromMaybe (0 :: Int) . readMaybe
---
--- instance Exec CatIntDiv where
---   alias (CatIntDiv name _ _ _ _) = name
---   start (CatIntDiv _ path base args rate) = runM args catIntConfig (runCatIntDiv path base) rate
+import Monitors.CatNum (CatNum(..))
 
 config :: Config
 config = defaultConfig
   { font = "xft:Monospace:pixelsize=11,Noto Sans CJK JP:pixelsize=11"
-  , additionalFonts = [ "xft:FontAwesome:pixelsize=12"
+  , additionalFonts = [ "xft:Font Awesome 5 Free Solid:pixelsize=12"
                       ]
   , bgColor = "#21272b"
   , fgColor = "#f5f6f7"
@@ -43,7 +24,7 @@ config = defaultConfig
                  , "-p", "6600"
                  ] 10
                , Run $ Cpu
-                 [ "-t", "<fc=#5ebaf7><fn=1>\xf013</fn></fc> <total>"
+                 [ "-t", "<fc=#5ebaf7><fn=1>\xf2db</fn></fc> <total>"
                  , "-L", "50"
                  , "-H", "75"
                  , "-n", "#5ebaf7"
@@ -51,12 +32,48 @@ config = defaultConfig
                  , "-S", "True"
                  , "-p", "3"
                  ] 10
-               , Run $ CoreTemp
-                 [ "-t", "<fc=#5ebaf7><fn=1>\xf2c7</fn></fc> <core0>°C"
-                 , "-m", "3"
+               , Run $ CatNum "cputemp"
+                 [ "/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp1_input"
+                 ]
+                 [ "-t", "<fc=#869096>(</fc><n0><fc=#869096>)</fc>"
+                 , "-L", "50000"
+                 , "-H", "70000"
+                 , "-l", "#869096"
+                 , "-n", "#5ebaf7"
+                 , "-h", "#fc8e88"
+                 , "-m", "4"
+                 , "--"
+                 , "--divier", "1000"
+                 , "--suffix", "°C"
+                 ] 10
+               , Run $ CatNum "gpu"
+                 [ "/sys/class/drm/card0/device/gpu_busy_percent"
+                 ]
+                 [ "-t", "<fc=#5ebaf7><fn=1>\xf26c</fn></fc> <n0>"
+                 , "-L", "50"
+                 , "-H", "75"
+                 , "-n", "#5ebaf7"
+                 , "-h", "#fc8e88"
+                 , "-m", "4"
+                 , "--"
+                 , "--suffix", "%"
+                 ] 10
+               , Run $ CatNum "gputemp"
+                 [ "/sys/class/drm/card0/device/hwmon/hwmon1/temp2_input"
+                 ]
+                 [ "-t", "<fc=#869096>(</fc><n0><fc=#869096>)</fc>"
+                 , "-L", "50000"
+                 , "-H", "70000"
+                 , "-l", "#869096"
+                 , "-n", "#5ebaf7"
+                 , "-h", "#fc8e88"
+                 , "-m", "4"
+                 , "--"
+                 , "--divier", "1000"
+                 , "--suffix", "°C"
                  ] 10
                , Run $ Memory
-                 [ "-t", "<fc=#5ebaf7><fn=1>\xf2db</fn></fc> <usedratio>"
+                 [ "-t", "<fc=#5ebaf7><fn=1>\xf538</fn></fc> <usedratio>"
                  , "-L", "50"
                  , "-H", "75"
                  , "-n", "#5ebaf7"
@@ -65,7 +82,7 @@ config = defaultConfig
                  , "-p", "3"
                  ] 10
                , Run $ DiskU
-                 [ ("/", "<fc=#5ebaf7><fn=1>\xf1c0</fn></fc> <usedp>")
+                 [ ("/", "<fc=#5ebaf7><fn=1>\xf0a0</fn></fc> <usedp>")
                  ]
                  [ "-L", "50"
                  , "-H", "75"
@@ -81,8 +98,7 @@ config = defaultConfig
                  , "-n", "#5ebaf7"
                  , "-h", "#fc8e88"
                  , "-S", "True"
-                 , "-d", "1"
-                 , "-m", "9"
+                 , "-m", "8"
                  ] 10
                , Run $ Alsa "pulse" "Master"
                  [ "-t", "<status> <volume>"
@@ -96,7 +112,7 @@ config = defaultConfig
                  ]
                , Run $ Date "%Y/%m/%d %a %H:%M:%S" "date" 10
                ]
-  , template = " %StdinReader% }{ %mpd%  %cpu%  %coretemp%  %memory%  %disku%  %eth0%  %alsa:pulse:Master%  %date% "
+  , template = " %StdinReader% }{ %mpd%  %cpu% %cputemp%  %gpu% %gputemp%  %memory%  %disku%  %eth0%  %alsa:pulse:Master%  %date% "
   }
 
 main :: IO ()
