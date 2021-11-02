@@ -290,24 +290,7 @@
       ],
       "name": "My profile",
       "selected": true,
-      "simple_modifications": [
-        {
-          "from": {
-            "key_code": "caps_lock"
-          },
-          "to": {
-            "key_code": "left_control"
-          }
-        },
-        {
-          "from": {
-            "key_code": "right_option"
-          },
-          "to": {
-            "key_code": "right_control"
-          }
-        }
-      ],
+      "simple_modifications": [],
       "virtual_hid_keyboard": {
         "caps_lock_delay_milliseconds": 0,
         "keyboard_type": "ansi"
