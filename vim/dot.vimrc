@@ -158,6 +158,7 @@ set title
 set titlestring=Vim:\ %f\ %h%r%m
 set ttimeoutlen=50
 set updatetime=1000
+set viminfo^='1000 viminfo-='100
 set virtualedit=block
 set nowrapscan
 set wildmenu
@@ -2606,7 +2607,7 @@ nnoremap <silent> [Space]km  :<C-u>Ku file_mru<CR>
 nnoremap <silent> [Space]kk  :<C-u>call ku#restart()<CR>
 
 
-let g:ku_file_mru_file = expand('~/.vim/info/ku/file_mru')
+let g:ku_file_mru_file = expand('~/.vimmru')
 let g:ku_file_mru_ignore_pattern = '/$\|/\.git/\|^/\(/\|mnt\|tmp\)'
 let g:ku_file_mru_limit = 1000
 
@@ -2692,6 +2693,8 @@ let g:lsp_tagfunc_source_methods = ['definition']
 
 " let g:lsp_log_verbose = 1
 " let g:lsp_log_file = expand('~/.vim/info/vim-lsp.log')
+
+command! LspRestart  call lsp#ui#vim#stop_server() | edit
 
 
 
@@ -2890,6 +2893,8 @@ function! s:on_User_plugin_skeleton_detect() abort
 
   if filename =~# '\.user\.js$'
     SkeletonLoad userjs
+  elseif filename =~# '\.toml$'
+    SkeletonLoad cargo
   elseif filename =~# '\.txt$' && get(directories, -1) ==# 'doc'
     SkeletonLoad vim-doc
   elseif filename =~# '\.vim$'

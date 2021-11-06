@@ -39,10 +39,7 @@ function! google_translate#translate(text, from, to)  "{{{2
   \   'q': a:text,
   \   'tk': google_translate#token(a:text),
   \ }
-  let headers = {
-  \   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
-  \ }
-  let response = webapi#http#get(url, options, headers)
+  let response = webapi#http#get(url, options)
 
   if response.status != 200
     throw printf("%d %s: %s", response.status, response.message, url)
@@ -90,7 +87,6 @@ function! google_translate#token(text)  "{{{2
     endif
     let g += 1
   endwhile
-
 
   let a = iB
   for ff in e
@@ -193,15 +189,11 @@ endfunction
 
 
 
-
-
-
 function! s:xr(a, b)  "{{{2
   let a = a:a
   for c in range(0, strlen(a:b) - 2, 3)
     let d = a:b[c + 2]
     let d = d >= 'a' ? char2nr(d) - 87 : str2nr(d)
-    echo a:b[c + 1] a d
     let d = '+' == a:b[c + 1] ? s:right_shift32(a, d) : s:left_shift32(a, d)
     let a = '+' == a:b[c] ? s:and32(a + d, 4294967295) : s:xor32(a, d)
   endfor
@@ -210,11 +202,6 @@ endfunction
 
 
 
-echo google_translate#token('test')
-" echo s:left_shift32(409382, 10)
-" echo s:xr(425755099 + 129, '+-a^+6')
-" echo s:signed_right_shift32(-1687555492, 6)
-" echo s:right_shift32(-1687555492, 6)
 
 " __END__  "{{{1
 " vim: foldmethod=marker

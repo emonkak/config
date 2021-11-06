@@ -111,6 +111,7 @@ media-gfx/optipng
 media-gfx/pngquant
 media-gfx/scrot
 media-libs/exiftool
+media-libs/fontconfig
 media-libs/freetype
 media-libs/mesa
 media-libs/mozjpeg
@@ -145,7 +146,6 @@ net-fs/samba
 net-misc/aria2
 net-misc/bridge-utils
 net-misc/chrony
-net-misc/icecast
 net-misc/mimms
 net-misc/rdesktop
 net-misc/rpiplay
@@ -153,6 +153,7 @@ net-misc/sping
 net-misc/telnet-bsd
 net-misc/vinagre
 net-misc/wakeonlan
+net-misc/wget2
 net-misc/whois
 net-p2p/resilio-sync
 net-p2p/transmission
@@ -162,8 +163,8 @@ sys-apps/edid-decode
 sys-apps/ethtool
 sys-apps/exa
 sys-apps/flashrom
+sys-apps/gptfdisk
 sys-apps/hdparm
-sys-apps/hexdump-esr
 sys-apps/i2c-tools
 sys-apps/lm-sensors
 sys-apps/massren
@@ -180,8 +181,10 @@ sys-auth/nss-mdns
 sys-auth/polkit
 sys-boot/grub:2
 sys-boot/os-prober
+sys-boot/unetbootin
 sys-devel/clang
 sys-devel/gdb
+sys-fs/dmg2img
 sys-fs/dosfstools
 sys-fs/exfat-utils
 sys-fs/ntfs3g
@@ -222,7 +225,6 @@ x11-apps/xwininfo
 x11-base/xorg-server
 x11-libs/libnotify
 x11-misc/dunst
-x11-misc/gbdfed
 x11-misc/slim
 x11-misc/snixembed
 x11-misc/x11vnc

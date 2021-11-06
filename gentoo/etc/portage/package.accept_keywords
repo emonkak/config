@@ -1,11 +1,13 @@
 */*::local-repo ~amd64
 
 =media-video/rtmpdump-9999 **
+=sys-kernel/gentoo-sources-5.15* ~amd64
 =x11-terms/alacritty-9999 **
 
 app-admin/haskell-updater ~amd64
 app-editors/gvim ~amd64
 app-editors/vim ~amd64
+app-editors/vim-core ~amd64
 app-editors/vscode-bin ~amd64
 app-emulation/genymotion-bin ~amd64
 app-i18n/skk-jisyo ~amd64
@@ -24,11 +26,12 @@ media-fonts/* ~amd64
 media-sound/jack ~amd64
 media-sound/mpd ~amd64
 media-tv/gtk-v4l ~amd64
-media-video/shotcut ~amd64
 net-im/zoom ~amd64
+net-misc/wget2 ~amd64
 net-p2p/resilio-sync ~amd64
 net-proxy/mitmproxy ~amd64
 sys-apps/ripgrep ~amd64
+sys-fs/dmg2img ~amd64
 virtual/rust ~amd64
 www-client/brave-bin ~amd64
 www-client/firefox-bin ~amd64
@@ -65,3 +68,11 @@ dev-util/clinfo ~amd64
 dev-util/rocm-cmake ~amd64
 dev-util/rocminfo ~amd64
 sys-devel/llvm-roc ~amd64
+
+# Shotcut
+media-libs/mlt ~amd64
+media-video/shotcut ~amd64
+
+# BCC
+dev-libs/libbpf ~amd64
+dev-util/bcc ~amd64

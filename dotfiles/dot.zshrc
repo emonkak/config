@@ -6,7 +6,7 @@ ulimit -c 0  # Don't create core file
 stty stop undef
 stty start undef
 
-if [ -f "$HOME/.colorrc" ]
+if which dircolors &>/dev/null && [ -f "$HOME/.colorrc" ]
 then
   eval `dircolors "$HOME/.colorrc"`
 fi
@@ -23,9 +23,9 @@ SAVEHIST=100000
 zshaddhistory() {
   line=(${(z)1})
 
-  # Save "rm" and "rmdir" only to internal history.
-  [[ $line[1] = rm(|dir) ]] && return 2
-  [[ $line[1] = s(|udo) && $line[2] = rm(|dir) ]] && return 2
+  # Save "dd", "rm" and "rmdir" only to internal history.
+  [[ $line[1] = (dd|rm(|dir)) ]] && return 2
+  [[ $line[1] = s(|udo) && $line[2] = (dd|rm(|dir)) ]] && return 2
 
   # Suppress to save often-useed commands.
   [[ $line[1] = (exit|pwd) ]] && return 1
@@ -256,7 +256,7 @@ unset -f prompt_setup
 
 if ls --color=never --directory / >/dev/null 2>&1
 then
-  alias ls='ls -Fh --color=auto --show-control-chars'
+  alias ls='ls -Fh --color=auto --show-control-chars --time-style=long-iso'
 else
   alias ls='ls -FGh'
 fi

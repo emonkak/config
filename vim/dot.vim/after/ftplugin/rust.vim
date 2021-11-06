@@ -29,17 +29,17 @@ function! RustFold(lnum)
 
   if current =~# '^\s*}\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return level <= 2 ? '<' . level : '='
+    return level <= 3 ? '<' . level : '='
   endif
 
-  if current =~# '^\s*\('
+  if current =~# '^\s*\%('
   \            . 'macro_rules!\|'
-  \            . 'impl\|'
-  \            . '\(pub\(\s*(\s*crate\s*)\)\?\s\+\)\?\(async\s\+\)\?\(unsafe\s\+\)\?\(extern\s\+"C"\s\+\)\?\(enum\|\(const\s\+\)\?fn\|mod\|struct\|trait\|union\)'
+  \            . '\%(unsafe\s\+\)\?impl\|'
+  \            . '\%(pub\%(\s*(\s*\%(crate\|super\)\s*)\)\?\s\+\)\?\%(async\s\+\)\?\%(unsafe\s\+\)\?\%(extern\s\+"C"\s\+\)\?\%(enum\|\%(const\s\+\)\?fn\|mod\|struct\|trait\|union\)'
   \            . '\)'
   \  && current !~# '[;}]\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return level <= 2 ? level : '='
+    return level <= 3 ? level : '='
   endif
 
   return '='

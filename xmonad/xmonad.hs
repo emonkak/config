@@ -136,7 +136,7 @@ myLogHook h = do
     , ppUrgent          = wrap "*" " "
     , ppSep             = xmobarColor myNormalBorderColor "" " | "
     , ppWsSep           = ""
-    , ppTitle           = if floated then ("<fn=1>\xf2d0</fn> " ++) . xmobarRaw else xmobarRaw
+    , ppTitle           = if floated then ("<fn=1>\xe069</fn> " ++) . xmobarRaw else xmobarRaw
     , ppLayout          = xmobarColor myFocusedFGColor "" . layoutIcon
     }
   where

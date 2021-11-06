@@ -33,9 +33,9 @@ let g:colors_name = expand('<sfile>:t:r')
 
 " Variables  "{{{1
 
-let s:foreground_color = '#e8eaeb'
-let s:background_color = '#21272b'
-let s:basic_colors = [
+let s:gui_fg_color = '#e8eaeb'
+let s:gui_bg_color = '#21272b'
+let s:gui_colors = [
 \   '#363f45',
 \   '#f7554d',
 \   '#10a184',
@@ -54,8 +54,140 @@ let s:basic_colors = [
 \   '#c5c6c7',
 \ ]
 
-function! s:xterm_256colors() "{{{
-  let _ = []
+
+
+
+" Utilities  "{{{1
+function! s:highlight_config(config) abort  "{{{2
+  for name in keys(a:config)
+    call s:highlight(name, a:config[name])
+  endfor
+endfunction
+
+
+
+
+function! s:highlight(name, definition) abort  "{{{2
+  let args = []
+
+  let fg_no = has_key(a:definition, 'fg') ? s:color_no(a:definition['fg']) : -1
+  let bg_no = has_key(a:definition, 'bg') ? s:color_no(a:definition['bg']) : -1
+  let sp_no = has_key(a:definition, 'sp') ? s:color_no(a:definition['sp']) : -1
+
+  if has_key(a:definition, 'attr')
+    if &term ==# 'win32' && a:definition['attr'] =~# 'r'
+      let tmp = fg_no;
+      let fg_no = bg_no;
+      let bg_no = tmp;
+    endif
+    call insert(args, 'cterm=' . s:attributes(a:definition['attr']))
+    call insert(args, 'gui=' . s:attributes(a:definition['attr']))
+  endif
+
+  if fg_no >= 0
+    call insert(args, 'ctermfg=' . s:term_color(fg_no))
+    call insert(args, 'guifg=' . s:gui_color(fg_no))
+  elseif has_key(a:definition, 'fg')
+    call insert(args, 'guifg=' . a:definition['fg'])
+  endi
+
+  if bg_no >= 0
+    call insert(args, 'ctermbg=' . s:term_color(bg_no))
+    call insert(args, 'guibg=' . s:gui_color(bg_no))
+  elseif has_key(a:definition, 'bg')
+    call insert(args, 'guibg=' . a:definition['bg'])
+  endif
+
+  if sp_no >= 0
+    call insert(args, 'guisp=' . s:gui_color(sp_no))
+  endif
+
+  execute 'highlight' a:name 'NONE' join(args)
+endfunction
+
+
+
+
+function! s:attributes(input) abort  "{{{2
+  if &term ==# 'win32'
+    let ATTRS = {
+    \   'r': 'reverse',
+    \   's': 'standout',
+    \ }
+  else
+    let ATTRS = {
+    \   'b': 'bold',
+    \   'c': 'undercurl',
+    \   'i': 'italic',
+    \   'r': 'reverse',
+    \   's': 'standout',
+    \   'u': 'underline',
+    \ }
+  endif
+  let attrs = []
+  for key in split(a:input, '.\zs')
+    if has_key(ATTRS, key)
+      call insert(attrs, ATTRS[key])
+    endif
+  endfor
+  return empty(attrs) ? 'NONE' : join(attrs, ',')
+endfunction
+
+
+
+
+function! s:color_no(color_name) abort  "{{{2
+  if type(a:color_name) == type(0)
+    return a:color_name
+  endif
+  let COLOR_TABLE = {
+  \   'black': 0,
+  \   'red': 1,
+  \   'green': 2,
+  \   'yellow': 3,
+  \   'blue': 4,
+  \   'magenta': 5,
+  \   'cyan': 6,
+  \   'white': 7,
+  \   'bright_black': 8,
+  \   'bright_red': 9,
+  \   'bright_green': 10,
+  \   'bright_yellow': 11,
+  \   'bright_blue': 12,
+  \   'bright_magenta': 13,
+  \   'bright_cyan': 14,
+  \   'bright_white': 15,
+  \ }
+  return get(COLOR_TABLE, a:color_name, -1)
+endfunction
+
+
+
+
+function! s:term_color(color_no) abort  "{{{2
+  if &term ==# 'win32'
+    let INDEX_TABLE = [0, 4, 2, 6, 1, 5, 3, 7]
+    return INDEX_TABLE[a:color_no % len(INDEX_TABLE)]
+  else
+    return a:color_no % &t_Co
+  endif
+endfunction
+
+
+
+
+function! s:gui_color(color_no) abort  "{{{2
+  if a:color_no >= 16 && len(s:gui_colors) < 256
+    let s:gui_colors += s:xterm_256colors()
+  endif
+  return s:gui_colors[a:color_no % len(s:gui_colors)]
+endfunction
+
+
+
+
+function! s:xterm_256colors()  abort "{{{2
+  let colors = []
   let [r, g, b] = [0, 0, 0]
 
   for i in range(240, 25, -1)
@@ -77,7 +209,7 @@ function! s:xterm_256colors() "{{{
       let r += 1
     endif
 
-    call insert(_, '#' . join(map(rgb, 'printf("%02x", v:val)'), ''))
+    call insert(colors, '#' . join(map(rgb, 'printf("%02x", v:val)'), ''))
   endfor
 
   for i in range(24, 1, -1)
@@ -87,184 +219,96 @@ function! s:xterm_256colors() "{{{
       call add(rgb, 8 + (24 - i) * 10)
     endfor
 
-    call add(_, '#' . join(map(rgb, 'printf("%02x", v:val)'), ''))
+    call add(colors, '#' . join(map(rgb, 'printf("%02x", v:val)'), ''))
   endfor
 
-  return _
-endfunction  "}}}
-
-let s:color_table = s:basic_colors + s:xterm_256colors()
-
-
-
-
-" Utilities  "{{{1
-function! s:attributes(expr) "{{{2
-  if &term ==# 'win32'
-    let ATTRS = {
-    \   'r': 'reverse',
-    \   's': 'standout',
-    \ }
-  else
-    let ATTRS = {
-    \   'b': 'bold',
-    \   'c': 'undercurl',
-    \   'i': 'italic',
-    \   'r': 'reverse',
-    \   's': 'standout',
-    \   'u': 'underline',
-    \ }
-  endif
-  let attrs = []
-  for key in split(a:expr, '.\zs')
-    if has_key(ATTRS, key)
-      call insert(attrs, ATTRS[key])
-    endif
-  endfor
-  return empty(attrs) ? 'NONE' : join(attrs, ',')
-endfunction
-
-
-
-
-function! s:color(color)  "{{{2
-  if &term ==# 'win32'
-    let TABLE = [0, 4, 2, 6, 1, 5, 3, 7]
-    return TABLE[a:color % len(TABLE)]
-  else
-    return a:color % &t_Co
-  endif
-endfunction
-
-
-
-
-function! s:gui_color(color)  "{{{2
-  return s:color_table[a:color % len(s:color_table)]
-endfunction
-
-
-
-
-function! s:highlight(name, config)  "{{{2
-  let args = []
-  let reversed_p = 0
-
-  if has_key(a:config, 'attr')
-    let reversed_p = &term ==# 'win32' && a:config['attr'] =~# 'r'
-    call insert(args, 'cterm=' . s:attributes(a:config['attr']))
-    call insert(args, 'gui=' . s:attributes(a:config['attr']))
-  endif
-  if has_key(a:config, 'fg')
-    call insert(args, (reversed_p ? 'ctermbg=' : 'ctermfg=') . s:color(a:config['fg']))
-    call insert(args, (reversed_p ? 'guibg=' : 'guifg=') . s:gui_color(a:config['fg']))
-  endif
-  if has_key(a:config, 'bg')
-    call insert(args, (reversed_p ? 'ctermfg=' : 'ctermbg=') . s:color(a:config['bg']))
-    call insert(args, (reversed_p ? 'guifg=' : 'guibg=') . s:gui_color(a:config['bg']))
-  endif
-  if has_key(a:config, 'sp')
-    call insert(args, 'guisp=' . s:gui_color(a:config['sp']))
-  endif
-
-  execute 'highlight' a:name 'NONE' join(args)
+  return colors
 endfunction
 
 
 
 
 " Highlights  "{{{1
-" Basic  "{{{2
 
-if has('gui_running')
-  execute 'highlight Normal' 'guifg='.s:foreground_color 'guibg='.s:background_color
-else
-  call s:highlight('Normal', {})
-endif
-
-call s:highlight('ColorColumn'  , {'bg': 8})
-call s:highlight('Conceal'      , {'fg': 8})
-call s:highlight('Cursor'       , {'bg': 2})
-call s:highlight('CursorColumn' , {'bg': 0})
-call s:highlight('CursorIM'     , {'bg': 14})
-call s:highlight('CursorLine'   , {'bg': 0})
-call s:highlight('DiffAdd'      , {'bg': 4})
-call s:highlight('DiffChange'   , {'bg': 5})
-call s:highlight('DiffDelete'   , {'fg': 8})
-call s:highlight('Directory'    , {'fg': 14})
-call s:highlight('DiffText'     , {'bg': 5})
-call s:highlight('ErrorMsg'     , {'bg': 1})
-call s:highlight('VertSplit'    , {'attr': 'r', 'fg': 8})
-call s:highlight('Folded'       , {'attr': 'i', 'fg': 6})
-call s:highlight('FoldColumn'   , {'fg': 6})
-call s:highlight('SignColumn'   , {'fg': 14})
-call s:highlight('IncSearch'    , {'attr': 'r'})
-call s:highlight('LineNr'       , {'fg': 8})
-call s:highlight('CursorLineNr' , {'bg': 0})
-call s:highlight('MatchParen'   , {'attr': 'b', 'fg': 0, 'bg': 14})
-call s:highlight('ModeMsg'      , {'bg': 4})
-call s:highlight('MoreMsg'      , {'bg': 2})
-call s:highlight('NonText'      , {'fg': 8})
-call s:highlight('Pmenu'        , {'bg': 0})
-call s:highlight('PmenuSbar'    , {})
-call s:highlight('PmenuSel'     , {'attr': 'r', 'fg': 11})
-call s:highlight('PmenuThumb'   , {'bg': 11})
-call s:highlight('Question'     , {'fg': 10})
-call s:highlight('Search'       , {'attr': 'r', 'fg': 11})
-call s:highlight('SpecialKey'   , {'fg': 8})
-if has('gui_running')
-  call s:highlight('SpellBad'   , {'attr': 'c', 'sp': 1})
-  call s:highlight('SpellCap'   , {'attr': 'c', 'sp': 4})
-  call s:highlight('SpellRare'  , {'attr': 'c', 'sp': 5})
-  call s:highlight('SpellLocal' , {'attr': 'c', 'sp': 6})
-else
-  call s:highlight('SpellBad'   , {'bg': 1})
-  call s:highlight('SpellCap'   , {'bg': 4})
-  call s:highlight('SpellRare'  , {'bg': 5})
-  call s:highlight('SpellLocal' , {'bg': 6})
-endif
-call s:highlight('StatusLine'   , {'attr': 'b', 'bg': 0})
-call s:highlight('StatusLineNC' , {'bg': 8})
-call s:highlight('TabLine'      , {'bg': 0})
-call s:highlight('TabLineFill'  , {'bg': 0})
-call s:highlight('TabLineSel'   , {'attr': 'bu', 'bg': 0})
-call s:highlight('Title'        , {'fg': 14})
-call s:highlight('Visual'       , {'bg': 4})
-call s:highlight('VisualNOS'    , {'attr': 'r'})
-call s:highlight('WarningMsg'   , {'fg': 11})
-call s:highlight('WildMenu'     , {'attr': 'br', 'fg': 11})
-call s:highlight('lCursor'      , {'bg': 14})
-
-
-
-
-" Syntax  "{{{2
-
-call s:highlight('Comment'      , {'attr': 'i', 'fg': 7})
-call s:highlight('Constant'     , {'fg': 13})
-call s:highlight('Identifier'   , {'fg': 14})
-call s:highlight('Statement'    , {'fg': 11})
-call s:highlight('PreProc'      , {'fg': 12})
-call s:highlight('Type'         , {'fg': 10})
-call s:highlight('Special'      , {'fg': 9})
-call s:highlight('Underlined'   , {'attr': 'u', 'fg': 12})
-call s:highlight('Ignore'       , {'fg': 0})
-call s:highlight('Error'        , {'bg': 1})
-call s:highlight('Todo'         , {'attr': 'u', 'fg': 11})
-
-call s:highlight('LspError'               , {'fg': 9})
-call s:highlight('LspErrorText'           , {'fg': 9})
-call s:highlight('LspErrorHighlight'      , {'attr': 'c'})
-call s:highlight('LspWarning'             , {'fg': 9})
-call s:highlight('LspWarningText'         , {'fg': 9})
-call s:highlight('LspWarningHighlight'    , {'attr': 'c'})
-call s:highlight('LspInformation'         , {'fg': 12})
-call s:highlight('LspInformationText'     , {'fg': 12})
-call s:highlight('LspInformationHighlight', {'attr': 'c'})
-call s:highlight('LspHint'                , {'fg': 12})
-call s:highlight('LspHintText'            , {'fg': 12})
-call s:highlight('LspHintHighlight'       , {'attr': 'c'})
-
+call s:highlight_config({
+\   'Normal':                  {'fg': s:gui_fg_color, 'bg': s:gui_bg_color },
+\   'ColorColumn':             {'bg': 'bright_black'},
+\   'Conceal':                 {'fg': 'bright_black'},
+\   'Cursor':                  {'bg': 'green'},
+\   'CursorColumn':            {'bg': 'black'},
+\   'CursorIM':                {'bg': 'bright_cyan'},
+\   'CursorLine':              {'bg': 'black'},
+\   'DiffAdd':                 {'bg': 'blue'},
+\   'DiffChange':              {'bg': 'magenta'},
+\   'DiffDelete':              {'fg': 'bright_black'},
+\   'Directory':               {'fg': 'bright_cyan'},
+\   'DiffText':                {'bg': 'magenta'},
+\   'ErrorMsg':                {'bg': 'red'},
+\   'VertSplit':               {'attr': 'r', 'fg': 'bright_black'},
+\   'Folded':                  {'attr': 'i', 'fg': 'cyan'},
+\   'FoldColumn':              {'fg': 'cyan'},
+\   'SignColumn':              {'fg': 'bright_cyan'},
+\   'IncSearch':               {'attr': 'r'},
+\   'LineNr':                  {'fg': 'bright_black'},
+\   'CursorLineNr':            {'bg': 'black'},
+\   'MatchParen':              {'attr': 'b', 'fg': 'black', 'bg': 'bright_cyan'},
+\   'ModeMsg':                 {'bg': 'blue'},
+\   'MoreMsg':                 {'bg': 'green'},
+\   'NonText':                 {'fg': 'bright_black'},
+\   'Pmenu':                   {'bg': 'black'},
+\   'PmenuSbar':               {'bg': 'bright_black'},
+\   'PmenuSel':                {'attr': 'r', 'fg': 'bright_yellow'},
+\   'PmenuThumb':              {'bg': 'bright_yellow'},
+\   'Question':                {'fg': 'bright_green'},
+\   'Search':                  {'attr': 'r', 'fg': 'bright_yellow'},
+\   'SpecialKey':              {'fg': 'bright_black'},
+\
+\   'SpellBad':                has('gui_running') ? {'attr': 'c', 'sp': 'red'} : {'bg': 'red'},
+\   'SpellCap':                has('gui_running') ? {'attr': 'c', 'sp': 'blue'} : {'bg': 'blue'},
+\   'SpellRare':               has('gui_running') ? {'attr': 'c', 'sp': 'magenta'} : {'bg': 'magenta'},
+\   'SpellLocal':              has('gui_running') ? {'attr': 'c', 'sp': 'cyan'} : {'bg': 'cyan'},
+\
+\   'StatusLine':              {'attr': 'b', 'bg': 'black'},
+\   'StatusLineNC':            {'bg': 'bright_black'},
+\   'StatusLineTerm':          {'attr': 'br', 'fg': 'bright_green'},
+\   'StatusLineTermNC':        {'attr': 'r', 'fg': 'green'},
+\   'TabLine':                 {'bg': 'black'},
+\   'TabLineFill':             {'bg': 'black'},
+\   'TabLineSel':              {'attr': 'bu', 'bg': 'black'},
+\   'ToolbarLine':             {'bg': 'black'},
+\   'ToolbarButton':           {'attr': 'b', 'bg': 'bright_black'},
+\   'Title':                   {'fg': 'bright_cyan'},
+\   'Visual':                  {'bg': 'blue'},
+\   'VisualNOS':               {'attr': 'r'},
+\   'WarningMsg':              {'fg': 'bright_yellow'},
+\   'WildMenu':                {'attr': 'br', 'fg': 'bright_yellow'},
+\   'lCursor':                 {'bg': 'bright_cyan'},
+\
+\   'Comment':                 {'attr': 'i', 'fg': 'white'},
+\   'Constant':                {'fg': 'bright_magenta'},
+\   'Identifier':              {'fg': 'bright_cyan'},
+\   'Statement':               {'fg': 'bright_yellow'},
+\   'PreProc':                 {'fg': 'bright_blue'},
+\   'Type':                    {'fg': 'bright_green'},
+\   'Special':                 {'fg': 'bright_red'},
+\   'Underlined':              {'attr': 'u', 'fg': 'bright_blue'},
+\   'Ignore':                  {'fg': 'black'},
+\   'Error':                   {'bg': 'red'},
+\   'Todo':                    {'attr': 'u', 'fg': 'bright_yellow'},
+\
+\   'LspError':                {'fg': 'bright_red'},
+\   'LspErrorText':            {'fg': 'bright_red'},
+\   'LspErrorHighlight':       {'attr': 'c'},
+\   'LspWarning':              {'fg': 'bright_red'},
+\   'LspWarningText':          {'fg': 'bright_red'},
+\   'LspWarningHighlight':     {'attr': 'c'},
+\   'LspInformation':          {'fg': 'bright_blue'},
+\   'LspInformationText':      {'fg': 'bright_blue'},
+\   'LspInformationHighlight': {'attr': 'c'},
+\   'LspHint':                 {'fg': 'bright_blue'},
+\   'LspHintText':             {'fg': 'bright_blue'},
+\   'LspHintHighlight':        {'attr': 'c'},
+\ })
 
 
 

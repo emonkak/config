@@ -101,7 +101,7 @@ sys-libs/tevent python  # required by net-fs/samba
 sys-libs/zlib minizip  # required by media-video/vlc
 sys-process/tini static  # required by app-emulation/docker
 
-# required by app-emulation/wine-vanilla
+# for Wine
 app-arch/bzip2 abi_x86_32
 app-arch/zstd abi_x86_32
 app-emulation/wine-gecko abi_x86_32
@@ -136,6 +136,7 @@ media-libs/libsdl2 abi_x86_32
 media-libs/libsndfile abi_x86_32
 media-libs/libvorbis abi_x86_32
 media-libs/mesa abi_x86_32
+media-libs/speexdsp abi_x86_32
 media-libs/vulkan-loader abi_x86_32
 media-plugins/alsa-plugins abi_x86_32
 media-sound/mpg123 abi_x86_32
@@ -242,3 +243,14 @@ media-libs/opus abi_x86_32
 # required by media-video/shotcut
 media-libs/mlt qt5 frei0r xml sdl ffmpeg jack opengl fftw
 media-libs/libsdl2 opengl
+# required by virtual/libcrypt-2::gentoo
+# required by dev-lang/python-3.8.12_p1::gentoo
+# required by sys-apps/pkgcore-0.12.8::gentoo[python_targets_python3_8]
+# required by app-admin/perl-cleaner-2.30::gentoo
+# required by dev-lang/perl-5.34.0-r3::gentoo[-minimal]
+# required by app-text/po4a-0.63-r1::gentoo
+# required by sys-apps/man-db-2.9.4-r1::gentoo[nls]
+# required by virtual/man-0-r4::gentoo
+# required by @system
+# required by @world (argument)
+>=sys-libs/libxcrypt-4.4.25 abi_x86_32
