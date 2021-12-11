@@ -1,8 +1,0 @@
-app-admin/eselect-php fpm
-app-db/mroonga mecab
-app-editors/vim X lua python
-app-text/groonga mecab libedit
-dev-lang/php curl fpm gmp pcntl pdo
-net-misc/mosh -utempter
-net-misc/rsync iconv
-sys-apps/portage python3

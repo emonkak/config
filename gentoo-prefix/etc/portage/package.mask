@@ -1,3 +1,0 @@
-=dev-libs/libgpg-error-1.15
-=sys-apps/portage-2.2.14_rc*
-=www-servers/apache-2.4.4*
