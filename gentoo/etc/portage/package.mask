@@ -1,3 +1,2 @@
 dev-lang/python:2.7
 media-libs/jpeg
-sys-fs/udev

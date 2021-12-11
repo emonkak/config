@@ -12,11 +12,11 @@
 #
 # <fs>				<mountpoint>	<type>		<opts> <dump/pass>
 
-UUID="B55B-8F54"				/boot			vfat	noatime 1 2
+UUID="B55B-8F54"				/boot			vfat	noatime,discard 1 2
 UUID="ebe99a24-f1a0-466e-9d3d-d8d16b378790"	/			ext4	noatime,discard 1 1
-UUID="E0344FBA344F9308"				/mnt/windows		ntfs-3g	noatime,uid=1000,gid=users,fmask=0113,dmask=0022,windows_names 0 0
-/dev/sdc1					/mnt/tank1		ntfs-3g	noatime,uid=1000,gid=users,fmask=0113,dmask=0022,windows_names 0 0
-/dev/sdd1					/mnt/tank2		ntfs-3g	noatime,uid=1000,gid=users,fmask=0113,dmask=0022,windows_names 0 0
+UUID="E0344FBA344F9308"				/mnt/windows		ntfs3	noatime,uid=1000,gid=1000,fmask=0113,dmask=0022,force 0 0
+/dev/sdc1					/mnt/tank1		ntfs3	noatime,uid=1000,gid=1000,fmask=0113,dmask=0022,force 0 0
+/dev/sdd1					/mnt/tank2		ntfs3	noatime,uid=1000,gid=1000,fmask=0113,dmask=0022,force 0 0
 
 /dev/cdrom					/mnt/cdrom		auto	noauto,user 0 0
 #tmpfs						/var/tmp/portage	tmpfs	noatime,size=8g 0 0

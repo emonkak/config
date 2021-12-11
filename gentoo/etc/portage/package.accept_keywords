@@ -32,6 +32,7 @@ net-p2p/resilio-sync ~amd64
 net-proxy/mitmproxy ~amd64
 sys-apps/ripgrep ~amd64
 sys-fs/dmg2img ~amd64
+sys-fs/udev ~amd64
 virtual/rust ~amd64
 www-client/brave-bin ~amd64
 www-client/firefox-bin ~amd64
@@ -76,3 +77,6 @@ media-video/shotcut ~amd64
 # BCC
 dev-libs/libbpf ~amd64
 dev-util/bcc ~amd64
+
+# Fix compile error of rust on v78.14.0
+=dev-lang/spidermonkey-78.15.0

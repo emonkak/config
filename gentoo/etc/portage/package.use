@@ -2,12 +2,11 @@
 */* PYTHON_SINGLE_TARGET: -python2_7
 
 app-admin/conky imlib lua mpd
-app-arch/unzip natspec  # natspec: ShiftJIS Supporting
+app-arch/unzip natspec  # ShiftJIS Supporting
 app-editors/gvim LUA_SINGLE_TARGET: -* luajit
 app-editors/gvim gtk lua luajit
-app-editors/neovim LUA_SINGLE_TARGET: -* luajit
 app-editors/vim LUA_SINGLE_TARGET: -* luajit
-app-editors/vim lua_single_target_luajit lua luajit terminal
+app-editors/vim lua luajit terminal
 app-emulation/libvirt qemu virt-network
 app-emulation/qemu opengl qemu-ifup sdl
 app-emulation/wine-vanilla fontconfig gstreamer jpeg mp3 png vulkan xml
@@ -30,7 +29,6 @@ dev-lang/rust-bin rls rustfmt
 dev-lang/scala binary
 dev-libs/libdbusmenu gtk3
 dev-lua/* luajit
-dev-php/hhvm hack
 dev-vcs/git perl
 dev-vcs/subversion -dso perl python
 media-gfx/comix rar
@@ -65,10 +63,8 @@ sys-auth/polkit consolekit
 sys-block/gparted fat ntfs
 sys-boot/grub mount
 sys-devel/llvm clang
-sys-fs/eudev gudev
 sys-kernel/gentoo-sources symlink
 sys-libs/tdb python
-virtual/udev gudev hwdb
 www-client/google-chrome linguas_ja
 www-client/jd migemo
 www-client/w3m linguas_ja
@@ -81,25 +77,44 @@ x11-misc/xmobar -with_weather mpd xft xpm
 x11-terms/rxvt-unicode -vanilla 256-color perl truetype xft unicode3
 x11-terms/xterm truetype
 
-app-arch/libarchive zstd # required by media-fonts/twemoji
-app-crypt/gcr gtk  # required by app-editors/visual-studio-code
-app-crypt/pinentry gnome-keyring  # required by app-editors/visual-studio-code
-app-text/xmlto text  # required by (x11-misc/xdg-utils)
-dev-libs/boost context icu  # context: required by dev-php/hhvm, icu: required by media-sound/ncmpcpp
-dev-libs/glib dbus  # required by app-text/evince
-dev-libs/libpcre2 pcre16 # required by app-emulation/genymotion-bin
+app-text/xmlto text  # required by x11-misc/xdg-utils
+dev-libs/boost icu  # required by media-sound/ncmpcpp
 dev-libs/libpcre2 pcre32  # required by app-shells/fish
-dev-libs/libxml2 python  # required by app-text/evince
-media-libs/gegl cairo # required by media-gfx/gimp
-media-libs/mesa gles2  # required by app-emulation/qemu
-net-dns/dnsmasq script  # required by app-emulation/libvirt
-net-misc/spice-gtk gtk3  # required by app-emulation/virt-viewer
-sys-devel/binutils static-libs  # required by dev-php/hhvm
+media-libs/gegl cairo  # required by media-gfx/gimp
 sys-devel/clang xml  # required by dotnetcore-sdk-bin
-sys-libs/libseccomp static-libs  # required by app-emulation/docker
 sys-libs/tevent python  # required by net-fs/samba
 sys-libs/zlib minizip  # required by media-video/vlc
-sys-process/tini static  # required by app-emulation/docker
+
+# app-emulation/docker
+sys-libs/libseccomp static-libs
+sys-process/tini static
+
+# for app-text/evince
+dev-libs/glib dbus
+dev-libs/libxml2 python
+
+# for media-video/mpv
+media-libs/libglvnd abi_x86_32
+
+# for x11-base/xorg-server
+sys-auth/pambase elogind
+
+# for sys-power/suspend::gentoo[crypt]
+dev-libs/lzo static-libs
+dev-libs/libgcrypt static-libs
+dev-libs/libgpg-error static-libs
+
+# for games-emulation/dolphin
+media-libs/opus abi_x86_32
+
+# for media-video/shotcut
+# media-libs/libsdl2 opengl
+# media-libs/mlt qt5 frei0r xml sdl ffmpeg jack opengl fftw
+# media-libs/opencv contrib contribdnn
+
+# for app-editors/neovim
+app-editors/neovim LUA_SINGLE_TARGET: -* luajit
+dev-lua/mpack lua_targets_luajit
 
 # for Wine
 app-arch/bzip2 abi_x86_32
@@ -152,7 +167,6 @@ sys-auth/consolekit policykit
 sys-devel/flex abi_x86_32
 sys-devel/gettext abi_x86_32
 sys-devel/llvm abi_x86_32
-sys-fs/eudev abi_x86_32
 sys-libs/cracklib abi_x86_32
 sys-libs/db abi_x86_32
 sys-libs/libcap abi_x86_32
@@ -209,7 +223,7 @@ x11-proto/xf86driproto abi_x86_32
 x11-proto/xf86vidmodeproto abi_x86_32
 x11-proto/xproto abi_x86_32
 
-# for Wine with gstreamer
+# for Wine[gstreamer]
 dev-lang/orc abi_x86_32
 dev-libs/fribidi abi_x86_32
 dev-libs/lzo abi_x86_32
@@ -226,31 +240,7 @@ x11-libs/libXv abi_x86_32
 x11-libs/pango abi_x86_32
 x11-libs/pixman abi_x86_32
 
-# required by media-video/mpv
-media-libs/libglvnd abi_x86_32
-
-# required by x11-base/xorg-server
-sys-auth/pambase elogind
-
-# required by sys-power/suspend::gentoo[crypt]
-dev-libs/lzo static-libs
-dev-libs/libgcrypt static-libs
-dev-libs/libgpg-error static-libs
-
-# required by games-emulation/dolphin
-media-libs/opus abi_x86_32
-
-# required by media-video/shotcut
-media-libs/mlt qt5 frei0r xml sdl ffmpeg jack opengl fftw
-media-libs/libsdl2 opengl
-# required by virtual/libcrypt-2::gentoo
-# required by dev-lang/python-3.8.12_p1::gentoo
-# required by sys-apps/pkgcore-0.12.8::gentoo[python_targets_python3_8]
-# required by app-admin/perl-cleaner-2.30::gentoo
-# required by dev-lang/perl-5.34.0-r3::gentoo[-minimal]
-# required by app-text/po4a-0.63-r1::gentoo
-# required by sys-apps/man-db-2.9.4-r1::gentoo[nls]
-# required by virtual/man-0-r4::gentoo
-# required by @system
-# required by @world (argument)
->=sys-libs/libxcrypt-4.4.25 abi_x86_32
+# udev
+sys-apps/hwids -udev
+sys-fs/udev abi_x86_32
+sys-libs/libxcrypt abi_x86_32

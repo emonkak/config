@@ -106,6 +106,8 @@ if has('gui_running') && exists('+clipboard')
   if has('unnamedplus')
     set clipboard+=unnamedplus
   endif
+else
+  set clipboard=
 endif
 set cmdheight=1
 set complete&
@@ -2735,6 +2737,11 @@ nmap [Space]S  <Plug>(operator-sort)$
 vmap [Space]S  <Plug>(operator-sort)$
 nmap [Space]s  <Plug>(operator-sort)
 vmap [Space]s  <Plug>(operator-sort)
+
+nmap [Space]N  <Plug>(operator-sort-numeric)$
+vmap [Space]N  <Plug>(operator-sort-numeric)$
+nmap [Space]n  <Plug>(operator-sort-numeric)
+vmap [Space]n  <Plug>(operator-sort-numeric)
 
 
 

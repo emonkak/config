@@ -16,10 +16,8 @@ ALL_GROUPS=\
   GENTOO \
   LINUX \
   VIM \
-  XMONAD
 
 GROUP_DOTS_FILES=\
-  dotfiles/dot.Xmodmap \
   dotfiles/dot.Xresources \
   dotfiles/dot.bashrc \
   dotfiles/dot.config/fontconfig/fonts.conf \
@@ -31,7 +29,10 @@ GROUP_DOTS_FILES=\
   dotfiles/dot.screenrc \
   dotfiles/dot.tmux.conf \
   dotfiles/dot.uim \
+  dotfiles/dot.xkb/keymap/my_keymap \
+  dotfiles/dot.xkb/symbols/my_symbols \
   dotfiles/dot.xinitrc \
+  dotfiles/dot.xmonad/xmonad.hs \
   dotfiles/dot.zprofile \
   dotfiles/dot.zshrc
 GROUP_DOTS_RULE=$(patsubst dotfiles/dot.%, $(HOME)/.%, $(1))
@@ -56,10 +57,6 @@ GROUP_VIM_FILES=$(patsubst $(HOME)/.%, vim/dot.%, $(shell find $(HOME)/.vim/{aft
   vim/dot.vim/colors/basic256.vim \
   vim/dot.vimrc
 GROUP_VIM_RULE=$(patsubst vim/dot.%, $(HOME)/.%, $(1))
-
-GROUP_XMONAD_FILES=\
-  xmonad/xmonad.hs
-GROUP_XMONAD_RULE=$(patsubst xmonad/%, $(HOME)/.xmonad/%, $(1))
 
 
 

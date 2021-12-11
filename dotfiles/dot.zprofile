@@ -1,6 +1,6 @@
 export PATH="$HOME/bin:$HOME/.local/bin:$HOME/opt/bin:$PATH"
 
-export LANG='ja_JP.UTF-8'
+export LANG='en_US.UTF-8'
 export LC_MESSAGES='C'
 export LC_TIME='C'
 

@@ -48,7 +48,7 @@ myModMask = mod4Mask
 myWorkspaces = map show [1..9]
 
 myFont = "xft:Monospace:pixelsize=11"
-myNormalBorderColor = "#869096"
+myNormalBorderColor = "#21272b"
 myNormalFGColor = "#f5f6f7"
 myNormalBGColor = "#21272b"
 
@@ -56,9 +56,11 @@ myFocusedBorderColor = "#1c95e6"
 myFocusedFGColor = "#5ebaf7"
 myFocusedBGColor = "#21272b"
 
+myAlternateFGColor = "#869096"
+
 myStatusbarHeight = 21
 
-myXPConfig ref = defaultXPConfig
+myXPConfig ref = (def :: XPConfig)
   { font              = myFont
   , fgColor           = myNormalFGColor
   , bgColor           = myNormalBGColor
@@ -87,9 +89,7 @@ myXPConfig ref = defaultXPConfig
 -- Hooks  --{{{1
 -- EventHook  --{{{2
 
-myEventHook = fullscreenEventHook
-          <+> docksEventHook
-          <+> removeBorderEventHook (className =? "Wine")
+myEventHook = removeBorderEventHook (className =? "Wine")
 
 removeBorderEventHook :: Query Bool -> Event -> X All
 removeBorderEventHook query e = do
@@ -122,22 +122,23 @@ myLogHook h = do
   home  <- io getHomeDirectory
   floated <- withWindowSet isFloat
   let icon = wrap ("<icon=" ++ home ++ "/.xmonad/icons/") "/>"
-      layoutIcon name = case name of
+      renameLayout name = case name of
         "Spacing ResizableTall"        -> icon "layout-tall-black.xbm"
         "Mirror Spacing ResizableTall" -> icon "layout-mirror-black.xbm"
         "Full"                         -> icon "layout-full-black.xbm"
         "Spiral"                       -> icon "layout-spiral-black.xbm"
         _                              -> name
-  dynamicLogWithPP $ defaultPP
-    { ppOutput          = hPutStrLn h
-    , ppCurrent         = xmobarColor myFocusedFGColor "" . wrap "[" "]"
-    , ppHidden          = wrap " " " "
-    , ppHiddenNoWindows = xmobarColor myNormalBorderColor "" . wrap " " " "
-    , ppUrgent          = wrap "*" " "
-    , ppSep             = xmobarColor myNormalBorderColor "" " | "
-    , ppWsSep           = ""
-    , ppTitle           = if floated then ("<fn=1>\xe069</fn> " ++) . xmobarRaw else xmobarRaw
-    , ppLayout          = xmobarColor myFocusedFGColor "" . layoutIcon
+  dynamicLogWithPP $ def
+    { ppOutput           = hPutStrLn h
+    , ppCurrent          = xmobarColor myFocusedFGColor "" . wrap "[" "]"
+    , ppHidden           = wrap " " " "
+    , ppHiddenNoWindows  = xmobarColor myAlternateFGColor "" . wrap " " " "
+    , ppUrgent           = wrap "*" " "
+    , ppSep              = xmobarColor myAlternateFGColor "" " | "
+    , ppWsSep            = ""
+    , ppTitle            = if floated then ("<fn=1>\xe069</fn> " ++) else id
+    , ppTitleSanitize    = xmobarRaw
+    , ppLayout           = xmobarColor myFocusedFGColor "" . renameLayout
     }
   where
     isFloat ws = return $ case W.peek ws of
@@ -185,7 +186,7 @@ myManageHook = manageDocks
           workspace <- liftX (W.workspace . W.current <$> gets windowset)
           case W.stack workspace of
             Nothing -> doShiftAndGo (W.tag workspace)
-            _       -> liftX (findWorkspace getSortByIndex Next EmptyWS 1) >>= doShiftAndGo
+            _       -> liftX (findWorkspace getSortByIndex Next (Not emptyWS) 1) >>= doShiftAndGo
         _ -> idHook
     hasProperty p = ask >>= \w -> liftX $ withDisplay $ \d ->
       maybe False (const True) <$> getStringProperty d w p
@@ -213,8 +214,8 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask,                 xK_space),        sendMessage NextLayout)
   , ((modMask .|. shiftMask,   xK_space),        setLayout $ layoutHook conf)
 
-  , ((modMask,                 xK_Tab),          moveTo Next NonEmptyWS)
-  , ((modMask .|. shiftMask,   xK_Tab),          moveTo Prev NonEmptyWS)
+  , ((modMask,                 xK_Tab),          moveTo Next (Not emptyWS))
+  , ((modMask .|. shiftMask,   xK_Tab),          moveTo Prev (Not emptyWS))
 
   , ((modMask,                 xK_j),            windows W.focusDown)
   , ((modMask,                 xK_k),            windows W.focusUp)
@@ -300,9 +301,9 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList
                                        >> windows W.shiftMaster)
   , ((modMask, button2), windows . (W.shiftMaster .) . W.focusWindow)
   , ((modMask, button3), \w -> focus w >> mouseResizeWindow w >> windows W.shiftMaster)
-  , ((modMask, 8),       \w -> focus w >> findWorkspace getSortByIndex Prev AnyWS 1
+  , ((modMask, 8),       \w -> focus w >> findWorkspace getSortByIndex Prev anyWS 1
                                        >>= windows . W.shift)
-  , ((modMask, 9),       \w -> focus w >> findWorkspace getSortByIndex Next AnyWS 1
+  , ((modMask, 9),       \w -> focus w >> findWorkspace getSortByIndex Next anyWS 1
                                        >>= windows . W.shift)
   ]
 
@@ -314,7 +315,7 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList
 main = do
   statusPipe <- spawnPipe "xmobar"
 
-  xmonad $ withUrgencyHook NoUrgencyHook $ ewmh $ def
+  xmonad $ withUrgencyHook NoUrgencyHook $ docks $ ewmhFullscreen $ ewmh $ def
     { terminal           = myTerminal
     , borderWidth        = myBorderWidth
     , modMask            = myModMask

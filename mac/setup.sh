@@ -9,7 +9,7 @@ fi
 
 if [ ! -f /usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask/Casks/cooviewer.rb ]
 then
-  tee /usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask/Casks/cooviewer.rb &> /dev/null <<EOL
+  cat <<EOF > /usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask/Casks/cooviewer.rb
 cask 'cooviewer' do
   version '1.2b25'
   sha256 'b085124c540ce6e7cf2f8dbf1c2a0dc7ae47133d9afbc73357ac98ea168cf09e'
@@ -20,21 +20,44 @@ cask 'cooviewer' do
 
   app 'cooViewer/cooViewer.app'
 end
-EOL
+EOF
+fi
+
+if [ ! -f /usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask/Casks/hakumai.rb ]
+then
+  cat <<EOF > /usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask/Casks/hakumai.rb
+cask 'hakumai' do
+  version '2.2.0'
+  sha256 '6df26a31b9220302fbe796cec8890055396f02cffcce05181262792358498b7e'
+
+  url "https://hakumai.s3.amazonaws.com/Hakumai.2.2.0.zip"
+  name 'Hakumai'
+  homepage 'https://honishi.github.io/Hakumai/'
+
+  app 'Hakumai.app'
+end
+EOF
 fi
 
 brew install --cask \
   altserver \
+  appcleaner \
   aquaskk \
   bettertouchtool \
   brave-browser \
+  checkra1n \
+  clipy \
   cooviewer \
+  hakumai \
+  impactor \
   iterm2 \
   karabiner-elements \
+  licecap \
   menumeters \
   resilio-sync \
   the-unarchiver \
   transmission \
+  vlc \
 
 brew install \
   coreutils \
@@ -47,6 +70,7 @@ brew install \
   gnu-tar \
   grep \
   gzip \
+  make \
   tig \
   tmux \
   vim \

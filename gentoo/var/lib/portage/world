@@ -43,6 +43,7 @@ app-misc/tmux
 app-misc/trash-cli
 app-misc/upp
 app-misc/yq
+app-mobilephone/checkra1n-bin
 app-pda/ideviceinstaller
 app-pda/ifuse
 app-pda/usbmuxd
@@ -94,6 +95,7 @@ kde-plasma/xembed-sni-proxy
 mail-client/mailx
 mail-mta/msmtp
 media-fonts/corefonts
+media-fonts/font-misc-misc
 media-fonts/mplus-fonts
 media-fonts/noto-emoji
 media-fonts/pcf2bdf
@@ -134,7 +136,6 @@ media-tv/v4l-utils
 media-video/guvcview
 media-video/mpv
 media-video/rtmpdump
-media-video/shotcut
 media-video/vlc
 net-analyzer/ngrep
 net-analyzer/nmap
@@ -210,13 +211,13 @@ www-client/firefox-bin
 www-client/google-chrome
 www-client/v2c
 www-servers/nginx
+x11-apps/setxkbmap
 x11-apps/xdpyinfo
 x11-apps/xev
 x11-apps/xfontsel
 x11-apps/xinput
 x11-apps/xkill
 x11-apps/xmessage
-x11-apps/xmodmap
 x11-apps/xprop
 x11-apps/xrandr
 x11-apps/xset

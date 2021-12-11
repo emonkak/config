@@ -1,7 +1,7 @@
 export PATH
 export MANPATH
 
-for package in coreutils findutils gawk gnu-sed gnu-tar grep gsed
+for package in coreutils findutils gawk gnu-sed gnu-tar grep
 do
   if [ -d "/usr/local/opt/$package/libexec/gnubin" ]
   then

@@ -1,0 +1,4 @@
+xkb_symbols "my_keys" {
+    replace key <AC10> { [ colon, semicolon ] };
+    key <HENK> { [ Zenkaku_Hankaku ] };
+};
