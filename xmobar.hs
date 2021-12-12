@@ -1,12 +1,12 @@
 import Xmobar
 
 import Monitors.CatNum (CatNum(..))
+import Monitors.PulseAudio (PulseAudio(..))
 
 config :: Config
 config = defaultConfig
-  { font = "xft:Monospace:pixelsize=11,Noto Sans CJK JP:pixelsize=11"
-  , additionalFonts = [ "xft:Font Awesome 5 Free Solid:pixelsize=12"
-                      ]
+  { font = "xft:Monospace:pixelsize=11,Tazugane Gothic StdN:pixelsize=11,Noto Emoji:pixelsize=11"
+  , additionalFonts = [ "xft:Material Icons:pixelsize=16" ]
   , bgColor = "#21272b"
   , fgColor = "#f5f6f7"
   , position = Top
@@ -17,14 +17,14 @@ config = defaultConfig
                  , "-M", "20"
                  , "-e", "..."
                  , "--"
-                 , "-P", "<fc=#5ebaf7><fn=1>\xf001</fn></fc>"
-                 , "-S", "<fc=#869096><fn=1>\xf04d</fn></fc>"
-                 , "-Z", "<fc=#869096><fn=1>\xf04c</fn></fc>"
+                 , "-P", "<fc=#5ebaf7><fn=1>\xe405</fn></fc>"
+                 , "-S", "<fc=#869096><fn=1>\xe047</fn></fc>"
+                 , "-Z", "<fc=#869096><fn=1>\xe034</fn></fc>"
                  , "-h", "127.0.0.1"
                  , "-p", "6600"
                  ] 10
                , Run $ Cpu
-                 [ "-t", "<fc=#5ebaf7><fn=1>\xf2db</fn></fc> <total>"
+                 [ "-t", "<fc=#5ebaf7><fn=1>\xe1af</fn></fc> <total>"
                  , "-L", "50"
                  , "-H", "75"
                  , "-n", "#5ebaf7"
@@ -49,7 +49,7 @@ config = defaultConfig
                , Run $ CatNum "gpu"
                  [ "/sys/class/drm/card0/device/gpu_busy_percent"
                  ]
-                 [ "-t", "<fc=#5ebaf7><fn=1>\xf26c</fn></fc> <n0>"
+                 [ "-t", "<fc=#5ebaf7><fn=1>\xe30c</fn></fc> <n0>"
                  , "-L", "50"
                  , "-H", "75"
                  , "-n", "#5ebaf7"
@@ -73,7 +73,7 @@ config = defaultConfig
                  , "--suffix", "°C"
                  ] 10
                , Run $ Memory
-                 [ "-t", "<fc=#5ebaf7><fn=1>\xf538</fn></fc> <usedratio>"
+                 [ "-t", "<fc=#5ebaf7><fn=1>\xe322</fn></fc> <usedratio>"
                  , "-L", "50"
                  , "-H", "75"
                  , "-n", "#5ebaf7"
@@ -82,7 +82,7 @@ config = defaultConfig
                  , "-p", "3"
                  ] 10
                , Run $ DiskU
-                 [ ("/", "<fc=#5ebaf7><fn=1>\xf0a0</fn></fc> <usedp>")
+                 [ ("/", "<fc=#5ebaf7><fn=1>\xe1db</fn></fc> <usedp>")
                  ]
                  [ "-L", "50"
                  , "-H", "75"
@@ -91,7 +91,7 @@ config = defaultConfig
                  , "-m", "1"
                  ] 100
                , Run $ Network "eth0"
-                 [ "-t", "<fc=#5ebaf7><fn=1>\xf062</fn></fc> <tx> <fc=#5ebaf7><fn=1>\xf063</fn></fc> <rx>"
+                 [ "-t", "<fc=#5ebaf7><fn=1>\xe5d8</fn></fc> <tx> <fc=#5ebaf7><fn=1>\xe5db</fn></fc> <rx>"
                  , "-L", "1000"
                  , "-H", "100000"
                  , "-l", "#869096"
@@ -100,19 +100,17 @@ config = defaultConfig
                  , "-S", "True"
                  , "-m", "8"
                  ] 10
-               , Run $ Alsa "pulse" "Master"
+               , Run $ PulseAudio
                  [ "-t", "<status> <volume>"
                  , "-S", "True"
                  , "-p", "3"
                  , "--"
-                 , "--on", "<fn=1>\xf028</fn>"
-                 , "--onc", "#5ebaf7"
-                 , "--off", "<fn=1>\xf026  </fn>"
-                 , "--offc", "#869096"
+                 , "--on", "<fc=#5ebaf7><fn=1>\xe050</fn></fc>"
+                 , "--off", "<fc=#869096><fn=1>\xe04f</fn></fc>"
                  ]
                , Run $ Date "%Y/%m/%d %a %H:%M:%S" "date" 10
                ]
-  , template = " %StdinReader% }{ %mpd%  %cpu% %cputemp%  %gpu% %gputemp%  %memory%  %disku%  %eth0%  %alsa:pulse:Master%  %date% "
+  , template = " %StdinReader% }{ %mpd%  %cpu% %cputemp%  %gpu% %gputemp%  %memory%  %disku%  %eth0%  %pulseaudio%  %date% "
   }
 
 main :: IO ()

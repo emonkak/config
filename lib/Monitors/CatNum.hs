@@ -6,10 +6,7 @@ import Control.Exception (IOException, catch)
 import Numeric (showFFloat)
 import System.Console.GetOpt (ArgDescr(..), OptDescr(..))
 import Xmobar (Args, Exec(..), Rate)
-import Xmobar.Plugins.Monitors.Common.Output (parseFloat, showDigits, showWithColors)
-import Xmobar.Plugins.Monitors.Common.Parsers (parseOptsWith, parseTemplate)
-import Xmobar.Plugins.Monitors.Common.Run (runM)
-import Xmobar.Plugins.Monitors.Common.Types (MConfig(..), Monitor, getConfigValue, io, mkMConfig)
+import Xmobar.Plugins.Monitors.Common (MConfig(..), Monitor, getConfigValue, io, mkMConfig, parseFloat, parseOptsWith, parseTemplate, runM, showDigits, showWithColors)
 
 data CatNum = CatNum String [FilePath] Args Rate
   deriving (Read, Show)

@@ -1,3 +1,5 @@
 *.hi
 *.o
+*_stub.c
+*_stub.h
 /xmobar
