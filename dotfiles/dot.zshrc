@@ -274,10 +274,11 @@ else
 fi
 alias ln='ln -iv'
 
-alias git='noglob git'
+alias fd='noglob fd'
 alias g='git'
-alias sudo='sudo '
+alias git='noglob git'
 alias s='sudo'
+alias sudo='sudo '
 alias t='tmux'
 alias v='vim'
 

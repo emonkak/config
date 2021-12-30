@@ -121,7 +121,7 @@ set confirm
 set diffopt=filler,vertical
 set directory&
 set directory-=.
-set directory^=~/tmp
+set directory^=~/tmp/vim
 set display=lastline
 set noequalalways
 set foldmethod=marker
@@ -2284,7 +2284,7 @@ autocmd MyAutoCmd FileType rust
 \   SpaceIndent 4
 \ | compiler cargo
 
-let g:cargo_makeprg_params = 'build'
+let g:cargo_makeprg_params = 'build --all-targets'
 
 
 

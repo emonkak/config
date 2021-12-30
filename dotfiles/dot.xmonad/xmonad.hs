@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wall -Wno-missing-signatures -Wno-name-shadowing #-}
 -- My xmonad.hs
 -- Import  --{{{1
 
@@ -15,6 +16,7 @@ import XMonad.Hooks.SetWMName
 import XMonad.Hooks.UrgencyHook
 import XMonad.Layout.Gaps
 import XMonad.Layout.NoBorders
+import XMonad.Layout.MyResizableThreeColumns
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Spacing
 import XMonad.Layout.ToggleLayouts
@@ -30,10 +32,6 @@ import Control.Monad (filterM)
 import Data.Monoid (All(..))
 import System.Directory (getHomeDirectory)
 import System.Exit (exitWith, ExitCode(..))
-import System.IO (BufferMode(..), hSetBuffering)
-import System.Posix.IO (FdOption(..), closeFd, createPipe, dupTo, fdToHandle, setFdOption, stdInput, stdOutput)
-import System.Posix.Process (executeFile)
-import System.Posix.Signals (Handler(..), installHandler, sigKILL, sigTERM, signalProcess)
 
 import qualified Data.Map as M
 
@@ -45,7 +43,7 @@ import qualified Data.Map as M
 myTerminal = "alacritty"
 myBorderWidth = 2
 myModMask = mod4Mask
-myWorkspaces = map show [1..9]
+myWorkspaces = map show [(1 :: Int)..9]
 
 myFont = "xft:Monospace:pixelsize=11"
 myNormalBorderColor = "#21272b"
@@ -107,11 +105,12 @@ removeBorderEventHook query e = do
 -- LayoutHook  --{{{2
 
 myLayoutHook = avoidStruts $ smartBorders $ toggleLayouts Full $
-               (tallLayout ||| wideLayout)
+               spacing 2 $ gaps [(U, 2), (D, 2), (L, 2), (R, 2)] $
+               (tallLayout ||| wideLayout ||| threeColLayout)
   where
-    basicLayout = spacing 2 $ gaps [(U, 2), (D, 2), (L, 2), (R, 2)] $ ResizableTall 1 (2/100) (1/2) []
-    tallLayout = basicLayout
-    wideLayout = Mirror basicLayout
+    tallLayout = ResizableTall 1 (2/100) (1/2) []
+    wideLayout = Mirror tallLayout
+    threeColLayout = ResizableThreeCol 1 (2/100) (3/4) [] False True
 
 
 
@@ -124,9 +123,9 @@ myLogHook h = do
   let icon = wrap ("<icon=" ++ home ++ "/.xmonad/icons/") "/>"
       renameLayout name = case name of
         "Spacing ResizableTall"        -> icon "layout-tall-black.xbm"
-        "Mirror Spacing ResizableTall" -> icon "layout-mirror-black.xbm"
+        "Spacing Mirror ResizableTall" -> icon "layout-mirror-black.xbm"
+        "Spacing ResizableThreeCol"    -> icon "layout-threecol-black.xbm"
         "Full"                         -> icon "layout-full-black.xbm"
-        "Spiral"                       -> icon "layout-spiral-black.xbm"
         _                              -> name
   dynamicLogWithPP $ def
     { ppOutput           = hPutStrLn h
@@ -207,7 +206,7 @@ myStartupHook = do
 
 -- Keys  --{{{1
 
-myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
+myKeys conf@(XConfig { XMonad.modMask = modMask }) = M.fromList $
   [ ((modMask,                 xK_Return),       promote)
   , ((modMask .|. shiftMask,   xK_Return),       safeSpawnProg $ terminal conf)
 
@@ -269,9 +268,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask,                 xK_grave),        safeSpawnProg "keytray")
 
   , ((modMask,                 xK_x),            submap $ M.fromList $
-                                                        [ ((m, k), safeSpawnProg p)
-                                                        | m <- [0, modMask]
-                                                        , (k, p) <- lancherKeys
+                                                        [ ((mask .|. mask', key), action)
+                                                        | ((mask, key), action) <- lancherKeys
+                                                        , mask' <- [0, modMask]
                                                         ])
 
   , ((0, xK_Super_L), return ())
@@ -283,12 +282,13 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
                     , (k, w) <- zip [xK_1 .. xK_9] (XMonad.workspaces conf)
                     ]
 
-    lancherKeys = [ (xK_2, "v2c")
-                  , (xK_c, "brave-bin")
-                  , (xK_f, "firefox-bin")
-                  , (xK_p, "pavucontrol")
-                  , (xK_t, "transmission-gtk")
-                  , (xK_v, "geeqie")
+    lancherKeys = [ ((0,         xK_2), safeSpawn "v2c" [])
+                  , ((0,         xK_c), safeSpawn "brave-bin" [])
+                  , ((shiftMask, xK_c), safeSpawn "brave-bin" ["--profile-directory=Profile 1"])
+                  , ((0,         xK_f), safeSpawn "firefox-bin" [])
+                  , ((0,         xK_g), safeSpawn "geeqie" [])
+                  , ((0,         xK_p), safeSpawn "pavucontrol" [])
+                  , ((0,         xK_t), safeSpawn "transmission-gtk" [])
                   ]
 
 
@@ -296,7 +296,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
 -- Mouse Bindings --{{{1
 
-myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList
+myMouseBindings (XConfig { XMonad.modMask = modMask }) = M.fromList
   [ ((modMask, button1), \w -> focus w >> mouseMoveWindow w
                                        >> windows W.shiftMaster)
   , ((modMask, button2), windows . (W.shiftMaster .) . W.focusWindow)

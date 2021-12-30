@@ -15,13 +15,13 @@ app-arch/zip
 app-benchmarks/sysbench
 app-cdr/bchunk
 app-cdr/dvd+rw-tools
+app-containers/docker
+app-containers/docker-compose
 app-doc/php-docs
 app-editors/leafpad
 app-editors/neovim
 app-editors/vim
 app-editors/vscode-bin
-app-emulation/docker
-app-emulation/docker-compose
 app-emulation/genymotion-bin
 app-emulation/virtualbox
 app-emulation/virtualbox-additions
@@ -38,6 +38,7 @@ app-misc/evtest
 app-misc/jq
 app-misc/mfiler3
 app-misc/radeontop
+app-misc/ranger
 app-misc/ticker
 app-misc/tmux
 app-misc/trash-cli
@@ -52,6 +53,7 @@ app-portage/eix
 app-portage/flaggie
 app-portage/g-cpan
 app-portage/gentoolkit
+app-portage/hackport
 app-portage/layman
 app-shells/fish
 app-shells/fzf
@@ -63,6 +65,7 @@ app-text/lv
 app-text/tree
 dev-db/mysql
 dev-haskell/cabal-install
+dev-haskell/dbus
 dev-java/sbt-bin
 dev-lang/ghc
 dev-lang/php
@@ -122,6 +125,7 @@ media-sound/abcde
 media-sound/alsa-utils
 media-sound/cdparanoia
 media-sound/gmpc
+media-sound/mixramp
 media-sound/mpc
 media-sound/mpd
 media-sound/ncmpcpp
@@ -152,6 +156,7 @@ net-misc/rdesktop
 net-misc/rpiplay
 net-misc/sping
 net-misc/telnet-bsd
+net-misc/tigervnc
 net-misc/vinagre
 net-misc/wakeonlan
 net-misc/wget2
@@ -159,10 +164,12 @@ net-misc/whois
 net-p2p/resilio-sync
 net-p2p/transmission
 sci-visualization/gnuplot
+sys-apps/dbus
 sys-apps/dmidecode
 sys-apps/edid-decode
 sys-apps/ethtool
 sys-apps/exa
+sys-apps/fd
 sys-apps/flashrom
 sys-apps/gptfdisk
 sys-apps/hdparm
@@ -185,6 +192,7 @@ sys-boot/os-prober
 sys-boot/unetbootin
 sys-devel/clang
 sys-devel/gdb
+sys-devel/mold
 sys-fs/dmg2img
 sys-fs/dosfstools
 sys-fs/exfat-utils

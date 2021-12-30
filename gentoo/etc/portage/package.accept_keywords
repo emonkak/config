@@ -14,6 +14,7 @@ app-i18n/skk-jisyo ~amd64
 app-i18n/skktools ~amd64
 app-misc/tmux ~amd64
 app-misc/yq ~amd64
+app-portage/hackport ~amd64
 app-shells/fzf ~amd64
 dev-haskell/* ~amd64
 dev-lang/ghc ~amd64
@@ -46,6 +47,11 @@ x11-terms/rxvt-unicode ~amd64
 x11-themes/* ~amd64
 x11-wm/xmonad ~amd64
 x11-wm/xmonad-contrib ~amd64
+
+# mold
+dev-cpp/tbb ~amd64
+dev-libs/mimalloc ~amd64
+sys-devel/mold ~amd64
 
 # NeoVim
 app-editors/neovim ~amd64

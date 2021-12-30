@@ -21,7 +21,6 @@ GROUP_DOTS_FILES=\
   dotfiles/dot.Xresources \
   dotfiles/dot.bashrc \
   dotfiles/dot.config/fontconfig/fonts.conf \
-  dotfiles/dot.config/xmobar/xmobar.hs \
   dotfiles/dot.ghci \
   dotfiles/dot.inputrc \
   dotfiles/dot.mfiler3/mfiler3.sa \

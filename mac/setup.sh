@@ -54,6 +54,7 @@ brew install --cask \
   karabiner-elements \
   licecap \
   menumeters \
+  mpv \
   resilio-sync \
   the-unarchiver \
   transmission \

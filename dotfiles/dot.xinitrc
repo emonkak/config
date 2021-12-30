@@ -4,6 +4,8 @@ export BROWSER='brave-bin'
 export QT_QPA_PLATFORMTHEME=qt5ct
 export QT_STYLE_OVERRIDE=adwaita-dark
 
+export INFINALITY_FT="osx"
+
 export XDG_CACHE_HOME="/tmp/.${USER}/cache"
 [ ! -d "${XDG_CACHE_HOME}" ] && install -dm0700 "${XDG_CACHE_HOME}"
 
