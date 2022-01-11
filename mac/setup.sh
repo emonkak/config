@@ -27,10 +27,10 @@ if [ ! -f /usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask/Casks/hakumai.
 then
   cat <<EOF > /usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask/Casks/hakumai.rb
 cask 'hakumai' do
-  version '2.2.0'
-  sha256 '6df26a31b9220302fbe796cec8890055396f02cffcce05181262792358498b7e'
+  version '2.11.0'
+  sha256 '9d4206cfafb4be5f93d217420cba24e87d70dceaefe58b2edb4046c99f368932'
 
-  url "https://hakumai.s3.amazonaws.com/Hakumai.2.2.0.zip"
+  url "https://hakumai.s3.amazonaws.com/Hakumai.2.11.0.zip"
   name 'Hakumai'
   homepage 'https://honishi.github.io/Hakumai/'
 
@@ -53,9 +53,9 @@ brew install --cask \
   iterm2 \
   karabiner-elements \
   licecap \
-  menumeters \
   mpv \
   resilio-sync \
+  stats \
   the-unarchiver \
   transmission \
   vlc \
