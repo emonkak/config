@@ -106,14 +106,14 @@ myLayoutHook = avoidStruts $ smartBorders $ toggleLayouts Full $
                spacing 4 $ gaps [(U, 4), (D, 4), (L, 4), (R, 4)] $
                (tallLayout ||| threeColLayout)
   where
-    tallLayout = named "Tall" $ MultiPanes (3/100) (3/100 * 16/9)
-      [ Pane (PaneStrategyAtMost 1) (1/2) []
-      , Pane (PaneStrategyAtLeast 1) (1/2) []
+    tallLayout = named "Tall" $ MultiPanes (3/100) ((3/100) * (16/9))
+      [ Pane (PaneSlotAtMost 1) (1/2) []
+      , Pane (PaneSlotAtLeast 1) (1/2) []
       ]
-    threeColLayout = named "ThreeCol" $ MultiPanes (3/100) (3/100 * 16/9)
-      [ Pane (PaneStrategyAtMost 1) (2/4) []
-      , Pane (PaneStrategyAtLeast 1) (1/4) []
-      , Pane (PaneStrategyAtLeast 2) (1/4) []
+    threeColLayout = named "ThreeCol" $ MultiPanes (3/100) ((3/100) * (16/9))
+      [ Pane (PaneSlotAtMost 1) (2/4) []
+      , Pane (PaneSlotAtLeast 1) (1/4) []
+      , Pane (PaneSlotAtLeast 2) (1/4) []
       ]
 
 
