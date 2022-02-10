@@ -125,11 +125,11 @@ myLogHook h = do
   home  <- io getHomeDirectory
   floated <- withWindowSet isFloat
   let icon = wrap ("<icon=" ++ home ++ "/.xmonad/icons/") "/>"
-      renameLayout name = case name of
+      layoutIcon name = case name of
         "Spacing Tall"     -> icon "layout-tall.xbm"
         "Spacing ThreeCol" -> icon "layout-threecol.xbm"
         "Full"             -> icon "layout-full.xbm"
-        _          -> name
+        _                  -> xmobarRaw name
   dynamicLogWithPP $ def
     { ppOutput           = hPutStrLn h
     , ppCurrent          = xmobarColor myFocusedFGColor "" . wrap "[" "]"
@@ -140,7 +140,7 @@ myLogHook h = do
     , ppWsSep            = ""
     , ppTitle            = if floated then ("<fn=1>\xe069</fn> " ++) else id
     , ppTitleSanitize    = xmobarRaw
-    , ppLayout           = xmobarColor myFocusedFGColor "" . renameLayout
+    , ppLayout           = xmobarColor myFocusedFGColor "" . layoutIcon
     }
   where
     isFloat ws = return $ case W.peek ws of
@@ -171,8 +171,8 @@ myManageHook = manageDocks
     , className =? "rdesktop"                             -?> doFloat
     , title     =? "Wine System Tray"                     -?> doHideIgnore
     , role      =? "pop-up"                               -?> doFloat
-    , isDialog                                            -?> doCenterFloat
     , isFullscreen                                        -?> doFullFloat
+    , isDialog                                            -?> doCenterFloat
     , isUnknown                                           -?> doFloat
     ]
   where
