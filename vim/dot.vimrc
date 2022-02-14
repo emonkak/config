@@ -2023,10 +2023,11 @@ autocmd MyAutoCmd FileType blade
 
 
 
-" c  "{{{2
+" c, c++  "{{{2
 
-autocmd MyAutoCmd FileType c
-\ setlocal commentstring=//%s
+autocmd MyAutoCmd FileType c,cpp
+\   SpaceIndent 4
+\ | setlocal commentstring=//%s
 
 
 
@@ -2768,11 +2769,15 @@ let g:quickrun_config = {
 \     'hook/sweep/files': '%S:p:r',
 \   },
 \   'cpp': {
-\     'type': 'cpp/clang++',
-\     'cmdopt': '-std=c++11'
+\     'type': 'cpp/g++',
+\     'cmdopt': '-std=c++2b',
 \   },
 \   'dot': {
 \     'exec': ['%c -Tsvg -o %s:p:r.svg %s']
+\   },
+\   'haskell': {
+\     'type': 'haskell/runghc',
+\     'cmdopt': '--ghc-arg=-Wall -Wno-unused-top-binds',
 \   },
 \   'php/hhvm': {
 \     'command': 'hhvm',

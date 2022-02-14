@@ -52,3 +52,8 @@ fi
 if which ruby >/dev/null && which gem >/dev/null; then
   PATH="$PATH:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin"
 fi
+
+if [ -d "$HOME/depot_tools" ]
+then
+  PATH="$PATH:$HOME/depot_tools"
+fi

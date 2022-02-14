@@ -1,6 +1,12 @@
 ; My .uim
+; Prelude  {{{1
 
 (use srfi-1)
+
+
+
+
+; Global  {{{1
 
 (define default-im-name 'skk)
 (define enabled-im-list '(skk))
@@ -8,15 +14,7 @@
 (define bridge-show-input-state? #t)
 (define bridge-show-with? 'mode)
 
-(define uim-xim-use-xft-font? #t)
-(define uim-xim-xft-font-name "Tazugane Gothic StdN")
-
 (define candidate-window-style 'horizontal)
-
-
-
-
-; Color
 
 (define uim-color-white
   '((reversed-preedit-foreground   . "black")
@@ -31,7 +29,15 @@
 
 
 
-; Japanese
+; XIM  {{{1
+
+(define uim-xim-use-xft-font? #t)
+(define uim-xim-xft-font-name "M PLUS 2")
+
+
+
+
+; Japanese  {{{1
 
 (require "japanese-utf8.scm")
 
@@ -52,7 +58,7 @@
 
 
 
-; SKK
+; SKK  {{{1
 
 (require-module "skk")
 
@@ -61,19 +67,14 @@
 (define skk-show-annotation-in-preedit? #t)
 (define skk-show-annotation? #f)
 (define skk-use-with-vi? #t)
-
 (define skk-use-look? #t)
 (define skk-look-dict "/usr/share/dict/words")
-
 (define skk-dic-file-name (string-append (or (home-directory (user-name)) "") "/.skk/SKK-JISYO.LL.utf8"))
-
 (define skk-on-key '("zenkaku-hankaku" "<Shift> "))
 (define skk-on-key? (make-key-predicate '("zenkaku-hankaku" "<Shift> ")))
-
 (define skk-ja-rk-rule (append ja-rk-rule-basic ja-rk-rule-additional))
 
 
 
 
-; __END__
 ; vim: filetype=scheme:fileencoding=utf8

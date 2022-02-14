@@ -1,7 +1,6 @@
 */*::local-repo ~amd64
 
 =media-video/rtmpdump-9999 **
-=sys-kernel/gentoo-sources-5.15* ~amd64
 =x11-terms/alacritty-9999 **
 
 app-admin/haskell-updater ~amd64
@@ -40,6 +39,8 @@ www-client/firefox-bin ~amd64
 www-client/google-chrome ~amd64
 www-client/jd ~amd64
 x11-libs/pango ~amd64
+x11-misc/albert ~amd64
+x11-misc/screenkey ~amd64
 x11-misc/snixembed ~amd64
 x11-misc/xcape ~amd64
 x11-misc/xmobar ~amd64

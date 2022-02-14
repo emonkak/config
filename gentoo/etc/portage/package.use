@@ -240,16 +240,14 @@ x11-libs/libXv abi_x86_32
 x11-libs/pango abi_x86_32
 x11-libs/pixman abi_x86_32
 
-# udev
+# for udev
 sys-apps/hwids -udev
 sys-fs/udev abi_x86_32
 sys-libs/libxcrypt abi_x86_32
-# required by dev-python/requests-2.26.0::gentoo
-# required by dev-python/docker-py-5.0.3::gentoo
-# required by app-containers/docker-compose-1.29.2-r1::gentoo[-test]
-# required by @selected
-# required by @world (argument)
->=dev-python/certifi-3021.3.16-r1 python_targets_python3_8
-# required by dev-python/sphinx-4.3.1::gentoo
-# required by dev-python/sphinxcontrib-applehelp-1.0.2::gentoo
->=dev-python/snowballstemmer-2.2.0 python_targets_python3_8
+
+# for chromium
+dev-libs/libxml2 icu
+media-libs/harfbuzz icu
+media-libs/libpng -apng
+net-libs/nodejs inspector
+dev-libs/icu abi_x86_32

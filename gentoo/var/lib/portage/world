@@ -35,6 +35,7 @@ app-i18n/uim
 app-misc/colordiff
 app-misc/delta
 app-misc/evtest
+app-misc/font-manager
 app-misc/jq
 app-misc/mfiler3
 app-misc/radeontop
@@ -65,7 +66,6 @@ app-text/lv
 app-text/tree
 dev-db/mysql
 dev-haskell/cabal-install
-dev-haskell/dbus
 dev-java/sbt-bin
 dev-lang/ghc
 dev-lang/php
@@ -97,12 +97,11 @@ gnome-extra/gucharmap
 kde-plasma/xembed-sni-proxy
 mail-client/mailx
 mail-mta/msmtp
-media-fonts/corefonts
 media-fonts/font-misc-misc
-media-fonts/mplus-fonts
+media-fonts/liberation-fonts
+media-fonts/noto
 media-fonts/noto-emoji
 media-fonts/pcf2bdf
-media-fonts/stix-fonts
 media-gfx/feh
 media-gfx/fontforge
 media-gfx/geeqie
@@ -116,6 +115,7 @@ media-gfx/optipng
 media-gfx/pngquant
 media-gfx/scrot
 media-libs/exiftool
+media-libs/faad2
 media-libs/fontconfig
 media-libs/freetype
 media-libs/mesa
@@ -234,6 +234,7 @@ x11-apps/xwininfo
 x11-base/xorg-server
 x11-libs/libnotify
 x11-misc/dunst
+x11-misc/screenkey
 x11-misc/slim
 x11-misc/snixembed
 x11-misc/x11vnc

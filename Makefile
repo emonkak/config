@@ -30,7 +30,6 @@ GROUP_DOTS_FILES=\
   dotfiles/dot.xkb/keymap/my_keymap \
   dotfiles/dot.xkb/symbols/my_symbols \
   dotfiles/dot.xinitrc \
-  dotfiles/dot.xmonad/xmonad.hs \
   dotfiles/dot.zprofile \
   dotfiles/dot.zshrc
 GROUP_DOTS_RULE=$(patsubst dotfiles/dot.%, $(HOME)/.%, $(1))
