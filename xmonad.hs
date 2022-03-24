@@ -159,36 +159,35 @@ myManageHook = manageDocks
     , className =? "Gimp"                                 -?> doShiftEmptyAndGo
     , className =? "Inkscape"                             -?> doShiftEmptyAndGo
     , className =? "Pavucontrol"                          -?> doCenterFloat
-    , className =? "Uim-tomoe-gtk"                        -?> doFloat
     , className =? "XFontSel"                             -?> doCenterFloat
     , className =? "Xmessage"                             -?> doCenterFloat
-    , className =? "commeon.exe"                          -?> doCenterFloat
+    , className =? "commeon.exe"                          -?> doFloat
     , className =? "feh"                                  -?> doCenterFloat
     , className =? "fontforge"                            -?> doShiftEmptyAndGo <+> doFloat
     , className =? "libreoffice-startcenter"              -?> doShiftEmptyAndGo
     , className =? "mpv"                                  -?> doCenterFloat
-    , className =? "qemu-system-x86_64"                   -?> doFloat
-    , className =? "rdesktop"                             -?> doFloat
     , title     =? "Wine System Tray"                     -?> doHideIgnore
-    , role      =? "pop-up"                               -?> doFloat
-    , isFullscreen                                        -?> doFullFloat
-    , isDialog                                            -?> doCenterFloat
-    , isUnknown                                           -?> doFloat
+    ]
+  <+> composeOne
+    [ isFullscreen     -?> doFullFloat
+    , isDialog         -?> doCenterFloat
+    , isUnknown        -?> doFloat
+    , role =? "pop-up" -?> doFloat
     ]
   where
-    isUnknown = (not <$> hasProperty "WM_CLASS") <&&> (not <$> hasProperty "WM_WINDOW_ROLE")
     doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
     doShiftEmptyAndGo = do
       w <- ask
       c <- liftX $ runQuery className w
-      xs <- liftX $ withWindowSet $ filterM (runQuery $ className =? c) . W.index
-      case xs of
+      ws <- liftX $ withWindowSet $ filterM (runQuery $ className =? c) . W.index
+      case ws of
         [] -> do
           workspace <- liftX (W.workspace . W.current <$> gets windowset)
           case W.stack workspace of
-            Nothing -> doShiftAndGo (W.tag workspace)
-            _       -> liftX (findWorkspace getSortByIndex Next (Not emptyWS) 1) >>= doShiftAndGo
+            Nothing -> doShiftAndGo $ W.tag workspace
+            _       -> doShiftAndGo =<< liftX (findWorkspace getSortByIndex Next emptyWS 1)
         _ -> idHook
+    isUnknown = (not <$> hasProperty "WM_CLASS") <&&> (not <$> hasProperty "WM_WINDOW_ROLE")
     hasProperty p = ask >>= \w -> liftX $ withDisplay $ \d ->
       maybe False (const True) <$> getStringProperty d w p
     role = stringProperty "WM_WINDOW_ROLE"
