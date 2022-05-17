@@ -30,7 +30,6 @@ import qualified XMonad.StackSet as W
 import Control.Monad (filterM)
 import Data.List (find, isPrefixOf)
 import Data.Monoid (All(..))
-import System.Directory (getHomeDirectory)
 import System.Exit (exitWith, ExitCode(..))
 import qualified Data.Map as M
 
@@ -43,27 +42,39 @@ myTerminal = "alacritty"
 myBorderWidth = 2
 myModMask = mod4Mask
 myWorkspaces = map show [(1 :: Int)..9]
-
-myFont = "xft:Monospace:pixelsize=11"
-myNormalBorderColor = "#21272b"
-myNormalFGColor = "#f5f6f7"
-myNormalBGColor = "#21272b"
-
-myFocusedBorderColor = "#1c95e6"
-myFocusedFGColor = "#5ebaf7"
-myFocusedBGColor = "#21272b"
-
-myAlternateFGColor = "#869096"
-
 myStatusbarHeight = 21
+
+myFont = "xft:M PLUS Code Latin 60:pixelsize=11,Noto Sans CJK JP:pixelsize=11,Noto Emoji:pixelsize=11"
+
+myGrayColor1 = "#f5f6f7"
+myGrayColor2 = "#e8eaeb"
+myGrayColor3 = "#d9dadb"
+myGrayColor4 = "#c5c6c7"
+myGrayColor5 = "#a8aeb3"
+myGrayColor6 = "#869096"
+myGrayColor7 = "#657078"
+myGrayColor8 = "#4e5a61"
+myGrayColor9 = "#363f45"
+myGrayColor10 = "#21272b"
+
+myAccentColor1 = "#e6f5ff"
+myAccentColor2 = "#d4eeff"
+myAccentColor3 = "#b6e0fc"
+myAccentColor4 = "#8dd0fc"
+myAccentColor5 = "#5ebaf7"
+myAccentColor6 = "#1c95e6"
+myAccentColor7 = "#0675bf"
+myAccentColor8 = "#015994"
+myAccentColor9 = "#024069"
+myAccentColor10 = "#022338"
 
 myXPConfig ref = (def :: XPConfig)
   { font              = myFont
-  , fgColor           = myNormalFGColor
-  , bgColor           = myNormalBGColor
-  , fgHLight          = myFocusedFGColor
-  , bgHLight          = myFocusedBGColor
-  , borderColor       = myNormalBorderColor
+  , fgColor           = myGrayColor1
+  , bgColor           = myGrayColor10
+  , fgHLight          = myAccentColor5
+  , bgHLight          = myGrayColor10
+  , borderColor       = myGrayColor10
   , promptBorderWidth = 0
   , position          = Top
   , height            = myStatusbarHeight
@@ -123,27 +134,28 @@ myLayoutHook = avoidStruts $ smartBorders $ toggleLayouts Full $
 -- LogHook  --{{{2
 
 myLogHook h = do
-  home  <- io getHomeDirectory
   floated <- withWindowSet isFloat
-  let icon = wrap ("<icon=" ++ home ++ "/.xmonad/icons/") "/>"
-      layoutIcon name = case name of
-        "Spacing Tall"     -> icon "layout-tall.xbm"
-        "Spacing ThreeCol" -> icon "layout-threecol.xbm"
-        "Full"             -> icon "layout-full.xbm"
-        _                  -> xmobarRaw name
   dynamicLogWithPP $ def
     { ppOutput           = hPutStrLn h
-    , ppCurrent          = xmobarColor myFocusedFGColor "" . wrap "[" "]"
-    , ppHidden           = wrap " " " "
-    , ppHiddenNoWindows  = xmobarColor myAlternateFGColor "" . wrap " " " "
+    , ppCurrent          = xmobarColorWithOffset myGrayColor10 myAccentColor5 . wrapSpaces
+    , ppHidden           = wrapSpaces
+    , ppHiddenNoWindows  = xmobarColor myGrayColor6 "" . wrapSpaces
     , ppUrgent           = wrap "*" " "
-    , ppSep              = xmobarColor myAlternateFGColor "" " | "
+    , ppSep              = xmobarColor myGrayColor8 "" $ wrap " " " " $ xmobarIcon "separator.xbm"
     , ppWsSep            = ""
     , ppTitle            = if floated then ("<fn=1>\xe069</fn> " ++) else id
     , ppTitleSanitize    = xmobarRaw
-    , ppLayout           = xmobarColor myFocusedFGColor "" . layoutIcon
+    , ppLayout           = xmobarColor myAccentColor5 "" . layoutIcon
     }
   where
+    layoutIcon name = case name of
+      "Spacing Tall"     -> xmobarIcon "layout-tall.xbm"
+      "Spacing ThreeCol" -> xmobarIcon "layout-threecol.xbm"
+      "Full"             -> xmobarIcon "layout-full.xbm"
+      _                  -> xmobarRaw name
+    xmobarIcon = wrap "<icon=" "/>"
+    xmobarColorWithOffset fg bg = wrap ("<fc=" ++ fg ++ "," ++ bg ++ ":1>") "</fc>"
+    wrapSpaces = wrap " " " "
     isFloat ws = return $ case W.peek ws of
       Nothing -> False
       Just w  -> M.member w $ W.floating ws
@@ -162,7 +174,6 @@ myManageHook = manageDocks
     , className =? "Pavucontrol"                          -?> doCenterFloat
     , className =? "XFontSel"                             -?> doCenterFloat
     , className =? "Xmessage"                             -?> doCenterFloat
-    , className =? "commeon.exe"                          -?> doFloat
     , className =? "feh"                                  -?> doCenterFloat
     , className =? "fontforge"                            -?> doShiftEmptyAndGo <+> doFloat
     , className =? "libreoffice-startcenter"              -?> doShiftEmptyAndGo
@@ -172,8 +183,8 @@ myManageHook = manageDocks
   <+> composeOne
     [ isFullscreen     -?> doFullFloat
     , isDialog         -?> doCenterFloat
-    , isUnknown        -?> doFloat
     , role =? "pop-up" -?> doFloat
+    , isUnknown        -?> doFloat
     ]
   where
     doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
@@ -333,8 +344,8 @@ main = do
     , modMask            = myModMask
     , workspaces         = myWorkspaces
 
-    , normalBorderColor  = myNormalBorderColor
-    , focusedBorderColor = myFocusedBorderColor
+    , normalBorderColor  = myGrayColor10
+    , focusedBorderColor = myAccentColor6
 
     , keys               = myKeys
     , mouseBindings      = myMouseBindings
