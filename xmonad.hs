@@ -28,6 +28,7 @@ import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
 
 import Control.Monad (filterM)
+import Data.List (find, isPrefixOf)
 import Data.Monoid (All(..))
 import System.Directory (getHomeDirectory)
 import System.Exit (exitWith, ExitCode(..))
@@ -250,14 +251,14 @@ myKeys conf@(XConfig { XMonad.modMask = modMask }) = M.fromList $
   , ((modMask .|. shiftMask,   xK_equal),        safeSpawn "mpc" ["volume", "+5"])
   , ((modMask .|. shiftMask,   xK_minus),        safeSpawn "mpc" ["volume", "-5"])
 
-  , ((modMask,                 xK_Print),        safeSpawn "scrot" ["-e", "mv $f \\$HOME/Desktop/"])
-
   , ((modMask,                 xK_backslash),    safeSpawn "mpc" ["toggle"])
   , ((modMask,                 xK_bracketleft),  safeSpawn "mpc" ["prev"])
   , ((modMask,                 xK_bracketright), safeSpawn "mpc" ["next"])
 
-  , ((modMask .|. shiftMask,   xK_bracketleft),  spawn "pactl set-card-profile alsa_card.pci-0000_00_1f.3 output:analog-stereo && pactl set-card-profile alsa_card.pci-0000_03_00.1 off")
-  , ((modMask .|. shiftMask,   xK_bracketright), spawn "pactl set-card-profile alsa_card.pci-0000_03_00.1 output:hdmi-stereo && pactl set-card-profile alsa_card.pci-0000_00_1f.3 off")
+  , ((modMask .|. shiftMask,   xK_bracketleft),  switchPrimaryCardProfile "output:analog-stereo")
+  , ((modMask .|. shiftMask,   xK_bracketright), switchPrimaryCardProfile "output:hdmi-stereo")
+
+  , ((modMask,                 xK_Print),        safeSpawn "scrot" ["-e", "mv $f \\$HOME/Desktop/"])
 
   , ((modMask .|. controlMask, xK_l),            spawn "sleep 1; xset dpms force off")
 
@@ -286,6 +287,21 @@ myKeys conf@(XConfig { XMonad.modMask = modMask }) = M.fromList $
                   , ((0,         xK_p), safeSpawn "pavucontrol" [])
                   , ((0,         xK_t), safeSpawn "transmission-gtk" [])
                   ]
+
+listPulseAudioCards :: (MonadIO m) => m [String]
+listPulseAudioCards = do
+  output <- runProcessWithInput "pactl" ["list", "cards", "short"] ""
+  return $ map (fst . break isTab . dropWhile isTab . snd . break isTab)
+         $ lines output
+  where
+    isTab = (==) '\t'
+
+switchPrimaryCardProfile :: (MonadIO m) => String -> m ()
+switchPrimaryCardProfile profile = do
+  cards <- listPulseAudioCards
+  case find (isPrefixOf "alsa_card.pci-") cards of
+    (Just card) -> safeSpawn "pactl" ["set-card-profile", card, profile]
+    _           -> return ()
 
 
 
