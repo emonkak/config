@@ -338,7 +338,7 @@ myMouseBindings (XConfig { XMonad.modMask = modMask }) = M.fromList
 main = do
   statusPipe <- spawnPipe "xmobar"
 
-  xmonad $ withUrgencyHook NoUrgencyHook $ docks $ ewmhFullscreen $ ewmh $ def
+  xmonad $ withUrgencyHook NoUrgencyHook $ docks $ ewmh $ def
     { terminal           = myTerminal
     , borderWidth        = myBorderWidth
     , modMask            = myModMask
