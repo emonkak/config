@@ -1,6 +1,5 @@
 *.hi
-*.o
-/build-x86_64-linux
+/dist-newstyle
 /prompt-history
 /xmonad-x86_64-linux
 /xmonad.errors

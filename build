@@ -1,0 +1,10 @@
+#!/bin/bash -eu
+
+cabal build
+
+bin=$(cabal list-bin xmonad)
+
+if [ -f "$bin" ]
+then
+  mv "$bin" "$1"
+fi

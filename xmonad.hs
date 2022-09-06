@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -Wall -Wno-missing-signatures -Wno-name-shadowing #-}
 -- My xmonad.hs
 -- Import  --{{{1
 
@@ -28,7 +27,7 @@ import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
 
 import Control.Monad (filterM)
-import Data.List (find, isPrefixOf)
+import Sound.Pulse.Pactl (togglePulseCardProfile)
 import Data.Monoid (All(..))
 import System.Exit (exitWith, ExitCode(..))
 import qualified Data.Map as M
@@ -266,8 +265,7 @@ myKeys conf@(XConfig { XMonad.modMask = modMask }) = M.fromList $
   , ((modMask,                 xK_bracketleft),  safeSpawn "mpc" ["prev"])
   , ((modMask,                 xK_bracketright), safeSpawn "mpc" ["next"])
 
-  , ((modMask .|. shiftMask,   xK_bracketleft),  switchPrimaryCardProfile "output:analog-stereo")
-  , ((modMask .|. shiftMask,   xK_bracketright), switchPrimaryCardProfile "output:hdmi-stereo")
+  , ((modMask .|. shiftMask,   xK_backslash),    togglePulseCardProfile ("output:analog-stereo", "output:hdmi-stereo"))
 
   , ((modMask,                 xK_Print),        safeSpawn "scrot" ["-e", "mv $f \\$HOME/Desktop/"])
 
@@ -298,21 +296,6 @@ myKeys conf@(XConfig { XMonad.modMask = modMask }) = M.fromList $
                   , ((0,         xK_p), safeSpawn "pavucontrol" [])
                   , ((0,         xK_t), safeSpawn "transmission-gtk" [])
                   ]
-
-listPulseAudioCards :: (MonadIO m) => m [String]
-listPulseAudioCards = do
-  output <- runProcessWithInput "pactl" ["list", "cards", "short"] ""
-  return $ map (fst . break isTab . dropWhile isTab . snd . break isTab)
-         $ lines output
-  where
-    isTab = (==) '\t'
-
-switchPrimaryCardProfile :: (MonadIO m) => String -> m ()
-switchPrimaryCardProfile profile = do
-  cards <- listPulseAudioCards
-  case find (isPrefixOf "alsa_card.pci-") cards of
-    (Just card) -> safeSpawn "pactl" ["set-card-profile", card, profile]
-    _           -> return ()
 
 
 

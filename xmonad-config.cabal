@@ -1,0 +1,19 @@
+cabal-version:      2.4
+name:               xmonad-config
+version:            0.1.0.0
+author:             Shota Nozaki
+maintainer:         emonkak@gmail.com
+
+executable xmonad
+  main-is:            ../xmonad.hs
+  ghc-options:        -Wall -Wno-missing-signatures -Wno-unused-top-binds
+  other-modules:      Sound.Pulse.Pactl
+                    , XMonad.Layout.MultiPanes
+  build-depends:      aeson
+                    , base
+                    , bytestring
+                    , containers
+                    , xmonad
+                    , xmonad-contrib
+  hs-source-dirs:     lib
+  default-language:   Haskell2010
