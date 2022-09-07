@@ -2,13 +2,13 @@
 
 module Sound.Pulse.Pactl
   ( listPulseCards
-  , togglePulseCardProfile
+  , switchPulseCardProfile
   )
 where
 
 import Control.Monad.IO.Class (MonadIO)
-import Data.Aeson (FromJSON(..), ToJSON(..), decode)
-import Data.Aeson.Types (Options(..), defaultOptions, genericParseJSON, genericToJSON)
+import Data.Aeson (FromJSON(..), decode)
+import Data.Aeson.Types (Options(..), defaultOptions, genericParseJSON)
 import Data.List (find)
 import Data.Map (Map)
 import Data.String (IsString(..))
@@ -25,7 +25,7 @@ data Card = Card
   , active_profile :: String
   , ports :: Map String Port
   }
-  deriving (Show, Generic, ToJSON, FromJSON)
+  deriving (Show, Generic, FromJSON)
 
 data Profile = Profile
   { description :: String
@@ -34,7 +34,7 @@ data Profile = Profile
   , priority :: Int
   , available :: Bool
   }
-  deriving (Show, Generic, ToJSON, FromJSON)
+  deriving (Show, Generic, FromJSON)
 
 data Port = Port
   { description :: String
@@ -48,9 +48,6 @@ data Port = Port
   }
   deriving (Show, Generic)
 
-instance ToJSON Port where
-  toJSON = genericToJSON defaultOptions { fieldLabelModifier = keywordFieldLabelModifier }
-
 instance FromJSON Port where
   parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = keywordFieldLabelModifier }
 
@@ -63,15 +60,23 @@ listPulseCards = do
   output <- runProcessWithInput "pactl" ["-f", "json", "list", "cards"] ""
   return $ decode $ fromString output
 
-togglePulseCardProfile :: (MonadIO m) => (String, String) -> m ()
-togglePulseCardProfile (profile1, profile2) = do
-  cards <- listPulseCards
-  case cards >>= find isAlsaCard of
+switchPulseCardProfile :: (MonadIO m) => [String] -> [Card] -> m ()
+switchPulseCardProfile profiles cards = do
+  case find isAlsaCard cards of
     (Just (Card { name, active_profile })) ->
-      let profile = if profile1 == active_profile then profile2 else profile1
-      in safeSpawn "pactl" ["set-card-profile", name, profile]
+      let nextProfile = swtich profiles active_profile
+       in mapM_ (\profile -> safeSpawn "pactl" ["set-card-profile", name, profile]) nextProfile
     _ -> return ()
   where
     isAlsaCard (Card { driver })
       | driver == "module-alsa-card.c" = True
       | otherwise                      = False
+
+swtich :: Eq a => [a] -> a -> Maybe a
+swtich [] _ = Nothing
+swtich candidates active =
+  let i = maybe (l - 1) fst $ find ((== active) . snd) $ zip [0..] candidates
+      j = (i + 1) `mod` length candidates
+   in Just (candidates !! j)
+  where
+    l = length candidates

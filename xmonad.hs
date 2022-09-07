@@ -27,7 +27,7 @@ import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
 
 import Control.Monad (filterM)
-import Sound.Pulse.Pactl (togglePulseCardProfile)
+import Sound.Pulse.Pactl (listPulseCards, switchPulseCardProfile)
 import Data.Monoid (All(..))
 import System.Exit (exitWith, ExitCode(..))
 import qualified Data.Map as M
@@ -265,7 +265,7 @@ myKeys conf@(XConfig { XMonad.modMask = modMask }) = M.fromList $
   , ((modMask,                 xK_bracketleft),  safeSpawn "mpc" ["prev"])
   , ((modMask,                 xK_bracketright), safeSpawn "mpc" ["next"])
 
-  , ((modMask .|. shiftMask,   xK_backslash),    togglePulseCardProfile ("output:analog-stereo", "output:hdmi-stereo"))
+  , ((modMask,                 xK_apostrophe),   listPulseCards >>= mapM_ (switchPulseCardProfile ["output:analog-stereo", "output:hdmi-stereo"]))
 
   , ((modMask,                 xK_Print),        safeSpawn "scrot" ["-e", "mv $f \\$HOME/Desktop/"])
 
@@ -341,10 +341,3 @@ main = do
 
     , focusFollowsMouse  = True
     }
-
-
-
-
--- __END__  --{{{1
--- vim: expandtab softtabstop=2 shiftwidth=2
--- vim: foldmethod=marker
