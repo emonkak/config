@@ -45,8 +45,10 @@ function! google_translate#translate(text, from, to)  "{{{2
     throw printf("%d %s: %s", response.status, response.message, url)
   endif
 
-  let result = webapi#json#decode(substitute(response.content, ',\{2,}', ',', 'g'))
-  return join(map(result[0], 'v:val[0]'), '')
+  let result = webapi#json#decode(response.content)
+  return type(result[0]) == type([])
+  \ ? join(map(result[0], 'v:val[0]'), '')
+  \ : ''
 endfunction
 
 
@@ -100,29 +102,6 @@ function! google_translate#token(text)  "{{{2
   endif
   let a = a % 1000000
   return a . '.' . s:xor32(a, iB)
-endfunction
-
-
-
-
-function! google_translate#speak(text, from)  "{{{2
-  let url = 'https://translate.google.com/translate_tts'
-  let options = {
-  \   'ie': 'UTF-8',
-  \   'q': a:text,
-  \   'tl': a:from,
-  \   'total': 1,
-  \   'idx': 0,
-  \   'textlen': strchars(a:text),
-  \   'tk': google_translate#token(a:text),
-  \   'client': 't',
-  \   'prev': 'input',
-  \ }
-  let query_strings = []
-  for key in sort(keys(options))
-    call add(query_strings, key . '=' . webapi#http#encodeURI(options[key]))
-  endfor
-  call vimproc#system_bg('mpv --quiet ' . shellescape(url . '?' . join(query_strings, '&')))
 endfunction
 
 
