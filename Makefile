@@ -20,6 +20,7 @@ ALL_GROUPS=\
 GROUP_DOTS_FILES=\
   dotfiles/dot.Xresources \
   dotfiles/dot.bashrc \
+  dotfiles/dot.config/alacritty/alacritty.yml \
   dotfiles/dot.config/fontconfig/fonts.conf \
   dotfiles/dot.ghci \
   dotfiles/dot.inputrc \
@@ -50,8 +51,7 @@ GROUP_LINUX_FILES=\
   linux/dot.config
 GROUP_LINUX_RULE=$(patsubst linux/dot.%, /usr/src/linux/.%, $(1))
 
-GROUP_VIM_FILES=$(patsubst $(HOME)/.%, vim/dot.%, $(shell find $(HOME)/.vim/{after,autoload,compiler,dict,indent,syntax} -type f)) \
-  vim/dot.vim/colors/basic256.vim \
+GROUP_VIM_FILES=$(patsubst $(HOME)/.%, vim/dot.%, $(shell find $(wildcard $(patsubst %,$(HOME)/.vim/%,after autoload colors compiler indent plugin syntax)) -type f)) \
   vim/dot.vimrc
 GROUP_VIM_RULE=$(patsubst vim/dot.%, $(HOME)/.%, $(1))
 

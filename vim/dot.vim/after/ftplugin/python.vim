@@ -1,32 +1,16 @@
-" Vim additional ftplugin: python
-" Version: 0.0.0
-" Copyright (C) 2013 emonkak <emonkak@gmail.com>
-" License: MIT license  {{{
-"     Permission is hereby granted, free of charge, to any person obtaining
-"     a copy of this software and associated documentation files (the
-"     "Software"), to deal in the Software without restriction, including
-"     without limitation the rights to use, copy, modify, merge, publish,
-"     distribute, sublicense, and/or sell copies of the Software, and to
-"     permit persons to whom the Software is furnished to do so, subject to
-"     the following conditions:
-"
-"     The above copyright notice and this permission notice shall be included
-"     in all copies or substantial portions of the Software.
-"
-"     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-"     OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-"     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-"     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-"     CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-"     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-"     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-" }}}
+setlocal expandtab
+setlocal foldexpr=PythonFold(v:lnum)
+setlocal foldmethod=expr
+setlocal shiftwidth=4
+setlocal softtabstop=4
+setlocal tabstop=4
 
-setlocal foldmethod=expr foldexpr=PythonFold(v:lnum)
+function! PythonFold(lnum) abort
+  let current = getline(a:lnum);
 
-function! PythonFold(lnum)
-  if getline(a:lnum) =~# '^\s*\(class\|def\)\s'
-    return '>' . (indent(a:lnum) / shiftwidth() + 1)
+  if current =~# '^\s*\(class\|def\)\s'
+    let level = indent(a:lnum) / shiftwidth() + 1
+    return '>' . level
   endif
 
   let next_lnum = nextnonblank(a:lnum + 1)
@@ -35,20 +19,25 @@ function! PythonFold(lnum)
   endif
 
   let next_indent = indent(next_lnum)
-  if next_indent < indent(a:lnum)
-    return '<' . (next_indent / shiftwidth() + 1)
+  let curernt_indent = indent(a:lnum)
+  if next_indent < curernt_indent
+    let level = next_indent / shiftwidth() + 1;
+    return '<' . level
   endif
 
   return '='
 endfunction
 
 if exists('b:undo_ftplugin')
-  let b:undo_ftplugin .= ' | '
+  let b:undo_ftplugin .= '|'
 else
   let b:undo_ftplugin = ''
 endif
 
-let b:undo_ftplugin .= 'setlocal foldmethod< foldexpr<'
-
-" __END__
-" vim: foldmethod=marker
+let b:undo_ftplugin .= 'setlocal'
+\                    . ' expandtab<'
+\                    . ' foldexpr<'
+\                    . ' foldmethod<'
+\                    . ' shiftwidth<'
+\                    . ' softtabstop<'
+\                    . ' tabstop<'

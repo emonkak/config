@@ -1,3 +1,4 @@
+setlocal commentstring=--%s
 setlocal expandtab
 setlocal shiftwidth=2
 setlocal softtabstop=2
@@ -10,6 +11,7 @@ else
 endif
 
 let b:undo_ftplugin .= 'setlocal'
+\                    . ' commentstring<'
 \                    . ' expandtab<'
 \                    . ' shiftwidth<'
 \                    . ' softtabstop<'

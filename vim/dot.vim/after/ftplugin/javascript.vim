@@ -1,55 +1,34 @@
-" Vim additional ftplugin: javascript
-" Version: 0.0.0
-" Copyright (C) 2021 emonkak <emonkak@gmail.com>
-" License: MIT license  {{{
-"     Permission is hereby granted, free of charge, to any person obtaining
-"     a copy of this software and associated documentation files (the
-"     "Software"), to deal in the Software without restriction, including
-"     without limitation the rights to use, copy, modify, merge, publish,
-"     distribute, sublicense, and/or sell copies of the Software, and to
-"     permit persons to whom the Software is furnished to do so, subject to
-"     the following conditions:
-"
-"     The above copyright notice and this permission notice shall be included
-"     in all copies or substantial portions of the Software.
-"
-"     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-"     OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-"     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-"     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-"     CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-"     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-"     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-" }}}
+setlocal cinoptions-=(0
+setlocal foldexpr=JavascriptFold(v:lnum)
+setlocal foldmethod=expr
+setlocal iskeyword+=$
+setlocal iskeyword-=58
 
-setlocal foldmethod=expr foldexpr=JavascriptFold(v:lnum)
-
-function! JavascriptFold(lnum)
+function! JavascriptFold(lnum) abort
   let current = getline(a:lnum)
 
   if current =~# '\s*}$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    let current_level = foldlevel(a:lnum - 1)
-    let current_level = current_level >= 0 ? current_level : 1
-    return level <= current_level ? '<' . level : '='
+    return level > 2 ? '=' : '<' . level
   endif
 
-  if current =~# '^\s*\%(export\s\+\%(default\s\+\)\?\)\?\%(class\|\%(async\s\+\)\?function\)\s\+\w'
+  if current =~# '^\s*\%(export\s\+\%(default\s\+\)\?\)\?\%(class\|\%(async\s\+\)\?function\)\s\+\h'
   \  && current !~# ';\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return level <= 1 ? level : '='
+    return level > 2 ? '=' : '>' . level
   endif
 
   return '='
 endfunction
 
 if exists('b:undo_ftplugin')
-  let b:undo_ftplugin .= ' | '
+  let b:undo_ftplugin .= '|'
 else
   let b:undo_ftplugin = ''
 endif
 
-let b:undo_ftplugin .= ''
-
-" __END__
-" vim: foldmethod=marker
+let b:undo_ftplugin .= 'setlocal'
+\                    . ' cinoptions<'
+\                    . ' foldexpr<'
+\                    . ' foldmethod<'
+\                    . ' iskeyword<'

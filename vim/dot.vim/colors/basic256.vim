@@ -232,7 +232,7 @@ endfunction
 
 call s:highlight_config({
 \   'Normal':                  {'fg': s:gui_fg_color, 'bg': s:gui_bg_color },
-\   'ColorColumn':             {'bg': 'bright_black'},
+\   'ColorColumn':             {'bg': 'black'},
 \   'Conceal':                 {'fg': 'bright_black'},
 \   'Cursor':                  {'bg': 'green'},
 \   'CursorColumn':            {'bg': 'black'},

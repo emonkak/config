@@ -1,35 +1,30 @@
-" Vim additional ftplugin: php
-" Version: 0.0.0
-" Copyright (C) 2012 emonkak <emonkak@gmail.com>
-" License: MIT license  {{{
-"     Permission is hereby granted, free of charge, to any person obtaining
-"     a copy of this software and associated documentation files (the
-"     "Software"), to deal in the Software without restriction, including
-"     without limitation the rights to use, copy, modify, merge, publish,
-"     distribute, sublicense, and/or sell copies of the Software, and to
-"     permit persons to whom the Software is furnished to do so, subject to
-"     the following conditions:
-"
-"     The above copyright notice and this permission notice shall be included
-"     in all copies or substantial portions of the Software.
-"
-"     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-"     OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-"     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-"     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-"     CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-"     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-"     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-" }}}
+setlocal commentstring=//%s
+setlocal expandtab
+setlocal foldexpr=PHPFold(v:lnum)
+setlocal foldmethod=expr
+setlocal shiftwidth=4
+setlocal softtabstop=4
+setlocal tabstop=4
 
-setlocal foldmethod=expr foldexpr=PHPFold(v:lnum)
+if !exists('b:current_compiler')
+  compiler psalm
+endif
 
-function! PHPFold(lnum)  "{{{
+inoreabbrev <buffer> /** /**<Space>*/<Left><Left><Left>
+
+command! -range -nargs=0 -buffer PHPInsertAccessors
+\ <line1>,<line2>call s:define_accessors()
+command! -range -nargs=0 -buffer PHPInsertGetters
+\ <line1>,<line2>call s:define_getters()
+command! -range -nargs=0 -buffer PHPInsertSetters
+\ <line1>,<line2>call s:define_setters()
+
+function! PHPFold(lnum) abort
   let current = getline(a:lnum)
 
   if current =~# '\s*}$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return level > 2 ? '=' : '<' . level
+    return level > 3 ? '=' : '<' . level
   endif
 
   if current =~# '^\s*\('
@@ -40,20 +35,13 @@ function! PHPFold(lnum)  "{{{
              \ . '\|trait'
              \ . '\)[^;]*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return level > 2 ? '=' : level
+    return level > 3 ? '=' : level
   endif
 
   return '='
-endfunction "}}}
+endfunction
 
-command! -range -nargs=0 -buffer PhpInsertAccessors
-\ <line1>,<line2>call s:insert_accessors()
-command! -range -nargs=0 -buffer PhpInsertGetters
-\ <line1>,<line2>call s:insert_getters()
-command! -range -nargs=0 -buffer PhpInsertSetters
-\ <line1>,<line2>call s:insert_setters()
-
-function! s:insert_accessors() range  " {{{
+function! s:define_accessors() abort range
   let properties = s:collect_properties(a:firstline, a:lastline)
 
   call cursor(a:lastline, 1)
@@ -62,9 +50,9 @@ function! s:insert_accessors() range  " {{{
   call s:render_setters(properties)
 
   call cursor(a:firstline, 1)
-endfunction  "}}}
+endfunction
 
-function! s:insert_getters() range  " {{{
+function! s:define_getters() abort range
   let properties = s:collect_properties(a:firstline, a:lastline)
 
   call cursor(a:lastline, 1)
@@ -72,9 +60,9 @@ function! s:insert_getters() range  " {{{
   call s:render_getters(properties)
 
   call cursor(a:firstline, 1)
-endfunction  "}}}
+endfunction
 
-function! s:insert_setters() range  " {{{
+function! s:define_setters() abort range
   let properties = s:collect_properties(a:firstline, a:lastline)
 
   call cursor(a:lastline, 1)
@@ -82,25 +70,25 @@ function! s:insert_setters() range  " {{{
   call s:render_setters(properties)
 
   call cursor(a:firstline, 1)
-endfunction  "}}}
+endfunction
 
-function! s:render_getters(properties)  "{{{
+function! s:render_getters(properties) abort
   for property in a:properties
     let [_, name, type] = property
     silent put =''
     silent put =s:create_getter('public', name, type)
   endfor
-endfunction  "}}}
+endfunction
 
-function! s:render_setters(properties)  "{{{
+function! s:render_setters(properties) abort
   for property in a:properties
     let [visibility, name, type] = property
     silent put =''
     silent put =s:create_setter(visibility, name, type)
   endfor
-endfunction  "}}}
+endfunction
 
-function! s:create_getter(visibility, name, type)  " {{{
+function! s:create_getter(visibility, name, type) abort
   let type_definition = a:type ==# 'mixed' ? '' : ': ' . a:type
   return join([
   \    '    ' . a:visibility . ' function get' . s:camelize(a:name) . '()' . type_definition,
@@ -108,9 +96,9 @@ function! s:create_getter(visibility, name, type)  " {{{
   \    '        return $this->' . a:name . ';',
   \    '    }'
   \ ], "\n")
-endfunction  "}}}
+endfunction
 
-function! s:create_setter(visibility, name, type)  " {{{
+function! s:create_setter(visibility, name, type) abort
   let type_definition = a:type ==# 'mixed' ? '' : a:type . ' '
   return join([
   \   '    ' . a:visibility . ' function set' . s:camelize(a:name) . '(' . type_definition . '$' . s:lowerCamelize(a:name) . '): void',
@@ -118,9 +106,9 @@ function! s:create_setter(visibility, name, type)  " {{{
   \   '        $this->' . a:name . ' = ' . '$' . s:lowerCamelize(a:name) . ';',
   \   '    }'
   \ ], "\n")
-endfunction  "}}}
+endfunction
 
-function! s:collect_properties(first, last)  " {{{
+function! s:collect_properties(first, last) abort
   let properties = []
   let types = []
 
@@ -131,7 +119,7 @@ function! s:collect_properties(first, last)  " {{{
       call add(types, matches[1])
     endif
 
-    let matches = matchlist(line, '\(private\|public\|protected\)\s\+\%(\(?\?\w\+\)\s\+\)\?\$\(\w\+\)')
+    let matches = matchlist(line, '\(private\|public\|protected\)\s\+\%(\(?\?\h\+\)\s\+\)\?\$\(\h\+\)')
     if len(matches) > 0
       let alternate_type = len(types) > 0 ? remove(types, 0) : 'mixed'
       let type = matches[2] != '' ? matches[2] : alternate_type
@@ -140,29 +128,37 @@ function! s:collect_properties(first, last)  " {{{
   endfor
 
   return properties
-endfunction  "}}}
+endfunction
 
-function! s:camelize(string)  " {{{
+function! s:camelize(string) abort
     return substitute(a:string,
     \                 '\%([_-]\|^\)\([a-z]\)\([a-z]\+\)',
     \                 '\=toupper(submatch(1)) . tolower(submatch(2))',
     \                 'gi')
-endfunction  "}}}
+endfunction
 
-function! s:lowerCamelize(string)  " {{{
+function! s:lowerCamelize(string) abort
     return substitute(s:camelize(a:string),
     \                 '^[a-z]',
     \                 '\=tolower(submatch(0))',
     \                 '')
-endfunction  "}}}
+endfunction
 
 if exists('b:undo_ftplugin')
-  let b:undo_ftplugin .= ' | '
+  let b:undo_ftplugin .= '|'
 else
   let b:undo_ftplugin = ''
 endif
 
-let b:undo_ftplugin .= 'setlocal foldmethod< foldexpr<'
-
-" __END__
-" vim: foldmethod=marker
+let b:undo_ftplugin .= 'setlocal'
+\                    . ' commentstring<'
+\                    . ' expandtab<'
+\                    . ' foldexpr<'
+\                    . ' foldmethod<'
+\                    . ' shiftwidth<'
+\                    . ' softtabstop<'
+\                    . ' tabstop<'
+\                    . '|iunabbrev <buffer> /**'
+\                    . '|delcommand PHPInsertAccessors'
+\                    . '|delcommand PHPInsertGetters'
+\                    . '|delcommand PHPInsertSetters'

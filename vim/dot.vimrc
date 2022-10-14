@@ -28,26 +28,7 @@ endfunction
 " Encoding  "{{{2
 
 set encoding=utf-8
-
-if has('iconv')
-  let s:enc_euc = 'euc-jp'
-  let s:enc_jis = 'iso-2022-jp'
-
-  if iconv("\x87\x64\x87\x6a", 'cp932', 'euc-jisx0213') ==# "\xad\xc5\xad\xcb"
-    let s:enc_euc = 'euc-jisx0213'
-    let s:enc_jis = 'iso-2022-jp-3'
-  endif
-
-  let &fileencodings = 'utf-8'
-  let &fileencodings .= ',' . s:enc_jis
-  let &fileencodings .= ',' . s:enc_euc
-  let &fileencodings .= ',' . 'cp932'
-  let &fileencodings .= ',' . 'ucs-bom'
-
-  unlet s:enc_euc
-  unlet s:enc_jis
-endif
-
+set fileencodings=utf-8,iso-2022-jp,euc-jp,cp932,ucs-bom
 
 if has('win32') || has('win64')
   language C
@@ -259,14 +240,22 @@ call metarw#define_wrapper_commands(0)
 " Commands  {{{1
 " :grep wrappers  "{{{2
 
-command! -complete=file -nargs=+ Grep  call s:grep('grep', s:suitable_grepprg(), [<f-args>])
-command! -complete=file -nargs=+ Lgrep  call s:grep('lgrep', s:suitable_grepprg(), [<f-args>])
-command! -complete=file -nargs=+ GnuGrep  call s:grep('grep', 'grep -nHE', [<f-args>])
-command! -complete=file -nargs=+ LGnuGrep  call s:grep('lgrep', 'grep -nHE', [<f-args>])
-command! -complete=file -nargs=+ GitGrep  call s:grep('grep', 'git grep -n', [<f-args>])
-command! -complete=file -nargs=+ LGitGrep  call s:grep('lgrep', 'git grep -n', [<f-args>])
-command! -complete=file -nargs=+ Rg  call s:grep('grep', 'rg --vimgrep --no-heading --no-column', [<f-args>])
-command! -complete=file -nargs=+ LRg  call s:grep('lgrep', 'rg --vimgrep --no-heading --no-column', [<f-args>])
+command! -complete=file -nargs=+ Grep
+\ call s:grep('grep', s:detect_grepprg(), [<f-args>])
+command! -complete=file -nargs=+ Lgrep
+\ call s:grep('lgrep', s:detect_grepprg(), [<f-args>])
+command! -complete=file -nargs=+ GnuGrep
+\ call s:grep('grep', 'grep -nHE', [<f-args>])
+command! -complete=file -nargs=+ LGnuGrep 
+\ call s:grep('lgrep', 'grep -nHE', [<f-args>])
+command! -complete=file -nargs=+ GitGrep
+\ call s:grep('grep', 'git grep -n', [<f-args>])
+command! -complete=file -nargs=+ LGitGrep 
+\ call s:grep('lgrep', 'git grep -n', [<f-args>])
+command! -complete=file -nargs=+ Rg
+\ call s:grep('grep', 'rg --vimgrep --no-heading --no-column', [<f-args>])
+command! -complete=file -nargs=+ LRg
+\ call s:grep('lgrep', 'rg --vimgrep --no-heading --no-column', [<f-args>])
 
 function! s:grep(command, grepprg, args) abort
   let target = join(a:args[:-2], ' ')
@@ -291,7 +280,7 @@ function! s:grep(command, grepprg, args) abort
   endif
 endfunction
 
-function! s:suitable_grepprg() abort
+function! s:detect_grepprg() abort
   return s:find_nearest_parent_file_or_directory(getcwd(), '.git/') != ''
   \    ? 'git grep -n'
   \    : executable('rg')
@@ -431,9 +420,9 @@ function! s:complete_fileformats(arglead, cmdline, cursorpos) abort
   return sort(filter(split(&fileformats, ','), 's:starts_with(a:arglead, v:val)'))
 endfunction
 
-command! -bar -nargs=1 TabIndent
+command! -bar -nargs=1 TabStop
 \ setlocal noexpandtab softtabstop< tabstop=<args> shiftwidth=<args>
-command! -bar -nargs=1 SpaceIndent
+command! -bar -nargs=1 SpaceStop
 \ setlocal expandtab tabstop< softtabstop=<args> shiftwidth=<args>
 
 
@@ -548,26 +537,26 @@ endfunction
 " Rename  "{{{2
 
 command! -complete=file -nargs=1 Rename  call s:cmd_Rename(<q-args>)
-function! s:cmd_Rename(name) abort
+function! s:cmd_Rename(path) abort
   let current = expand('%')
   if &l:readonly || !&l:modifiable || (filereadable(current) && !filewritable(current))
     echohl ErrorMsg
-    echo 'This file cannot be changes:' a:name
+    echo 'The file cannot be changed' current
     echohl None
-  elseif filereadable(a:name)
+  elseif filereadable(a:path)
     echohl ErrorMsg
-    echo 'Renamed file already exists:' a:name
+    echo 'A file already exists at' a:path
     echohl None
   else
-    let directory = fnamemodify(a:name, ':p:h')
+    let directory = fnamemodify(a:path, ':p:h')
     if !isdirectory(directory)
       call mkdir(directory, 'p')
     endif
-    file `=a:name`
+    file `=a:path`
     call delete(current)
     write
     redraw
-    echo 'Renamed:' current '->' a:name
+    echo 'Renamed:' current '->' a:path
   endif
 endfunction
 
@@ -815,17 +804,6 @@ function! s:keys_to_insert_one_character() abort
 endfunction
 
 
-function! s:keys_to_stop_insert_mode_completion() abort
-  if pumvisible()
-    return "\<C-e>"
-  else
-    return "\<Space>\<BS>"
-  endif
-endfunction
-
-
-
-
 " Jump sections  "{{{2
 
 " for normal mode.  a:pattern is '/regexp' or '?regexp'.
@@ -1019,7 +997,7 @@ function! s:toggle_colorcolumn() abort
   else
     let b:textwidth = &l:textwidth
     if b:textwidth == 0
-      setlocal textwidth=100
+      setlocal textwidth=80
     endif
     setlocal colorcolumn=+1 colorcolumn?
   endif
@@ -1644,7 +1622,7 @@ noremap [Space]  <Nop>
 
 nnoremap <silent> [Space]w  :<C-u>w<CR>
 if executable('sudo')
-  nnoremap <silent> [Space]W  :<C-u>w sudo:%<CR>
+  nnoremap <silent> [Space]W  :<C-u>w sudo:/%<CR>
 endif
 
 nnoremap <silent> [Space]/  :<C-u>call <SID>toggle_option('hlsearch')<CR>
@@ -1654,7 +1632,7 @@ nnoremap <silent> [Space]c  :<C-u>call <SID>close_temporary_windows()<CR>
 nnoremap [Space]f  <Nop>
 nnoremap [Space]fe  :<C-u>FileEncoding<Space>
 nnoremap [Space]ff  :<C-u>FileFormat<Space>
-nnoremap [Space]fr  :<C-u>Rename <C-r>%
+nnoremap [Space]fr  :<C-\>esetcmdpos(8 + strlen(expand('%:p:r'))) ? '' : 'Rename '.expand("%:p")<CR>
 nnoremap [Space]fs  :<C-u>setlocal filetype? fileencoding? fileformat?<CR>
 nnoremap [Space]ft  :<C-u>setfiletype<Space>
 
@@ -1923,64 +1901,19 @@ function! s:on_FileType_any() abort
     setlocal omnifunc=syntaxcomplete#Complete
   endif
 
-  " Disable auto wrap.
+  " Disable auto wrapping.
   setlocal formatoptions-=t formatoptions-=c
-
-  " Universal undo for indent scripts.
-  if exists('b:undo_indent')
-    let b:undo_indent .= ' | '
-  else
-    let b:undo_indent = ''
-  endif
-  let b:undo_indent .= 'setlocal
-  \ autoindent<
-  \ cindent<
-  \ cinkeys<
-  \ cinoptions<
-  \ cinwords<
-  \ copyindent<
-  \ expandtab<
-  \ indentexpr<
-  \ indentkeys<
-  \ lisp<
-  \ lispwords<
-  \ preserveindent<
-  \ shiftround<
-  \ shiftwidth<
-  \ smartindent<
-  \ smarttab<
-  \ softtabstop<
-  \ tabstop<
-  \ '
 endfunction
 
 
-" Optimize a huge file loading.
+" Optimize a large file loading.
 autocmd MyAutoCmd BufReadPre *
-\   if getfsize(expand("<afile>")) > 1024 * 1024 * 10
+\   if getfsize(expand("<afile>")) > 1024 * 1024 * 8
 \ |   set eventignore+=FileType
 \ |   setlocal noswapfile
 \ | else
 \ |   set eventignore-=FileType
 \ | endif
-
-
-" Fix 'fileencoding' to use 'encoding'.
-autocmd MyAutoCmd BufReadPost *
-\   if &l:modifiable && !search('[^\x00-\x7F]', 'cnw', 100)
-\ |   setlocal fileencoding=
-\ | endif
-
-
-" Load project-specific vimrc.
-autocmd MyAutoCmd BufNewFile,BufReadPost *
-\ call s:load_local_vimrc(expand('<afile>:p:h'))
-function! s:load_local_vimrc(path) abort
-  let path = s:find_nearest_parent_file_or_directory(a:path, '.vimrc.local')
-  if !empty(path)
-    source `path`
-  endif
-endfunction
 
 
 " Unset 'paste' automatically.
@@ -1999,253 +1932,13 @@ autocmd MyAutoCmd BufReadPost *
 \ | endif
 
 
-" Prevent doubly `filetype` setting on `*.ebuild` and `*.eclass` files.
-let g:ft_ignore_pat = 'e\(build\|class\)$'
-
-
-
-
-" actionscript  "{{{2
-
-autocmd MyAutoCmd FileType actionscript
-\   TabIndent 4
-\ | setlocal commentstring=//%s
-\ | compiler ant
-
-
-
-
-" blade  "{{{2
-
-autocmd MyAutoCmd FileType blade
-\ SpaceIndent 4
-
-
-
-
-" c, c++  "{{{2
-
-autocmd MyAutoCmd FileType c,cpp
-\   SpaceIndent 4
-\ | setlocal commentstring=//%s
-
-
-
-
-" changelog  "{{{2
-
-" Fix the new entry mapping bug.
-autocmd MyAutoCmd FileType changelog
-\ noremap <buffer> <silent> <Leader>o  :<C-u>NewChangelogEntry<CR>
-
-let g:changelog_timeformat = '%Y-%m-%d'
-let g:changelog_username = 'Shota Nozaki <emonkak@gmail.com>'
-
-
-
-
-" coffee  "{{{2
-
-autocmd MyAutoCmd FileType coffee
-\ SpaceIndent 2
-
-
-
-
-" cs  "{{{2
-
-let g:syntastic_cs_checkers = ['syntax', 'semantic', 'issues']
-
-autocmd MyAutoCmd FileType cs
-\ call s:on_FileType_cs()
-
-function! s:on_FileType_cs() abort
-  SpaceIndent 4
-
-  setlocal commentstring=//%s
-  setlocal textwidth=100
-
-  inoreabbrev <buffer> ///  /// <summary><CR><CR></summary><Up>
-endfunction
-
-
-
-
-" css, less, sass, scss  "{{{2
-
-autocmd MyAutoCmd FileType css,less,sass,scss
-\   SpaceIndent 2
-\ | setlocal iskeyword+=-
-
-
-
-
-" dockerfile "{{{2
-
-autocmd MyAutoCmd FileType dockerfile
-\ SpaceIndent 4
-
-
-
-
-" dosini (.ini)  "{{{2
-
-autocmd MyAutoCmd FileType dosini
-\ call s:on_FileType_dosini()
-
-function! s:on_FileType_dosini() abort
-  " Jumping around sections.
-  nnoremap <buffer> <silent> ]]  :<C-u>call <SID>jump_section_n('/^\[')<CR>
-  nnoremap <buffer> <silent> ][  :<C-u>call <SID>jump_section_n('/\n\[\@=')<CR>
-  nnoremap <buffer> <silent> [[  :<C-u>call <SID>jump_section_n('?^\[')<CR>
-  nnoremap <buffer> <silent> []  :<C-u>call <SID>jump_section_n('?\n\[\@=')<CR>
-
-  " Folding sections.
-  setlocal foldmethod=expr
-  let &l:foldexpr = '(getline(v:lnum)[0] == "[") ? ">1" :'
-  \               . '(getline(v:lnum) =~# ''^;.*\(__END__\|\*\*\*\)'' ? 0 : "=")'
-endfunction
-
-
-
-
-" git  "{{{2
-
-autocmd MyAutoCmd FileType gitcommit
-\ setlocal nofoldenable
-
-
-
-
-" glsl  "{{{2
-
-autocmd MyAutoCmd FileType glsl
-\ SpaceIndent 4
-
-
-
-
-" haskell  "{{{2
-
-autocmd MyAutoCmd FileType haskell
-\   SpaceIndent 2
-\ | compiler cabal
-
-autocmd MyAutoCmd FileType cabal
-\ SpaceIndent 2
-
-" Fix hsc highlighting
-let g:hs_allow_hash_operator = 1
-
-let g:haskell_conceal = 0
-
-
-
-
-" haxe  "{{{2
-
-autocmd MyAutoCmd FileType haxe
-\   SpaceIndent 2
-\ | setlocal commentstring=//%s
-
-
-
-
-" java  "{{{2
-
-autocmd MyAutoCmd FileType java
-\   SpaceIndent 4
-\ | compiler gradle
-\ | setlocal cinoptions=:1s,l1,g0,t0,(0,j1
-\ | setlocal foldmethod=syntax foldnestmax=2
-\ | setlocal textwidth=100
-
-
-
-
-" javascript  "{{{2
-
-autocmd MyAutoCmd FileType javascript
-\   SpaceIndent 4
-\ | setlocal iskeyword-=58 iskeyword+=$
-\ | setlocal cinoptions-=(0
-
-let g:jsx_ext_required = 0
-
-
-
-
-" json  "{{{2
-
-autocmd MyAutoCmd FileType json
-\ SpaceIndent 4
-
-
-
-
-" lua  "{{{2
-
-autocmd MyAutoCmd FileType lua
-\ SpaceIndent 2
-
-
-
-
-" markdown  "{{{2
-
-autocmd MyAutoCmd FileType markdown
-\ SpaceIndent 4
-
-
-
-
-" nginx  "{{{2
-
-autocmd MyAutoCmd FileType nginx
-\ SpaceIndent 4
-
-
-
-
-" objc  "{{{2
-
-autocmd MyAutoCmd FileType objc
-\   SpaceIndent 4
-\ | setlocal commentstring=//%s
-
-
-
-
-" ocaml  "{{{2
-
-autocmd MyAutoCmd FileType ocaml
-\   SpaceIndent 2
-\ | setlocal commentstring=(*%s*)
-
-
-
-
-" perl  "{{{2
-
-autocmd MyAutoCmd FileType perl
-\ SpaceIndent 2
+" Fix the duplicated settings for `filetype` on ebuild and eclass files.
+let g:ft_ignore_pat = '\(ebuild\|eclass\)$'
 
 
 
 
 " php  "{{{2
-
-autocmd MyAutoCmd FileType php
-\ call s:on_FileType_php()
-
-function! s:on_FileType_php() abort
-  SpaceIndent 4
-  compiler psalm
-  setlocal commentstring=//%s
-  setlocal iskeyword+=$
-
-  inoreabbrev <buffer> /** /**<Space>*/<Left><Left><Left>
-endfunction
 
 let g:PHP_vintage_case_default_indent = 1
 let g:PHP_noArrowMatching = 1
@@ -2255,175 +1948,32 @@ let g:PHP_noArrowMatching = 1
 
 " python  "{{{2
 
-autocmd MyAutoCmd FileType python
-\ SpaceIndent 4
-
 let g:python_highlight_all = 1
-
-
-
-
-" quickfix  "{{{2
-
-autocmd MyAutoCmd FileType qf
-\ setlocal nobuflisted nocursorline
-
-
-
-
-" ruby  "{{{2
-
-autocmd MyAutoCmd FileType ruby
-\ SpaceIndent 2
 
 
 
 
 " rust  "{{{2
 
-autocmd MyAutoCmd FileType rust
-\   SpaceIndent 4
-\ | compiler cargo
+let g:rust_recommended_style = 1
 
 let g:cargo_makeprg_params = 'build --all-targets'
 
 
 
 
-" scala  "{{{2
-
-autocmd MyAutoCmd FileType scala
-\ SpaceIndent 2
-
-
-
-
-" scheme  "{{{2
-
-let g:is_gauche = 1
-
-
-
-
-" sh, zsh  "{{{2
-
-autocmd MyAutoCmd FileType sh,zsh
-\ SpaceIndent 2
+" sh  "{{{2
 
 let g:is_bash = 1
 
 
 
 
-" sql  "{{{2
-
-autocmd MyAutoCmd FileType sql
-\   SpaceIndent 2
-\ | setlocal commentstring=--%s
-
-
-
-
-" swift  "{{{2
-
-autocmd MyAutoCmd FileType swift
-\ SpaceIndent 4
-
-
-
-
-" tex  "{{{2
-
-autocmd MyAutoCmd FileType tex,plaintex
-\   call s:on_FileType_tex()
-\ | compiler tex
-
-function! s:on_FileType_tex() abort
-  SpaceIndent 2
-
-  inoreabbrev <buffer> \b  \textbf{}<Left>
-  inoreabbrev <buffer> \i  \textit{}<Left>
-  inoreabbrev <buffer> \r  \textrm{}<Left>
-  inoreabbrev <buffer> \s  \textsf{}<Left>
-  inoreabbrev <buffer> \t  \texttt{}<Left>
-  inoreabbrev <buffer> \l  \begin{lstlisting}[]<CR><CR>\end{lstlisting}<Up>
-
-  setlocal foldmarker=%{{{,%}}}
-  setlocal iskeyword+=-
-endfunction
-
-let g:tex_flavor = 'latex'
-
-
-
-
-" typescript  "{{{2
-
-autocmd MyAutoCmd FileType typescript
-\   SpaceIndent 4
-\ | setlocal makeprg=./node_modules/.bin/tsc
-\ | setlocal commentstring=//%s
-\ | setlocal iskeyword-=:
-
-
-
-
 " vim  "{{{2
 
-autocmd MyAutoCmd FileType vim
-\   SpaceIndent 2
-\ | setlocal keywordprg=:help
-
-let g:vim_indent_cont = 0
-let g:vimsyn_embed = 'l'
-
-
-
-
-" xml  "{{{2
-
-autocmd MyAutoCmd FileType ant,docbk,html,mustache,smarty,svg,xhtml,xml,xslt
-\ call s:on_FileType_xml()
-
-function! s:on_FileType_xml() abort
-  SpaceIndent 2
-
-  " Complete proper end-tags.
-  " In the following description, {|} means the cursor position.
-
-  " Insert the end tag after the cursor.
-  " Before: <code{|}
-  " After:  <code>{|}</code>
-  inoremap <buffer> <LT><LT>  ><LT>/<C-x><C-o><C-r>=
-                             \<SID>keys_to_stop_insert_mode_completion()
-                             \<CR><C-o>F<LT>
-
-  " Wrap the cursor with the tag.
-  " Before: <code{|}
-  " After:  <code>
-  "           {|}
-  "         </code>
-  inoremap <buffer> >>  ><CR>X<CR><LT>/<C-x><C-o><C-d><C-r>=
-                       \<SID>keys_to_stop_insert_mode_completion()
-                       \<CR><C-o><Up><BS>
-
-  " To deal with namespace prefixes and tag-name-including-hyphens.
-  setlocal iskeyword+=-
-  setlocal iskeyword+=:
-endfunction
-
-
-" For light weight template engines
-autocmd MyAutoCmd FileType haml,jade,slim
-\ SpaceIndent 2
-
-
-
-
-" yaml  "{{{2
-
-autocmd MyAutoCmd FileType yaml
-\ SpaceIndent 2
+let g:vim_indent = {
+\   "line_continuation": 0,
+\ }
 
 
 
@@ -2548,7 +2098,7 @@ function! s:ku_common_action_Yank(item) abort
 endfunction
 
 function! s:ku_file_action_open_sudo(item) abort
-  edit `='sudo:' . fnamemodify(a:item.word, ':p')`
+  edit `='sudo:/' . fnamemodify(a:item.word, ':p')`
 endfunction
 
 function! s:ku_metarw_git_action_checkout(item) abort
@@ -2610,7 +2160,7 @@ nnoremap <silent> [Space]km  :<C-u>Ku file_mru<CR>
 nnoremap <silent> [Space]kk  :<C-u>call ku#restart()<CR>
 
 
-let g:ku_file_mru_file = expand('~/.vimmru')
+let g:ku_file_mru_file = expand('~/.vim/info/ku/mru')
 let g:ku_file_mru_ignore_pattern = '/$\|/\.git/\|^/\(/\|mnt\|tmp\)'
 let g:ku_file_mru_limit = 1000
 
@@ -2660,20 +2210,34 @@ function! s:on_lsp_setup() abort
     \   'root_uri': {server_info -> lsp#utils#path_to_uri(
     \      lsp#utils#find_nearest_parent_file_directory(
     \        lsp#utils#get_buffer_path(),
-    \        ['.git/', 'Setup.hs', 'stack.yml']
+    \        ['Setup.hs', 'stack.yml']
     \      )
     \   )},
     \   'allowlist': ['haskell'],
     \ })
-  endif
-  if executable('rls')
+  elseif executable('rls')
     call lsp#register_server({
-    \   'name': 'rls',
-    \   'cmd': {server_info -> ['rls']},
+    \   'name': 'rust-analyzer',
+    \   'cmd': {server_info -> ['rust-analyzer']},
     \   'root_uri': {server_info -> lsp#utils#path_to_uri(
     \      lsp#utils#find_nearest_parent_file_directory(
     \        lsp#utils#get_buffer_path(),
-    \        ['.git/', 'Cargo.toml']
+    \        ['Cargo.toml']
+    \      )
+    \   )},
+    \   'allowlist': ['rust'],
+    \ })
+  elseif executable('rust-analyzer')
+    call lsp#register_server({
+    \   'name': 'rust-analyzer',
+    \   'cmd': {server_info -> [
+    \     'rust-analyzer',
+    \     lsp#utils#uri_to_path(server_info['root_uri'](server_info)),
+    \   ]},
+    \   'root_uri': {server_info -> lsp#utils#path_to_uri(
+    \      lsp#utils#find_nearest_parent_file_directory(
+    \        lsp#utils#get_buffer_path(),
+    \        ['Cargo.toml']
     \      )
     \   )},
     \   'allowlist': ['rust'],
@@ -2739,8 +2303,8 @@ vmap [Space]S  <Plug>(operator-sort)$
 nmap [Space]s  <Plug>(operator-sort)
 vmap [Space]s  <Plug>(operator-sort)
 
-nmap [Space]N  <Plug>(operator-sort-numeric)$
-vmap [Space]N  <Plug>(operator-sort-numeric)$
+nmap [Space]N  <Plug>(operator-sort)$
+vmap [Space]N  <Plug>(operator-sort)$
 nmap [Space]n  <Plug>(operator-sort-numeric)
 vmap [Space]n  <Plug>(operator-sort-numeric)
 
@@ -2802,7 +2366,7 @@ let g:quickrun_config = {
 \     'exec': '%c %o -a Marked %s'
 \   },
 \   'rust': {
-\     'cmdopt': '-A dead_code --edition 2018',
+\     'cmdopt': '-A dead_code --edition 2021',
 \     'command': 'rustc',
 \     'exec': ['%c %o %s -o %s:p:r', 'RUST_BACKTRACE=1 %s:p:r %a'],
 \     'tempfile': '%{fnamemodify(tempname(), ":r")}.rs',
@@ -2896,25 +2460,22 @@ autocmd MyAutoCmd User plugin-skeleton-detect
 \ call s:on_User_plugin_skeleton_detect()
 
 function! s:on_User_plugin_skeleton_detect() abort
-  let _ = split(expand('%:p'), '/')
-  if len(_) == 0
+  let segments = split(expand('%:p'), '/')
+  if len(segments) == 0
     return
   endif
-  let filename = _[-1]
-  let directories = _[:-2]
+
+  let filename = segments[-1]
+  let directories = segments[:-2]
 
   if filename =~# '\.user\.js$'
     SkeletonLoad userjs
-  elseif filename =~# '\.toml$'
+  elseif filename =~# 'Cargo\.toml$'
     SkeletonLoad cargo
-  elseif filename =~# '\.txt$' && get(directories, -1) ==# 'doc'
-    SkeletonLoad vim-doc
   elseif filename =~# '\.vim$'
-  \  && get(directories, -1) =~#
-  \     '^\v(autoload|colors|compiler|ftdetect|ftplugin|indent|plugin|syntax)'
-    if get(directories, -2) ==# 'after'
-      execute 'SkeletonLoad' 'vim-additional-'.directories[-1]
-    else
+    if get(directories, -2) ==# "after" && get(directories, -1) ==# "ftplugin"
+      execute 'SkeletonLoad' 'vim-after-'.directories[-1]
+    elseif get(directories, -1) ==# '^\v(compiler|ftdetect|ftplugin|indent|plugin|syntax)$'
       execute 'SkeletonLoad' 'vim-'.directories[-1]
     endif
   endif

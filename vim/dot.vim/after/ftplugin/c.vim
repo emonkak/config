@@ -1,7 +1,8 @@
+setlocal commentstring=//%s
 setlocal expandtab
-setlocal shiftwidth=2
-setlocal softtabstop=2
-setlocal tabstop=2
+setlocal shiftwidth=4
+setlocal softtabstop=4
+setlocal tabstop=4
 
 if exists('b:undo_ftplugin')
   let b:undo_ftplugin .= '|'
@@ -10,6 +11,7 @@ else
 endif
 
 let b:undo_ftplugin .= 'setlocal'
+\                    . ' commentstring<'
 \                    . ' expandtab<'
 \                    . ' shiftwidth<'
 \                    . ' softtabstop<'
