@@ -213,10 +213,12 @@ zle -N accept-line
 
 function prompt_setup() {
   local c_reset=$'\e[0m'
-  local c_cyan=$'\e[36m'
-  local c_green=$'\e[32m'
   local c_red=$'\e[31m'
+  local c_green=$'\e[32m'
   local c_yellow=$'\e[33m'
+  local c_blue=$'\e[34m'
+  local c_magenta=$'\e[35m'
+  local c_cyan=$'\e[36m'
   local c_gray=$'\e[37m'
 
   local c_user
@@ -232,18 +234,18 @@ function prompt_setup() {
 
   local t_host="$c_user%n$c_host@%m$c_reset"
   local t_cwd="$c_yellow%~$c_reset"
-  local t_main='$PS_DECORATOR%(!.#.>) '
-  if [ 1 -lt $SHLVL ]; then  # is nested interactive shell?
+  local t_main='%(!.#.$) '
+  # is nested interactive shell?
+  if [ $SHLVL -gt 2 ] || ([ -z "$TMUX" ] && [ $SHLVL -gt 1 ])
+  then
     local t_shlvl=" $c_gray($SHLVL)$c_reset"
   else
     local t_shlvl=''
   fi
-  local t_vcs="$c_yellow\$vcs_info_msg_0_$c_reset"
+  local t_vcs="\$([ -n \"\$vcs_info_msg_0_\" ] && echo \" $c_blue\$vcs_info_msg_0_$c_reset\")"
 
-  PS1="
-$t_host $t_cwd$t_shlvl $t_vcs
+  PS1="$t_host $t_cwd$t_shlvl$t_vcs
 $t_main"
-  PS_DECORATOR='YUKI.N'
 }
 
 prompt_setup
@@ -254,10 +256,13 @@ unset -f prompt_setup
 
 # Aliases  #{{{1
 
-if ls --color=never --directory / >/dev/null 2>&1
+if which exa &>/dev/null
 then
-  alias ls='ls -Fh --color=auto --show-control-chars --time-style=long-iso'
-else
+  alias ls='exa --classify --group --time-style=long-iso'
+elif which vdir &>/dev/null  # `vdir` command is only available in Coreutils.
+then
+  alias ls='ls --classify --human-readable --color=auto --time-style=long-iso --show-control-chars'
+else  # BSD version
   alias ls='ls -FGh'
 fi
 alias la='ls -a'
@@ -286,14 +291,13 @@ if which colordiff &>/dev/null
 then
   alias diff='colordiff -u'
 fi
-alias grep='grep --binary-files=without-match --color -P'
-alias lv='lv -c'
-alias pstree='pstree -A'
+alias grep='grep --color --binary-files=without-match --perl-regexp'
+alias pstree='pstree --ascii'
 
 if which xsel &>/dev/null
 then
-  alias pbcopy='xsel --clipboard --input'
-  alias pbpaste='xsel --clipboard --output'
+  alias pbcopy='xsel --input --clipboard'
+  alias pbpaste='xsel --output --clipboard'
 fi
 
 alias -s {7z,gz,rar,tar,xz,zip}='aunpack'

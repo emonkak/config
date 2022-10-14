@@ -25,7 +25,7 @@ dev-lang/perl ithreads
 dev-lang/php bcmath curl fpm gd gmp mysql mysqli pcntl pdo sockets sqlite xmlwriter xslt zip
 dev-lang/python sqlite
 dev-lang/rust rls rustfmt
-dev-lang/rust-bin rls rustfmt
+dev-lang/rust-bin rls rust-src rustfmt
 dev-lang/scala binary
 dev-libs/libdbusmenu gtk3
 dev-lua/* luajit
@@ -44,7 +44,7 @@ media-libs/libpng apng
 media-libs/mesa vulkan
 media-sound/mpd aac inotify lame ogg sqlite vorbis
 media-sound/ncmpcpp clock taglib
-media-sound/pulseaudio -X gnome system-wide
+media-sound/pulseaudio-daemon -X system-wide
 media-sound/shntool flac
 media-video/ffmpeg faac mp3 network openssl rtmp theora v4l vorbis x264 xvid
 media-video/vlc aac dvd flac fontconfig matroska mp3 mpeg ogg png stream theora truetype v4l vorbis x264 xv
@@ -107,11 +107,6 @@ dev-libs/libgpg-error static-libs
 # for games-emulation/dolphin
 media-libs/opus abi_x86_32
 
-# for media-video/shotcut
-# media-libs/libsdl2 opengl
-# media-libs/mlt qt5 frei0r xml sdl ffmpeg jack opengl fftw
-# media-libs/opencv contrib contribdnn
-
 # for app-editors/neovim
 app-editors/neovim LUA_SINGLE_TARGET: -* luajit
 dev-lua/mpack lua_targets_luajit
@@ -147,6 +142,7 @@ media-libs/lcms abi_x86_32
 media-libs/libjpeg-turbo abi_x86_32
 media-libs/libogg abi_x86_32
 media-libs/libpng abi_x86_32
+media-libs/libpulse abi_x86_32
 media-libs/libsdl2 abi_x86_32
 media-libs/libsndfile abi_x86_32
 media-libs/libvorbis abi_x86_32
@@ -154,6 +150,7 @@ media-libs/mesa abi_x86_32
 media-libs/speexdsp abi_x86_32
 media-libs/vulkan-loader abi_x86_32
 media-plugins/alsa-plugins abi_x86_32
+media-sound/lame abi_x86_32
 media-sound/mpg123 abi_x86_32
 media-sound/pulseaudio abi_x86_32
 net-dns/libidn2 abi_x86_32
@@ -242,6 +239,7 @@ x11-libs/pixman abi_x86_32
 
 # for udev
 sys-apps/hwids -udev
+sys-apps/systemd-utils abi_x86_32
 sys-fs/udev abi_x86_32
 sys-libs/libxcrypt abi_x86_32
 
@@ -251,3 +249,15 @@ media-libs/harfbuzz icu
 media-libs/libpng -apng
 net-libs/nodejs inspector
 dev-libs/icu abi_x86_32
+
+# for sys-boot/unetbootin
+dev-libs/libbsd abi_x86_32
+
+# for net-fs/cifs-utils
+app-crypt/libmd abi_x86_32
+
+# required by media-gfx/imagemagick[heif]
+media-libs/libheif x265
+
+# required by gui-apps/gcolor3
+dev-libs/libportal gtk

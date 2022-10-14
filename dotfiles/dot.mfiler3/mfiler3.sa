@@ -138,7 +138,7 @@ def open_file (  #{{{2
   ) '^(aac|asf|avi|flv|mkv|mov|mp3|mp4|mpe?g|ogg|ogv|rm|ts|wav|webm|wma|wmv)$' (
     external -q "mpv -quiet $(ary ARGV 0)"
     break
-  ) '^(bmp|gif|jpe?g|jpg_orig|png|webp)$' (
+  ) '^(bmp|gif|heic|jpe?g|jpg_orig|png|webp)$' (
     external -q "feh -. $(ary ARGV 0)"
     break
   ) '.*' (

@@ -1,7 +1,7 @@
 ; My .uim
 ; Prelude  {{{1
 
-(use srfi-1)
+; (use srfi-1)
 
 
 
@@ -32,7 +32,7 @@
 ; XIM  {{{1
 
 (define uim-xim-use-xft-font? #t)
-(define uim-xim-xft-font-name "M PLUS 2")
+(define uim-xim-xft-font-name "Noto Sans CJK JP")
 
 
 
@@ -62,17 +62,18 @@
 
 (require-module "skk")
 
+(define skk-auto-start-henkan? #f)
 (define skk-candidate-op-count 3)
-(define skk-egg-like-newline? #t)
-(define skk-show-annotation-in-preedit? #t)
-(define skk-show-annotation? #f)
-(define skk-use-with-vi? #t)
-(define skk-use-look? #t)
-(define skk-look-dict "/usr/share/dict/words")
 (define skk-dic-file-name (string-append (or (home-directory (user-name)) "") "/.skk/SKK-JISYO.LL.utf8"))
+(define skk-egg-like-newline? #t)
+(define skk-ja-rk-rule (append ja-rk-rule-basic ja-rk-rule-additional))
+(define skk-look-dict "/usr/share/dict/words")
 (define skk-on-key '("zenkaku-hankaku" "<Shift> "))
 (define skk-on-key? (make-key-predicate '("zenkaku-hankaku" "<Shift> ")))
-(define skk-ja-rk-rule (append ja-rk-rule-basic ja-rk-rule-additional))
+(define skk-show-annotation-in-preedit? #t)
+(define skk-show-annotation? #f)
+(define skk-use-look? #t)
+(define skk-use-with-vi? #t)
 
 
 

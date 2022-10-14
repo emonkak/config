@@ -1,13 +1,12 @@
+*/*::haskell ~amd64
 */*::local-repo ~amd64
 
 =media-video/rtmpdump-9999 **
-=x11-terms/alacritty-9999 **
 
-app-admin/haskell-updater ~amd64
 app-editors/gvim ~amd64
 app-editors/vim ~amd64
 app-editors/vim-core ~amd64
-app-editors/vscode-bin ~amd64
+app-editors/vscodium ~amd64
 app-emulation/genymotion-bin ~amd64
 app-i18n/skk-jisyo ~amd64
 app-i18n/skktools ~amd64
@@ -15,75 +14,45 @@ app-misc/tmux ~amd64
 app-misc/yq ~amd64
 app-portage/hackport ~amd64
 app-shells/fzf ~amd64
-dev-haskell/* ~amd64
-dev-lang/ghc ~amd64
 dev-lang/php ~amd64
 dev-lang/rust-bin ~amd64
 dev-php/* ~amd64
 dev-python/fonttools ~amd64
+dev-util/rust-analyzer ~amd64
 games-emulation/pcsx2 ~amd64
+gui-apps/gcolor3 ~amd64
 media-fonts/* ~amd64
-media-sound/jack ~amd64
 media-sound/mpd ~amd64
 media-tv/gtk-v4l ~amd64
-net-im/zoom ~amd64
 net-misc/wget2 ~amd64
 net-p2p/resilio-sync ~amd64
 net-proxy/mitmproxy ~amd64
 sys-apps/ripgrep ~amd64
 sys-fs/dmg2img ~amd64
-sys-fs/udev ~amd64
 virtual/rust ~amd64
 www-client/brave-bin ~amd64
 www-client/firefox-bin ~amd64
 www-client/google-chrome ~amd64
 www-client/jd ~amd64
-x11-libs/pango ~amd64
-x11-misc/albert ~amd64
-x11-misc/screenkey ~amd64
-x11-misc/snixembed ~amd64
+x11-apps/igt-gpu-tools ~amd64
 x11-misc/xcape ~amd64
 x11-misc/xmobar ~amd64
-x11-terms/rxvt-unicode ~amd64
+x11-terms/alacritty ~amd64
 x11-themes/* ~amd64
 x11-wm/xmonad ~amd64
 x11-wm/xmonad-contrib ~amd64
 
-# mold
-dev-cpp/tbb ~amd64
-dev-libs/mimalloc ~amd64
-sys-devel/mold ~amd64
+# for HEIC Supporting
+media-gfx/geeqie ~amd64
+media-libs/imlib2 ~amd64
 
 # NeoVim
 app-editors/neovim ~amd64
 dev-libs/tree-sitter ~amd64
 
-# Wine
-=app-emulation/wine-vanilla-6* ~amd64
-app-emulation/wine-gecko ~amd64
-app-emulation/wine-mono ~amd64
-
-# AMDGPU
-app-misc/radeontop ~amd64
-dev-libs/amdgpu-pro-opencl ~amd64
-dev-libs/rocclr ~amd64
-dev-libs/rocm-comgr ~amd64
-dev-libs/rocm-device-libs ~amd64
-dev-libs/rocm-opencl-runtime ~amd64
-dev-libs/rocr-runtime ~amd64
-dev-libs/roct-thunk-interface ~amd64
-dev-util/clinfo ~amd64
-dev-util/rocm-cmake ~amd64
-dev-util/rocminfo ~amd64
-sys-devel/llvm-roc ~amd64
-
 # Shotcut
 media-libs/mlt ~amd64
 media-video/shotcut ~amd64
 
-# BCC
-dev-libs/libbpf ~amd64
-dev-util/bcc ~amd64
-
-# Fix compile error of rust on v78.14.0
-=dev-lang/spidermonkey-78.15.0
+=dev-lang/ghc-9.2* **
+=media-video/rtmpdump-9999 **
