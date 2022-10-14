@@ -29,7 +29,7 @@ let g:google_transale_tkk = get(g:, 'g:google_transale_tkk', '409266.1674047641'
 
 
 " Interface  "{{{1
-function! google_translate#translate(text, from, to)  "{{{2
+function! google_translate#translate(text, from, to) abort  "{{{2
   let url = 'https://translate.google.com/translate_a/single'
   let options = {
   \   'client': 't',
@@ -54,127 +54,124 @@ endfunction
 
 
 
-function! google_translate#token(text)  "{{{2
+function! google_translate#token(text) abort  "{{{2
   let a = split(a:text, '.\zs')
   let b = g:google_transale_tkk
-
-  let cD = split(b, '\.')
-  let iB = str2nr(cD[0])
-
+  let c = split(b, '\.')
+  let d = str2nr(c[0])
   let e = []
-  let g = 0
+  let f = 0
 
-  while g < len(a)
-    let l = char2nr(a[g])
-    if 128 > l
-      call add(e, l)
+  while f < len(a)
+    let g = char2nr(a[f])
+    if 128 > g
+      call add(e, g)
     else
-      if 2048 > l
-        call add(e, s:or32(s:signed_right_shift32(l, 6), 192))
-        call add(e, s:or32(s:signed_right_shift32(l, 6), 192))
+      if 2048 > g
+        call add(e, s:i32_or(s:i32_signed_right_shift(g, 6), 192))
+        call add(e, s:i32_or(s:i32_signed_right_shift(g, 6), 192))
       else
-        if 55296 == s:and32(l, 64512)
-        \  && g + 1 < len(a)
-        \  && 56320 == s:and32(a[g + 1], 64512)
-          let g += 1
-          let l = 65536 + s:left_shift32(s:and32(l, 1023), 10) + s:and32(a[g], 1023)
-          call add(e, s:or32(s:signed_right_shift32(l, 18), 240))
-          call add(e, s:or32(s:and32(s:signed_right_shift32(l, 12), 63), 128))
+        if 55296 == s:i32_and(g, 64512)
+        \  && f + 1 < len(a)
+        \  && 56320 == s:i32_and(a[f + 1], 64512)
+          let f += 1
+          let g = 65536 + s:i32_left_shift(s:i32_and(g, 1023), 10) + s:i32_and(a[f], 1023)
+          call add(e, s:i32_or(s:i32_signed_right_shift(g, 18), 240))
+          call add(e, s:i32_or(s:i32_and(s:i32_signed_right_shift(g, 12), 63), 128))
         else
-          call add(e, s:or32(s:signed_right_shift32(l, 12), 224))
-          call add(e, s:or32(s:and32(s:signed_right_shift32(l, 6), 63), 128))
+          call add(e, s:i32_or(s:i32_signed_right_shift(g, 12), 224))
+          call add(e, s:i32_or(s:i32_and(s:i32_signed_right_shift(g, 6), 63), 128))
         endif
       endif
-      call add(e, s:or32(s:and32(l, 63), 128))
+      call add(e, s:i32_or(s:i32_and(g, 63), 128))
     endif
-    let g += 1
+    let f += 1
   endwhile
 
-  let a = iB
+  let a = d
   for ff in e
     let a = s:xr(a + ff, '+-a^+6')
   endfor
 
   let a = s:xr(a, '+-3^+b+-f')
-  let a = s:xor32(a, str2nr(cD[1]))
+  let a = s:i32_xor(a, str2nr(c[1]))
   if a < 0
-    let a = s:and32(a, 2147483647) + 2147483648
+    let a = s:i32_and(a, 2147483647) + 2147483648
   endif
   let a = a % 1000000
-  return a . '.' . s:xor32(a, iB)
+  return a . '.' . s:i32_xor(a, d)
 endfunction
 
 
 
 
 " Misc.  "{{{1
-function! s:is_negative(n)  "{{{2
-  return and(a:n, 2147483648) != 0
+function! s:i32_negative(num) abort  "{{{2
+  return and(a:num, 0x80000000) != 0
 endfunction
 
 
 
 
-function! s:int32(n)  "{{{2
-  return s:is_negative(a:n) ? or(a:n, -2147483648) : and(a:n, 2147483647)
+function! s:i32_truncate(num) abort  "{{{2
+  let truncated = and(a:num, 0x7fffffff)
+  return s:i32_negative(a:num) ? or(truncated, 0x80000000) : truncated
 endfunction
 
 
 
 
-function! s:left_shift32(n, i)  "{{{2
-  let bs = (s:is_negative(a:n)) . printf('%032b', a:n)[-31:]
-  let bs = bs[a:i:] . repeat('0', a:i)
-  return s:int32(str2nr(bs, 2))
+function! s:i32_left_shift(lhs, rhs) abort  "{{{2
+  return s:i32_truncate(a:lhs << a:rhs)
 endfunction
 
 
 
 
-function! s:right_shift32(n, i)  "{{{2
-  let bs = (s:is_negative(a:n)) . printf('%032b', a:n)[-31:]
-  let bs = repeat('0', a:i) . bs[:-(a:i + 1)]
-  return s:int32(str2nr(bs, 2))
+function! s:i32_unsigned_right_shift(lhs, rhs) abort  "{{{2
+  return s:i32_truncate(a:lhs) >> a:rhs
 endfunction
 
 
 
-function! s:signed_right_shift32(n, i)  "{{{2
-  let bs = (s:is_negative(a:n)) . printf('%032b', a:n)[-31:]
-  let bs = (s:is_negative(a:n)) . repeat('0', a:i - 1) . bs[:-(a:i + 1)]
-  return s:int32(str2nr(bs, 2))
+function! s:i32_signed_right_shift(lhs, rhs) abort  "{{{2
+  let bits = s:i32_truncate(a:lhs) >> a:rhs
+  if s:i32_negative(a:lhs)
+    let bits = or(bits, 0x80000000)
+  endif
+  return bits
 endfunction
 
 
 
-function! s:and32(x, y)  "{{{2
-  return s:int32(and(a:x, a:y))
-endfunction
-
-
-
-
-function! s:or32(x, y)  "{{{2
-  return s:int32(or(a:x, a:y))
+function! s:i32_and(lhs, rhs) abort  "{{{2
+  return s:i32_truncate(and(a:lhs, a:rhs))
 endfunction
 
 
 
 
-function! s:xor32(x, y)  "{{{2
-  return s:int32(xor(a:x, a:y))
+function! s:i32_or(lhs, rhs)  abort "{{{2
+  return s:i32_truncate(or(a:lhs, a:rhs))
 endfunction
 
 
 
 
-function! s:xr(a, b)  "{{{2
+function! s:i32_xor(lhs, rhs)  abort "{{{2
+  return s:i32_truncate(xor(a:lhs, a:rhs))
+endfunction
+
+
+
+
+function! s:xr(a, b)  abort "{{{2
   let a = a:a
   for c in range(0, strlen(a:b) - 2, 3)
     let d = a:b[c + 2]
     let d = d >= 'a' ? char2nr(d) - 87 : str2nr(d)
-    let d = '+' == a:b[c + 1] ? s:right_shift32(a, d) : s:left_shift32(a, d)
-    let a = '+' == a:b[c] ? s:and32(a + d, 4294967295) : s:xor32(a, d)
+    let d = '+' == a:b[c + 1] ? s:i32_unsigned_right_shift(a, d) : s:i32_left_shift(a, d)
+    let a = '+' == a:b[c] ? s:i32_and(a + d, 4294967295) : s:i32_xor(a, d)
   endfor
   return a
 endfunction
