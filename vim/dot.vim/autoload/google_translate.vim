@@ -106,8 +106,15 @@ endfunction
 
 
 " Misc.  "{{{1
-function! s:i32_negative(num) abort  "{{{2
+function! s:i32_singed(num) abort  "{{{2
   return and(a:num, 0x80000000) != 0
+endfunction
+
+
+
+
+function! s:i32_negate(num) abort  "{{{2
+  return xor(a:num, 0x80000000)
 endfunction
 
 
@@ -115,7 +122,7 @@ endfunction
 
 function! s:i32_truncate(num) abort  "{{{2
   let truncated = and(a:num, 0x7fffffff)
-  return s:i32_negative(a:num) ? or(truncated, 0x80000000) : truncated
+  return s:i32_singed(a:num) ? s:i32_negate(truncated) : truncated
 endfunction
 
 
@@ -136,10 +143,7 @@ endfunction
 
 function! s:i32_signed_right_shift(lhs, rhs) abort  "{{{2
   let bits = s:i32_truncate(a:lhs) >> a:rhs
-  if s:i32_negative(a:lhs)
-    let bits = or(bits, 0x80000000)
-  endif
-  return bits
+  return s:i32_singed(a:lhs) ? s:i32_negate(bits) : bits
 endfunction
 
 

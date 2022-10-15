@@ -69,7 +69,7 @@ endif
 set directory& directory-=. directory^=~/.cache/vim
 set history=1000
 set undofile
-set undodir=~/.cache/vim/undo,/tmp/vim/undo
+set undodir=~/.cache/vim/undo
 set nowritebackup
 set viminfo^='1000 viminfo-='100
 
@@ -226,14 +226,14 @@ let g:maplocalleader = '.'
 " :grep wrappers  {{{2
 
 command! -complete=file -nargs=+ Grep
-\ call s:grep('grep', 'cwindow' [<f-args>])
+\ call s:grep('grep', 'cwindow', [<f-args>])
 command! -complete=file -nargs=+ Lgrep
-\ call s:grep('lgrep', 'lwindow' [<f-args>])
+\ call s:grep('lgrep', 'lwindow', [<f-args>])
 
-function! s:grep(command, window_command, grepprg, args) abort
+function! s:grep(command, window_command, args) abort
   let target = join(a:args[:-2], ' ')
 
-  if a:grepprg ==# 'internal'
+  if &grepprg ==# 'internal'
     execute a:command '/' . escape(a:args[-1], '|/ ') . '/j' target
   else
     execute a:command . '!' escape(shellescape(a:args[-1]), '|') target
@@ -331,7 +331,13 @@ function! s:cmd_BufferClean(is_banged) abort
   for bufnr in bufnrs
     silent execute bufnr 'bdelete' . (a:is_banged ? '!' : '')
   endfor
-  echo printf('%d buffer(s) deleted', len(bufnrs))
+  if len(bufnrs) == 0
+    echo "No buffer is deleted"
+  elseif (bufnrs) == 1
+    echo '1 buffer is deleted'
+  else
+    echo len(bufnrs) 'buffers are deleted'
+  endif
 endfunction
 
 
@@ -370,8 +376,7 @@ function! s:cmd_BundleInstall(package) abort
     let repository = (matches[1] == '' ? 'git://github.com' : matches[1])
     \              . '/'
     \              . substitute(matches[2], '\%(\.git\)\?$', '.git', '')
-
-    let bundle = s:BUNDLE_DIR . '/' . substitute(matches[2], '/', '_', '')
+    let bundle = fnamemodify(s:BUNDLE_DIR . '/' . substitute(matches[2], '/', '_', ''), ':r')
     let command = join([
     \   'git',
     \   'clone',
@@ -381,7 +386,7 @@ function! s:cmd_BundleInstall(package) abort
 
     if isdirectory(bundle)
       echohl ErrorMsg
-      echo 'The package is already installed:' string(a:package)
+      echo 'The package is already installed'
       echohl None
     else
       echo system(command)
@@ -389,7 +394,7 @@ function! s:cmd_BundleInstall(package) abort
     endif
   else
     echohl ErrorMsg
-    echo 'Invalid package name:' a:package
+    echo 'Invalid package name:' string(a:package)
     echohl None
   endif
 endfunction
@@ -478,23 +483,9 @@ autocmd MyAutoCmd TabEnter *
 
 
 
-" DiffOriginal   {{{2
+" FoldDebug  {{{2
 
-command! DiffOriginal
-\   vertical new
-\ | setlocal buftype=nofile
-\ | read ++edit #
-\ | 0d_
-\ | diffthis
-\ | wincmd p
-\ | diffthis
-
-
-
-
-" FoldDump  {{{2
-
-command! -range=% FoldDump
+command! -range=% FoldDebug
 \ <line1>,<line2>global/^/echo printf(
 \   "%*d [%2s] %s",
 \   len(line('$')),
@@ -602,9 +593,9 @@ endfunction
 
 
 
-" SyntaxStack {{{2
+" SyntaxCheck {{{2
 
-command! -bar -nargs=0 SyntaxStack
+command! -bar -nargs=0 SyntaxCheck
 \ echo join(<SID>syntax_stack(line('.'), col('.')), '/')
 
 function! s:syntax_stack(line, col) abort
@@ -630,12 +621,8 @@ endfunction
 " Sum  {{{2
 
 command! -bang -range -nargs=* Sum
-\ call append(
-\   <line2>,
-\   string(s:fold_lines(s:SID . 'sum',
-\                       0,
-\                       range(<line1>, <line2>)))
-\ )
+\ call append(<line2>,
+\             string(s:fold_lines(s:SID . 'sum', 0, range(<line1>, <line2>))))
 
 function! s:fold_lines(f, acc, range) abort
   let acc = a:acc
@@ -960,7 +947,7 @@ nnoremap <silent> [Space]c  :<C-u>call <SID>close_temporary_windows()<CR>
 
 function! s:close_temporary_windows() abort  "{{{
   let all_winnrs = range(1, winnr('$'))
-  if len(all_winnrs) > 1
+  if len(all_winnrs) < 2
     return
   endif
   let current_winnr = winnr()
@@ -1005,12 +992,12 @@ function! s:toggle_colorcolumn() abort  "{{{
 endfunction  "}}}
 
 
-" :setlocal helpers
-nnoremap [Space]s  <Nop>
-nnoremap [Space]se  :<C-u>setlocal fileencoding=
-nnoremap [Space]sf  :<C-u>setlocal fileformat=
-nnoremap [Space]ss  :<C-u>setlocal filetype? fileencoding? fileformat?<CR>
-nnoremap [Space]st  :<C-u>setfiletype=
+" Helpers for file options
+nnoremap [Space]f  <Nop>
+nnoremap [Space]fe  :<C-u>setlocal fileencoding=
+nnoremap [Space]ff  :<C-u>setlocal fileformat=
+nnoremap [Space]fs  :<C-u>setlocal filetype? fileencoding? fileformat?<CR>
+nnoremap [Space]ft  :<C-u>setfiletype<Space>
 
 
 " :Rename helper
@@ -1127,8 +1114,8 @@ vnoremap ir  i]
 
 " Select the last changed text
 nnoremap <Plug>(textobj-last-changed-text)  `[v`]h
-onoremap <silent> <Plug>(textobj-last-changed-text)  :<C-u>normal gc<CR>
-vnoremap <silent> <Plug>(textobj-last-changed-text)  :<C-u>normal gc<CR>
+onoremap <silent> <Plug>(textobj-last-changed-text)  :<C-u>normal! gc<CR>
+vnoremap <silent> <Plug>(textobj-last-changed-text)  :<C-u>normal! gc<CR>
 
 map gc  <Plug>(textobj-last-changed-text)
 
@@ -1140,27 +1127,30 @@ onoremap <silent> gv  :<C-u>normal! gv<CR>
 
 
 " Operators  {{{2
+" operator-increment/decrement  {{{3
 
 call operator#user#define('increment',
 \                         s:SID . 'operator_increment')
 call operator#user#define('decrement',
 \                         s:SID . 'operator_decrement')
 
-function! s:operator_increment(motion_wiseness) abort  "{{{
+function! s:operator_increment(motion_wiseness) abort
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   execute 'normal!' '`['.visual_command.'`]g'."\<C-a>"
-endfunction "}}}
+endfunction
 
-function! s:operator_decrement(motion_wiseness) abort  "{{{
+function! s:operator_decrement(motion_wiseness) abort
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   execute 'normal!' '`['.visual_command.'`]g'."\<C-x>"
-endfunction  "}}}
+endfunction
 
 map g<C-a>  <Plug>(operator-increment)
 map g<C-x>  <Plug>(operator-decrement)
 
+
+" operator-search-forward/backward  {{{3
 
 call operator#user#define('search-forward',
 \                         s:SID . 'operator_search',
@@ -1169,7 +1159,7 @@ call operator#user#define('search-backward',
 \                         s:SID . 'operator_search',
 \                         'let v:searchforward = 0')
 
-function! s:operator_search(motion_wiseness) abort  "{{{
+function! s:operator_search(motion_wiseness) abort
   let reg_0 = [@0, getregtype('0')]
 
   let visual_command =
@@ -1181,15 +1171,17 @@ function! s:operator_search(motion_wiseness) abort  "{{{
   execute 'normal!' v:searchforward ? 'n' : 'N'
 
   call setreg('0', reg_0[0], reg_0[1])
-endfunction " }}}
+endfunction
 
 vmap *  <Plug>(operator-search-forward)
 vmap #  <Plug>(operator-search-backward)
 
 
+" operator-translate  {{{3
+
 call operator#user#define('translate', s:SID . 'operator_translate')
 
-function! s:operator_translate(motion_wiseness) abort  "{{{
+function! s:operator_translate(motion_wiseness) abort
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
   execute 'normal!' '`['.visual_command.'`]y'
@@ -1203,19 +1195,21 @@ function! s:operator_translate(motion_wiseness) abort  "{{{
   endif
 
   echo trim(@", "\n") . "\n"
-endfunction  "}}}
+endfunction
 
 Arpeggio map ot  <Plug>(operator-translate)
 
 
+" operator-yank-clipboard  {{{3
+
 call operator#user#define('yank-clipboard',
 \                         s:SID . 'operator_yank_clipboard')
 
-function! s:operator_yank_clipboard(motion_wiseness) abort  "{{{
+function! s:operator_yank_clipboard(motion_wiseness) abort
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  execute 'normal' '`['.visual_command.'`]"+y'
-endfunction  "}}}
+  execute 'normal!' '`['.visual_command.'`]"+y'
+endfunction
 
 Arpeggio map oy  <Plug>(operator-yank-clipboard)
 
@@ -1282,7 +1276,7 @@ onoremap <expr> N  v:searchforward ? 'N' : 'n'
 
 " Jump to the definition of the keyword under the cursor
 nnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
-vnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
+vnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C->"
 
 
 noremap <C-z>  <Nop>
@@ -1315,7 +1309,7 @@ function! s:on_FileType_any() abort
 endfunction
 
 
-" Optimize a large file loading
+" Optimize the loading for large files
 autocmd MyAutoCmd BufReadPre *
 \   if getfsize(expand("<afile>")) > 1024 * 1024 * 8
 \ |   set eventignore+=FileType
@@ -1341,8 +1335,8 @@ autocmd MyAutoCmd BufReadPost *
 \ | endif
 
 
-" Fix the duplicated `filetype` settings for ebuild and eclass files
-let g:ft_ignore_pat = '\(ebuild\|eclass\)$'
+" Avoid duplicated `filetype` settings
+let g:ft_ignore_pat = '^\(ebuild\|eclass\)$'
 
 
 
@@ -1454,17 +1448,15 @@ function! s:on_FileType_ku() abort
 endfunction
 
 
-call ku#custom_action('common', 'cd', s:SID.'ku_common_action_my_cd')
+call ku#custom_action('common', 'cd', s:SID . 'ku_common_action_my_cd')
 call ku#custom_action('common', 'Yank',
-\                     s:SID.'ku_common_action_Yank')
+\                     s:SID . 'ku_common_action_Yank')
 call ku#custom_action('common', 'yank',
-\                     s:SID.'ku_common_action_yank')
+\                     s:SID . 'ku_common_action_yank')
 call ku#custom_action('file', 'open-sudo',
-\                     s:SID.'ku_file_action_open_sudo')
+\                     s:SID . 'ku_file_action_open_sudo')
 call ku#custom_action('file/current', 'open-sudo',
-\                     s:SID.'ku_file_action_open_sudo')
-call ku#custom_action('metarw/git', 'checkout',
-\                     s:SID.'ku_metarw_git_action_checkout')
+\                     s:SID . 'ku_file_action_open_sudo')
 
 function! s:ku_common_action_my_cd(item) abort
   if isdirectory(a:item.word)
@@ -1484,21 +1476,6 @@ endfunction
 
 function! s:ku_file_action_open_sudo(item) abort
   edit `='sudo:/' . fnamemodify(a:item.word, ':p')`
-endfunction
-
-function! s:ku_metarw_git_action_checkout(item) abort
-  if a:item.ku__completed_p
-    let branch_name = matchstr(a:item.word, '^git:\zs[^:]\+\ze:')
-    let message = system('git checkout ' . shellescape(branch_name))
-    if v:shell_error == 0
-      echomsg 'git checkout' branch_name
-      return 0
-    else
-      return message
-    endif
-  else
-    return 'No such branch: ' . string(a:item.word)
-  endif
 endfunction
 
 
@@ -1702,7 +1679,7 @@ command! -complete=command -nargs=+ Capture  QuickRun vim -src <q-args>
 
 let g:quickrun_config = {
 \   '_': {
-\     'outputter/buffer/opener': '%{'.s:SID.'should_vertical() ? "vsplit" : "split"}',
+\     'outputter/buffer/opener': '%{' . s:SID . 'should_vertical() ? "vsplit" : "split"}',
 \   },
 \   'c': {
 \     'type': 'c/clang'
@@ -1785,36 +1762,6 @@ vmap <Leader>r  <Plug>(quickrun)
 
 
 
-" ref  {{{2
-
-autocmd MyAutoCmd FileType ref
-\ call s:on_FileType_ref()
-
-function! s:on_FileType_ref() abort
-  nmap <buffer> <silent> <CR>  <Plug>(ref-keyword)
-  vmap <buffer> <silent> <CR>  <Plug>(ref-keyword)
-  nmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
-  vmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
-  nmap <buffer> <silent> <C-j>  <Plug>(ref-forward)
-  nmap <buffer> <silent> <C-k>  <Plug>(ref-back)
-  nnoremap <buffer> q  <C-w>c
-endfunction
-
-nmap <silent> K  <Plug>(ref-keyword)
-vmap <silent> K  <Plug>(ref-keyword)
-
-nnoremap <silent> <Leader>a  :<C-u>call ref#jump('normal', 'alc')<CR>
-vnoremap <silent> <Leader>a  :<C-u>call ref#jump('visual', 'alc')<CR>
-
-AlterCommand ref  Ref
-
-let g:ref_no_default_key_mappings = 1
-let g:ref_open = 'Split'
-let g:ref_perldoc_complete_head = 1
-let g:ref_phpmanual_path = '/usr/share/php-docs/en/php-chunked-xhtml'
-
-
-
 
 " repeat  {{{2
 
@@ -1841,9 +1788,6 @@ let g:scratch_show_command = 'SplitTop | hide buffer'
 
 " skeleton  {{{2
 
-autocmd MyAutoCmd BufNewFile LICENSE
-\ SkeletonLoad license-mit
-
 autocmd MyAutoCmd User plugin-skeleton-detect
 \ call s:on_User_plugin_skeleton_detect()
 
@@ -1856,7 +1800,9 @@ function! s:on_User_plugin_skeleton_detect() abort
   let filename = segments[-1]
   let directories = segments[:-2]
 
-  if filename =~# '\.user\.js$'
+  if filename =~# 'LICENSE'
+    SkeletonLoad license-mit
+  elseif filename =~# '\.user\.js$'
     SkeletonLoad userjs
   elseif filename =~# 'Cargo\.toml$'
     SkeletonLoad cargo
@@ -1906,38 +1852,68 @@ if exists('g:loaded_smartinput')
   call smartinput#define_default_rules()
 endif
 
-
 call smartinput#define_rule({
-\   'at': '\%#', 'char': '{', 'input': '{',
+\   'at': '/\*\*\%#',
+\   'char': '<CR>',
+\   'input': '<CR><CR><Space>*/<Up><Space>*<Space>',
+\ })
+
+" for Vim Script  {{{
+call smartinput#define_rule({
+\   'at': '\%#',
+\   'char': '"',
+\   'input': '"',
+\   'filetype': ['vim'],
 \   'syntax': ['Comment']
 \ })
 call smartinput#define_rule({
-\   'at': '/\*\*\%#', 'char': '<CR>', 'input': '<CR><CR>/<Up><Space>',
+\   'at': '\%#',
+\   'char': '{',
+\   'input': '{',
+\   'filetype': ['vim'],
+\   'syntax': ['Comment']
 \ })
-
-
-" for PHP
 call smartinput#define_rule({
-\   'at': '\%#', 'char': '@', 'input': '$this->',
+\   'at': '^[ \t:]*".*\%#$',
+\   'char': '"',
+\   'input': '"',
+\   'filetype': ['vim'],
+\ })
+call smartinput#define_rule({
+\   'at': '^[ \t:]*".*\%#$',
+\   'char': '{',
+\   'input': '{',
+\   'filetype': ['vim'],
+\ })  " }}}
+
+" for PHP  {{{
+call smartinput#define_rule({
+\   'at': '\%#',
+\   'char': '@',
+\   'input': '$this->',
 \   'filetype': ['php']
 \ })
 call smartinput#define_rule({
-\   'at': '\%#[$A-Za-z]', 'char': '@', 'input': '@',
+\   'at': '\%#[$A-Za-z]',
+\   'char': '@',
+\   'input': '@',
 \   'filetype': ['php']
 \ })
 call smartinput#define_rule({
-\   'at': '\%#', 'char': '@', 'input': '@',
+\   'at': '\%#',
+\   'char': '@',
+\   'input': '@',
 \   'filetype': ['php'],
 \   'syntax': ['Comment', 'Constant', 'None']
-\ })
+\ })  " }}}
 
-
-" for Rust
+" for Rust  {{{
 call smartinput#define_rule({
-\   'at': '\%#', 'char': "'", 'input': "'",
+\   'at': '\%#',
+\   'char': "'",
+\   'input': "'",
 \   'filetype': ['rust'],
-\ })
-
+\ })  " }}}
 
 call smartinput#map_trigger_keys()
 
@@ -1960,9 +1936,9 @@ call submode#map('undo/redo', 'n', '', '+', 'g+')
 
 
 call submode#enter_with('winsize', 'n', '', '<C-w><Space>',
-\                       ':<C-u>call '.s:SID.'submode_winsize()<CR>')
+\                       ':<C-u>call ' . s:SID . 'submode_winsize()<CR>')
 call submode#enter_with('winsize', 'n', '', '<C-w><C-@>',
-\                       ':<C-u>call '.s:SID.'submode_winsize()<CR>')
+\                       ':<C-u>call ' . s:SID . 'submode_winsize()<CR>')
 
 function! s:submode_winsize() abort
   let current = winnr()
@@ -1972,13 +1948,13 @@ function! s:submode_winsize() abort
   wincmd l | let right = winnr() | execute current 'wincmd w'
 
   execute printf('call submode#map("winsize", "n", "r", "j", "<C-w>%s")',
-  \ above != below && current == below ? "-" : "+")
+  \              above != below && current == below ? "-" : "+")
   execute printf('call submode#map("winsize", "n", "r", "k", "<C-w>%s")',
-  \ above != below && current == below ? "+" : "-")
+  \              above != below && current == below ? "+" : "-")
   execute printf('call submode#map("winsize", "n", "r", "h", "<C-w>%s")',
-  \ left != right && current == right ? ">" : "<")
+  \              left != right && current == right ? ">" : "<")
   execute printf('call submode#map("winsize", "n", "r", "l", "<C-w>%s")',
-  \ left != right && current == right ? "<" : ">")
+  \              left != right && current == right ? "<" : ">")
 endfunction
 
 
@@ -1989,9 +1965,10 @@ let g:submode_timeout = 0
 
 " surround  {{{2
 
-nmap S  <Plug>Ysurround$
-nmap s  <Plug>Ysurround
-nmap ss  <Plug>Yssurround
+map s  <Plug>(operator-surround)
+map S  <Plug>(operator-surround)$
+
+call surround#define_default_mappings()
 
 
 
@@ -1999,17 +1976,6 @@ nmap ss  <Plug>Yssurround
 " table-mode  {{{2
 
 nnoremap <silent> [Space]t  :<C-u>TableModeToggle<CR>
-
-
-
-
-" tohtml  {{{2
-
-let g:html_ignore_folding = 1
-let g:html_no_pre = 0
-let g:html_number_lines = 0
-let g:html_use_css = 1
-let g:use_xhtml = 1
 
 
 
