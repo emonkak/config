@@ -318,11 +318,11 @@ command! -bang -bar -complete=file -nargs=? Mac
 
 
 
-" BufferCleaner  {{{2
+" BufferSweap  {{{2
 
-command! -bang -nargs=0 BufferClean  call s:cmd_BufferClean(<bang>0)
+command! -bang -nargs=0 BufferSweap  call s:cmd_BufferSweap(<bang>0)
 
-function! s:cmd_BufferClean(is_banged) abort
+function! s:cmd_BufferSweap(is_banged) abort
   let bufnrs = range(1, bufnr('$'))
   call filter(bufnrs, 'bufexists(v:val)
   \                 && buflisted(v:val)
@@ -333,7 +333,7 @@ function! s:cmd_BufferClean(is_banged) abort
   endfor
   if len(bufnrs) == 0
     echo "No buffer is deleted"
-  elseif (bufnrs) == 1
+  elseif len(bufnrs) == 1
     echo '1 buffer is deleted'
   else
     echo len(bufnrs) 'buffers are deleted'
@@ -449,9 +449,9 @@ command! -nargs=* -complete=customlist,s:complete_cdpath CD
 
 function! s:complete_cdpath(arglead, cmdline, cursorpos) abort
   let paths = globpath(&cdpath,
-  \                    join(split(a:cmdline, '\s', !0)[1:], ' ') . '*/',
+  \                    join(split(a:cmdline, '\s', 1)[1:], ' ') . '*/',
   \                    0,
-  \                    !0)
+  \                    1)
   return map(uniq(sort(paths)), 'v:val[:-2]')
 endfunction
 
@@ -596,9 +596,9 @@ endfunction
 " SyntaxCheck {{{2
 
 command! -bar -nargs=0 SyntaxCheck
-\ echo join(<SID>syntax_stack(line('.'), col('.')), '/')
+\ echo join(<SID>syntax_check(line('.'), col('.')), '/')
 
-function! s:syntax_stack(line, col) abort
+function! s:syntax_check(line, col) abort
   let stack = []
 
   for syn_id in synstack(a:line, a:col)
@@ -1019,8 +1019,9 @@ nnoremap [Space]:  q:
 xnoremap [Space]:  q:
 
 
-" Reload vimrc
+" Reload source
 nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
+nnoremap <silent> [Space]%  :<C-u>Source %<CR>
 
 
 
@@ -1279,13 +1280,15 @@ nnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
 vnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C->"
 
 
+nnoremap \  .
+
+
 noremap <C-z>  <Nop>
 nnoremap <C-z>  :<C-u>SuspendWithAutomticCD<CR>
 
 
 noremap <Leader>  <Nop>
 noremap <LocalLeader>  <Nop>
-
 
 
 
@@ -1763,9 +1766,34 @@ vmap <Leader>r  <Plug>(quickrun)
 
 
 
-" repeat  {{{2
+" ref  "{{{2
 
-nmap \  <Plug>(repeat-.)
+autocmd MyAutoCmd FileType ref
+\ call s:on_FileType_ref()
+
+function! s:on_FileType_ref() abort
+  nmap <buffer> <silent> <CR>  <Plug>(ref-keyword)
+  vmap <buffer> <silent> <CR>  <Plug>(ref-keyword)
+  nmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
+  vmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
+  nmap <buffer> <silent> <C-j>  <Plug>(ref-forward)
+  nmap <buffer> <silent> <C-k>  <Plug>(ref-back)
+  nnoremap <buffer> q  <C-w>c
+endfunction
+
+nmap <silent> K  <Plug>(ref-keyword)
+vmap <silent> K  <Plug>(ref-keyword)
+
+nnoremap <silent> <Leader>a  :<C-u>call ref#jump('normal', 'alc')<CR>
+vnoremap <silent> <Leader>a  :<C-u>call ref#jump('visual', 'alc')<CR>
+
+AlterCommand ref  Ref
+
+
+let g:ref_no_default_key_mappings = 1
+let g:ref_open = 'Split'
+let g:ref_perldoc_complete_head = 1
+let g:ref_phpmanual_path = '/usr/share/php-docs/en/php-chunked-xhtml'
 
 
 
@@ -1965,10 +1993,8 @@ let g:submode_timeout = 0
 
 " surround  {{{2
 
-map s  <Plug>(operator-surround)
-map S  <Plug>(operator-surround)$
-
-call surround#define_default_mappings()
+map s  <Plug>(surround-operator-add)
+map S  <Plug>(surround-operator-add)$
 
 
 

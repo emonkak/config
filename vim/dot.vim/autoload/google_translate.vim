@@ -1,35 +1,6 @@
-" google_translate - {abstract}
-" Version: 0.0.0
-" Copyright (C) 2016 emonkak <emonkak@gmail.com>
-" License: MIT license  {{{
-"     Permission is hereby granted, free of charge, to any person obtaining
-"     a copy of this software and associated documentation files (the
-"     "Software"), to deal in the Software without restriction, including
-"     without limitation the rights to use, copy, modify, merge, publish,
-"     distribute, sublicense, and/or sell copies of the Software, and to
-"     permit persons to whom the Software is furnished to do so, subject to
-"     the following conditions:
-"
-"     The above copyright notice and this permission notice shall be included
-"     in all copies or substantial portions of the Software.
-"
-"     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-"     OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-"     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-"     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-"     CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-"     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-"     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-" }}}
-" Variables  "{{{1
-
 let g:google_transale_tkk = get(g:, 'g:google_transale_tkk', '409266.1674047641')
 
-
-
-
-" Interface  "{{{1
-function! google_translate#translate(text, from, to) abort  "{{{2
+function! google_translate#translate(text, from, to)
   let url = 'https://translate.google.com/translate_a/single'
   let options = {
   \   'client': 't',
@@ -51,10 +22,7 @@ function! google_translate#translate(text, from, to) abort  "{{{2
   \ : ''
 endfunction
 
-
-
-
-function! google_translate#token(text) abort  "{{{2
+function! google_translate#token(text) abort
   let a = split(a:text, '.\zs')
   let b = g:google_transale_tkk
   let c = split(b, '\.')
@@ -102,74 +70,7 @@ function! google_translate#token(text) abort  "{{{2
   return a . '.' . s:i32_xor(a, d)
 endfunction
 
-
-
-
-" Misc.  "{{{1
-function! s:i32_singed(num) abort  "{{{2
-  return and(a:num, 0x80000000) != 0
-endfunction
-
-
-
-
-function! s:i32_negate(num) abort  "{{{2
-  return xor(a:num, 0x80000000)
-endfunction
-
-
-
-
-function! s:i32_truncate(num) abort  "{{{2
-  let truncated = and(a:num, 0x7fffffff)
-  return s:i32_singed(a:num) ? s:i32_negate(truncated) : truncated
-endfunction
-
-
-
-
-function! s:i32_left_shift(lhs, rhs) abort  "{{{2
-  return s:i32_truncate(a:lhs << a:rhs)
-endfunction
-
-
-
-
-function! s:i32_unsigned_right_shift(lhs, rhs) abort  "{{{2
-  return s:i32_truncate(a:lhs) >> a:rhs
-endfunction
-
-
-
-function! s:i32_signed_right_shift(lhs, rhs) abort  "{{{2
-  let bits = s:i32_truncate(a:lhs) >> a:rhs
-  return s:i32_singed(a:lhs) ? s:i32_negate(bits) : bits
-endfunction
-
-
-
-function! s:i32_and(lhs, rhs) abort  "{{{2
-  return s:i32_truncate(and(a:lhs, a:rhs))
-endfunction
-
-
-
-
-function! s:i32_or(lhs, rhs)  abort "{{{2
-  return s:i32_truncate(or(a:lhs, a:rhs))
-endfunction
-
-
-
-
-function! s:i32_xor(lhs, rhs)  abort "{{{2
-  return s:i32_truncate(xor(a:lhs, a:rhs))
-endfunction
-
-
-
-
-function! s:xr(a, b)  abort "{{{2
+function! s:xr(a, b) abort
   let a = a:a
   for c in range(0, strlen(a:b) - 2, 3)
     let d = a:b[c + 2]
@@ -180,8 +81,40 @@ function! s:xr(a, b)  abort "{{{2
   return a
 endfunction
 
+function! s:i32_singed(num) abort
+  return and(a:num, 0x80000000) != 0
+endfunction
 
+function! s:i32_negate(num) abort
+  return xor(a:num, 0x80000000)
+endfunction
 
+function! s:i32_truncate(num) abort
+  let truncated = and(a:num, 0x7fffffff)
+  return s:i32_singed(a:num) ? s:i32_negate(truncated) : truncated
+endfunction
 
-" __END__  "{{{1
-" vim: foldmethod=marker
+function! s:i32_left_shift(lhs, rhs) abort
+  return s:i32_truncate(a:lhs << a:rhs)
+endfunction
+
+function! s:i32_unsigned_right_shift(lhs, rhs) abort
+  return s:i32_truncate(a:lhs) >> a:rhs
+endfunction
+
+function! s:i32_signed_right_shift(lhs, rhs) abort
+  let bits = s:i32_truncate(a:lhs) >> a:rhs
+  return s:i32_singed(a:lhs) ? s:i32_negate(bits) : bits
+endfunction
+
+function! s:i32_and(lhs, rhs) abort
+  return s:i32_truncate(and(a:lhs, a:rhs))
+endfunction
+
+function! s:i32_or(lhs, rhs) abort
+  return s:i32_truncate(or(a:lhs, a:rhs))
+endfunction
+
+function! s:i32_xor(lhs, rhs) abort
+  return s:i32_truncate(xor(a:lhs, a:rhs))
+endfunction
