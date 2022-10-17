@@ -14,26 +14,25 @@ all: update
 ALL_GROUPS=\
   DOTS \
   GENTOO \
-  LINUX \
   VIM \
 
 GROUP_DOTS_FILES=\
-  dotfiles/dot.Xresources \
-  dotfiles/dot.bashrc \
-  dotfiles/dot.config/alacritty/alacritty.yml \
-  dotfiles/dot.config/fontconfig/fonts.conf \
-  dotfiles/dot.ghci \
-  dotfiles/dot.inputrc \
-  dotfiles/dot.mfiler3/mfiler3.sa \
-  dotfiles/dot.screenrc \
-  dotfiles/dot.tmux.conf \
-  dotfiles/dot.uim \
-  dotfiles/dot.xkb/keymap/my_keymap \
-  dotfiles/dot.xkb/symbols/my_symbols \
-  dotfiles/dot.xinitrc \
-  dotfiles/dot.zprofile \
-  dotfiles/dot.zshrc
-GROUP_DOTS_RULE=$(patsubst dotfiles/dot.%, $(HOME)/.%, $(1))
+  dotfiles/.Xresources \
+  dotfiles/.bashrc \
+  dotfiles/.config/alacritty/alacritty.yml \
+  dotfiles/.config/fontconfig/fonts.conf \
+  dotfiles/.ghci \
+  dotfiles/.inputrc \
+  dotfiles/.mfiler3/mfiler3.sa \
+  dotfiles/.screenrc \
+  dotfiles/.tmux.conf \
+  dotfiles/.uim \
+  dotfiles/.xkb/keymap/my_keymap \
+  dotfiles/.xkb/symbols/my_symbols \
+  dotfiles/.xinitrc \
+  dotfiles/.zprofile \
+  dotfiles/.zshrc
+GROUP_DOTS_RULE=$(patsubst dotfiles/%, $(HOME)/%, $(1))
 
 GROUP_GENTOO_FILES=\
   gentoo/etc/X11/xorg.conf \
@@ -44,16 +43,18 @@ GROUP_GENTOO_FILES=\
   gentoo/etc/portage/package.unmask \
   gentoo/etc/portage/package.use \
   gentoo/etc/portage/profile/package.provided \
+  gentoo/usr/src/linux/.config \
   gentoo/var/lib/portage/world
 GROUP_GENTOO_RULE=$(patsubst gentoo/%, /%, $(1))
 
-GROUP_LINUX_FILES=\
-  linux/dot.config
-GROUP_LINUX_RULE=$(patsubst linux/dot.%, /usr/src/linux/.%, $(1))
-
-GROUP_VIM_FILES=$(patsubst $(HOME)/.%, vim/dot.%, $(shell find $(wildcard $(patsubst %,$(HOME)/.vim/%,after autoload colors compiler indent plugin syntax)) -type f)) \
-  vim/dot.vimrc
-GROUP_VIM_RULE=$(patsubst vim/dot.%, $(HOME)/.%, $(1))
+GROUP_VIM_FILES=\
+  $(patsubst $(HOME)/%, \
+    vim/%, \
+    $(shell find \
+      $(wildcard $(patsubst %,$(HOME)/.vim/%,\
+        after autoload colors compiler indent plugin syntax)) -type f)) \
+  vim/.vimrc
+GROUP_VIM_RULE=$(patsubst vim/%, $(HOME)/%, $(1))
 
 
 
