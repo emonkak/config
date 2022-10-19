@@ -81,7 +81,7 @@ function! s:xr(a, b) abort
   return a
 endfunction
 
-function! s:i32_singed(num) abort
+function! s:i32_signed(num) abort
   return and(a:num, 0x80000000) != 0
 endfunction
 
@@ -91,7 +91,7 @@ endfunction
 
 function! s:i32_truncate(num) abort
   let truncated = and(a:num, 0x7fffffff)
-  return s:i32_singed(a:num) ? s:i32_negate(truncated) : truncated
+  return s:i32_signed(a:num) ? s:i32_negate(truncated) : truncated
 endfunction
 
 function! s:i32_left_shift(lhs, rhs) abort
@@ -104,7 +104,7 @@ endfunction
 
 function! s:i32_signed_right_shift(lhs, rhs) abort
   let bits = s:i32_truncate(a:lhs) >> a:rhs
-  return s:i32_singed(a:lhs) ? s:i32_negate(bits) : bits
+  return s:i32_signed(a:lhs) ? s:i32_negate(bits) : bits
 endfunction
 
 function! s:i32_and(lhs, rhs) abort

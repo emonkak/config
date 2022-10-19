@@ -21,15 +21,16 @@ GROUP_DOTS_FILES=\
   dotfiles/.bashrc \
   dotfiles/.config/alacritty/alacritty.yml \
   dotfiles/.config/fontconfig/fonts.conf \
-  dotfiles/.ghci \
+  dotfiles/.config/git/config \
+  dotfiles/.config/git/ignore \
+  dotfiles/.config/tmux/tmux.conf \
+  dotfiles/.ghc/ghci.conf \
   dotfiles/.inputrc \
   dotfiles/.mfiler3/mfiler3.sa \
-  dotfiles/.screenrc \
-  dotfiles/.tmux.conf \
   dotfiles/.uim \
+  dotfiles/.xinitrc \
   dotfiles/.xkb/keymap/my_keymap \
   dotfiles/.xkb/symbols/my_symbols \
-  dotfiles/.xinitrc \
   dotfiles/.zprofile \
   dotfiles/.zshrc
 GROUP_DOTS_RULE=$(patsubst dotfiles/%, $(HOME)/%, $(1))
@@ -48,13 +49,13 @@ GROUP_GENTOO_FILES=\
 GROUP_GENTOO_RULE=$(patsubst gentoo/%, /%, $(1))
 
 GROUP_VIM_FILES=\
-  $(patsubst $(HOME)/%, \
+  $(patsubst $(HOME)/.vim/%, \
     vim/%, \
     $(shell find \
       $(wildcard $(patsubst %,$(HOME)/.vim/%,\
-        after autoload colors compiler indent plugin syntax)) -type f)) \
-  vim/.vimrc
-GROUP_VIM_RULE=$(patsubst vim/%, $(HOME)/%, $(1))
+        after autoload colors compiler ftplugin indent plugin syntax)) -type f)) \
+  vim/vimrc
+GROUP_VIM_RULE=$(patsubst vim/%, $(HOME)/.vim/%, $(1))
 
 
 

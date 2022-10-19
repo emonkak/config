@@ -66,10 +66,14 @@ endif
 
 " File and Directory  {{{2
 
-set directory& directory-=. directory^=~/.cache/vim
+if &directory =~# '^\.'
+  set directory-=. directory^=~/.vim/swap
+endif
 set history=1000
 set undofile
-set undodir=~/.cache/vim/undo
+if &undodir ==# '.'
+  set undodir=~/.vim/undo
+endif
 set nowritebackup
 set viminfo^='1000 viminfo-='100
 
@@ -81,7 +85,9 @@ set viminfo^='1000 viminfo-='100
 set ambiwidth=double
 set backspace=indent,eol,start
 if exists('+clipboard')
-  set clipboard& clipboard-=autoselect clipboard+=autoselectml
+  if &clipboard =~# '\<autoselect\>'
+    set clipboard& clipboard-=autoselect clipboard+=autoselectml
+  endif
   if has('unnamedplus')
     set clipboard+=unnamedplus
   endif
@@ -660,26 +666,22 @@ command! -bar -nargs=* TabpageTitle
 " Window helpers  {{{2
 
 command! -bar -complete=file -nargs=* Split
-\ Vertical split <args>
+\ MaybeVertical split <args>
 command! -bar -complete=file -nargs=* SplitTop
-\ Vertical topleft split <args>
+\ MaybeVertical topleft split <args>
 command! -bar -complete=file -nargs=* SplitBottom
-\ Vertical botright split <args>
+\ MaybeVertical botright split <args>
 command! -bar -complete=help -nargs=* Help
-\ Vertical help <args>
+\ MaybeVertical help <args>
 command! -bar -complete=file -nargs=* New
-\ Vertical new <args>
+\ MaybeVertical new <args>
 
-command! -bar -nargs=* Vertical
-\ execute (s:should_vertical() ? 'vertical' : '') <q-args>
+command! -bar -nargs=* MaybeVertical
+\ execute winwidth(0) >= 150 ? 'vertical' : '' <q-args>
 
 AlterCommand sp[lit]  Split
 AlterCommand h[elp]  Help
 AlterCommand new  New
-
-function! s:should_vertical() abort
-  return winwidth(0) > winheight(0) * 3
-endfunction
 
 
 
@@ -1682,7 +1684,7 @@ command! -complete=command -nargs=+ Capture  QuickRun vim -src <q-args>
 
 let g:quickrun_config = {
 \   '_': {
-\     'outputter/buffer/opener': '%{' . s:SID . 'should_vertical() ? "vsplit" : "split"}',
+\     'outputter/buffer/opener': 'Split',
 \   },
 \   'c': {
 \     'type': 'c/clang'

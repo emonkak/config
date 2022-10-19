@@ -1,0 +1,70 @@
+# My gitconfig
+
+[user]
+	name = Shota Nozaki
+	email = emonkak@gmail.com
+
+[core]
+	editor = vim
+	excludesfile = ~/.gitignore
+	mergeoptions = --no-edit
+	pager = delta --color-only --paging always
+	quotepath = false
+	ignorecase = false
+
+[init]
+	defaultBranch = master
+
+[color]
+	ui = true
+
+[interactive]
+	diffFilter = delta --color-only --paging always
+
+[merge]
+	ff = false
+	tool = vimdiff
+	log = true
+
+[pull]
+	rebase = true
+
+[push]
+	default = current
+
+[rebase]
+	autostash = true
+
+[grep]
+	patternType = extended
+
+[diff]
+	renames = true
+
+[alias]
+	a = add
+	br = branch
+	co = commit --verbose
+	cp = cherry-pick
+	d = diff --ignore-space-change --find-copies
+	dc = diff --ignore-space-change --find-copies --cached
+	l = log --decorate --source --branches --tags --abbrev-commit
+	lg = log --graph --pretty=oneline --decorate --source --branches --tags --abbrev-commit
+	ls = ls-files
+	r = reset
+	rh = reset --hard
+	rs = reset --soft
+	s = show
+	st = status --branch
+	sw = swtich
+
+	show-files = diff-tree --no-commit-id --name-only -r
+	fix = commit --amend --verbose
+	fixup = commit --amend -C HEAD
+	undo = "!sh -c 'git reset --hard $(git rev-parse --abbrev-ref HEAD)@{${1-1}}'"
+
+[credential]
+	helper = store
+
+[include]
+	path = ~/.config/git/github
