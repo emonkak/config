@@ -67,4 +67,4 @@
 	helper = store
 
 [include]
-	path = ~/.config/git/github
+	path = ./github

@@ -49,12 +49,13 @@ GROUP_GENTOO_FILES=\
 GROUP_GENTOO_RULE=$(patsubst gentoo/%, /%, $(1))
 
 GROUP_VIM_FILES=\
+  vim/bundle/Makefile \
+  vim/vimrc \
   $(patsubst $(HOME)/.vim/%, \
     vim/%, \
     $(shell find \
       $(wildcard $(patsubst %,$(HOME)/.vim/%,\
-        after autoload colors compiler ftplugin indent plugin syntax)) -type f)) \
-  vim/vimrc
+        after autoload colors compiler ftplugin indent plugin syntax)) -type f))
 GROUP_VIM_RULE=$(patsubst vim/%, $(HOME)/.vim/%, $(1))
 
 
