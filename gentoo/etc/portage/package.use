@@ -114,6 +114,7 @@ dev-lua/mpack lua_targets_luajit
 # for Wine
 app-arch/bzip2 abi_x86_32
 app-arch/zstd abi_x86_32
+app-emulation/vkd3d abi_x86_32
 app-emulation/wine-gecko abi_x86_32
 dev-libs/elfutils abi_x86_32
 dev-libs/expat abi_x86_32
@@ -144,6 +145,7 @@ media-libs/libogg abi_x86_32
 media-libs/libpng abi_x86_32
 media-libs/libpulse abi_x86_32
 media-libs/libsdl2 abi_x86_32
+media-libs/libsdl2 haptic
 media-libs/libsndfile abi_x86_32
 media-libs/libvorbis abi_x86_32
 media-libs/mesa abi_x86_32
@@ -220,7 +222,7 @@ x11-proto/xf86driproto abi_x86_32
 x11-proto/xf86vidmodeproto abi_x86_32
 x11-proto/xproto abi_x86_32
 
-# for Wine[gstreamer]
+# required by app-emulation/wine-vanilla[gstreamer]
 dev-lang/orc abi_x86_32
 dev-libs/fribidi abi_x86_32
 dev-libs/lzo abi_x86_32
@@ -256,8 +258,8 @@ dev-libs/libbsd abi_x86_32
 # for net-fs/cifs-utils
 app-crypt/libmd abi_x86_32
 
-# required by media-gfx/imagemagick[heif]
+# for media-gfx/imagemagick[heif]
 media-libs/libheif x265
 
-# required by gui-apps/gcolor3
+# for gui-apps/gcolor3
 dev-libs/libportal gtk

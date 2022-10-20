@@ -1,0 +1,26 @@
+diff --git a/tty-acs.c b/tty-acs.c
+index 6e3103d..9cf44ac 100644
+--- a/tty-acs.c
++++ b/tty-acs.c
+@@ -81,7 +81,7 @@ tty_acs_get(struct tty *tty, u_char ch)
+ 	struct tty_acs_entry *entry;
+ 
+ 	/* If not a UTF-8 terminal, use the ACS set. */
+-	if (tty != NULL && !(tty->flags & TTY_UTF8)) {
++	if (tty != NULL) {
+ 		if (tty->term->acs[ch][0] == '\0')
+ 			return (NULL);
+ 		return (&tty->term->acs[ch][0]);
+diff --git a/tty.c b/tty.c
+index 14906cc..b609d36 100644
+--- a/tty.c
++++ b/tty.c
+@@ -72,7 +72,7 @@ static void	tty_default_attributes(struct tty *, const struct window_pane *,
+ 		    u_int);
+ 
+ #define tty_use_acs(tty) \
+-	(tty_term_has((tty)->term, TTYC_ACSC) && !((tty)->flags & TTY_UTF8))
++	(tty_term_has((tty)->term, TTYC_ACSC))
+ #define tty_use_margin(tty) \
+ 	((tty)->term_type == TTY_VT420)
+ 

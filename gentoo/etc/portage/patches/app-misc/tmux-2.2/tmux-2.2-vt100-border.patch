@@ -1,0 +1,26 @@
+diff --git a/tty-acs.c b/tty-acs.c
+index 7fd265d..85874d6 100644
+--- a/tty-acs.c
++++ b/tty-acs.c
+@@ -81,7 +81,7 @@ tty_acs_get(struct tty *tty, u_char ch)
+ 	struct tty_acs_entry *entry;
+ 
+ 	/* If not a UTF-8 terminal, use the ACS set. */
+-	if (tty != NULL && !(tty->flags & TTY_UTF8)) {
++	if (tty != NULL) {
+ 		if (tty->term->acs[ch][0] == '\0')
+ 			return (NULL);
+ 		return (&tty->term->acs[ch][0]);
+diff --git a/tty.c b/tty.c
+index 2dff570..89da464 100644
+--- a/tty.c
++++ b/tty.c
+@@ -63,7 +63,7 @@ void	tty_cell(struct tty *, const struct grid_cell *,
+ void	tty_default_colours(struct grid_cell *, const struct window_pane *);
+ 
+ #define tty_use_acs(tty) \
+-	(tty_term_has((tty)->term, TTYC_ACSC) && !((tty)->flags & TTY_UTF8))
++	(tty_term_has((tty)->term, TTYC_ACSC))
+ 
+ #define tty_pane_full_width(tty, ctx) \
+ 	((ctx)->xoff == 0 && screen_size_x((ctx)->wp->screen) >= (tty)->sx)

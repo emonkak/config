@@ -1,0 +1,31 @@
+diff --git a/xim/convdisp.cpp b/xim/convdisp.cpp
+index 71343831..ad01275d 100644
+--- a/xim/convdisp.cpp
++++ b/xim/convdisp.cpp
+@@ -1003,7 +1003,7 @@ void ConvdispRw::update_preedit()
+ 
+ 	XGetWindowAttributes(XimServer::gDpy, m_atr->client_window, &xattr);
+ 	XTranslateCoordinates(XimServer::gDpy, m_atr->client_window, DefaultRootWindow(XimServer::gDpy), 0, 0, &x, &y, &win);
+-	mPeWin->set_pos(x, y + xattr.height);
++	mPeWin->set_pos(x, y);
+     }
+ 
+     mPeWin->do_map();
+@@ -1045,7 +1045,7 @@ void ConvdispRw::move_candwin()
+ 
+ 	if (mPeWin)
+ 	    x += mPeWin->mCandWinXOff;
+-	disp->move(x, y + xattr.height + 28); // lower-left side under the preedit window
++	disp->move(x, y); // upper-left side under the preedit window
+     }
+ }
+ 
+@@ -1630,7 +1630,7 @@ void ConvdispOs::move_candwin()
+ 	    XGetWindowAttributes(XimServer::gDpy, m_atr->client_window,
+ 			      &xattr);
+ 	    //disp->move(x + xattr.width + 2, y + 2); //upper-right side
+-	    disp->move(x, y + xattr.height + 2); //lower-left side
++	    disp->move(x, y + 2); //upper-left side
+ 	}
+     }    
+     

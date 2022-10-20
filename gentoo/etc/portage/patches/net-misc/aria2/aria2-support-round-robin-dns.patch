@@ -1,0 +1,62 @@
+diff --git a/src/AbstractCommand.cc b/src/AbstractCommand.cc
+index bf307b7..c1874d8 100644
+--- a/src/AbstractCommand.cc
++++ b/src/AbstractCommand.cc
+@@ -767,6 +767,7 @@ std::string AbstractCommand::resolveHostname(std::vector<std::string>& addrs,
+ 
+   e_->findAllCachedIPAddresses(std::back_inserter(addrs), hostname, port);
+   if (!addrs.empty()) {
++    e_->shiftCachedIPAddresses(hostname, port);
+     auto ipaddr = addrs.front();
+     A2_LOG_INFO(fmt(MSG_DNS_CACHE_HIT, getCuid(), hostname.c_str(),
+                     strjoin(std::begin(addrs), std::end(addrs), ", ").c_str()));
+diff --git a/src/DNSCache.h b/src/DNSCache.h
+index 87666c4..dd94194 100644
+--- a/src/DNSCache.h
++++ b/src/DNSCache.h
+@@ -90,6 +90,13 @@ private:
+       }
+     }
+ 
++    void shift()
++    {
++      std::rotate(addrEntries_.begin(),
++                  addrEntries_.begin() + 1,
++                  addrEntries_.end());
++    }
++
+     void markBad(const std::string& addr);
+ 
+     bool operator<(const CacheEntry& e) const;
+@@ -122,6 +129,15 @@ public:
+     }
+   }
+ 
++  void shift(const std::string& hostname, uint16_t port) const
++  {
++    auto target = std::make_shared<CacheEntry>(hostname, port);
++    auto i = entries_.find(target);
++    if (i != entries_.end()) {
++      (*i)->shift();
++    }
++  }
++
+   void put(const std::string& hostname, const std::string& ipaddr,
+            uint16_t port);
+ 
+diff --git a/src/DownloadEngine.h b/src/DownloadEngine.h
+index b6228a7..2db4182 100644
+--- a/src/DownloadEngine.h
++++ b/src/DownloadEngine.h
+@@ -310,6 +310,11 @@ public:
+     dnsCache_->findAll(out, hostname, port);
+   }
+ 
++  void shiftCachedIPAddresses(const std::string& hostname, uint16_t port) const
++  {
++    dnsCache_->shift(hostname, port);
++  }
++
+   void cacheIPAddress(const std::string& hostname, const std::string& ipaddr,
+                       uint16_t port);
+ 

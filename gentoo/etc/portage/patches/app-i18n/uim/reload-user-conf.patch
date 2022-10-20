@@ -1,0 +1,11 @@
+diff --git a/scm/custom-rt.scm b/scm/custom-rt.scm
+index 4975839a..4a7e9b3f 100644
+--- a/scm/custom-rt.scm
++++ b/scm/custom-rt.scm
+@@ -289,5 +289,6 @@
+ 	 (let ((load-conf (if custom-enable-mtime-aware-user-conf-reloading?
+ 			      custom-load-updated-group-conf
+ 			      custom-load-group-conf)))  ;; original behavior
++	   (load-user-conf)
+ 	   (for-each load-conf (custom-list-primary-groups))
+ 	   (custom-call-all-hook-procs custom-set-hooks)))))

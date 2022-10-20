@@ -1,0 +1,13 @@
+diff --git a/src/evdev.c b/src/evdev.c
+index f627fd0..76bdeb6 100644
+--- a/src/evdev.c
++++ b/src/evdev.c
+@@ -1755,7 +1755,7 @@ EvdevAddButtonClass(DeviceIntPtr device)
+     labels = malloc(pEvdev->num_buttons * sizeof(Atom));
+     EvdevInitButtonLabels(pEvdev, pEvdev->num_buttons, labels);
+ 
+-    if (!InitButtonClassDeviceStruct(device, pEvdev->num_buttons, labels,
++    if (!InitButtonClassDeviceStruct(device, ArrayLength(pEvdev->btnmap), labels,
+                                      pEvdev->btnmap))
+         return !Success;
+ 

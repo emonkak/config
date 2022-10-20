@@ -48,7 +48,9 @@ media-libs/imlib2 ~amd64
 
 # NeoVim
 app-editors/neovim ~amd64
+dev-libs/libvterm ~amd64
 dev-libs/tree-sitter ~amd64
+dev-lua/* ~amd64
 
 # Shotcut
 media-libs/mlt ~amd64

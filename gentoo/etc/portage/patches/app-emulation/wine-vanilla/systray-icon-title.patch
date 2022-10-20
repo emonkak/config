@@ -1,0 +1,33 @@
+--- a/dlls/winex11.drv/systray.c	2022-01-18 13:26:44.305636580 +0900
++++ b/dlls/winex11.drv/systray.c	2022-01-18 13:29:32.343331121 +0900
+@@ -322,7 +322,7 @@
+ 
+     icon->display = nb_displayed;
+     pos = get_icon_pos( icon );
+-    icon->window = CreateWindowW( icon_classname, NULL, WS_CHILD | WS_VISIBLE,
++    icon->window = CreateWindowW( icon_classname, icon->tiptext, WS_CHILD | WS_VISIBLE,
+                                   pos.x, pos.y, icon_cx, icon_cy, standalone_tray, NULL, NULL, icon );
+     if (!icon->window)
+     {
+@@ -644,7 +644,7 @@
+ 
+     icon->layered = (visual.depth == 32);
+     icon->window = CreateWindowExW( icon->layered ? WS_EX_LAYERED : 0,
+-                                    icon_classname, NULL, WS_CLIPSIBLINGS | WS_POPUP,
++                                    icon_classname, icon->tiptext, WS_CLIPSIBLINGS | WS_POPUP,
+                                     CW_USEDEFAULT, CW_USEDEFAULT, icon_cx, icon_cy,
+                                     NULL, NULL, NULL, icon );
+ 
+@@ -771,7 +771,11 @@
+     if (nid->uFlags & NIF_TIP)
+     {
+         lstrcpynW(icon->tiptext, nid->szTip, ARRAY_SIZE( icon->tiptext ));
+-        if (icon->tooltip) update_tooltip_text(icon);
++        if (icon->tooltip)
++        {
++            update_tooltip_text(icon);
++            X11DRV_SetWindowText( icon->window, icon->tiptext );
++        }
+     }
+     if (nid->uFlags & NIF_INFO && nid->cbSize >= NOTIFYICONDATAA_V2_SIZE)
+     {

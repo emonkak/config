@@ -1,0 +1,35 @@
+diff --git a/alacritty_terminal/src/term/mod.rs b/alacritty_terminal/src/term/mod.rs
+index 8317e701..f72ff009 100644
+--- a/alacritty_terminal/src/term/mod.rs
++++ b/alacritty_terminal/src/term/mod.rs
+@@ -6,6 +6,7 @@ use std::{cmp, mem, ptr, slice, str};
+ 
+ use bitflags::bitflags;
+ use log::{debug, trace};
++#[cfg(not(target_os = "linux"))]
+ use unicode_width::UnicodeWidthChar;
+ 
+ use crate::ansi::{
+@@ -975,6 +976,10 @@ impl<T: EventListener> Handler for Term<T> {
+     #[inline(never)]
+     fn input(&mut self, c: char) {
+         // Number of cells the char will occupy.
++        #[cfg(target_os = "linux")]
++        let width = unsafe { wcwidth(c as libc::wchar_t) } as usize;
++
++        #[cfg(not(target_os = "linux"))]
+         let width = match c.width() {
+             Some(width) => width,
+             None => return,
+@@ -2077,6 +2082,11 @@ impl<'a> RenderableContent<'a> {
+     }
+ }
+ 
++#[cfg(target_os = "linux")]
++extern "C" {
++    pub fn wcwidth(ch: libc::wchar_t) -> libc::c_int;
++}
++
+ /// Terminal test helpers.
+ pub mod test {
+     use super::*;
