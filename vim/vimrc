@@ -113,6 +113,7 @@ set linebreak
 set list
 let &listchars = "tab:\u00bb ,trail:-,extends:>,precedes:<,conceal:|,nbsp:."
 set keywordprg=:help
+set mouse=
 set nrformats-=octal
 set pumheight=20
 set scrolloff=5

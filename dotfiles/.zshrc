@@ -262,7 +262,7 @@ then
 elif which vdir &>/dev/null  # `vdir` command is only available in Coreutils.
 then
   alias ls='ls --classify --human-readable --color=auto --time-style=long-iso --show-control-chars'
-else  # BSD version
+else  # BSD implementation
   alias ls='ls -FGh'
 fi
 alias la='ls -a'
@@ -285,14 +285,18 @@ alias git='noglob git'
 alias s='sudo'
 alias sudo='sudo '
 alias t='tmux'
-alias v='vim'
+if which nvim &>/dev/null
+then
+  alias v='nvim'
+else
+  alias v='vim'
+fi
 
 if which colordiff &>/dev/null
 then
   alias diff='colordiff -u'
 fi
 alias grep='grep --color --binary-files=without-match --perl-regexp'
-alias pstree='pstree --ascii'
 
 if which xsel &>/dev/null
 then

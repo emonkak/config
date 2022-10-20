@@ -45,7 +45,10 @@ GROUP_GENTOO_FILES=\
   gentoo/etc/portage/package.use \
   gentoo/etc/portage/profile/package.provided \
   gentoo/usr/src/linux/.config \
-  gentoo/var/lib/portage/world
+  gentoo/var/lib/portage/world \
+  $(patsubst %, \
+    gentoo/%, \
+    $(shell find /etc/portage/patches -type f))
 GROUP_GENTOO_RULE=$(patsubst gentoo/%, /%, $(1))
 
 GROUP_VIM_FILES=\

@@ -44,6 +44,7 @@
 [alias]
 	a = add
 	br = branch
+	ch = checkout
 	co = commit --verbose
 	cp = cherry-pick
 	d = diff --ignore-space-change --find-copies
