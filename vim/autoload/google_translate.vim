@@ -95,15 +95,15 @@ function! s:i32_truncate(num) abort
 endfunction
 
 function! s:i32_left_shift(lhs, rhs) abort
-  return s:i32_truncate(a:lhs << a:rhs)
+  return s:i32_truncate(a:lhs * float2nr(pow(2, a:rhs)))
 endfunction
 
 function! s:i32_unsigned_right_shift(lhs, rhs) abort
-  return s:i32_truncate(a:lhs) >> a:rhs
+  return s:i32_truncate(a:lhs) / float2nr((pow(2, a:rhs)))
 endfunction
 
 function! s:i32_signed_right_shift(lhs, rhs) abort
-  let bits = s:i32_truncate(a:lhs) >> a:rhs
+  let bits = s:i32_truncate(a:lhs) / float2nr(pow(2, a:rhs))
   return s:i32_signed(a:lhs) ? s:i32_negate(bits) : bits
 endfunction
 

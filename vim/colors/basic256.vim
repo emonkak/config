@@ -13,57 +13,52 @@ endfunction
 function! s:highlight(name, definition) abort
   let args = []
 
-  let fg = has_key(a:definition, 'fg') ? s:color(a:definition['fg']) : -1
-  let bg = has_key(a:definition, 'bg') ? s:color(a:definition['bg']) : -1
-  let sp = has_key(a:definition, 'sp') ? s:color(a:definition['sp']) : -1
+  let fg_color = has_key(a:definition, 'fg') ? s:color(a:definition['fg']) : ''
+  let bg_color = has_key(a:definition, 'bg') ? s:color(a:definition['bg']) : ''
+  let sp_color = has_key(a:definition, 'sp') ? s:color(a:definition['sp']) : ''
 
   if has_key(a:definition, 'attr')
-    if &term ==# 'win32' && a:definition['attr'] =~# 'r'
-      let tmp = fg;
-      let fg = bg;
-      let bg = tmp;
+    if &t_Co < 16 && a:definition['attr'] =~# 'r'
+      let tmp = fg_color;
+      let fg_color = bg_color;
+      let bg_color = tmp;
     endif
     call insert(args, 'cterm=' . s:attributes(a:definition['attr']))
     call insert(args, 'gui=' . s:attributes(a:definition['attr']))
   endif
 
-  if fg >= 0
-    call insert(args, 'ctermfg=' . s:term_color(fg))
-    call insert(args, 'guifg=' . s:gui_color(fg))
-  elseif has_key(a:definition, 'fg')
-    call insert(args, 'guifg=' . a:definition['fg'])
+  if type(fg_color) == v:t_number
+    call insert(args, 'ctermfg=' . s:term_color(fg_color))
+    call insert(args, 'guifg=' . s:gui_color(fg_color))
+  elseif !empty(fg_color)
+    call insert(args, 'guifg=' . fg_color)
   endi
 
-  if bg >= 0
-    call insert(args, 'ctermbg=' . s:term_color(bg))
-    call insert(args, 'guibg=' . s:gui_color(bg))
-  elseif has_key(a:definition, 'bg')
-    call insert(args, 'guibg=' . a:definition['bg'])
+  if type(bg_color) == v:t_number
+    call insert(args, 'ctermbg=' . s:term_color(bg_color))
+    call insert(args, 'guibg=' . s:gui_color(bg_color))
+  elseif !empty(bg_color)
+    call insert(args, 'guibg=' . fg_color)
   endif
 
-  if sp >= 0
-    call insert(args, 'guisp=' . s:gui_color(sp))
+  if type(sp_color) == v:t_number
+    call insert(args, 'guisp=' . s:gui_color(sp_color))
+  elseif !empty(sp_color)
+    call insert(args, 'guisp=' . sp_color)
   endif
 
   execute 'highlight' a:name 'NONE' join(args)
 endfunction
 
 function! s:attributes(input) abort
-  if &term ==# 'win32'
-    let ATTRS = {
-    \   'r': 'reverse',
-    \   's': 'standout',
-    \ }
-  else
-    let ATTRS = {
-    \   'b': 'bold',
-    \   'c': 'undercurl',
-    \   'i': 'italic',
-    \   'r': 'reverse',
-    \   's': 'standout',
-    \   'u': 'underline',
-    \ }
-  endif
+  let ATTRS = {
+  \   'b': 'bold',
+  \   'c': 'undercurl',
+  \   'i': 'italic',
+  \   'r': 'reverse',
+  \   's': 'standout',
+  \   'u': 'underline',
+  \ }
   let attrs = []
   for key in split(a:input, '.\zs')
     if has_key(ATTRS, key)
@@ -74,32 +69,44 @@ function! s:attributes(input) abort
 endfunction
 
 function! s:color(color) abort
-  if type(a:color) == type(0)
+  if type(a:color) == v:t_number
     return a:color
+  else
+    let COLOR_TABLE = {
+    \   'black': 0,
+    \   'darkred': 1,
+    \   'darkgreen': 2,
+    \   'darkyellow': 3,
+    \   'brown': 3,
+    \   'darkblue': 4,
+    \   'darkmagenta': 5,
+    \   'darkcyan': 6,
+    \   'lightgray': 7,
+    \   'lightgrey': 7,
+    \   'gray': 7,
+    \   'grey': 7,
+    \   'darkgray': 8,
+    \   'darkgrey': 8,
+    \   'red': 9,
+    \   'lightred': 9,
+    \   'green': 10,
+    \   'lightgreen': 10,
+    \   'yellow': 11,
+    \   'lightyellow': 11,
+    \   'blue': 12,
+    \   'lightblue': 12,
+    \   'magenta': 13,
+    \   'lightmagenta': 13,
+    \   'cyan': 14,
+    \   'lightcyan': 14,
+    \   'white': 15,
+    \ }
+    return get(COLOR_TABLE, tolower(a:color), a:color)
   endif
-  let COLOR_TABLE = {
-  \   'black': 0,
-  \   'red': 1,
-  \   'green': 2,
-  \   'yellow': 3,
-  \   'blue': 4,
-  \   'magenta': 5,
-  \   'cyan': 6,
-  \   'white': 7,
-  \   'bright_black': 8,
-  \   'bright_red': 9,
-  \   'bright_green': 10,
-  \   'bright_yellow': 11,
-  \   'bright_blue': 12,
-  \   'bright_magenta': 13,
-  \   'bright_cyan': 14,
-  \   'bright_white': 15,
-  \ }
-  return get(COLOR_TABLE, a:color, -1)
 endfunction
 
 function! s:term_color(color) abort
-  if &term ==# 'win32'
+  if &t_Co < 16
     let INDEX_TABLE = [0, 4, 2, 6, 1, 5, 3, 7]
     return INDEX_TABLE[a:color % len(INDEX_TABLE)]
   else
@@ -133,81 +140,79 @@ let s:gui_colors = [
 \ ]
 
 call s:define_highlights({
-\   'Normal':                  {'fg': s:gui_fg_color, 'bg': s:gui_bg_color },
 \   'ColorColumn':             {'bg': 'black'},
-\   'Conceal':                 {'fg': 'bright_black'},
-\   'Cursor':                  {'bg': 'green'},
+\   'Comment':                 {'attr': 'i', 'fg': 'gray'},
+\   'Conceal':                 {'fg': 'darkgray'},
+\   'Constant':                {'fg': 'lightmagenta'},
+\   'Cursor':                  {'bg': 'darkgreen'},
 \   'CursorColumn':            {'bg': 'black'},
-\   'CursorIM':                {'bg': 'bright_cyan'},
+\   'CursorIM':                {'bg': 'lightcyan'},
 \   'CursorLine':              {'bg': 'black'},
-\   'DiffAdd':                 {'bg': 'blue'},
-\   'DiffChange':              {'bg': 'magenta'},
-\   'DiffDelete':              {'fg': 'bright_black'},
-\   'Directory':               {'fg': 'bright_cyan'},
-\   'DiffText':                {'bg': 'magenta'},
-\   'ErrorMsg':                {'bg': 'red'},
-\   'VertSplit':               {'attr': 'r', 'fg': 'bright_black'},
-\   'Folded':                  {'attr': 'i', 'fg': 'cyan'},
-\   'FoldColumn':              {'fg': 'cyan'},
-\   'SignColumn':              {'fg': 'bright_cyan'},
-\   'IncSearch':               {'attr': 'r'},
-\   'LineNr':                  {'fg': 'bright_black'},
 \   'CursorLineNr':            {'bg': 'black'},
-\   'MatchParen':              {'attr': 'b', 'fg': 'black', 'bg': 'bright_cyan'},
-\   'ModeMsg':                 {'bg': 'blue'},
-\   'MoreMsg':                 {'bg': 'green'},
-\   'NonText':                 {'fg': 'bright_black'},
+\   'DiffAdd':                 {'bg': 'darkblue'},
+\   'DiffChange':              {'bg': 'darkmagenta'},
+\   'DiffDelete':              {'fg': 'darkgray'},
+\   'DiffText':                {'bg': 'darkmagenta'},
+\   'Directory':               {'fg': 'lightcyan'},
+\   'Error':                   {'bg': 'darkred'},
+\   'ErrorMsg':                {'bg': 'darkred'},
+\   'FoldColumn':              {'fg': 'darkcyan'},
+\   'Folded':                  {'attr': 'i', 'fg': 'darkcyan'},
+\   'Identifier':              {'fg': 'lightcyan'},
+\   'Ignore':                  {'fg': 'black'},
+\   'IncSearch':               {'attr': 'r'},
+\   'LineNr':                  {'fg': 'darkgray'},
+\   'LspError':                {'fg': 'lightred'},
+\   'LspErrorHighlight':       {'attr': 'c'},
+\   'LspErrorText':            {'fg': 'lightred'},
+\   'LspHint':                 {'fg': 'lightblue'},
+\   'LspHintHighlight':        {'attr': 'c'},
+\   'LspHintText':             {'fg': 'lightblue'},
+\   'LspInformation':          {'fg': 'lightblue'},
+\   'LspInformationHighlight': {'attr': 'c'},
+\   'LspInformationText':      {'fg': 'lightblue'},
+\   'LspWarning':              {'fg': 'lightred'},
+\   'LspWarningHighlight':     {'attr': 'c'},
+\   'LspWarningText':          {'fg': 'lightred'},
+\   'MatchParen':              {'attr': 'b', 'fg': 'black', 'bg': 'lightcyan'},
+\   'ModeMsg':                 {'bg': 'darkblue'},
+\   'NormalFloat':             {},
+\   'MoreMsg':                 {'bg': 'darkgreen'},
+\   'NonText':                 {'fg': 'darkgray'},
+\   'Normal':                  {'fg': s:gui_fg_color, 'bg': s:gui_bg_color },
 \   'Pmenu':                   {'bg': 'black'},
-\   'PmenuSbar':               {'bg': 'bright_black'},
-\   'PmenuSel':                {'attr': 'r', 'fg': 'bright_yellow'},
-\   'PmenuThumb':              {'bg': 'bright_yellow'},
-\   'Question':                {'fg': 'bright_green'},
-\   'Search':                  {'attr': 'r', 'fg': 'bright_yellow'},
-\   'SpecialKey':              {'fg': 'bright_black'},
-\
-\   'SpellBad':                has('gui_running') ? {'attr': 'c', 'sp': 'red'} : {'bg': 'red'},
-\   'SpellCap':                has('gui_running') ? {'attr': 'c', 'sp': 'blue'} : {'bg': 'blue'},
-\   'SpellRare':               has('gui_running') ? {'attr': 'c', 'sp': 'magenta'} : {'bg': 'magenta'},
-\   'SpellLocal':              has('gui_running') ? {'attr': 'c', 'sp': 'cyan'} : {'bg': 'cyan'},
-\
+\   'PmenuSbar':               {'bg': 'darkgray'},
+\   'PmenuSel':                {'attr': 'r', 'fg': 'lightyellow'},
+\   'PmenuThumb':              {'bg': 'lightyellow'},
+\   'PreProc':                 {'fg': 'lightblue'},
+\   'Question':                {'fg': 'lightgreen'},
+\   'Search':                  {'attr': 'r', 'fg': 'lightyellow'},
+\   'SignColumn':              {'fg': 'lightcyan'},
+\   'Special':                 {'fg': 'lightred'},
+\   'SpecialKey':              {'fg': 'darkgray'},
+\   'SpellBad':                has('gui_running') ? {'attr': 'c', 'sp': 'darkred'} : {'bg': 'red'},
+\   'SpellCap':                has('gui_running') ? {'attr': 'c', 'sp': 'darkblue'} : {'bg': 'blue'},
+\   'SpellLocal':              has('gui_running') ? {'attr': 'c', 'sp': 'darkcyan'} : {'bg': 'cyan'},
+\   'SpellRare':               has('gui_running') ? {'attr': 'c', 'sp': 'darkmagenta'} : {'bg': 'magenta'},
+\   'Statement':               {'fg': 'lightyellow'},
 \   'StatusLine':              {'attr': 'b', 'bg': 'black'},
-\   'StatusLineNC':            {'bg': 'bright_black'},
-\   'StatusLineTerm':          {'attr': 'br', 'fg': 'bright_green'},
-\   'StatusLineTermNC':        {'attr': 'r', 'fg': 'green'},
+\   'StatusLineNC':            {'bg': 'darkgray'},
+\   'StatusLineTerm':          {'attr': 'br', 'fg': 'lightgreen'},
+\   'StatusLineTermNC':        {'attr': 'r', 'fg': 'darkgreen'},
 \   'TabLine':                 {'bg': 'black'},
 \   'TabLineFill':             {'bg': 'black'},
 \   'TabLineSel':              {'attr': 'bu', 'bg': 'black'},
+\   'Title':                   {'fg': 'lightcyan'},
+\   'Todo':                    {'attr': 'u', 'fg': 'lightyellow'},
+\   'ToolbarButton':           {'attr': 'b', 'bg': 'darkgray'},
 \   'ToolbarLine':             {'bg': 'black'},
-\   'ToolbarButton':           {'attr': 'b', 'bg': 'bright_black'},
-\   'Title':                   {'fg': 'bright_cyan'},
-\   'Visual':                  {'bg': 'blue'},
+\   'Type':                    {'fg': 'lightgreen'},
+\   'Underlined':              {'attr': 'u', 'fg': 'lightblue'},
+\   'VertSplit':               {'attr': 'r', 'fg': 'darkgray'},
+\   'Visual':                  {'bg': 'darkblue'},
 \   'VisualNOS':               {'attr': 'r'},
-\   'WarningMsg':              {'fg': 'bright_yellow'},
-\   'WildMenu':                {'attr': 'br', 'fg': 'bright_yellow'},
-\   'lCursor':                 {'bg': 'bright_cyan'},
-\
-\   'Comment':                 {'attr': 'i', 'fg': 'white'},
-\   'Constant':                {'fg': 'bright_magenta'},
-\   'Identifier':              {'fg': 'bright_cyan'},
-\   'Statement':               {'fg': 'bright_yellow'},
-\   'PreProc':                 {'fg': 'bright_blue'},
-\   'Type':                    {'fg': 'bright_green'},
-\   'Special':                 {'fg': 'bright_red'},
-\   'Underlined':              {'attr': 'u', 'fg': 'bright_blue'},
-\   'Ignore':                  {'fg': 'black'},
-\   'Error':                   {'bg': 'red'},
-\   'Todo':                    {'attr': 'u', 'fg': 'bright_yellow'},
-\
-\   'LspError':                {'fg': 'bright_red'},
-\   'LspErrorText':            {'fg': 'bright_red'},
-\   'LspErrorHighlight':       {'attr': 'c'},
-\   'LspWarning':              {'fg': 'bright_red'},
-\   'LspWarningText':          {'fg': 'bright_red'},
-\   'LspWarningHighlight':     {'attr': 'c'},
-\   'LspInformation':          {'fg': 'bright_blue'},
-\   'LspInformationText':      {'fg': 'bright_blue'},
-\   'LspInformationHighlight': {'attr': 'c'},
-\   'LspHint':                 {'fg': 'bright_blue'},
-\   'LspHintText':             {'fg': 'bright_blue'},
-\   'LspHintHighlight':        {'attr': 'c'},
+\   'WarningMsg':              {'fg': 'lightyellow'},
+\   'WildMenu':                {'attr': 'br', 'fg': 'lightyellow'},
+\   'WinSeparator':            {'bg': 'black'},
+\   'lCursor':                 {'bg': 'lightcyan'},
 \ })
