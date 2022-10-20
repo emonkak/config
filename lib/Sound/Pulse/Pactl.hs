@@ -10,20 +10,21 @@ import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson (FromJSON(..), decode)
 import Data.Aeson.Types (Options(..), defaultOptions, genericParseJSON)
 import Data.List (find)
-import Data.Map (Map)
 import Data.String (IsString(..))
 import GHC.Generics (Generic)
 import XMonad.Util.Run (runProcessWithInput, safeSpawn)
+
+import qualified Data.Map as M
 
 data Card = Card
   { index :: Int
   , name :: String
   , driver :: String
   , owner_module :: String
-  , properties :: Map String String
-  , profiles :: Map String Profile
+  , properties :: M.Map String String
+  , profiles :: M.Map String Profile
   , active_profile :: String
-  , ports :: Map String Port
+  , ports :: M.Map String Port
   }
   deriving (Show, Generic, FromJSON)
 
@@ -43,7 +44,7 @@ data Port = Port
   , latency_offset :: String
   , availability_group :: String
   , availability :: String
-  , properties :: Map String String
+  , properties :: M.Map String String
   , profiles :: [String]
   }
   deriving (Show, Generic)
@@ -62,15 +63,16 @@ listPulseCards = do
 
 switchPulseCardProfile :: (MonadIO m) => [String] -> [Card] -> m ()
 switchPulseCardProfile profiles cards = do
-  case find isAlsaCard cards of
+  case find isTargetCard cards of
     (Just (Card { name, active_profile })) ->
       let nextProfile = swtich profiles active_profile
        in mapM_ (\profile -> safeSpawn "pactl" ["set-card-profile", name, profile]) nextProfile
     _ -> return ()
   where
-    isAlsaCard (Card { driver })
-      | driver == "module-alsa-card.c" = True
-      | otherwise                      = False
+    isTargetCard (Card { driver = "module-alsa-card.c", profiles = availableProfiles }) =
+       all (\profile -> M.member profile availableProfiles) profiles
+
+    isTargetCard _ = False
 
 swtich :: Eq a => [a] -> a -> Maybe a
 swtich [] _ = Nothing
