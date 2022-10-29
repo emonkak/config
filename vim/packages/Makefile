@@ -57,7 +57,9 @@ ifndef $(MAKEFLAGS)
 MAKEFLAGS=--output-sync=target --jobs 4
 endif
 
-PackageNameFromUrl=$(notdir $(patsubst %.git,%,$(1)))
+PackageNameFromUrl=\
+  $(subst /,_,$(patsubst github.com/%,%, \
+    $(dir $(patsubst https://%,%,$(1)))$(notdir $(patsubst %.git,%,$(1)))))
 
 define GenerateRule  # (url, dir)
 install: $(2)
@@ -85,7 +87,7 @@ $(eval $(call GenerateRulesFromUrl,$(PACKAGE_URLS)))
 list:
 	@echo -e $(subst $(SPACE),"\n",$(sort $(PACKAGE_NAMES)))
 
-orphans:
+outdated:
 	@echo -e $(subst $(SPACE),\n,$(filter-out $(PACKAGE_NAMES) $(MAKEFILE_LIST),$(wildcard *)))
 
-.PHONY: list orphans
+.PHONY: list outdated

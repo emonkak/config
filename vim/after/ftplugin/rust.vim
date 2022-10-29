@@ -33,5 +33,5 @@ else
 endif
 
 let b:undo_ftplugin .= 'setlocal'
-\                    . ' foldexpr'
-\                    . ' foldmethod'
+\                    . ' foldexpr<'
+\                    . ' foldmethod<'

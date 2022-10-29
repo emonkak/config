@@ -459,8 +459,7 @@ keycommand2 $(export key_i)          ( external "du -hs $(cursor)" )
 keycommand2 $(export key_K) ( cmdline "mkdir -p ''" -2 )
 keycommand2 $(export key_n) ( cmdline "touch ''" -2 )
 
-keycommand2 $(export key_e) ( external -q "vim --remote-tab-silent $(cursor)" )
-keycommand2 $(export key_E) ( external -q "gvim --remote-tab-silent $(cursor)" )
+keycommand2 $(export key_e) ( external -q "$EDITOR --remote-tab-silent $(cursor)" )
 
 keycommand2 $(export key_v) ( external -q "$$(export PAGER) $(cursor)" )
 keycommand2 $(export key_B) ( external -q "hex $(cursor) | $$(export PAGER)" )

@@ -5,7 +5,7 @@
 	email = emonkak@gmail.com
 
 [core]
-	editor = vim
+	editor = nvim
 	excludesfile = ~/.gitignore
 	mergeoptions = --no-edit
 	pager = delta --color-only --paging always

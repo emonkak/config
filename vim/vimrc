@@ -10,6 +10,9 @@ if has('vim_starting')
     set runtimepath^=~/.vim/bundle/*
     set runtimepath+=~/.vim/bundle/*/after
   endif
+  if has('nvim') && isdirectory('/usr/share/vim/vimfiles')
+    set runtimepath+=/usr/share/vim/vimfiles
+  endif
 endif
 
 filetype plugin indent on
@@ -34,16 +37,37 @@ endif
 
 " Color and Font  {{{2
 
+let g:system_color_gui_color_table = {
+\   'foreground': '#e8eaeb',
+\   'background': '#21272b',
+\   'black': '#363f45',
+\   'darkred': '#f7554d',
+\   'darkgreen': '#10a184',
+\   'darkyellow': '#c97a12',
+\   'darkblue': '#1c95e6',
+\   'darkmagenta': '#f74d90',
+\   'darkcyan': '#9d77fc',
+\   'lightgray': '#869096',
+\   'darkgray': '#657078',
+\   'lightred': '#ffb6b3',
+\   'lightgreen': '#38e0bf',
+\   'lightyellow': '#f7ba6a',
+\   'lightblue': '#8dd0fc',
+\   'lightmagenta': '#fcb3d0',
+\   'lightcyan': '#cfbdff',
+\   'white': '#c5c6c7',
+\ }
+
 if (1 < &t_Co || has('gui')) && has('syntax') && !exists('g:syntax_on')
   syntax enable
   if !exists('g:colors_name')
-    colorscheme basic256
+    colorscheme system_color
   endif
 endif
 
 if has('gui_running')
   set guicursor=a:blinkwait4000-blinkon1500-blinkoff500
-  if has('gui_gtk2') || has('gui_gtk3')
+  if has('gui_gtk')
     set guifont=Monospace\ 10
     set linespace=0
   elseif has('gui_macvim')
@@ -104,6 +128,8 @@ set display=lastline
 set noequalalways
 set foldmethod=marker
 set fileformats=unix,dos,mac
+set guicursor-=i-ci-ve:ver25
+set grepformat^=%f:%l:%c:%m
 set hidden
 if exists('+langremap')
   set nolangremap
@@ -406,20 +432,22 @@ let g:maplocalleader = '.'
 " Commands  {{{1
 " :grep wrappers  {{{2
 
-command! -complete=file -nargs=+ Grep
+command! -complete=customlist,s:complete_cdpath -nargs=+ Grep
 \ call s:grep('grep', 'cwindow', [<f-args>])
-command! -complete=file -nargs=+ Lgrep
+command! -complete=customlist,s:complete_cdpath -nargs=+ Lgrep
 \ call s:grep('lgrep', 'lwindow', [<f-args>])
 
 function! s:grep(command, window_command, args) abort
-  let target = join(a:args[:-2], ' ')
-
   if &grepprg ==# 'internal'
-    execute a:command '/' . escape(a:args[-1], '|/ ') . '/j' target
+    let pattern = escape(a:args[-1], '#%')
+    let target = escape(join(a:args[:-2], ' '), '#%')
   else
-    execute a:command . '!' escape(shellescape(a:args[-1]), '|') target
+    let pattern = escape(shellescape(a:args[-1], 1), '|')
+    let target = len(a:args) > 1
+    \          ? escape(shellescape(join(a:args[:-2], ' '), 1), '|')
+    \          : ''
   endif
-
+  execute (a:command . '!') pattern target
   execute a:window_command
 endfunction
 
@@ -427,8 +455,8 @@ AlterCommand gr[ep]  Grep
 AlterCommand lgr[ep]  LGrep
 
 let s:GREPPRGS = [
-\   'git grep -n',
-\   executable('rg') ? 'rg --vimgrep --no-heading --no-column' :
+\   'git grep --line-number --column',
+\   executable('rg') ? 'rg --vimgrep --no-heading' :
 \   executable('grep') ? 'grep -nHE' :
 \   'internal',
 \ ]
@@ -439,7 +467,7 @@ function! s:toggle_grepprg() abort
   echo &grepprg
 endfunction
 
-autocmd MyAutoCmd BufReadPost *
+autocmd MyAutoCmd BufReadPost,VimEnter *
 \ let &l:grepprg = finddir('.git', expand('%:p:h') . ';') != ''
 \   ? s:GREPPRGS[0]
 \   : s:GREPPRGS[1]
@@ -449,19 +477,19 @@ autocmd MyAutoCmd BufReadPost *
 
 " :make wrappers  {{{2
 
-command! -bar -complete=file -nargs=* Make
+command! -complete=customlist,s:complete_cdpath -nargs=* Make
 \ call s:make('make', 'cwindow', [<f-args>])
-command! -bar -complete=file -nargs=* Lmake
+command! -complete=customlist,s:complete_cdpath -nargs=* Lmake
 \ call s:make('lmake', 'lwindow', [<f-args>])
 
 function! s:make(command, window_command, args) abort
-  let old_winnr = winnr()
+  let original_winnr = winnr()
 
   execute a:command . '!' join(a:args)
 
   execute a:window_command
 
-  execute old_winnr 'wincmd w'
+  execute original_winnr 'wincmd w'
 endfunction
 
 AlterCommand mak[e]  Make
@@ -529,14 +557,6 @@ endfunction
 command! -nargs=* -complete=customlist,s:complete_cdpath CD
 \ call s:cmd_CD(<q-args>)
 
-function! s:complete_cdpath(arglead, cmdline, cursorpos) abort
-  let paths = globpath(&cdpath,
-  \                    join(split(a:cmdline, '\s', 1)[1:], ' ') . '*/',
-  \                    0,
-  \                    1)
-  return map(uniq(sort(paths)), 'v:val[:-2]')
-endfunction
-
 function! s:cmd_CD(path) abort
   if a:path != ''
     cd `=a:path`
@@ -548,8 +568,7 @@ function! s:cmd_CD(path) abort
       cd
     endif
   endif
-  let t:cwd = getcwd()
-  echo t:cwd
+  pwd
 endfunction
 
 AlterCommand cd  CD
@@ -561,6 +580,22 @@ autocmd MyAutoCmd TabEnter *
 \ | if isdirectory(t:cwd)
 \ |   cd `=t:cwd`
 \ | endif
+
+autocmd MyAutoCmd DirChanged *
+\ let t:cwd = getcwd()
+
+
+
+
+" Complete functions  {{{2
+
+function! s:complete_cdpath(arglead, cmdline, cursorpos) abort
+  let paths = globpath(&cdpath,
+  \                    join(split(a:cmdline, '\s', 1)[1:], ' ') . '*/',
+  \                    0,
+  \                    1)
+  return map(uniq(sort(paths)), 'v:val[:-2]')
+endfunction
 
 
 
@@ -647,9 +682,7 @@ command! -bar -nargs=0 SuspendWithAutomticCD
 
 function! s:cmd_SuspendWithAutomticCD() abort
   let shell = split(&shell, '/')[-1]
-  if has('gui_running') && has('macunix')
-    silent !open -a iTerm
-  elseif exists('$TMUX')
+  if exists('$TMUX')
     let select_command = 'new-window'
     let target_pane = ':$'
     for window in split(system('tmux list-windows'), '\n')
@@ -1010,12 +1043,10 @@ endfunction  "}}}
 
 " The <Space>  {{{2
 
-" The prefix
 map <Space>  [Space]
 noremap [Space]  <Nop>
 
 
-" The shortcut for :write
 nnoremap <silent> [Space]w  :<C-u>w<CR>
 nnoremap <silent> [Space]W  :<C-u>SudaWrite<CR>
 
@@ -1039,7 +1070,6 @@ function! s:close_temporary_windows() abort  "{{{
 endfunction  "}}}
 
 
-" Toggle options
 nnoremap [Space]o  <Nop>
 nnoremap <silent> [Space]oc  :<C-u>call <SID>toggle_colorcolumn()<CR>
 nnoremap <silent> [Space]ol  :<C-u>call <SID>toggle_option('cursorline')<CR>
@@ -1070,22 +1100,22 @@ function! s:toggle_colorcolumn() abort  "{{{
 endfunction  "}}}
 
 
-" Helpers for file options
 nnoremap [Space]f  <Nop>
 nnoremap [Space]fe  :<C-u>setlocal fileencoding=
 nnoremap [Space]ff  :<C-u>setlocal fileformat=
+nnoremap [Space]fr  :<C-\>esetcmdpos(8 + strlen(expand('%:p:r'))) ? '' : 'Rename ' . expand("%:p")<CR>
 nnoremap [Space]fs  :<C-u>setlocal filetype? fileencoding? fileformat?<CR>
 nnoremap [Space]ft  :<C-u>setfiletype<Space>
 
 
-" :Rename helper
-nnoremap [Space]r  :<C-\>esetcmdpos(8 + strlen(expand('%:p:r'))) ? '' : 'Rename '.expand("%:p")<CR>
-
-
-" Fold actions
 nnoremap [Space]l  zo
 nnoremap [Space]h  zc
+nnoremap [Space]H  zM
 nnoremap [Space]v  zMzv
+
+
+nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
+nnoremap <silent> [Space]%  :<C-u>Source %<CR>
 
 
 " Paste the clipboard content
@@ -1095,11 +1125,6 @@ nnoremap [Space]p  "+p
 " Enter the command-line window
 nnoremap [Space]:  q:
 xnoremap [Space]:  q:
-
-
-" Reload source
-nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
-nnoremap <silent> [Space]%  :<C-u>Source %<CR>
 
 
 
@@ -1120,7 +1145,6 @@ nnoremap <C-w><C-f>  :<C-u>Split wincmd f<CR>
 
 nnoremap <silent> <C-w>t
 \ :call <SID>move_window_into_tabpage(<SID>ask_tabpage_number())<CR>
-
 nmap <C-w><C-t>  <C-w>t
 
 function! s:ask_tabpage_number() abort  "{{{
@@ -1171,6 +1195,48 @@ endfunction  "}}}
 
 
 nnoremap <C-w>Q  :<C-u>quit!<CR>
+
+
+
+
+" Marks  {{{2
+
+let s:MARK_CHARACTERS = [
+\    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+\    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+\ ]
+
+nnoremap <expr> [Space]m  <SID>push_into_marking()
+nnoremap <expr> <C-Space>  <SID>pop_from_marking()
+
+function! s:push_into_marking() abort
+  if !exists('b:markring_position')
+    let b:markring_position = 0
+  else
+    let b:markring_position = (b:markring_position + 1)
+    \                         % len(s:MARK_CHARACTERS)
+  endif
+  let mark = s:MARK_CHARACTERS[b:markring_position]
+  return 'm' . mark
+endfunction
+
+function! s:pop_from_marking() abort
+  let available_marks = join(map(getmarklist(bufnr('%')), 'v:val.mark[1:]'), '')
+  let initial_position = get(b:, 'markring_position', 0)
+  let position = initial_position
+  while 1
+    let mark = s:MARK_CHARACTERS[position]
+    let position = (len(s:MARK_CHARACTERS) + position - 1)
+    \              % len(s:MARK_CHARACTERS)
+    if stridx(available_marks, mark) >= 0
+      let b:markring_position = position
+      return "'" . mark
+    endif
+    if position == initial_position
+      return ''
+    endif
+  endwhile
+endfunction
 
 
 
@@ -1370,6 +1436,7 @@ noremap <LocalLeader>  <Nop>
 
 
 
+
 " Filetypes  {{{1
 " All filetypes   {{{2
 
@@ -1455,9 +1522,7 @@ let g:is_bash = 1
 
 " Vim Script  {{{2
 
-let g:vim_indent = {
-\   "line_continuation": 0,
-\ }
+let g:vim_indent_cont = 0
 
 
 
@@ -1478,8 +1543,6 @@ call accelerate#map('nv', 'e', 'l', 'foldclosed(line(".")) != -1 ? "zo" : "l"')
 
 " exjumplist  {{{2
 
-nmap <Esc><C-j>  <Plug>(exjumplist-next-buffer)
-nmap <Esc><C-k>  <Plug>(exjumplist-previous-buffer)
 nmap <M-C-j>  <Plug>(exjumplist-next-buffer)
 nmap <M-C-k>  <Plug>(exjumplist-previous-buffer)
 
@@ -1502,109 +1565,73 @@ autocmd MyAutoCmd FileType ku
 \ call s:on_FileType_ku()
 
 function! s:on_FileType_ku() abort
-  call ku#default_key_mappings(1)
+  call ku#define_default_ui_key_mappings()
 
-  iunmap <buffer> <C-j>
-  iunmap <buffer> <C-k>
+  nmap <buffer> <Esc>  <Plug>(ku-quit-session)
 
-  nmap <buffer> <Esc><Esc>  <Plug>(ku-cancel)
-  imap <buffer> <Esc><Esc>  <Plug>(ku-cancel)
+  imap <buffer> <expr> <SID>(ku-quit-session-if-empty)
+  \    col('$') <= 2 ? '<Plug>(ku-quit-session)' : ''
+  imap <buffer> <SID>(ku-delete-backward-char)
+  \    <Plug>(ku-delete-backward-char)
+  imap <buffer> <SID>(ku-delete-backward-line)
+  \    <Plug>(ku-delete-backward-line)
+  imap <buffer> <SID>(ku-delete-backward-component)
+  \    <Plug>(ku-delete-backward-component)
 
-  imap <buffer> <expr> <Plug>(ku-%-cancel-when-empty)
-  \    col('$') <= 2 ? '<Plug>(ku-cancel)' : ''
-  inoremap <buffer> <expr> <Plug>(ku-%-delete-backword-char)
-  \        (pumvisible() ? "\<C-e>" : '') . "\<BS>"
-  inoremap <buffer> <expr> <Plug>(ku-%-delete-backword-word)
-  \        (pumvisible() ? "\<C-e>" : '') . "\<C-w>"
-  inoremap <buffer> <expr> <Plug>(ku-%-delete-backword-line)
-  \        (pumvisible() ? "\<C-e>" : '') . "\<C-u>"
-
-  imap <buffer> <BS>
-  \    <Plug>(ku-%-cancel-when-empty)<Plug>(ku-%-delete-backword-char)
-  imap <buffer> <C-w>
-  \    <Plug>(ku-%-cancel-when-empty)<Plug>(ku-%-delete-backword-word)
-  imap <buffer> <C-u>
-  \    <Plug>(ku-%-cancel-when-empty)<Plug>(ku-%-delete-backword-line)
-  imap <buffer> <C-h>  <BS>
+  inoremap <buffer> <script> <BS>
+  \        <SID>(ku-quit-session-if-empty)<SID>(ku-delete-backward-char)
+  inoremap <buffer> <script> <C-h>
+  \        <SID>(ku-quit-session-if-empty)<SID>(ku-delete-backward-char)
+  inoremap <buffer> <script> <C-u>
+  \        <SID>(ku-quit-session-if-empty)<SID>(ku-delete-backward-line)
+  inoremap <buffer> <script> <C-w>
+  \        <SID>(ku-quit-session-if-empty)<SID>(ku-delete-backward-component)
 endfunction
 
 
-call ku#custom_action('common', 'cd', s:SID . 'ku_common_action_my_cd')
-call ku#custom_action('common', 'Yank',
-\                     s:SID . 'ku_common_action_Yank')
-call ku#custom_action('common', 'yank',
-\                     s:SID . 'ku_common_action_yank')
-call ku#custom_action('file', 'open-sudo',
-\                     s:SID . 'ku_file_action_open_sudo')
-call ku#custom_action('file/current', 'open-sudo',
-\                     s:SID . 'ku_file_action_open_sudo')
+nnoremap [Space]k  <Nop>
+nnoremap [Space]ka  :<C-u>call ku#start(ku#source#args#new())<CR>
+nnoremap [Space]kb  :<C-u>call ku#start(ku#source#buffer#new())<CR>
+nnoremap [Space]kf  :<C-u>call ku#start(ku#source#file#new())<CR>
+nnoremap [Space]kg  :<C-u>call ku#start(ku#source#metarw#new('git'))<CR>
+nnoremap [Space]kc
+\        :<C-u>call ku#start(ku#source#file#new(), expand('%:h') . '/')<CR>
+nnoremap [Space]kj  :<C-u>call ku#start(ku#source#jumplist#new())<CR>
+nnoremap [Space]kk  :<C-u>call ku#restart()<CR>
+nnoremap [Space]kh  :<C-u>call ku#start(ku#source#oldfiles#new())<CR>
+nnoremap [Space]kl  :<C-u>call ku#start(<SID>ku_new_list_files_source())<CR>
+nnoremap [Space]km  :<C-u>call ku#start(ku#source#mark#new())<CR>
+nnoremap [Space]kq  :<C-u>call ku#start(ku#source#quickfix#new())<CR>
+nnoremap [Space]kr  :<C-u>call ku#start(ku#source#register#new())<CR>
+nnoremap [Space]ks  :<C-u>call ku#start(ku#source#lsp_symbol#new())<CR>
+nnoremap [Space]kw
+\        :<C-u>call ku#start(ku#source#project#new(expand('~/Sync/works'), ku#source#file#new()))<CR>
+nnoremap [Space]kz  :<C-u>call ku#start(ku#source#fold#new())<CR>
 
-function! s:ku_common_action_my_cd(item) abort
-  if isdirectory(a:item.word)
-    execute 'CD' a:item.word
-  else  " treat a:item as a file name
-    execute 'CD' fnamemodify(a:item.word, ':h')
+
+function! s:ku_new_list_files_source() abort
+  if isdirectory('.git')
+    let name = 'git'
+    let command = [
+    \  'fuzzy-filter', '-l', '1000',
+    \  '--',
+    \  'git', 'ls-files', '--exclude-standard', '-c', '-o',
+    \ ]
+  else
+    let name = 'fd'
+    let command = [
+    \  'fuzzy-filter', '-l', '1000',
+    \  '--',
+    \  'fd', '--type', 'f', '-c', 'never', '--max-results', '10000',
+    \ ]
   endif
+  return ku#source#async#new({
+  \   'name': name,
+  \   'kind': g:ku#kind#file#module,
+  \   'command': command,
+  \   'selector_fn': { line -> { 'word': line } },
+  \ })
 endfunction
-
-function! s:ku_common_action_yank(item) abort
-  call setreg('"', a:item.word, 'c')
-endfunction
-
-function! s:ku_common_action_Yank(item) abort
-  call setreg('"', a:item.word, 'l')
-endfunction
-
-function! s:ku_file_action_open_sudo(item) abort
-  edit `='sudo:/' . fnamemodify(a:item.word, ':p')`
-endfunction
-
-
-call ku#custom_key('common', 'y', 'yank')
-call ku#custom_key('common', 'Y', 'Yank')
-call ku#custom_key('buffer', 'd', 'delete')
-call ku#custom_key('file', 's', 'open-sudo')
-call ku#custom_key('file/current', 's', 'open-sudo')
-call ku#custom_key('metarw/git', '/', 'checkout')
-call ku#custom_key('metarw/git', '?', 'checkout')
-
-
-call ku#custom_prefix('common', '.VIM', expand('~/.vim'))
-call ku#custom_prefix('common', 'HOME', expand('~'))
-call ku#custom_prefix('common', 'VIM', expand('$VIMRUNTIME'))
-call ku#custom_prefix('common', '~', expand('~'))
-if executable('portageq')
-  call ku#custom_prefix('common', 'PORT', system('portageq portdir')[:-2])
-end
-
-
-nmap [Space]k  <Nop>
-nnoremap <silent> [Space]ka  :<C-u>Ku args<CR>
-nnoremap <silent> [Space]kb  :<C-u>Ku buffer<CR>
-nnoremap <silent> [Space]kc  :<C-u>Ku colorscheme<CR>
-nnoremap <silent> [Space]kf  :<C-u>Ku file<CR>
-nnoremap <silent> [Space]kg  :<C-u>Ku metarw/git<CR>
-nnoremap <silent> [Space]kh  :<C-u>Ku history<CR>
-nnoremap <silent> [Space]kj  :<C-u>Ku file/current<CR>
-nnoremap <silent> [Space]kl  :<C-u>Ku file_project<CR>
-nnoremap <silent> [Space]kn  :<C-u>Ku file<CR>~/Sync/Documents/Notes/
-nnoremap <silent> [Space]ko  :<C-u>Ku oldfiles<CR>
-nnoremap <silent> [Space]kq  :<C-u>Ku quickfix<CR>
-nnoremap <silent> [Space]kr  :<C-u>Ku register<CR>
-nnoremap <silent> [Space]ks  :<C-u>Ku source<CR>
-nnoremap <silent> [Space]kt  :<C-u>Ku tags<CR>
-nnoremap <silent> [Space]kw  :<C-u>Ku myproject<CR>
-nnoremap <silent> [Space]kz  :<C-u>Ku fold<CR>
-
-nnoremap <silent> [Space]k/  :<C-u>Ku cmd_mru/search<CR>
-nnoremap <silent> [Space]k:  :<C-u>Ku cmd_mru/cmd<CR>
-nnoremap <silent> [Space]km  :<C-u>Ku file_mru<CR>
-
-nnoremap <silent> [Space]kk  :<C-u>call ku#restart()<CR>
-
-let g:ku_file_mru_file = expand('~/.vim/info/ku/mru')
-let g:ku_file_mru_ignore_pattern = '/$\|/\.git/\|^/\(/\|mnt\|tmp\)'
-let g:ku_file_mru_limit = 1000
 
 
 
@@ -1763,10 +1790,16 @@ let g:quickrun_config = {
 \     'outputter/buffer/opener': 'Split',
 \   },
 \   'c': {
-\     'type': 'c/clang'
+\     'type': 'c/clang',
+\   },
+\   'go': {
+\     'command': 'go',
+\     'exec': '%c run %s:p %a',
+\     'tempfile': '%{tempname()}.go',
+\     'hook/output_encode/encoding': 'utf-8',
 \   },
 \   'objc': {
-\     'type': 'objc/clang'
+\     'type': 'objc/clang',
 \   },
 \   'objc/clang': {
 \     'command': 'clang',
@@ -1780,21 +1813,20 @@ let g:quickrun_config = {
 \     'cmdopt': '-std=c++2b',
 \   },
 \   'dot': {
-\     'exec': ['%c -Tsvg -o %s:p:r.svg %s']
+\     'exec': ['%c -Tsvg -o %s:p:r.svg %s'],
 \   },
 \   'haskell': {
 \     'type': 'haskell/runghc',
+\   },
+\   'haskell/runghc': {
+\     'command': 'runghc',
+\     'tempfile': '%{tempname()}.hs',
 \     'cmdopt': '--ghc-arg=-Wall -Wno-unused-top-binds',
 \   },
-\   'php/hhvm': {
-\     'command': 'hhvm',
-\     'exec': ['%c %a %s']
-\   },
 \   'javascript': {
-\     'type': 'javascript/nodejs'
+\     'type': 'javascript/nodejs',
 \   },
 \   'javascript/nodejs': {
-\     'cmdopt': '--use_strict --harmony',
 \     'command': 'node',
 \     'tempfile': '%{tempname()}.js'
 \   },
@@ -1802,29 +1834,26 @@ let g:quickrun_config = {
 \     'cmdopt': '.',
 \     'command': 'jq',
 \   },
-\   'markdown/marked': {
-\     'outputter': 'null',
-\     'command': 'open',
-\     'cmdopt': '-g',
-\     'exec': '%c %o -a Marked %s'
+\   'lua': {
+\     'type': 'lua/vim',
 \   },
 \   'rust': {
-\     'cmdopt': '-A dead_code --edition 2021',
 \     'command': 'rustc',
+\     'cmdopt': '-A dead_code --edition 2021',
 \     'exec': ['%c %o %s -o %s:p:r', 'RUST_BACKTRACE=1 %s:p:r %a'],
 \     'tempfile': '%{fnamemodify(tempname(), ":r")}.rs',
 \     'hook/shebang/enable': 0,
 \     'hook/sweep/files': '%S:p:r',
 \   },
 \   'sql': {
-\     'type': 'sql/mysql'
+\     'type': 'sql/mysql',
 \   },
 \   'sql/mysql': {
 \     'command': 'mysql',
-\     'exec': ['%c --host 127.0.0.1 --user root %a < %s']
+\     'exec': ['%c --host 127.0.0.1 --user root %a < %s'],
 \   },
 \   'typescript': {
-\     'type': 'typescript/ts-node'
+\     'type': 'typescript/ts-node',
 \   },
 \   'typescript/ts-node': {
 \     'command': 'ts-node',
@@ -1833,8 +1862,8 @@ let g:quickrun_config = {
 \   },
 \   'xdefaults': {
 \     'command': 'mysql',
-\     'exec': ['xrdb -remove', 'xrdb -merge %s', 'xrdb -query']
-\   }
+\     'exec': ['xrdb -remove', 'xrdb -merge %s', 'xrdb -query'],
+\   },
 \ }
 
 nmap <Leader>r  <Plug>(quickrun)

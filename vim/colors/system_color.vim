@@ -51,26 +51,28 @@ let s:NR8_COLOR_TABLE = {
 \   'white': 7,
 \ }
 
-let s:GUI_COLOR_TABLE = {
-\   'foreground': '#e8eaeb',
-\   'background': '#21272b',
-\   'black': '#363f45',
-\   'darkred': '#f7554d',
-\   'darkgreen': '#10a184',
-\   'darkyellow': '#c97a12',
-\   'darkblue': '#1c95e6',
-\   'darkmagenta': '#f74d90',
-\   'darkcyan': '#9d77fc',
-\   'lightgray': '#869096',
-\   'darkgray': '#657078',
-\   'lightred': '#ffb6b3',
-\   'lightgreen': '#38e0bf',
-\   'lightyellow': '#f7ba6a',
-\   'lightblue': '#8dd0fc',
-\   'lightmagenta': '#fcb3d0',
-\   'lightcyan': '#cfbdff',
-\   'white': '#c5c6c7',
-\ }
+if !exists('g:system_color_gui_color_table')
+  let g:system_color_gui_color_table = {
+  \   'foreground': 'White',
+  \   'background': 'Black',
+  \   'black': 'Black',
+  \   'darkred': 'DarkRed',
+  \   'darkgreen': 'DarkGreen',
+  \   'darkyellow': 'DarkYellow',
+  \   'darkblue': 'DarkBlue',
+  \   'darkmagenta': 'DarkMagenta',
+  \   'darkcyan': 'DarkCyan',
+  \   'lightgray': 'Gray',
+  \   'darkgray': 'DarkGray',
+  \   'lightred': 'Red',
+  \   'lightgreen': 'Green',
+  \   'lightyellow': 'Yellow',
+  \   'lightblue': 'Blue',
+  \   'lightmagenta': 'Magenta',
+  \   'lightcyan': 'Cyan',
+  \   'white': 'White',
+  \ }
+endif
 
 function! s:run(definitions) abort
   for definition in a:definitions
@@ -126,7 +128,7 @@ function! s:term_color(color) abort
 endfunction
 
 function! s:gui_color(color) abort
-  return get(s:GUI_COLOR_TABLE, a:color, 'NONE')
+  return get(g:system_color_gui_color_table, a:color, 'NONE')
 endfunction
 
 call s:run([

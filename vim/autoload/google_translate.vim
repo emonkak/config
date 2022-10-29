@@ -1,30 +1,30 @@
-let g:google_transale_tkk = get(g:, 'g:google_transale_tkk', '409266.1674047641')
+let s:TKK = '409266.1674047641'
 
-function! google_translate#translate(text, from, to)
+function! google_translate#translate(text, source_lang, target_lang) abort
   let url = 'https://translate.google.com/translate_a/single'
-  let options = {
+  let query = {
   \   'client': 't',
-  \   'sl': a:from,
-  \   'tl': a:to,
+  \   'sl': a:source_lang,
+  \   'tl': a:target_lang,
   \   'dt': 't',
   \   'q': a:text,
   \   'tk': google_translate#token(a:text),
   \ }
-  let response = webapi#http#get(url, options)
+  let response = webapi#http#get(url, query)
 
   if response.status != 200
     throw printf("%d %s: %s", response.status, response.message, url)
   endif
 
-  let result = webapi#json#decode(response.content)
-  return type(result[0]) == type([])
-  \ ? join(map(result[0], 'v:val[0]'), '')
+  let body = webapi#json#decode(response.content)
+  return type(body[0]) == v:t_list
+  \ ? join(map(body[0], 'v:val[0]'), '')
   \ : ''
 endfunction
 
 function! google_translate#token(text) abort
   let a = split(a:text, '.\zs')
-  let b = g:google_transale_tkk
+  let b = s:TKK
   let c = split(b, '\.')
   let d = str2nr(c[0])
   let e = []
