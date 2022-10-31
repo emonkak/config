@@ -1,3 +1,6 @@
+# Makefile to manage vim packages
+# Variables  {{{1
+
 PACKAGE_URLS=\
   https://github.com/Julian/vim-textobj-variable-segment.git \
   https://github.com/Shougo/vimproc.git \
@@ -26,7 +29,6 @@ PACKAGE_URLS=\
   https://github.com/kana/vim-scratch.git \
   https://github.com/kana/vim-skeleton.git \
   https://github.com/kana/vim-smartinput.git \
-  https://github.com/thinca/vim-ref.git \
   https://github.com/kana/vim-smartword.git \
   https://github.com/kana/vim-submode.git \
   https://github.com/kana/vim-textobj-entire.git \
@@ -44,48 +46,80 @@ PACKAGE_URLS=\
   https://github.com/rust-lang/rust.vim.git \
   https://github.com/thinca/vim-qfreplace.git \
   https://github.com/thinca/vim-quickrun.git \
+  https://github.com/thinca/vim-ref.git \
   https://github.com/thinca/vim-textobj-between.git \
   https://github.com/tyru/operator-camelize.vim.git
-PACKAGE_NAMES=$(foreach url, \
-  $(PACKAGE_URLS), \
-  $(call PackageNameFromUrl,$(url)))
 
-Empty=
-SPACE=$(EMPTY) $(EMPTY)
+PACKAGES=$(foreach url,$(PACKAGE_URLS),$(call PackageNameFromUrl,$(url)))
 
-ifndef $(MAKEFLAGS)
+vim_auto_programming_BRANCH=neovim
+
+ifndef MAKEFLAGS
 MAKEFLAGS=--output-sync=target --jobs 4
 endif
 
+
+
+
+# Functions  {{{1
+
 PackageNameFromUrl=$(notdir $(patsubst %.git,%,$(1)))
+PackageUrlFromName=$($(call NormalizePackageName,$(1))_URL)
+PackageBranchFromName=$($(call NormalizePackageName,$(1))_BRANCH)
+NormalizePackageName=$(subst .,_,$(subst -,_,$(1)))
 
-define GenerateRule  # (url, dir)
-install: $(2)
-$(2):
-	@echo 'Installing' $(1) '...'
-	@git clone '$(1)' '$$@'
-update: $(2) update/$(2)
-update/$(2):
-	@echo 'Updating' $(1) '...'
-	@git --git-dir '$(2)/.git' --work-tree '$(2)' pull --rebase
-.PHONY: install update update/$(2)
-
-endef
-
-define GenerateRulesFromUrl  # (urls)
 $(foreach url, \
-  $(1), \
-  $(call GenerateRule,$(url),$(call PackageNameFromUrl,$(url))))
+  $(PACKAGE_URLS), \
+  $(eval \
+    $(call NormalizePackageName,$(call PackageNameFromUrl,$(url)))_URL=$(url)))
+
+EMPTY=
+SPACE=$(EMPTY) $(EMPTY)
+
+
+
+
+# Rules  {{{1
+
+define GenerateRule  # (name, url, branch)
+install: $(1)
+
+$(1):
+ifneq ($(3),)
+	@echo 'Installing' '$(1)@$(3)' '...'
+	@git clone --branch '$(3)' '$(2)' '$(1)'
+else
+	@echo 'Installing' '$(1)' '...'
+	@git clone '$(2)' '$(1)'
+endif
+
+update: $(1) update/$(1)
+
+update/$(1):
+	@echo 'Updating' $(1) '...'
+	@git --git-dir '$(1)/.git' --work-tree '$(1)' pull --rebase
+
+.PHONY: install update update/$(1)
+
 endef
+
+$(eval \
+  $(foreach name, \
+    $(PACKAGES), \
+    $(call GenerateRule,$(name),$(call PackageUrlFromName,$(name)),$(call PackageBranchFromName,$(name)))))
 
 all: install
 
-$(eval $(call GenerateRulesFromUrl,$(PACKAGE_URLS)))
-
 list:
-	@echo -e $(subst $(SPACE),"\n",$(sort $(PACKAGE_NAMES)))
+	@echo -e $(subst $(SPACE),\n,$(sort $(PACKAGES)))
 
 orphans:
-	@echo -e $(subst $(SPACE),\n,$(filter-out $(PACKAGE_NAMES) $(MAKEFILE_LIST),$(wildcard *)))
+	@echo -e $(subst $(SPACE),\n,$(filter-out $(PACKAGES) $(MAKEFILE_LIST),$(wildcard *)))
 
-.PHONY: list orphans
+.PHONY: all list orphans
+
+
+
+
+# __END__  {{{1
+# vim: foldmethod=marker

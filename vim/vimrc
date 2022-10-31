@@ -111,9 +111,6 @@ if exists('+clipboard')
   if &clipboard =~# '\<autoselect\>'
     set clipboard& clipboard-=autoselect clipboard+=autoselectml
   endif
-  if has('unnamedplus')
-    set clipboard+=unnamedplus
-  endif
 endif
 set cmdheight=1
 set complete& complete-=i complete-=t
@@ -1244,17 +1241,18 @@ endfunction
 " Text objects  {{{2
 
 " Synonym for <>
-onoremap aa  a>
-vnoremap aa  a>
+omap aa  <Plug>(surround-textobj:>>
+vmap aa  <Plug>(surround-textobj:>>
 onoremap ia  i>
 vnoremap ia  i>
 
 
 " Synonym for []
-onoremap ar  a]
-vnoremap ar  a]
+omap ar  <Plug>(surround-textobj:]>
+vmap ar  <Plug>(surround-textobj:]>
 onoremap ir  i]
 vnoremap ir  i]
+
 
 
 " Select the last changed text
@@ -1592,33 +1590,34 @@ endfunction
 nnoremap [Space]k  <Nop>
 nnoremap [Space]ka  :<C-u>call ku#start(ku#source#args#new())<CR>
 nnoremap [Space]kb  :<C-u>call ku#start(ku#source#buffer#new())<CR>
+nnoremap [Space]kd  :<C-u>call ku#start(ku#source#lsp_symbol#new())<CR>
 nnoremap [Space]kf  :<C-u>call ku#start(ku#source#file#new())<CR>
 nnoremap [Space]kg  :<C-u>call ku#start(ku#source#metarw#new('git'))<CR>
 nnoremap [Space]kc
 \        :<C-u>call ku#start(ku#source#file#new(), expand('%:h') . '/')<CR>
 nnoremap [Space]kj  :<C-u>call ku#start(ku#source#jumplist#new())<CR>
 nnoremap [Space]kk  :<C-u>call ku#restart()<CR>
-nnoremap [Space]kh  :<C-u>call ku#start(ku#source#oldfiles#new())<CR>
 nnoremap [Space]kl  :<C-u>call ku#start(<SID>ku_new_list_files_source())<CR>
-nnoremap [Space]km  :<C-u>call ku#start(ku#source#mark#new())<CR>
+nnoremap [Space]km  :<C-u>call ku#start(ku#source#oldfiles#new())<CR>
 nnoremap [Space]kq  :<C-u>call ku#start(ku#source#quickfix#new())<CR>
 nnoremap [Space]kr  :<C-u>call ku#start(ku#source#register#new())<CR>
-nnoremap [Space]ks  :<C-u>call ku#start(ku#source#lsp_symbol#new())<CR>
+nnoremap [Space]ks  :<C-u>call ku#start(ku#source#spell#new())<CR>
 nnoremap [Space]kw
 \        :<C-u>call ku#start(ku#source#project#new(expand('~/Sync/works'), ku#source#file#new()))<CR>
 nnoremap [Space]kz  :<C-u>call ku#start(ku#source#fold#new())<CR>
+nnoremap [Space]k'  :<C-u>call ku#start(ku#source#mark#new())<CR>
 
 
 function! s:ku_new_list_files_source() abort
   if isdirectory('.git')
-    let name = 'git'
+    let name = 'async/git'
     let command = [
     \  'fuzzy-filter', '-l', '1000',
     \  '--',
     \  'git', 'ls-files', '--exclude-standard', '-c', '-o',
     \ ]
   else
-    let name = 'fd'
+    let name = 'async/fd'
     let command = [
     \  'fuzzy-filter', '-l', '1000',
     \  '--',
@@ -2102,6 +2101,15 @@ let g:submode_timeout = 0
 
 map s  <Plug>(surround-operator-add)
 map S  <Plug>(surround-operator-add)$
+
+" A textobj for a quote string without leading or trailing white spaces. These
+" mappings are included it by default.
+omap a'  <Plug>(surround-textobj-a:')
+vmap a'  <Plug>(surround-textobj-a:')
+omap a"  <Plug>(surround-textobj-a:")
+vmap a"  <Plug>(surround-textobj-a:")
+omap a`  <Plug>(surround-textobj-a:`)
+vmap a`  <Plug>(surround-textobj-a:`)
 
 
 

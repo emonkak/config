@@ -57,7 +57,7 @@
 	rs = reset --soft
 	s = show
 	st = status --branch
-	sw = swtich
+	sw = switch
 
 	show-files = diff-tree --no-commit-id --name-only -r
 	fix = commit --amend --verbose
