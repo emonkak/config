@@ -10,6 +10,7 @@ app-editors/vscodium ~amd64
 app-emulation/genymotion-bin ~amd64
 app-i18n/skk-jisyo ~amd64
 app-i18n/skktools ~amd64
+app-misc/nnn ~amd64
 app-misc/tmux ~amd64
 app-misc/vifm ~amd64
 app-misc/yq ~amd64

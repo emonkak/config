@@ -32,6 +32,7 @@ app-misc/delta
 app-misc/evtest
 app-misc/jq
 app-misc/mfiler3
+app-misc/nnn
 app-misc/ranger
 app-misc/ticker
 app-misc/tmux
