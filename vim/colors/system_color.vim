@@ -74,7 +74,7 @@ if !exists('g:system_color_gui_color_table')
   \ }
 endif
 
-function! s:run(definitions) abort
+function! s:highlight_all(definitions) abort
   for definition in a:definitions
     call s:highlight(definition)
   endfor
@@ -131,7 +131,7 @@ function! s:gui_color(color) abort
   return get(g:system_color_gui_color_table, a:color, 'NONE')
 endfunction
 
-call s:run([
+call s:highlight_all([
 \   { 'group': 'ColorColumn', 'bg': 'black' },
 \   { 'group': 'Comment', 'attr': 'i', 'fg': 'lightgray' },
 \   { 'group': 'Conceal', 'fg': 'darkgray' },

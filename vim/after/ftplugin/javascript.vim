@@ -1,8 +1,12 @@
 setlocal cinoptions-=(0
+setlocal expandtab
 setlocal foldexpr=JavascriptFold(v:lnum)
 setlocal foldmethod=expr
 setlocal iskeyword+=$
 setlocal iskeyword-=58
+setlocal shiftwidth=4
+setlocal softtabstop=4
+setlocal tabstop=4
 
 function! JavascriptFold(lnum) abort
   let current = getline(a:lnum)
@@ -29,6 +33,10 @@ endif
 
 let b:undo_ftplugin .= 'setlocal'
 \                    . ' cinoptions<'
+\                    . ' expandtab<'
 \                    . ' foldexpr<'
 \                    . ' foldmethod<'
 \                    . ' iskeyword<'
+\                    . ' shiftwidth<'
+\                    . ' softtabstop<'
+\                    . ' tabstop<'

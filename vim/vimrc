@@ -106,7 +106,6 @@ set viminfo^='1000 viminfo-='100
 
 " User Interface  {{{2
 
-set backspace=indent,eol,start
 if exists('+clipboard')
   if &clipboard =~# '\<autoselect\>'
     set clipboard& clipboard-=autoselect clipboard+=autoselectml
@@ -418,7 +417,6 @@ augroup END
 
 call altercmd#load()
 call arpeggio#load()
-call metarw#define_wrapper_commands(0)
 
 let g:mapleader = ','
 let g:maplocalleader = '.'
@@ -459,12 +457,12 @@ let s:GREPPRGS = [
 \ ]
 
 function! s:toggle_grepprg() abort
-  let i = (index(s:GREPPRGS, &grepprg) + 1) % len(s:GREPPRGS)
-  let &grepprg = s:GREPPRGS[i]
-  echo &grepprg
+  let i = (index(s:GREPPRGS, &l:grepprg) + 1) % len(s:GREPPRGS)
+  let &l:grepprg = s:GREPPRGS[i]
+  echo &l:grepprg
 endfunction
 
-autocmd MyAutoCmd BufReadPost,VimEnter *
+autocmd MyAutoCmd BufNewFile,BufReadPost *
 \ let &l:grepprg = finddir('.git', expand('%:p:h') . ';') != ''
 \   ? s:GREPPRGS[0]
 \   : s:GREPPRGS[1]
@@ -483,7 +481,6 @@ function! s:make(command, window_command, args) abort
   let original_winnr = winnr()
 
   execute a:command . '!' join(a:args)
-
   execute a:window_command
 
   execute original_winnr 'wincmd w'
@@ -537,10 +534,8 @@ function! s:cmd_BufferSweap(is_banged) abort
   for bufnr in bufnrs
     silent execute bufnr 'bdelete' . (a:is_banged ? '!' : '')
   endfor
-  if len(bufnrs) == 0
-    echo "No buffer is deleted"
-  elseif len(bufnrs) == 1
-    echo '1 buffer is deleted'
+  if len(bufnrs) <= 1
+    echo len(bufnrs) 'buffer is deleted'
   else
     echo len(bufnrs) 'buffers are deleted'
   endif
@@ -580,19 +575,6 @@ autocmd MyAutoCmd TabEnter *
 
 autocmd MyAutoCmd DirChanged *
 \ let t:cwd = getcwd()
-
-
-
-
-" Complete functions  {{{2
-
-function! s:complete_cdpath(arglead, cmdline, cursorpos) abort
-  let paths = globpath(&cdpath,
-  \                    join(split(a:cmdline, '\s', 1)[1:], ' ') . '*/',
-  \                    0,
-  \                    1)
-  return map(uniq(sort(paths)), 'v:val[:-2]')
-endfunction
 
 
 
@@ -656,7 +638,9 @@ endfunction
 
 " Reverse  {{{2
 
-command! -bar -range=% Reverse  <line1>,<line2>g/^/m<line1>-1 | nohlsearch
+command! -bar -range=% Reverse
+\   <line1>,<line2>global/^/m<line1>-1
+\ | nohlsearch
 
 
 
@@ -788,6 +772,18 @@ command! -bar -nargs=* MaybeVertical
 AlterCommand sp[lit]  Split
 AlterCommand h[elp]  Help
 AlterCommand new  New
+
+
+
+
+" Utilities  {{{1
+function! s:complete_cdpath(arglead, cmdline, cursorpos) abort  "{{{2
+  let paths = globpath(&cdpath,
+  \                    join(split(a:cmdline, '\s', 1)[1:], ' ') . '*/',
+  \                    0,
+  \                    1)
+  return map(uniq(sort(paths)), 'v:val[:-2]')
+endfunction
 
 
 
@@ -1206,7 +1202,7 @@ let s:MARK_CHARACTERS = [
 nnoremap <expr> [Space]m  <SID>push_into_marking()
 nnoremap <expr> <C-Space>  <SID>pop_from_marking()
 
-function! s:push_into_marking() abort
+function! s:push_into_marking() abort  "{{{
   if !exists('b:markring_position')
     let b:markring_position = 0
   else
@@ -1215,9 +1211,9 @@ function! s:push_into_marking() abort
   endif
   let mark = s:MARK_CHARACTERS[b:markring_position]
   return 'm' . mark
-endfunction
+endfunction  "}}}
 
-function! s:pop_from_marking() abort
+function! s:pop_from_marking() abort  "{{{
   let available_marks = join(map(getmarklist(bufnr('%')), 'v:val.mark[1:]'), '')
   let initial_position = get(b:, 'markring_position', 0)
   let position = initial_position
@@ -1233,7 +1229,7 @@ function! s:pop_from_marking() abort
       return ''
     endif
   endwhile
-endfunction
+endfunction  "}}}
 
 
 
@@ -1241,15 +1237,15 @@ endfunction
 " Text objects  {{{2
 
 " Synonym for <>
-omap aa  <Plug>(surround-textobj:>>
-vmap aa  <Plug>(surround-textobj:>>
+onoremap aa  a>
+vnoremap aa  a>
 onoremap ia  i>
 vnoremap ia  i>
 
 
 " Synonym for []
-omap ar  <Plug>(surround-textobj:]>
-vmap ar  <Plug>(surround-textobj:]>
+onoremap ar  a]
+vnoremap ar  a]
 onoremap ir  i]
 vnoremap ir  i]
 
@@ -1594,7 +1590,7 @@ nnoremap [Space]kd  :<C-u>call ku#start(ku#source#lsp_symbol#new())<CR>
 nnoremap [Space]kf  :<C-u>call ku#start(ku#source#file#new())<CR>
 nnoremap [Space]kg  :<C-u>call ku#start(ku#source#metarw#new('git'))<CR>
 nnoremap [Space]kc
-\        :<C-u>call ku#start(ku#source#file#new(), expand('%:h') . '/')<CR>
+\        :<C-u>call ku#start(ku#source#file#new(), expand('%:h:s?^\.$??:s?.$?&/?'))<CR>
 nnoremap [Space]kj  :<C-u>call ku#start(ku#source#jumplist#new())<CR>
 nnoremap [Space]kk  :<C-u>call ku#restart()<CR>
 nnoremap [Space]kl  :<C-u>call ku#start(<SID>ku_new_list_files_source())<CR>
@@ -1656,12 +1652,18 @@ function! s:on_lsp_buffer_enabled() abort
 
   nmap <buffer> <silent> K  <Plug>(lsp-hover)
 
-  nnoremap <buffer> <LocalLeader>l  <Nop>
-  nmap <buffer> <silent> <LocalLeader>la  <Plug>(lsp-code-action)
-  nmap <buffer> <silent> <LocalLeader>ld  <Plug>(lsp-definition)
-  nmap <buffer> <silent> <LocalLeader>li  <Plug>(lsp-implementation)
-  nmap <buffer> <silent> <LocalLeader>lr  <Plug>(lsp-references)
-  nmap <buffer> <silent> <LocalLeader>lt  <Plug>(lsp-type-definition)
+  nmap <buffer> <silent> <LocalLeader>S  <Plug>(lsp-workspace-symbol-search)
+  nmap <buffer> <silent> <LocalLeader>a  <Plug>(lsp-code-action)
+  nmap <buffer> <silent> <LocalLeader>d  <Plug>(lsp-definition)
+  nmap <buffer> <silent> <LocalLeader>i  <Plug>(lsp-implementation)
+  nmap <buffer> <silent> <LocalLeader>n  <Plug>(lsp-rename)
+  nmap <buffer> <silent> <LocalLeader>r  <plug>(lsp-references)
+  nmap <buffer> <silent> <LocalLeader>s  <plug>(lsp-document-symbol-search)
+  nmap <buffer> <silent> <LocalLeader>t  <Plug>(lsp-type-definition)
+
+  if &l:filetype ==# 'rust' || &l:filetype == 'go'
+    autocmd! BufWritePre <buffer>  LspDocumentFormatSync
+  endif
 endfunction
 
 autocmd MyAutoCmd User lsp_setup
@@ -1684,19 +1686,8 @@ function! s:on_lsp_setup() abort
     \   )},
     \   'allowlist': ['haskell'],
     \ })
-  elseif executable('rls')
-    call lsp#register_server({
-    \   'name': 'rust-analyzer',
-    \   'cmd': {server_info -> ['rust-analyzer']},
-    \   'root_uri': {server_info -> lsp#utils#path_to_uri(
-    \      lsp#utils#find_nearest_parent_file_directory(
-    \        lsp#utils#get_buffer_path(),
-    \        ['Cargo.toml']
-    \      )
-    \   )},
-    \   'allowlist': ['rust'],
-    \ })
-  elseif executable('rust-analyzer')
+  endif
+  if executable('rust-analyzer')
     call lsp#register_server({
     \   'name': 'rust-analyzer',
     \   'cmd': {server_info -> [
@@ -1710,6 +1701,22 @@ function! s:on_lsp_setup() abort
     \      )
     \   )},
     \   'allowlist': ['rust'],
+    \ })
+  endif
+  if executable('typescript-language-server')
+    call lsp#register_server({
+    \   'name': 'typescript-language-server',
+    \   'cmd': {server_info -> [
+    \     'typescript-language-server',
+    \     '--stdio',
+    \   ]},
+    \   'root_uri': {server_info -> lsp#utils#path_to_uri(
+    \      lsp#utils#find_nearest_parent_file_directory(
+    \        lsp#utils#get_buffer_path(),
+    \        ['package.json']
+    \      )
+    \   )},
+    \   'allowlist': ['javascript', 'javascriptreact', 'typescript', 'typescriptreact'],
     \ })
   endif
 endfunction
