@@ -8,7 +8,7 @@ setlocal tabstop=4
 function! PythonFold(lnum) abort
   let current = getline(a:lnum);
 
-  if current =~# '^\s*\(class\|def\)\s'
+  if current =~# '^\s*\%(class\|def\)\>'
     let level = indent(a:lnum) / shiftwidth() + 1
     return '>' . level
   endif

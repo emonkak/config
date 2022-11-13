@@ -13,7 +13,7 @@ function! LuaFold(lnum) abort
     return level > 2 ? '=' : '<' . level
   endif
 
-  if current =~# '^\s*\(local\s*\)\?function\s\+\h'
+  if current =~# '^\s*\(local\s*\)\?function\>'
   \  && current !~# '\send\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
     return level > 2 ? '=' : '>' . level

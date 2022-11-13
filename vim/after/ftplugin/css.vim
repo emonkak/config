@@ -8,7 +8,7 @@ setlocal tabstop=2
 function! CssFold(lnum) abort
   let current = getline(a:lnum)
 
-  if current =~# '^\s*@\(layer\|media\)'
+  if current =~# '^\s*@\(layer\|media\)\>'
   \  && current !~# '[;}]\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
     return level > 2 ? '=' : '>' . level

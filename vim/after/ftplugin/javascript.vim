@@ -16,7 +16,7 @@ function! JavascriptFold(lnum) abort
     return level > 2 ? '=' : '<' . level
   endif
 
-  if current =~# '^\s*\%(export\s\+\%(default\s\+\)\?\)\?\%(class\|\%(async\s\+\)\?function\)\s\+\h'
+  if current =~# '^\s*\%(export\s\+\%(default\s\+\)\?\)\?\%(class\|\%(async\s\+\)\?function\>\)'
   \  && current !~# ';\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
     return level > 2 ? '=' : '>' . level

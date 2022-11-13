@@ -14,8 +14,8 @@ function! TypescriptFold(lnum) abort
              \ . '\%(\%(export\s\+\%(default\s\+\)\?\)\?\%(\%(abstract\s\+\)\?class\|\%(async\s\+\)\?function\|interface\|module\)'
              \ . '\|\%(\%(static\|private\|protected\|public\|async\|get\|set\)\s\+\)*\*\?\%(\h\+\|\[.\{-}\]\)\s*\%(<.\+>\)\?\s*('
              \ . '\|\%(\%(static\|private\|protected\|public\)\s\+\)\?\h\+\s*=\s*\(async\s*\)\?('
-             \ . '\|\%(declare\s\+\)\%(module\|namespace\|interface\|class\)\s\+'
-             \ . '\)'
+             \ . '\|\%(declare\s\+\)\%(module\|namespace\|interface\|class\)'
+             \ . '\)\>'
              \ . '[^;]*$'
     let level = indent(a:lnum) / shiftwidth() + 1
     return level > 2 ? '=' : '>' . level

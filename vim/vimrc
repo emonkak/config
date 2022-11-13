@@ -17,7 +17,10 @@ endif
 
 filetype plugin indent on
 
-let s:SID = expand('<SID>')
+function! s:SID_PREFIX()
+   return matchstr(expand('<sfile>'), '<SNR>\d\+_')
+endfunction
+let s:SID = s:SID_PREFIX()
 
 
 
@@ -37,36 +40,34 @@ endif
 
 " Color and Font  {{{2
 
-let g:system_color_gui_color_table = {
-\   'foreground': '#e8eaeb',
-\   'background': '#21272b',
-\   'black': '#363f45',
-\   'darkred': '#f7554d',
-\   'darkgreen': '#10a184',
-\   'darkyellow': '#c97a12',
-\   'darkblue': '#1c95e6',
-\   'darkmagenta': '#f74d90',
-\   'darkcyan': '#9d77fc',
-\   'lightgray': '#869096',
-\   'darkgray': '#657078',
-\   'lightred': '#ffb6b3',
-\   'lightgreen': '#38e0bf',
-\   'lightyellow': '#f7ba6a',
-\   'lightblue': '#8dd0fc',
-\   'lightmagenta': '#fcb3d0',
-\   'lightcyan': '#cfbdff',
-\   'white': '#c5c6c7',
-\ }
-
 if (1 < &t_Co || has('gui')) && has('syntax') && !exists('g:syntax_on')
   syntax enable
   if !exists('g:colors_name')
+    let g:system_color_gui_color_table = {
+    \   'foreground': '#e8eaeb',
+    \   'background': '#21272b',
+    \   'black': '#363f45',
+    \   'darkred': '#f7554d',
+    \   'darkgreen': '#10a184',
+    \   'darkyellow': '#c97a12',
+    \   'darkblue': '#1c95e6',
+    \   'darkmagenta': '#f74d90',
+    \   'darkcyan': '#9d77fc',
+    \   'lightgray': '#869096',
+    \   'darkgray': '#657078',
+    \   'lightred': '#ffb6b3',
+    \   'lightgreen': '#38e0bf',
+    \   'lightyellow': '#f7ba6a',
+    \   'lightblue': '#8dd0fc',
+    \   'lightmagenta': '#fcb3d0',
+    \   'lightcyan': '#cfbdff',
+    \   'white': '#c5c6c7',
+    \ }
     colorscheme system_color
   endif
 endif
 
 if has('gui_running')
-  set guicursor=a:blinkwait4000-blinkon1500-blinkoff500
   if has('gui_gtk')
     set guifont=Monospace\ 10
     set linespace=0
@@ -82,6 +83,7 @@ if has('gui_running')
     set renderoptions=type:directx,renmode:5
     set linespace=5
   endif
+  set guicursor=a:blinkwait4000-blinkon1500-blinkoff500
   set guioptions=AcgM
 endif
 
@@ -158,176 +160,49 @@ set nowrapscan
 set wildmenu
 set wildmode=full
 
-if exists('*setcellwidths')
+if has('linux') && exists('*setcellwidths')
   set ambiwidth=single
   " setcellwidths {{{
-  call setcellwidths([
-  \   [0x0101, 0x0101, 2],
-  \   [0x0111, 0x0111, 2],
-  \   [0x0113, 0x0113, 2],
-  \   [0x011b, 0x011b, 2],
-  \   [0x0126, 0x0127, 2],
-  \   [0x012b, 0x012b, 2],
-  \   [0x0131, 0x0133, 2],
-  \   [0x0138, 0x0138, 2],
-  \   [0x013f, 0x0142, 2],
-  \   [0x0144, 0x0144, 2],
-  \   [0x0148, 0x014b, 2],
-  \   [0x014d, 0x014d, 2],
-  \   [0x0152, 0x0153, 2],
-  \   [0x0166, 0x0167, 2],
-  \   [0x016b, 0x016b, 2],
-  \   [0x01ce, 0x01ce, 2],
-  \   [0x01d0, 0x01d0, 2],
-  \   [0x01d2, 0x01d2, 2],
-  \   [0x01d4, 0x01d4, 2],
-  \   [0x01d6, 0x01d6, 2],
-  \   [0x01d8, 0x01d8, 2],
-  \   [0x01da, 0x01da, 2],
-  \   [0x01dc, 0x01dc, 2],
-  \   [0x0251, 0x0251, 2],
-  \   [0x0261, 0x0261, 2],
-  \   [0x02c4, 0x02c4, 2],
-  \   [0x02c7, 0x02c7, 2],
-  \   [0x02c9, 0x02cb, 2],
-  \   [0x02cd, 0x02cd, 2],
-  \   [0x02d0, 0x02d0, 2],
-  \   [0x02d8, 0x02db, 2],
-  \   [0x02dd, 0x02dd, 2],
-  \   [0x02df, 0x02df, 2],
-  \   [0x0300, 0x036f, 2],
-  \   [0x0391, 0x03a1, 2],
-  \   [0x03a3, 0x03a9, 2],
-  \   [0x03b1, 0x03c1, 2],
-  \   [0x03c3, 0x03c9, 2],
-  \   [0x0401, 0x0401, 2],
-  \   [0x0410, 0x044f, 2],
-  \   [0x0451, 0x0451, 2],
-  \   [0x2010, 0x2010, 2],
-  \   [0x2013, 0x2015, 2],
-  \   [0x2016, 0x2016, 2],
-  \   [0x2018, 0x2018, 2],
-  \   [0x2019, 0x2019, 2],
-  \   [0x201c, 0x201c, 2],
-  \   [0x201d, 0x201d, 2],
-  \   [0x2020, 0x2022, 2],
-  \   [0x2024, 0x2027, 2],
-  \   [0x2030, 0x2030, 2],
-  \   [0x2032, 0x2033, 2],
-  \   [0x2035, 0x2035, 2],
-  \   [0x203b, 0x203b, 2],
-  \   [0x203e, 0x203e, 2],
-  \   [0x2074, 0x2074, 2],
-  \   [0x207f, 0x207f, 2],
-  \   [0x2081, 0x2084, 2],
-  \   [0x20ac, 0x20ac, 2],
-  \   [0x2103, 0x2103, 2],
-  \   [0x2105, 0x2105, 2],
-  \   [0x2109, 0x2109, 2],
-  \   [0x2113, 0x2113, 2],
-  \   [0x2116, 0x2116, 2],
-  \   [0x2121, 0x2122, 2],
-  \   [0x2126, 0x2126, 2],
-  \   [0x212b, 0x212b, 2],
-  \   [0x2153, 0x2154, 2],
-  \   [0x215b, 0x215e, 2],
-  \   [0x2160, 0x216b, 2],
-  \   [0x2170, 0x2179, 2],
-  \   [0x2189, 0x2189, 2],
-  \   [0x2190, 0x2194, 2],
-  \   [0x2195, 0x2199, 2],
-  \   [0x21b8, 0x21b9, 2],
-  \   [0x21d2, 0x21d2, 2],
-  \   [0x21d4, 0x21d4, 2],
-  \   [0x21e7, 0x21e7, 2],
-  \   [0x2200, 0x2200, 2],
-  \   [0x2202, 0x2203, 2],
-  \   [0x2207, 0x2208, 2],
-  \   [0x220b, 0x220b, 2],
-  \   [0x220f, 0x220f, 2],
-  \   [0x2211, 0x2211, 2],
-  \   [0x2215, 0x2215, 2],
-  \   [0x221a, 0x221a, 2],
-  \   [0x221d, 0x2220, 2],
-  \   [0x2223, 0x2223, 2],
-  \   [0x2225, 0x2225, 2],
-  \   [0x2227, 0x222c, 2],
-  \   [0x222e, 0x222e, 2],
-  \   [0x2234, 0x2237, 2],
-  \   [0x223c, 0x223d, 2],
-  \   [0x2248, 0x2248, 2],
-  \   [0x224c, 0x224c, 2],
-  \   [0x2252, 0x2252, 2],
-  \   [0x2260, 0x2261, 2],
-  \   [0x2264, 0x2267, 2],
-  \   [0x226a, 0x226b, 2],
-  \   [0x226e, 0x226f, 2],
-  \   [0x2282, 0x2283, 2],
-  \   [0x2286, 0x2287, 2],
-  \   [0x2295, 0x2295, 2],
-  \   [0x2299, 0x2299, 2],
-  \   [0x22a5, 0x22a5, 2],
-  \   [0x22bf, 0x22bf, 2],
-  \   [0x2312, 0x2312, 2],
-  \   [0x2460, 0x249b, 2],
-  \   [0x249c, 0x24e9, 2],
-  \   [0x24eb, 0x24ff, 2],
-  \   [0x2580, 0x258f, 2],
-  \   [0x2592, 0x2595, 2],
-  \   [0x25a0, 0x25a1, 2],
-  \   [0x25a3, 0x25a9, 2],
-  \   [0x25b2, 0x25b3, 2],
-  \   [0x25b6, 0x25b6, 2],
-  \   [0x25b7, 0x25b7, 2],
-  \   [0x25bc, 0x25bd, 2],
-  \   [0x25c0, 0x25c0, 2],
-  \   [0x25c1, 0x25c1, 2],
-  \   [0x25c6, 0x25c8, 2],
-  \   [0x25cb, 0x25cb, 2],
-  \   [0x25ce, 0x25d1, 2],
-  \   [0x25e2, 0x25e5, 2],
-  \   [0x25ef, 0x25ef, 2],
-  \   [0x2605, 0x2606, 2],
-  \   [0x2609, 0x2609, 2],
-  \   [0x260e, 0x260f, 2],
-  \   [0x261c, 0x261c, 2],
-  \   [0x261e, 0x261e, 2],
-  \   [0x2640, 0x2640, 2],
-  \   [0x2642, 0x2642, 2],
-  \   [0x2660, 0x2661, 2],
-  \   [0x2663, 0x2665, 2],
-  \   [0x2667, 0x266a, 2],
-  \   [0x266c, 0x266d, 2],
-  \   [0x266f, 0x266f, 2],
-  \   [0x269e, 0x269f, 2],
-  \   [0x26bf, 0x26bf, 2],
-  \   [0x26c6, 0x26cd, 2],
-  \   [0x26cf, 0x26d3, 2],
-  \   [0x26d5, 0x26e1, 2],
-  \   [0x26e3, 0x26e3, 2],
-  \   [0x26e8, 0x26e9, 2],
-  \   [0x26eb, 0x26f1, 2],
-  \   [0x26f4, 0x26f4, 2],
-  \   [0x26f6, 0x26f9, 2],
-  \   [0x26fb, 0x26fc, 2],
-  \   [0x26fe, 0x26ff, 2],
-  \   [0x273d, 0x273d, 2],
-  \   [0x2776, 0x277f, 2],
-  \   [0x2b56, 0x2b59, 2],
-  \   [0x3248, 0x324f, 2],
-  \   [0xe000, 0xf8ff, 2],
-  \   [0xfe00, 0xfe0f, 2],
-  \   [0xfffd, 0xfffd, 2],
-  \   [0x0001f100, 0x0001f10a, 2],
-  \   [0x0001f110, 0x0001f12d, 2],
-  \   [0x0001f130, 0x0001f169, 2],
-  \   [0x0001f170, 0x0001f18d, 2],
-  \   [0x0001f18f, 0x0001f190, 2],
-  \   [0x0001f19b, 0x0001f1ac, 2],
-  \   [0x000e0100, 0x000e01ef, 2],
-  \   [0x000f0000, 0x000ffffd, 2],
-  \   [0x00100000, 0x0010fffd, 2],
-  \ ])
+  call setcellwidths(map([
+  \ [0x0101, 0], [0x0111, 0], [0x0113, 0], [0x011b, 0], [0x0126, 1],
+  \ [0x012b, 0], [0x0131, 2], [0x0138, 0], [0x013f, 3], [0x0144, 0],
+  \ [0x0148, 3], [0x014d, 0], [0x0152, 1], [0x0166, 1], [0x016b, 0],
+  \ [0x01ce, 0], [0x01d0, 0], [0x01d2, 0], [0x01d4, 0], [0x01d6, 0],
+  \ [0x01d8, 0], [0x01da, 0], [0x01dc, 0], [0x0251, 0], [0x0261, 0],
+  \ [0x02c4, 0], [0x02c7, 0], [0x02c9, 2], [0x02cd, 0], [0x02d0, 0],
+  \ [0x02d8, 3], [0x02dd, 0], [0x02df, 0], [0x0300, 111], [0x0391, 16],
+  \ [0x03a3, 6], [0x03b1, 16], [0x03c3, 6], [0x0401, 0], [0x0410, 63],
+  \ [0x0451, 0], [0x2010, 0], [0x2013, 2], [0x2016, 0], [0x2018, 0],
+  \ [0x2019, 0], [0x201c, 0], [0x201d, 0], [0x2020, 2], [0x2024, 3],
+  \ [0x2030, 0], [0x2032, 1], [0x2035, 0], [0x203b, 0], [0x203e, 0],
+  \ [0x2074, 0], [0x207f, 0], [0x2081, 3], [0x20ac, 0], [0x2103, 0],
+  \ [0x2105, 0], [0x2109, 0], [0x2113, 0], [0x2116, 0], [0x2121, 1],
+  \ [0x2126, 0], [0x212b, 0], [0x2153, 1], [0x215b, 3], [0x2160, 11],
+  \ [0x2170, 9], [0x2189, 0], [0x2190, 4], [0x2195, 4], [0x21b8, 1],
+  \ [0x21d2, 0], [0x21d4, 0], [0x21e7, 0], [0x2200, 0], [0x2202, 1],
+  \ [0x2207, 1], [0x220b, 0], [0x220f, 0], [0x2211, 0], [0x2215, 0],
+  \ [0x221a, 0], [0x221d, 3], [0x2223, 0], [0x2225, 0], [0x2227, 5],
+  \ [0x222e, 0], [0x2234, 3], [0x223c, 1], [0x2248, 0], [0x224c, 0],
+  \ [0x2252, 0], [0x2260, 1], [0x2264, 3], [0x226a, 1], [0x226e, 1],
+  \ [0x2282, 1], [0x2286, 1], [0x2295, 0], [0x2299, 0], [0x22a5, 0],
+  \ [0x22bf, 0], [0x2312, 0], [0x2460, 59], [0x249c, 77], [0x24eb, 20],
+  \ [0x2500, 75], [0x2550, 35], [0x2580, 15], [0x2592, 3], [0x25a0, 1],
+  \ [0x25a3, 6], [0x25b2, 1], [0x25b6, 0], [0x25b7, 0], [0x25bc, 1],
+  \ [0x25c0, 0], [0x25c1, 0], [0x25c6, 2], [0x25cb, 0], [0x25ce, 3],
+  \ [0x25e2, 3], [0x25ef, 0], [0x2605, 1], [0x2609, 0], [0x260e, 1],
+  \ [0x261c, 0], [0x261e, 0], [0x2640, 0], [0x2642, 0], [0x2660, 1],
+  \ [0x2663, 2], [0x2667, 3], [0x266c, 1], [0x266f, 0], [0x269e, 1],
+  \ [0x26bf, 0], [0x26c6, 7], [0x26cf, 4], [0x26d5, 12], [0x26e3, 0],
+  \ [0x26e8, 1], [0x26eb, 6], [0x26f4, 0], [0x26f6, 3], [0x26fb, 1],
+  \ [0x26fe, 1], [0x273d, 0], [0x2776, 9], [0x2b56, 3], [0x3248, 7],
+  \ [0xe000, 6399], [0xfe00, 15], [0xfffd, 0], [0x1f100, 10], [0x1f110, 29],
+  \ [0x1f130, 57], [0x1f170, 29], [0x1f18f, 1], [0x1f19b, 17], [0xe0100, 239],
+  \ [0xf0000, 65533], [0x100000, 65533],
+  \ ], '[
+  \    v:val[0],
+  \    v:val[0] + v:val[1],
+  \    max([1, libcallnr("", "wcwidth", v:val[0])]),
+  \ ]'))
   " }}}
 else
   set ambiwidth=double
@@ -362,8 +237,8 @@ set smartindent
 let &statusline = '%<%f %h%m%r%w'
 \               . '%='
 \               . '['
-\               .   '%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
-\               .   '%{&l:bomb ? "/BOM" : ""}'
+\               . '%{&l:fileencoding == "" ? &encoding : &l:fileencoding}'
+\               . '%{&l:bomb ? "/BOM" : ""}'
 \               . ']'
 \               . '[%{&l:fileformat}]'
 \               . '   %-14.(%l,%c%V%) %P'
@@ -403,7 +278,6 @@ function! s:my_tabline() abort
 endfunction
 
 set showtabline=1
-
 let &tabline = '%!' . s:SID . 'my_tabline()'
 
 
@@ -424,12 +298,33 @@ let g:maplocalleader = '.'
 
 
 
+" Utilities  "{{{1
+function! s:complete_file(arglead, cmdline, cursorpos) abort  "{{{2
+  return glob(join(split(a:cmdline, '\s', 1)[1:], ' ') . '*',
+  \           0,
+  \           1)
+endfunction
+
+
+
+
+function! s:complete_cdpath(arglead, cmdline, cursorpos) abort  "{{{2
+  return map(globpath(substitute(&cdpath, '^,', '', ''),
+  \                   join(split(a:cmdline, '\s', 1)[1:], ' ') . '*/',
+  \                   0,
+  \                   1),
+  \          'v:val[:-2]')
+endfunction
+
+
+
+
 " Commands  {{{1
 " :grep wrappers  {{{2
 
-command! -complete=customlist,s:complete_cdpath -nargs=+ Grep
+command! -complete=customlist,s:complete_file -nargs=+ Grep
 \ call s:grep('grep', 'cwindow', [<f-args>])
-command! -complete=customlist,s:complete_cdpath -nargs=+ Lgrep
+command! -complete=customlist,s:complete_file -nargs=+ Lgrep
 \ call s:grep('lgrep', 'lwindow', [<f-args>])
 
 function! s:grep(command, window_command, args) abort
@@ -472,9 +367,9 @@ autocmd MyAutoCmd BufNewFile,BufReadPost *
 
 " :make wrappers  {{{2
 
-command! -complete=customlist,s:complete_cdpath -nargs=* Make
+command! -complete=file -nargs=* Make
 \ call s:make('make', 'cwindow', [<f-args>])
-command! -complete=customlist,s:complete_cdpath -nargs=* Lmake
+command! -complete=file -nargs=* Lmake
 \ call s:make('lmake', 'lwindow', [<f-args>])
 
 function! s:make(command, window_command, args) abort
@@ -551,30 +446,16 @@ command! -nargs=* -complete=customlist,s:complete_cdpath CD
 
 function! s:cmd_CD(path) abort
   if a:path != ''
-    cd `=a:path`
+    tcd `=a:path`
   else
-    let git_root = finddir('.git', expand('%:p:h') . ';')
-    if git_root != ''
-      cd `=fnamemodify(git_root, ':p:h:h')`
-    else
-      cd
-    endif
+    let file_dir = expand('%:p:h')
+    let git_dir = finddir('.git', file_dir . ';')
+    tcd `=git_dir != '' ? fnamemodify(git_dir, ':p:h:h') : file_dir`
   endif
   pwd
 endfunction
 
 AlterCommand cd  CD
-
-autocmd MyAutoCmd TabEnter *
-\   if !exists('t:cwd')
-\ |   let t:cwd = getcwd()
-\ | endif
-\ | if isdirectory(t:cwd)
-\ |   cd `=t:cwd`
-\ | endif
-
-autocmd MyAutoCmd DirChanged *
-\ let t:cwd = getcwd()
 
 
 
@@ -582,11 +463,10 @@ autocmd MyAutoCmd DirChanged *
 " FoldDebug  {{{2
 
 command! -range=% FoldDebug
-\ <line1>,<line2>global/^/echo printf(
-\   "%*d [%2s] %s",
+\ <line1>,<line2>global/^/echo  printf("%*d [%2s] %s",
 \   len(line('$')),
 \   line('.'),
-\   eval(substitute(&l:foldexpr, 'v:lnum', line('.'), '')),
+\   eval(substitute(&l:foldexpr, '\<v:lnum\>', line('.'), '')),
 \   getline('.')
 \ )
 
@@ -662,15 +542,15 @@ command! -bar -nargs=0 SuspendWithAutomticCD
 \ call s:cmd_SuspendWithAutomticCD()
 
 function! s:cmd_SuspendWithAutomticCD() abort
-  let shell = split(&shell, '/')[-1]
   if exists('$TMUX')
+    let shell = split(&shell, '/')[-1]
     let select_command = 'new-window'
     let target_pane = ':$'
     for window in split(system('tmux list-windows'), '\n')
       let matches = matchlist(window, '^\(\d\+\):\s\(\w\+\)')
       if !empty(matches) && matches[2] ==# shell
-        let select_command = 'select-window -t '.matches[1]
-        let target_pane = ':'.matches[1]
+        let select_command = 'select-window -t ' . matches[1]
+        let target_pane = ':' . matches[1]
         break
       endif
     endfor
@@ -716,25 +596,36 @@ endfunction
 
 " Sum  {{{2
 
-command! -bang -range -nargs=* Sum
-\ call append(<line2>,
-\             string(s:fold_lines(s:SID . 'sum', 0, range(<line1>, <line2>))))
+command! -range Sum
+\ <line2>put ='' . s:fold_lines(function('s:sum_line'), 0, [<line1>, <line2>])
 
 function! s:fold_lines(f, acc, range) abort
   let acc = a:acc
 
-  for lnum in a:range
+  for lnum in range(a:range[0], a:range[1])
     let line = getline(lnum)
-    let acc = call(a:f, [acc, line])
+    let acc = a:f(acc, line)
   endfor
 
   return acc
 endfunction
 
 function! s:sum_line(acc, line) abort
-  let n = matchstr(a:line, '\d\+\%(\.\d\+\)\?')
-  let n = n != '' ? str2nr(number, 10) : 0
-  return a:acc + n
+  let n = matchstr(a:line,
+  \                '\c\(0\(x\x\+\|b[01]\+\|o\?[0-7]\+\)\)\|\d\+\(\.\d\+\)\?')
+  if n == ''
+    return a:acc
+  endif
+  if n[0:1] == '0x'
+    let base = 16
+  elseif n[0:1] == '0b'
+    let base = 2
+  elseif n[0] == '0'
+    let base = 8
+  else
+    let base = 10
+  endif
+  return a:acc + str2nr(n, base)
 endfunction
 
 
@@ -772,18 +663,6 @@ command! -bar -nargs=* MaybeVertical
 AlterCommand sp[lit]  Split
 AlterCommand h[elp]  Help
 AlterCommand new  New
-
-
-
-
-" Utilities  {{{1
-function! s:complete_cdpath(arglead, cmdline, cursorpos) abort  "{{{2
-  let paths = globpath(&cdpath,
-  \                    join(split(a:cmdline, '\s', 1)[1:], ' ') . '*/',
-  \                    0,
-  \                    1)
-  return map(uniq(sort(paths)), 'v:val[:-2]')
-endfunction
 
 
 
@@ -926,7 +805,7 @@ cnoremap <C-b>  <Left>
 cnoremap <C-f>  <Right>
 cnoremap <C-a>  <Home>
 cnoremap <C-d>  <Delete>
-cnoremap <C-y>  <C-r>"
+cnoremap <expr> <C-y>  pumvisible() ? '<C-y>' : '<C-r>"'
 cnoremap <C-k>
 \ <C-\>e getcmdpos() == 1 ? '' : getcmdline()[:getcmdpos()-2]<CR>
 cnoremap <expr> <C-u>  getcmdline() == '' ? "\<C-c>" : "\<C-u>"
@@ -1086,7 +965,7 @@ function! s:toggle_colorcolumn() abort  "{{{
   else
     let b:textwidth = &l:textwidth
     if b:textwidth == 0
-      setlocal textwidth=80
+      setlocal textwidth=100
     endif
     setlocal colorcolumn=+1 colorcolumn?
   endif
@@ -1451,6 +1330,31 @@ function! s:on_FileType_any() abort
 endfunction
 
 
+function! s:update_leadmultispace() abort
+  let settings = filter(split(&listchars, '\\\@<!,'),
+  \                     'stridx(v:val, "^leadmultispace:") != 0')
+  if &l:expandtab
+    let separator = strdisplaywidth("\u2502") == 1 ? "\u2502" : '|'
+    call add(settings, 'leadmultispace:'
+    \                  . separator
+    \                  . repeat(' ', &l:shiftwidth - 1))
+  else
+    call add(settings, 'leadmultispace: ')
+  endif
+  try 
+    let &l:listchars = join(settings, ',')
+    return 1
+  catch /^Vim\%((\a\+)\)\=:E474:/
+    return 0
+  endtry
+endfunction
+
+if s:update_leadmultispace()
+  autocmd MyAutoCmd BufEnter *  call s:update_leadmultispace()
+  autocmd MyAutoCmd WinEnter *  call s:update_leadmultispace()
+endif
+
+
 " Optimize the loading for large files
 autocmd MyAutoCmd BufReadPre *
 \   if getfsize(expand("<afile>")) > 1024 * 1024 * 8
@@ -1477,7 +1381,7 @@ autocmd MyAutoCmd BufReadPost *
 \ | endif
 
 
-" Avoid duplicated `filetype` settings
+" Avoid duplicate `filetype` setting
 let g:ft_ignore_pat = '^\(ebuild\|eclass\)$'
 
 
@@ -1622,7 +1526,7 @@ function! s:ku_new_list_files_source() abort
   endif
   return ku#source#async#new({
   \   'name': name,
-  \   'kind': g:ku#kind#file#module,
+  \   'default_kind': g:ku#kind#file#module,
   \   'command': command,
   \   'selector_fn': { line -> { 'word': line } },
   \ })

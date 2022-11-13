@@ -33,7 +33,7 @@ function! PHPFold(lnum) abort
              \ . '\|interface'
              \ . '\|namespace'
              \ . '\|trait'
-             \ . '\)[^;]*$'
+             \ . '\)\>[^;]*$'
     let level = indent(a:lnum) / shiftwidth() + 1
     return level > 3 ? '=' : level
   endif

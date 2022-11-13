@@ -7,7 +7,7 @@ setlocal tabstop=4
 
 function! ObjcFold(lnum) abort
   let current = getline(a:lnum)
-  return (current =~# '^@\(implementation\|interface\|protocol\)') ? '>1'
+  return (current =~# '^@\%(implementation\|interface\|protocol\)\>') ? '>1'
   \    : (current =~# '^[-+]') ? '>2'
   \    : (current =~# '^}') ? '<2'
   \    : (current =~# '^@end') ? '<1'

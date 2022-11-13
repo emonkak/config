@@ -12,7 +12,7 @@ function! VimFold(lnum) abort
     return '<' . level
   endif
 
-  if current =~# '^\s*function!\?\s\+\h'
+  if current =~# '^\s*function!\?\>'
     let level = indent(a:lnum) / shiftwidth() + 1
     return '>' . level
   endif

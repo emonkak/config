@@ -4,15 +4,6 @@ set background=dark
 
 let g:colors_name = expand('<sfile>:t:r')
 
-let s:ATTR_TABLE = {
-\   'b': 'bold',
-\   'c': 'undercurl',
-\   'i': 'italic',
-\   'r': 'reverse',
-\   's': 'standout',
-\   'u': 'underline',
-\ }
-
 let s:NR16_COLOR_TABLE = {
 \   'black': 0,
 \   'darkred': 1,
@@ -74,143 +65,118 @@ if !exists('g:system_color_gui_color_table')
   \ }
 endif
 
-function! s:highlight_all(definitions) abort
-  for definition in a:definitions
-    call s:highlight(definition)
-  endfor
-endfunction
-
-function! s:highlight(definition) abort
+function! s:h(group, definition) abort
   let args = []
+  let gui_colors = g:system_color_gui_color_table
+  let term_colors = &t_Co < 16 ? s:NR8_COLOR_TABLE : s:NR16_COLOR_TABLE
 
   if has_key(a:definition, 'attr')
-    let attrs = s:attributes(a:definition['attr'])
-    call insert(args, 'cterm=' . attrs)
-    call insert(args, 'gui=' . attrs)
+    let attr = join(a:definition.attr, ',')
+    call insert(args, 'cterm=' . attr)
+    call insert(args, 'gui=' . attr)
   else
     call insert(args, 'cterm=NONE')
     call insert(args, 'gui=NONE')
   endif
 
   if has_key(a:definition, 'fg')
-    call insert(args, 'ctermfg=' . s:term_color(a:definition['fg']))
-    call insert(args, 'guifg=' . s:gui_color(a:definition['fg']))
+    call insert(args, 'ctermfg=' . get(term_colors, a:definition.fg, 'NONE'))
+    call insert(args, 'guifg=' . get(gui_colors, a:definition.fg, 'NONE'))
   endi
 
   if has_key(a:definition, 'bg')
-    call insert(args, 'ctermbg=' . s:term_color(a:definition['bg']))
-    call insert(args, 'guibg=' . s:gui_color(a:definition['bg']))
+    call insert(args, 'ctermbg=' . get(term_colors, a:definition.bg, 'NONE'))
+    call insert(args, 'guibg=' . get(gui_colors, a:definition.bg, 'NONE'))
   endif
 
   if has_key(a:definition, 'sp')
-    call insert(args, 'guisp=' . s:gui_color(a:definition['sp']))
+    call insert(args, 'guisp=' . get(gui_colors, a:definition.sp, 'NONE'))
   endif
 
-  execute 'highlight' a:definition.group 'NONE' join(args)
+  execute 'highlight' a:group 'NONE' join(args)
 endfunction
 
-function! s:attributes(tags) abort
-  let attrs = []
-  for tag in split(a:tags, '.\zs')
-    if has_key(s:ATTR_TABLE, tag)
-      call insert(attrs, s:ATTR_TABLE[tag])
-    endif
-  endfor
-  return empty(attrs) ? 'NONE' : join(attrs, ',')
-endfunction
+call s:h('ColorColumn', { 'bg': 'black' })
+call s:h('Comment', { 'attr': ['italic'], 'fg': 'lightgray' })
+call s:h('Conceal', { 'fg': 'darkgray' })
+call s:h('Constant', { 'fg': 'lightmagenta' })
+call s:h('Cursor', { 'bg': 'darkgreen' })
+call s:h('CursorColumn', { 'bg': 'black' })
+call s:h('CursorIM', { 'bg': 'lightcyan' })
+call s:h('CursorLine', { 'bg': 'black' })
+call s:h('CursorLineNr', { 'bg': 'black' })
+call s:h('DiffAdd', { 'bg': 'darkblue' })
+call s:h('DiffChange', { 'bg': 'darkmagenta' })
+call s:h('DiffDelete', { 'fg': 'darkgray' })
+call s:h('DiffText', { 'bg': 'darkmagenta' })
+call s:h('Directory', { 'fg': 'lightcyan' })
+call s:h('Error', { 'bg': 'darkred' })
+call s:h('ErrorMsg', { 'bg': 'darkred' })
+call s:h('FoldColumn', { 'fg': 'darkcyan' })
+call s:h('Folded', { 'attr': ['italic'], 'fg': 'darkcyan' })
+call s:h('Identifier', { 'fg': 'lightcyan' })
+call s:h('Ignore', { 'fg': 'black' })
+call s:h('IncSearch', { 'attr': ['reverse'] })
+call s:h('LineNr', { 'fg': 'darkgray' })
+call s:h('LspError', { 'fg': 'lightred' })
+call s:h('LspErrorHighlight', { 'attr': ['undercurl'] })
+call s:h('LspErrorText', { 'fg': 'lightred' })
+call s:h('LspHint', { 'fg': 'lightblue' })
+call s:h('LspHintHighlight', { 'attr': ['undercurl'] })
+call s:h('LspHintText', { 'fg': 'lightblue' })
+call s:h('LspInformation', { 'fg': 'lightblue' })
+call s:h('LspInformationHighlight', { 'attr': ['undercurl'] })
+call s:h('LspInformationText', { 'fg': 'lightblue' })
+call s:h('LspWarning', { 'fg': 'lightred' })
+call s:h('LspWarningHighlight', { 'attr': ['undercurl'] })
+call s:h('LspWarningText', { 'fg': 'lightred' })
+call s:h('MatchParen', { 'attr': ['bold', 'reverse'] })
+call s:h('ModeMsg', { 'bg': 'darkblue' })
+call s:h('NormalFloat', {})
+call s:h('MoreMsg', { 'bg': 'darkgreen' })
+call s:h('NonText', { 'fg': 'darkgray' })
+call s:h('Whitespace', { 'fg': 'black' })
+call s:h('Pmenu', { 'bg': 'black' })
+call s:h('PmenuSbar', { 'bg': 'darkgray' })
+call s:h('PmenuSel', { 'attr': ['reverse'], 'fg': 'lightyellow' })
+call s:h('PmenuThumb', { 'bg': 'lightyellow' })
+call s:h('PreProc', { 'fg': 'lightblue' })
+call s:h('Question', { 'fg': 'lightgreen' })
+call s:h('Search', { 'attr': ['reverse'], 'fg': 'lightyellow' })
+call s:h('SignColumn', { 'fg': 'lightcyan' })
+call s:h('Special', { 'fg': 'lightred' })
+call s:h('SpecialKey', { 'fg': 'darkgray' })
+call s:h('Statement', { 'fg': 'lightyellow' })
+call s:h('StatusLine', { 'attr': ['bold'], 'bg': 'black' })
+call s:h('StatusLineNC', { 'bg': 'darkgray' })
+call s:h('StatusLineTerm', { 'attr': ['bold', 'reverse'], 'fg': 'lightgreen' })
+call s:h('StatusLineTermNC', { 'attr': ['reverse'], 'fg': 'darkgreen' })
+call s:h('TabLine', { 'bg': 'black' })
+call s:h('TabLineFill', { 'bg': 'black' })
+call s:h('TabLineSel', { 'attr': ['bold', 'underline'], 'bg': 'black' })
+call s:h('Title', { 'fg': 'lightcyan' })
+call s:h('Todo', { 'attr': ['underline'], 'fg': 'lightyellow' })
+call s:h('ToolbarButton', { 'attr': ['bold'], 'bg': 'darkgray' })
+call s:h('ToolbarLine', { 'bg': 'black' })
+call s:h('Type', { 'fg': 'lightgreen' })
+call s:h('Underlined', { 'attr': ['underline'], 'fg': 'lightblue' })
+call s:h('VertSplit', { 'fg': 'darkgray' })
+call s:h('Visual', { 'bg': 'darkblue' })
+call s:h('VisualNOS', { 'attr': ['reverse'] })
+call s:h('WarningMsg', { 'fg': 'lightyellow' })
+call s:h('WildMenu', { 'attr': ['bold', 'reverse'], 'fg': 'lightyellow' })
+call s:h('WinSeparator', { 'fg': 'darkgray' })
+call s:h('lCursor', { 'bg': 'lightcyan' })
 
-function! s:term_color(color) abort
-  if &t_Co < 16
-    return get(s:NR8_COLOR_TABLE, a:color, 'NONE')
-  else
-    return get(s:NR16_COLOR_TABLE, a:color, 'NONE')
-  endif
-endfunction
-
-function! s:gui_color(color) abort
-  return get(g:system_color_gui_color_table, a:color, 'NONE')
-endfunction
-
-call s:highlight_all([
-\   { 'group': 'ColorColumn', 'bg': 'black' },
-\   { 'group': 'Comment', 'attr': 'i', 'fg': 'lightgray' },
-\   { 'group': 'Conceal', 'fg': 'darkgray' },
-\   { 'group': 'Constant', 'fg': 'lightmagenta' },
-\   { 'group': 'Cursor', 'bg': 'darkgreen' },
-\   { 'group': 'CursorColumn', 'bg': 'black' },
-\   { 'group': 'CursorIM', 'bg': 'lightcyan' },
-\   { 'group': 'CursorLine', 'bg': 'black' },
-\   { 'group': 'CursorLineNr', 'bg': 'black' },
-\   { 'group': 'DiffAdd', 'bg': 'darkblue' },
-\   { 'group': 'DiffChange', 'bg': 'darkmagenta' },
-\   { 'group': 'DiffDelete', 'fg': 'darkgray' },
-\   { 'group': 'DiffText', 'bg': 'darkmagenta' },
-\   { 'group': 'Directory', 'fg': 'lightcyan' },
-\   { 'group': 'Error', 'bg': 'darkred' },
-\   { 'group': 'ErrorMsg', 'bg': 'darkred' },
-\   { 'group': 'FoldColumn', 'fg': 'darkcyan' },
-\   { 'group': 'Folded', 'attr': 'i', 'fg': 'darkcyan' },
-\   { 'group': 'Identifier', 'fg': 'lightcyan' },
-\   { 'group': 'Ignore', 'fg': 'black' },
-\   { 'group': 'IncSearch', 'attr': 'r' },
-\   { 'group': 'LineNr', 'fg': 'darkgray' },
-\   { 'group': 'LspError', 'fg': 'lightred' },
-\   { 'group': 'LspErrorHighlight', 'attr': 'c' },
-\   { 'group': 'LspErrorText', 'fg': 'lightred' },
-\   { 'group': 'LspHint', 'fg': 'lightblue' },
-\   { 'group': 'LspHintHighlight', 'attr': 'c' },
-\   { 'group': 'LspHintText', 'fg': 'lightblue' },
-\   { 'group': 'LspInformation', 'fg': 'lightblue' },
-\   { 'group': 'LspInformationHighlight', 'attr': 'c' },
-\   { 'group': 'LspInformationText', 'fg': 'lightblue' },
-\   { 'group': 'LspWarning', 'fg': 'lightred' },
-\   { 'group': 'LspWarningHighlight', 'attr': 'c' },
-\   { 'group': 'LspWarningText', 'fg': 'lightred' },
-\   { 'group': 'MatchParen', 'attr': 'b', 'fg': 'black', 'bg': 'lightcyan' },
-\   { 'group': 'ModeMsg', 'bg': 'darkblue' },
-\   { 'group': 'NormalFloat' },
-\   { 'group': 'MoreMsg', 'bg': 'darkgreen' },
-\   { 'group': 'NonText', 'fg': 'darkgray' },
-\   { 'group': 'Pmenu', 'bg': 'black' },
-\   { 'group': 'PmenuSbar', 'bg': 'darkgray' },
-\   { 'group': 'PmenuSel', 'attr': 'r', 'fg': 'lightyellow' },
-\   { 'group': 'PmenuThumb', 'bg': 'lightyellow' },
-\   { 'group': 'PreProc', 'fg': 'lightblue' },
-\   { 'group': 'Question', 'fg': 'lightgreen' },
-\   { 'group': 'Search', 'attr': 'r', 'fg': 'lightyellow' },
-\   { 'group': 'SignColumn', 'fg': 'lightcyan' },
-\   { 'group': 'Special', 'fg': 'lightred' },
-\   { 'group': 'SpecialKey', 'fg': 'darkgray' },
-\   { 'group': 'Statement', 'fg': 'lightyellow' },
-\   { 'group': 'StatusLine', 'attr': 'b', 'bg': 'black' },
-\   { 'group': 'StatusLineNC', 'bg': 'darkgray' },
-\   { 'group': 'StatusLineTerm', 'attr': 'br', 'fg': 'lightgreen' },
-\   { 'group': 'StatusLineTermNC', 'attr': 'r', 'fg': 'darkgreen' },
-\   { 'group': 'TabLine', 'bg': 'black' },
-\   { 'group': 'TabLineFill', 'bg': 'black' },
-\   { 'group': 'TabLineSel', 'attr': 'bu', 'bg': 'black' },
-\   { 'group': 'Title', 'fg': 'lightcyan' },
-\   { 'group': 'Todo', 'attr': 'u', 'fg': 'lightyellow' },
-\   { 'group': 'ToolbarButton', 'attr': 'b', 'bg': 'darkgray' },
-\   { 'group': 'ToolbarLine', 'bg': 'black' },
-\   { 'group': 'Type', 'fg': 'lightgreen' },
-\   { 'group': 'Underlined', 'attr': 'u', 'fg': 'lightblue' },
-\   { 'group': 'VertSplit', 'fg': 'darkgray' },
-\   { 'group': 'Visual', 'bg': 'darkblue' },
-\   { 'group': 'VisualNOS', 'attr': 'r' },
-\   { 'group': 'WarningMsg', 'fg': 'lightyellow' },
-\   { 'group': 'WildMenu', 'attr': 'br', 'fg': 'lightyellow' },
-\   { 'group': 'WinSeparator', 'fg': 'darkgray' },
-\   { 'group': 'lCursor', 'bg': 'lightcyan' },
-\ ] + (has('gui_running') ? [
-\   { 'group': 'Normal', 'fg': 'foreground', 'bg': 'background' },
-\   { 'group': 'SpellBad', 'attr': 'c', 'sp': 'darkred' },
-\   { 'group': 'SpellCap', 'attr': 'c', 'sp': 'darkblue' },
-\   { 'group': 'SpellLocal', 'attr': 'c', 'sp': 'darkcyan' },
-\   { 'group': 'SpellRare', 'attr': 'c', 'sp': 'darkmagenta' },
-\ ] : [
-\   { 'group': 'SpellBad', 'bg': 'darkred' },
-\   { 'group': 'SpellCap', 'bg': 'darkblue' },
-\   { 'group': 'SpellLocal', 'bg': 'darkcyan' },
-\   { 'group': 'SpellRare', 'bg': 'darkmagenta' },
-\ ]))
+if has('gui_running')
+  call s:h('Normal', { 'fg': 'foreground', 'bg': 'background' })
+  call s:h('SpellBad', { 'attr': ['undercurl'], 'sp': 'darkred' })
+  call s:h('SpellCap', { 'attr': ['undercurl'], 'sp': 'darkblue' })
+  call s:h('SpellLocal', { 'attr': ['undercurl'], 'sp': 'darkcyan' })
+  call s:h('SpellRare', { 'attr': ['undercurl'], 'sp': 'darkmagenta' })
+else
+  call s:h('SpellBad', { 'bg': 'darkred' })
+  call s:h('SpellCap', { 'bg': 'darkblue' })
+  call s:h('SpellLocal', { 'bg': 'darkcyan' })
+  call s:h('SpellRare', { 'bg': 'darkmagenta' })
+endif

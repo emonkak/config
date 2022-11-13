@@ -16,7 +16,7 @@ function! RustFold(lnum)
   if current =~# '^\s*\%('
   \            . 'macro_rules!\|'
   \            . '\%(unsafe\s\+\)\?impl\|'
-  \            . '\%(pub\%(\s*(\s*\%(crate\|super\)\s*)\)\?\s\+\)\?\%(const\s\+\)\?\%(unsafe\s\+\)\?\%(async\s\+\)\?\%(extern\s\+"[^"]\+"\s\+\)\?\%(enum\|fn\|mod\|struct\|trait\|union\)\s\+\h'
+  \            . '\%(pub\%(\s*(\s*\%(crate\|super\)\s*)\)\?\s\+\)\?\%(const\s\+\)\?\%(unsafe\s\+\)\?\%(async\s\+\)\?\%(extern\s\+"[^"]\+"\s\+\)\?\%(enum\|fn\|mod\|struct\|trait\|union\)\>'
   \            . '\)'
   \  && current !~# '[;}]\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1

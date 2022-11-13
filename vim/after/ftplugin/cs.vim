@@ -20,7 +20,7 @@ function! CsFold(lnum) abort
   if current =~# '^\s*\('
              \ . '\(\(abstract\|partial\|public\|private\|protected\|protected\|internal\|static\)\s\+\)*\(class\|enum\|interface\)'
              \ . '\|namespace'
-             \ . '\)[^;]*$'
+             \ . '\)\>[^;]*$'
     let level = indent(a:lnum) / shiftwidth()
     return level > 2 ? '=' : '>' . (level + 1)
   endif

@@ -13,7 +13,7 @@ function! GoFold(lnum) abort
     return level > 1 ? '=' : '<' . level
   endif
 
-  if current =~# '^\s*\%(func\|type\s\+\h\+\s\+\%(struct\|interface\)\)\s'
+  if current =~# '^\s*\%(func\|type\s\+\h\+\s\+\%(struct\|interface\)\)\>'
     let level = indent(a:lnum) / shiftwidth() + 1
     return level > 1 ? '=' : level
   endif
