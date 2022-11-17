@@ -32,6 +32,7 @@ GROUP_DOTS_FILES=\
   dotfiles/.xkb/keymap/my_keymap \
   dotfiles/.xkb/symbols/my_symbols \
   dotfiles/.zprofile \
+  dotfiles/.zshenv \
   dotfiles/.zshrc
 GROUP_DOTS_RULE=$(patsubst dotfiles/%, $(HOME)/%, $(1))
 

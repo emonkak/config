@@ -1,0 +1,20 @@
+export FZF_DEFAULT_OPTS=--color=\
+query:regular:-1,\
+input:regular:-1,\
+disabled:regular:gray,\
+fg:regular:-1,\
+bg:regular:-1,\
+preview-fg:regular:-1,\
+preview-bg:regular:-1,\
+fg+:regular:reverse:yellow,\
+bg+:regular:-1,\
+gutter:regular:-1,\
+hl:regular:yellow,\
+hl+:regular:reverse:bold:yellow,\
+border:regular:-1,\
+prompt:regular:yellow,\
+spinner:regular:gray,\
+info:regular:green,\
+pointer:regular:yellow,\
+marker:regular:blue,\
+header:regular:gray
