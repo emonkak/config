@@ -5,7 +5,6 @@ setlocal iskeyword-=:
 setlocal makeprg=./node_modules/.bin/tsc
 setlocal shiftwidth=4
 setlocal softtabstop=4
-setlocal tabstop=4
 
 function! TypescriptFold(lnum) abort
   let current = getline(a:lnum)
@@ -42,4 +41,4 @@ let b:undo_ftplugin .= 'setlocal'
 \                    . ' iskeyword<'
 \                    . ' shiftwidth<'
 \                    . ' softtabstop<'
-\                    . ' tabstop<'
+\                    . ' ' . indent_style#auto_detect()

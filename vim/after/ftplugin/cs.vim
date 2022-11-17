@@ -5,7 +5,6 @@ setlocal foldmethod=expr
 setlocal shiftwidth=4
 setlocal softtabstop=4
 setlocal textwidth=100
-setlocal tabstop=4
 
 inoreabbrev <buffer> ///  /// <summary><CR><CR></summary><Up>
 
@@ -29,7 +28,7 @@ function! CsFold(lnum) abort
 endfunction
 
 if exists('b:undo_ftplugin')
-  let b:undo_ftplugin .= '|'
+  let b:undo_ftplugin .= ' | '
 else
   let b:undo_ftplugin = ''
 endif
@@ -41,6 +40,5 @@ let b:undo_ftplugin .= 'setlocal'
 \                    . ' foldmethod<'
 \                    . ' shiftwidth<'
 \                    . ' softtabstop<'
-\                    . ' tabstop<'
 \                    . ' textwidth<'
-\                    . '|iunabbrev <buffer> ///'
+\                    . ' | execute "iunabbrev" "<buffer>" "///"'

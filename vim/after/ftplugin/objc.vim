@@ -3,7 +3,6 @@ setlocal foldexpr=ObjcFold(v:lnum)
 setlocal foldmethod=expr
 setlocal shiftwidth=4
 setlocal softtabstop=4
-setlocal tabstop=4
 
 function! ObjcFold(lnum) abort
   let current = getline(a:lnum)
@@ -26,4 +25,3 @@ let b:undo_ftplugin .= 'setlocal'
 \                    . ' foldmethod<'
 \                    . ' shiftwidth<'
 \                    . ' softtabstop<'
-\                    . ' tabstop<'

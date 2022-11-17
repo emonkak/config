@@ -4,7 +4,6 @@ setlocal foldexpr=PHPFold(v:lnum)
 setlocal foldmethod=expr
 setlocal shiftwidth=4
 setlocal softtabstop=4
-setlocal tabstop=4
 
 if !exists('b:current_compiler')
   compiler psalm
@@ -12,11 +11,11 @@ endif
 
 inoreabbrev <buffer> /** /**<Space>*/<Left><Left><Left>
 
-command! -range -nargs=0 -buffer PHPInsertAccessors
+command! -range -nargs=0 -buffer PHPDefineAccessors
 \ <line1>,<line2>call s:define_accessors()
-command! -range -nargs=0 -buffer PHPInsertGetters
+command! -range -nargs=0 -buffer PHPDefineGetters
 \ <line1>,<line2>call s:define_getters()
-command! -range -nargs=0 -buffer PHPInsertSetters
+command! -range -nargs=0 -buffer PHPDefineSetters
 \ <line1>,<line2>call s:define_setters()
 
 function! PHPFold(lnum) abort
@@ -145,7 +144,7 @@ function! s:lowerCamelize(string) abort
 endfunction
 
 if exists('b:undo_ftplugin')
-  let b:undo_ftplugin .= '|'
+  let b:undo_ftplugin .= ' | '
 else
   let b:undo_ftplugin = ''
 endif
@@ -157,8 +156,7 @@ let b:undo_ftplugin .= 'setlocal'
 \                    . ' foldmethod<'
 \                    . ' shiftwidth<'
 \                    . ' softtabstop<'
-\                    . ' tabstop<'
-\                    . '|iunabbrev <buffer> /**'
-\                    . '|delcommand PHPInsertAccessors'
-\                    . '|delcommand PHPInsertGetters'
-\                    . '|delcommand PHPInsertSetters'
+\                    . ' | execute "iunabbrev" "<buffer>" "/**"'
+\                    . ' | delcommand PHPDefineAccessors'
+\                    . ' | delcommand PHPDefineGetters'
+\                    . ' | delcommand PHPDefineSetters'

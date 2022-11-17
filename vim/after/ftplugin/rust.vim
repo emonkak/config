@@ -16,7 +16,7 @@ function! RustFold(lnum)
   if current =~# '^\s*\%('
   \            . 'macro_rules!\|'
   \            . '\%(unsafe\s\+\)\?impl\|'
-  \            . '\%(pub\%(\s*(\s*\%(crate\|super\)\s*)\)\?\s\+\)\?\%(const\s\+\)\?\%(unsafe\s\+\)\?\%(async\s\+\)\?\%(extern\s\+"[^"]\+"\s\+\)\?\%(enum\|fn\|mod\|struct\|trait\|union\)\>'
+  \            . '\%(pub\%(\s*(\s*\%(crate\|super\)\s*)\)\?\s\+\)\?\%(const\s\+\)\?\%(unsafe\s\+\)\?\%(async\s\+\)\?\%(extern\s\+"[^"]\+"\s\+\)\?\%(enum\|fn\|mod\|struct\|trait\|union\)\>h'
   \            . '\)'
   \  && current !~# '[;}]\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
@@ -27,11 +27,9 @@ function! RustFold(lnum)
 endfunction
 
 if exists('b:undo_ftplugin')
-  let b:undo_ftplugin .= '|'
+  let b:undo_ftplugin .= ' | '
 else
   let b:undo_ftplugin = ''
 endif
 
-let b:undo_ftplugin .= 'setlocal'
-\                    . ' foldexpr<'
-\                    . ' foldmethod<'
+let b:undo_ftplugin .= 'setlocal foldexpr< foldmethod<'

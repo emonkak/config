@@ -18,7 +18,7 @@ endif
 filetype plugin indent on
 
 function! s:SID_PREFIX()
-   return matchstr(expand('<sfile>'), '<SNR>\d\+_')
+  return matchstr(expand('<sfile>'), '<SNR>\d\+_')
 endfunction
 let s:SID = s:SID_PREFIX()
 
@@ -38,53 +38,33 @@ endif
 
 
 
-" Color and Font  {{{2
+" Syntax {{{2
 
 if (1 < &t_Co || has('gui')) && has('syntax') && !exists('g:syntax_on')
   syntax enable
   if !exists('g:colors_name')
-    let g:system_color_gui_color_table = {
+    let g:ansi_color_gui_color_table = {
     \   'foreground': '#e8eaeb',
     \   'background': '#21272b',
     \   'black': '#363f45',
-    \   'darkred': '#f7554d',
-    \   'darkgreen': '#10a184',
-    \   'darkyellow': '#c97a12',
-    \   'darkblue': '#1c95e6',
-    \   'darkmagenta': '#f74d90',
-    \   'darkcyan': '#9d77fc',
-    \   'lightgray': '#869096',
-    \   'darkgray': '#657078',
-    \   'lightred': '#ffb6b3',
-    \   'lightgreen': '#38e0bf',
-    \   'lightyellow': '#f7ba6a',
-    \   'lightblue': '#8dd0fc',
-    \   'lightmagenta': '#fcb3d0',
-    \   'lightcyan': '#cfbdff',
-    \   'white': '#c5c6c7',
+    \   'red': '#f7554d',
+    \   'green': '#10a184',
+    \   'yellow': '#c97a12',
+    \   'blue': '#1c95e6',
+    \   'magenta': '#f74d90',
+    \   'cyan': '#9d77fc',
+    \   'white': '#869096',
+    \   'bright-black': '#657078',
+    \   'bright-red': '#ffb6b3',
+    \   'bright-green': '#38e0bf',
+    \   'bright-yellow': '#f7ba6a',
+    \   'bright-blue': '#8dd0fc',
+    \   'bright-magenta': '#fcb3d0',
+    \   'bright-cyan': '#cfbdff',
+    \   'bright-white': '#c5c6c7',
     \ }
-    colorscheme system_color
+    colorscheme ansi_color
   endif
-endif
-
-if has('gui_running')
-  if has('gui_gtk')
-    set guifont=Monospace\ 10
-    set linespace=0
-  elseif has('gui_macvim')
-    set guifont=Monaco:h12
-    set linespace=5
-    set macmeta
-    set transparency=0
-    set visualbell
-  elseif has('gui_win32')
-    set guifont=Consolas:h10.5
-    set guifontwide=Meiryo:h10.5
-    set renderoptions=type:directx,renmode:5
-    set linespace=5
-  endif
-  set guicursor=a:blinkwait4000-blinkon1500-blinkoff500
-  set guioptions=AcgM
 endif
 
 
@@ -108,57 +88,25 @@ set viminfo^='1000 viminfo-='100
 
 " User Interface  {{{2
 
-if exists('+clipboard')
-  if &clipboard =~# '\<autoselect\>'
-    set clipboard& clipboard-=autoselect clipboard+=autoselectml
+if has('gui_running')
+  if has('gui_gtk')
+    set guifont=Monospace\ 10
+    set linespace=0
+  elseif has('gui_macvim')
+    set guifont=Monaco:h12
+    set linespace=5
+    set macmeta
+    set transparency=0
+    set visualbell
+  elseif has('gui_win32')
+    set guifont=Consolas:h10.5
+    set guifontwide=Meiryo:h10.5
+    set renderoptions=type:directx,renmode:5
+    set linespace=5
   endif
+  set guicursor=a:blinkwait4000-blinkon1500-blinkoff500
+  set guioptions=AcgM
 endif
-set cmdheight=1
-set complete& complete-=i complete-=t
-set completeopt=menuone,longest
-if has('conceal')
-  set concealcursor=nc
-  set conceallevel=0
-endif
-set confirm
-set diffopt=filler,vertical
-set display=lastline
-set noequalalways
-set foldmethod=marker
-set fileformats=unix,dos,mac
-set guicursor-=i-ci-ve:ver25
-set grepformat^=%f:%l:%c:%m
-set hidden
-if exists('+langremap')
-  set nolangremap
-endif
-set laststatus=2
-set linebreak
-set list
-let &listchars = "tab:\u00bb ,trail:-,extends:>,precedes:<,conceal:|,nbsp:."
-set keywordprg=:help
-set mouse=
-set nrformats-=octal
-set pumheight=20
-set scrolloff=5
-if exists('+shellslash')
-  set shellslash
-endif
-set showcmd
-set splitbelow
-set splitright
-set synmaxcol=1000
-if exists('+tagcase')
-  set tagcase=match
-endif
-set title
-set titlestring=Vim:\ %f\ %h%r%m
-set ttimeoutlen=50
-set updatetime=1000
-set virtualedit=block
-set nowrapscan
-set wildmenu
-set wildmode=full
 
 if has('linux') && exists('*setcellwidths')
   set ambiwidth=single
@@ -207,6 +155,58 @@ if has('linux') && exists('*setcellwidths')
 else
   set ambiwidth=double
 endif
+if exists('+clipboard')
+  if &clipboard =~# '\<autoselect\>'
+    set clipboard& clipboard-=autoselect clipboard+=autoselectml
+  endif
+endif
+set cmdheight=1
+set complete& complete-=i complete-=t
+set completeopt=menuone,longest
+if has('conceal')
+  set concealcursor=nc
+  set conceallevel=0
+endif
+set confirm
+set diffopt=filler,vertical
+set display=lastline
+set noequalalways
+set foldmethod=marker
+set fileformats=unix,dos,mac
+set guicursor-=i-ci-ve:ver25
+set grepformat^=%f:%l:%c:%m
+set hidden
+if exists('+langremap')
+  set nolangremap
+endif
+set laststatus=2
+set linebreak
+set list
+let &listchars = "tab:\u00bb ,trail:\u00b7,extends:>,precedes:<,conceal:\u00a6,nbsp:\u00b7"
+set keywordprg=:help
+set mouse=
+set nrformats-=octal
+set pumheight=20
+set scrolloff=5
+if exists('+shellslash')
+  set shellslash
+endif
+set showcmd
+set splitbelow
+set splitright
+set synmaxcol=1000
+if exists('+tagcase')
+  set tagcase=match
+endif
+set title
+set titlestring=Vim:\ %f\ %h%r%m
+set ttimeoutlen=50
+set updatetime=1000
+set virtualedit=block
+set nowrapscan
+set wildmenu
+set wildmode=full
+
 
 
 
@@ -320,6 +320,35 @@ endfunction
 
 
 " Commands  {{{1
+" :edit with specified 'fileencoding'  {{{2
+
+command! -bang -bar -complete=file -nargs=? Cp932
+\ edit<bang> ++enc=cp932 <args>
+command! -bang -bar -complete=file -nargs=? Eucjp
+\ edit<bang> ++enc=euc-jp <args>
+command! -bang -bar -complete=file -nargs=? Iso2022jp
+\ edit<bang> ++enc=iso-2022-jp <args>
+command! -bang -bar -complete=file -nargs=? Utf8
+\ edit<bang> ++enc=utf-8 <args>
+command! -bang -bar -complete=file -nargs=? Utf16be
+\ edit<bang> ++enc=utf-16be <args>
+command! -bang -bar -complete=file -nargs=? Utf16
+\ edit<bang> ++enc=utf-16le <args>
+command! -bang -bar -complete=file -nargs=? Utf32be
+\ edit<bang> ++enc=utf-32be <args>
+command! -bang -bar -complete=file -nargs=? Utf32
+\ edit<bang> ++enc=utf-32le <args>
+
+command! -bang -bar -complete=file -nargs=? Dos
+\ edit<bang> ++ff=dos <args>
+command! -bang -bar -complete=file -nargs=? Unix
+\ edit<bang> ++ff=unix <args>
+command! -bang -bar -complete=file -nargs=? Mac
+\ edit<bang> ++ff=mac <args>
+
+
+
+
 " :grep wrappers  {{{2
 
 command! -complete=customlist,s:complete_file -nargs=+ Grep
@@ -328,15 +357,10 @@ command! -complete=customlist,s:complete_file -nargs=+ Lgrep
 \ call s:grep('lgrep', 'lwindow', [<f-args>])
 
 function! s:grep(command, window_command, args) abort
-  if &grepprg ==# 'internal'
-    let pattern = escape(a:args[-1], '#%')
-    let target = escape(join(a:args[:-2], ' '), '#%')
-  else
-    let pattern = escape(shellescape(a:args[-1], 1), '|')
-    let target = len(a:args) > 1
-    \          ? escape(shellescape(join(a:args[:-2], ' '), 1), '|')
-    \          : ''
-  endif
+  let pattern = escape(shellescape(a:args[-1], 1), '|')
+  let target = len(a:args) > 1
+  \          ? escape(shellescape(join(a:args[:-2], ' '), 1), '|')
+  \          : ''
   execute (a:command . '!') pattern target
   execute a:window_command
 endfunction
@@ -346,9 +370,7 @@ AlterCommand lgr[ep]  LGrep
 
 let s:GREPPRGS = [
 \   'git grep --line-number --column',
-\   executable('rg') ? 'rg --vimgrep --no-heading' :
-\   executable('grep') ? 'grep -nHE' :
-\   'internal',
+\   executable('rg') ? 'rg --vimgrep --no-heading' : 'grep -nHE'
 \ ]
 
 function! s:toggle_grepprg() abort
@@ -387,35 +409,6 @@ AlterCommand lmak[e]  Lmake
 
 
 
-" :edit with specified 'fileencoding'  {{{2
-
-command! -bang -bar -complete=file -nargs=? Cp932
-\ edit<bang> ++enc=cp932 <args>
-command! -bang -bar -complete=file -nargs=? Eucjp
-\ edit<bang> ++enc=euc-jp <args>
-command! -bang -bar -complete=file -nargs=? Iso2022jp
-\ edit<bang> ++enc=iso-2022-jp <args>
-command! -bang -bar -complete=file -nargs=? Utf8
-\ edit<bang> ++enc=utf-8 <args>
-command! -bang -bar -complete=file -nargs=? Utf16be
-\ edit<bang> ++enc=utf-16be <args>
-command! -bang -bar -complete=file -nargs=? Utf16
-\ edit<bang> ++enc=utf-16le <args>
-command! -bang -bar -complete=file -nargs=? Utf32be
-\ edit<bang> ++enc=utf-32be <args>
-command! -bang -bar -complete=file -nargs=? Utf32
-\ edit<bang> ++enc=utf-32le <args>
-
-command! -bang -bar -complete=file -nargs=? Dos
-\ edit<bang> ++ff=dos <args>
-command! -bang -bar -complete=file -nargs=? Unix
-\ edit<bang> ++ff=unix <args>
-command! -bang -bar -complete=file -nargs=? Mac
-\ edit<bang> ++ff=mac <args>
-
-
-
-
 " BufferSweap  {{{2
 
 command! -bang -nargs=0 BufferSweap  call s:cmd_BufferSweap(<bang>0)
@@ -448,9 +441,12 @@ function! s:cmd_CD(path) abort
   if a:path != ''
     tcd `=a:path`
   else
-    let file_dir = expand('%:p:h')
-    let git_dir = finddir('.git', file_dir . ';')
-    tcd `=git_dir != '' ? fnamemodify(git_dir, ':p:h:h') : file_dir`
+    let buffer_dir = expand('%:p:h')
+    let git_dir = finddir('.git', buffer_dir . ';')
+    let new_current_dir = git_dir != ''
+    \                   ? fnamemodify(git_dir, ':p:h:h')
+    \                   : buffer_dir
+    tcd `=new_current_dir`
   endif
   pwd
 endfunction
@@ -469,6 +465,17 @@ command! -range=% FoldDebug
 \   eval(substitute(&l:foldexpr, '\<v:lnum\>', line('.'), '')),
 \   getline('.')
 \ )
+
+
+
+
+" Indent helpers  {{{2
+
+command! -bar -nargs=1 SpaceIndent
+\ setlocal expandtab shiftwidth=<args> softtabstop=<args> tabstop<
+
+command! -bar -nargs=1 TabIndent
+\ setlocal noexpandtab shiftwidth< softtabstop< tabstop=<args>
 
 
 
@@ -597,12 +604,13 @@ endfunction
 " Sum  {{{2
 
 command! -range Sum
-\ <line2>put ='' . s:fold_lines(function('s:sum_line'), 0, [<line1>, <line2>])
+\ <line2>put
+\ =string(s:fold_lines(function('s:sum_line'), 0, <line1>, <line2>))
 
-function! s:fold_lines(f, acc, range) abort
+function! s:fold_lines(f, acc, start_lnum, end_lnum) abort
   let acc = a:acc
 
-  for lnum in range(a:range[0], a:range[1])
+  for lnum in range(a:start_lnum, a:end_lnum)
     let line = getline(lnum)
     let acc = a:f(acc, line)
   endfor
@@ -658,7 +666,7 @@ command! -bar -complete=file -nargs=* New
 \ MaybeVertical new <args>
 
 command! -bar -nargs=* MaybeVertical
-\ execute winwidth(0) >= 150 ? 'vertical' : '' <q-args>
+\ execute (winwidth(0) >= 150 ? 'vertical' : '') <q-args>
 
 AlterCommand sp[lit]  Split
 AlterCommand h[elp]  Help
@@ -836,8 +844,7 @@ autocmd MyAutoCmd CmdwinEnter *
 
 function! s:on_CmdwinEnter() abort
   " Close the command-line window
-  nnoremap <buffer> <Esc><Esc>  <Esc><C-w>q
-  inoremap <buffer> <Esc><Esc>  <Esc><C-w>q
+  nnoremap <buffer> <Esc>  <Esc><C-w>q
 
   " Close the command-line window if the current line is empty
   inoremap <buffer> <expr> <BS>
@@ -862,13 +869,13 @@ inoremap <C-b>  <Left>
 inoremap <C-f>  <Right>
 inoremap <C-d>  <Delete>
 inoremap <expr> <C-a>
-     \   indent(line('.')) > 0 && virtcol('.') > indent(line('.')) + 1
-     \ ? "\<Home>\<S-Right>"
-     \ : "\<Home>"
+\        indent(line('.')) > 0 && virtcol('.') > indent(line('.')) + 1
+\      ? "\<Home>\<S-Right>"
+\      : "\<Home>"
 inoremap <expr> <C-e>
-       \ virtcol('.') < indent(line('.')) ? "\<S-Right>" : "\<End>"
+\        virtcol('.') < indent(line('.')) ? "\<S-Right>" : "\<End>"
 inoremap <expr> <C-k>
-       \ repeat("\<Delete>", max([strchars(getline('.')[col('.') - 1:]), 1]))
+\        repeat("\<Delete>", max([strchars(getline('.')[col('.') - 1:]), 1]))
 inoremap <expr> <C-y>  pumvisible() ? "\<C-y>" : "\<C-r>+"
 
 
@@ -1078,10 +1085,10 @@ let s:MARK_CHARACTERS = [
 \    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
 \ ]
 
-nnoremap <expr> [Space]m  <SID>push_into_marking()
-nnoremap <expr> <C-Space>  <SID>pop_from_marking()
+nnoremap <expr> [Space]m  <SID>push_into_markring()
+nnoremap <expr> <C-Space>  <SID>pop_from_markring()
 
-function! s:push_into_marking() abort  "{{{
+function! s:push_into_markring() abort  "{{{
   if !exists('b:markring_position')
     let b:markring_position = 0
   else
@@ -1092,7 +1099,7 @@ function! s:push_into_marking() abort  "{{{
   return 'm' . mark
 endfunction  "}}}
 
-function! s:pop_from_marking() abort  "{{{
+function! s:pop_from_markring() abort  "{{{
   let available_marks = join(map(getmarklist(bufnr('%')), 'v:val.mark[1:]'), '')
   let initial_position = get(b:, 'markring_position', 0)
   let position = initial_position
@@ -1294,7 +1301,7 @@ onoremap <expr> N  v:searchforward ? 'N' : 'n'
 
 " Jump to the definition of the keyword under the cursor
 nnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
-vnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C->"
+vnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
 
 
 nnoremap \  .
@@ -1327,32 +1334,14 @@ function! s:on_FileType_any() abort
 
   " Disable the auto-wrapping
   setlocal formatoptions-=t formatoptions-=c
-endfunction
 
-
-function! s:update_leadmultispace() abort
-  let settings = filter(split(&listchars, '\\\@<!,'),
-  \                     'stridx(v:val, "^leadmultispace:") != 0')
-  if &l:expandtab
-    let separator = strdisplaywidth("\u2502") == 1 ? "\u2502" : '|'
-    call add(settings, 'leadmultispace:'
-    \                  . separator
-    \                  . repeat(' ', &l:shiftwidth - 1))
-  else
-    call add(settings, 'leadmultispace: ')
+  let undo_options = indent_style#auto_configure()
+  if undo_options != ''
+    let b:undo_ftplugin = exists('b:undo_ftplugin')
+    \                   ? b:undo_ftplugin . ' | ' . undo_options
+    \                   : undo_options
   endif
-  try 
-    let &l:listchars = join(settings, ',')
-    return 1
-  catch /^Vim\%((\a\+)\)\=:E474:/
-    return 0
-  endtry
 endfunction
-
-if s:update_leadmultispace()
-  autocmd MyAutoCmd BufEnter *  call s:update_leadmultispace()
-  autocmd MyAutoCmd WinEnter *  call s:update_leadmultispace()
-endif
 
 
 " Optimize the loading for large files
@@ -1512,14 +1501,14 @@ function! s:ku_new_list_files_source() abort
   if isdirectory('.git')
     let name = 'async/git'
     let command = [
-    \  'fuzzy-filter', '-l', '1000',
+    \  'fzf-filter', '-l', '1000',
     \  '--',
     \  'git', 'ls-files', '--exclude-standard', '-c', '-o',
     \ ]
   else
     let name = 'async/fd'
     let command = [
-    \  'fuzzy-filter', '-l', '1000',
+    \  'fzf-filter', '-l', '1000',
     \  '--',
     \  'fd', '--type', 'f', '-c', 'never', '--max-results', '10000',
     \ ]
@@ -1594,10 +1583,7 @@ function! s:on_lsp_setup() abort
   if executable('rust-analyzer')
     call lsp#register_server({
     \   'name': 'rust-analyzer',
-    \   'cmd': {server_info -> [
-    \     'rust-analyzer',
-    \     lsp#utils#uri_to_path(server_info['root_uri'](server_info)),
-    \   ]},
+    \   'cmd': {server_info -> ['rust-analyzer']},
     \   'root_uri': {server_info -> lsp#utils#path_to_uri(
     \      lsp#utils#find_nearest_parent_file_directory(
     \        lsp#utils#get_buffer_path(),
@@ -1639,16 +1625,9 @@ let g:lsp_document_code_action_signs_enabled = 0
 let g:lsp_tagfunc_source_methods = ['definition']
 
 " let g:lsp_log_verbose = 1
-" let g:lsp_log_file = expand('~/.vim/info/vim-lsp.log')
+" let g:lsp_log_file = expand('~/.vim/vim-lsp.log')
 
 command! LspRestart  call lsp#ui#vim#stop_server() | edit
-
-
-
-
-" metarw  {{{2
-
-let g:metarw_gist_safe_write = 1
 
 
 
