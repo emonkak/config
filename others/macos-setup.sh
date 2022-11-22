@@ -53,6 +53,7 @@ brew install --cask \
   iterm2 \
   karabiner-elements \
   licecap \
+  macvim \
   mpv \
   resilio-sync \
   stats \
@@ -72,9 +73,9 @@ brew install \
   grep \
   gzip \
   make \
+  neovim \
   tig \
   tmux \
-  vim \
   zsh \
 
 defaults write -g ApplePressAndHoldEnabled -bool false
