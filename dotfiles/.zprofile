@@ -59,8 +59,3 @@ export LV='-c -l'
 export WINEARCH="win32"
 
 export MPD_CONF="$HOME/.mpd/mpd.conf"
-
-
-# Added by Toolbox App
-export PATH="$PATH:/home/emonkak/.local/share/JetBrains/Toolbox/scripts"
-

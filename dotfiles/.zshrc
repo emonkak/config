@@ -23,11 +23,11 @@ SAVEHIST=100000
 zshaddhistory() {
   line=(${(z)1})
 
-  # Save "dd", "rm" and "rmdir" only to internal history.
+  # Save "dd", "rm" and "rmdir" only to the internal history.
   [[ $line[1] = (dd|rm(|dir)) ]] && return 2
   [[ $line[1] = s(|udo) && $line[2] = (dd|rm(|dir)) ]] && return 2
 
-  # Suppress to save often-useed commands.
+  # Suppress to save commonly used commands.
   [[ $line[1] = (exit|pwd) ]] && return 1
   [[ $line[1] = (ls|la|ll|lla) && $line[2] = ';' ]] && return 1
 

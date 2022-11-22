@@ -6,7 +6,6 @@
 
 [core]
 	editor = nvim
-	excludesfile = ~/.gitignore
 	mergeoptions = --no-edit
 	pager = delta --color-only --paging always
 	quotepath = false
@@ -53,9 +52,10 @@
 	lg = log --graph --pretty=oneline --decorate --source --branches --tags --abbrev-commit
 	ls = ls-files
 	r = reset
+	re = restore
 	rh = reset --hard
 	rs = reset --soft
-	s = show
+	sh = show
 	st = status --branch
 	sw = switch
 
@@ -67,5 +67,10 @@
 [credential]
 	helper = store
 
+[delta]
+	syntax-theme = ansi
+
 [include]
 	path = ./github
+
+# vim: filetype=gitconfig
