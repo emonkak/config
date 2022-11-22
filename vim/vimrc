@@ -93,68 +93,63 @@ if has('gui_running')
     set guifont=Monospace\ 10
     set linespace=0
   elseif has('gui_macvim')
-    set guifont=Monaco:h12
-    set linespace=5
+    set guifont=Menlo:h10
+    set linespace=4
     set macmeta
-    set transparency=0
-    set visualbell
   elseif has('gui_win32')
     set guifont=Consolas:h10.5
     set guifontwide=Meiryo:h10.5
     set renderoptions=type:directx,renmode:5
-    set linespace=5
+    set linespace=1
   endif
   set guicursor=a:blinkwait4000-blinkon1500-blinkoff500
   set guioptions=AcgM
+  set visualbell
 endif
 
 if has('linux') && exists('*setcellwidths')
-  set ambiwidth=single
-  " setcellwidths {{{
   call setcellwidths(map([
-  \ [0x0101, 0], [0x0111, 0], [0x0113, 0], [0x011b, 0], [0x0126, 1],
-  \ [0x012b, 0], [0x0131, 2], [0x0138, 0], [0x013f, 3], [0x0144, 0],
-  \ [0x0148, 3], [0x014d, 0], [0x0152, 1], [0x0166, 1], [0x016b, 0],
-  \ [0x01ce, 0], [0x01d0, 0], [0x01d2, 0], [0x01d4, 0], [0x01d6, 0],
-  \ [0x01d8, 0], [0x01da, 0], [0x01dc, 0], [0x0251, 0], [0x0261, 0],
-  \ [0x02c4, 0], [0x02c7, 0], [0x02c9, 2], [0x02cd, 0], [0x02d0, 0],
-  \ [0x02d8, 3], [0x02dd, 0], [0x02df, 0], [0x0300, 111], [0x0391, 16],
-  \ [0x03a3, 6], [0x03b1, 16], [0x03c3, 6], [0x0401, 0], [0x0410, 63],
-  \ [0x0451, 0], [0x2010, 0], [0x2013, 2], [0x2016, 0], [0x2018, 0],
-  \ [0x2019, 0], [0x201c, 0], [0x201d, 0], [0x2020, 2], [0x2024, 3],
-  \ [0x2030, 0], [0x2032, 1], [0x2035, 0], [0x203b, 0], [0x203e, 0],
-  \ [0x2074, 0], [0x207f, 0], [0x2081, 3], [0x20ac, 0], [0x2103, 0],
-  \ [0x2105, 0], [0x2109, 0], [0x2113, 0], [0x2116, 0], [0x2121, 1],
-  \ [0x2126, 0], [0x212b, 0], [0x2153, 1], [0x215b, 3], [0x2160, 11],
-  \ [0x2170, 9], [0x2189, 0], [0x2190, 4], [0x2195, 4], [0x21b8, 1],
-  \ [0x21d2, 0], [0x21d4, 0], [0x21e7, 0], [0x2200, 0], [0x2202, 1],
-  \ [0x2207, 1], [0x220b, 0], [0x220f, 0], [0x2211, 0], [0x2215, 0],
-  \ [0x221a, 0], [0x221d, 3], [0x2223, 0], [0x2225, 0], [0x2227, 5],
-  \ [0x222e, 0], [0x2234, 3], [0x223c, 1], [0x2248, 0], [0x224c, 0],
-  \ [0x2252, 0], [0x2260, 1], [0x2264, 3], [0x226a, 1], [0x226e, 1],
-  \ [0x2282, 1], [0x2286, 1], [0x2295, 0], [0x2299, 0], [0x22a5, 0],
-  \ [0x22bf, 0], [0x2312, 0], [0x2460, 59], [0x249c, 77], [0x24eb, 20],
-  \ [0x2500, 75], [0x2550, 35], [0x2580, 15], [0x2592, 3], [0x25a0, 1],
-  \ [0x25a3, 6], [0x25b2, 1], [0x25b6, 0], [0x25b7, 0], [0x25bc, 1],
-  \ [0x25c0, 0], [0x25c1, 0], [0x25c6, 2], [0x25cb, 0], [0x25ce, 3],
-  \ [0x25e2, 3], [0x25ef, 0], [0x2605, 1], [0x2609, 0], [0x260e, 1],
-  \ [0x261c, 0], [0x261e, 0], [0x2640, 0], [0x2642, 0], [0x2660, 1],
-  \ [0x2663, 2], [0x2667, 3], [0x266c, 1], [0x266f, 0], [0x269e, 1],
-  \ [0x26bf, 0], [0x26c6, 7], [0x26cf, 4], [0x26d5, 12], [0x26e3, 0],
-  \ [0x26e8, 1], [0x26eb, 6], [0x26f4, 0], [0x26f6, 3], [0x26fb, 1],
-  \ [0x26fe, 1], [0x273d, 0], [0x2776, 9], [0x2b56, 3], [0x3248, 7],
-  \ [0xe000, 6399], [0xfe00, 15], [0xfffd, 0], [0x1f100, 10], [0x1f110, 29],
-  \ [0x1f130, 57], [0x1f170, 29], [0x1f18f, 1], [0x1f19b, 17], [0xe0100, 239],
-  \ [0xf0000, 65533], [0x100000, 65533],
+  \   [0x0101, 0], [0x0111, 0], [0x0113, 0], [0x011b, 0], [0x0126, 1],
+  \   [0x012b, 0], [0x0131, 2], [0x0138, 0], [0x013f, 3], [0x0144, 0],
+  \   [0x0148, 3], [0x014d, 0], [0x0152, 1], [0x0166, 1], [0x016b, 0],
+  \   [0x01ce, 0], [0x01d0, 0], [0x01d2, 0], [0x01d4, 0], [0x01d6, 0],
+  \   [0x01d8, 0], [0x01da, 0], [0x01dc, 0], [0x0251, 0], [0x0261, 0],
+  \   [0x02c4, 0], [0x02c7, 0], [0x02c9, 2], [0x02cd, 0], [0x02d0, 0],
+  \   [0x02d8, 3], [0x02dd, 0], [0x02df, 0], [0x0300, 111], [0x0391, 16],
+  \   [0x03a3, 6], [0x03b1, 16], [0x03c3, 6], [0x0401, 0], [0x0410, 63],
+  \   [0x0451, 0], [0x2010, 0], [0x2013, 2], [0x2016, 0], [0x2018, 0],
+  \   [0x2019, 0], [0x201c, 0], [0x201d, 0], [0x2020, 2], [0x2024, 3],
+  \   [0x2030, 0], [0x2032, 1], [0x2035, 0], [0x203b, 0], [0x203e, 0],
+  \   [0x2074, 0], [0x207f, 0], [0x2081, 3], [0x20ac, 0], [0x2103, 0],
+  \   [0x2105, 0], [0x2109, 0], [0x2113, 0], [0x2116, 0], [0x2121, 1],
+  \   [0x2126, 0], [0x212b, 0], [0x2153, 1], [0x215b, 3], [0x2160, 11],
+  \   [0x2170, 9], [0x2189, 0], [0x2190, 4], [0x2195, 4], [0x21b8, 1],
+  \   [0x21d2, 0], [0x21d4, 0], [0x21e7, 0], [0x2200, 0], [0x2202, 1],
+  \   [0x2207, 1], [0x220b, 0], [0x220f, 0], [0x2211, 0], [0x2215, 0],
+  \   [0x221a, 0], [0x221d, 3], [0x2223, 0], [0x2225, 0], [0x2227, 5],
+  \   [0x222e, 0], [0x2234, 3], [0x223c, 1], [0x2248, 0], [0x224c, 0],
+  \   [0x2252, 0], [0x2260, 1], [0x2264, 3], [0x226a, 1], [0x226e, 1],
+  \   [0x2282, 1], [0x2286, 1], [0x2295, 0], [0x2299, 0], [0x22a5, 0],
+  \   [0x22bf, 0], [0x2312, 0], [0x2460, 59], [0x249c, 77], [0x24eb, 20],
+  \   [0x2500, 75], [0x2550, 35], [0x2580, 15], [0x2592, 3], [0x25a0, 1],
+  \   [0x25a3, 6], [0x25b2, 1], [0x25b6, 0], [0x25b7, 0], [0x25bc, 1],
+  \   [0x25c0, 0], [0x25c1, 0], [0x25c6, 2], [0x25cb, 0], [0x25ce, 3],
+  \   [0x25e2, 3], [0x25ef, 0], [0x2605, 1], [0x2609, 0], [0x260e, 1],
+  \   [0x261c, 0], [0x261e, 0], [0x2640, 0], [0x2642, 0], [0x2660, 1],
+  \   [0x2663, 2], [0x2667, 3], [0x266c, 1], [0x266f, 0], [0x269e, 1],
+  \   [0x26bf, 0], [0x26c6, 7], [0x26cf, 4], [0x26d5, 12], [0x26e3, 0],
+  \   [0x26e8, 1], [0x26eb, 6], [0x26f4, 0], [0x26f6, 3], [0x26fb, 1],
+  \   [0x26fe, 1], [0x273d, 0], [0x2776, 9], [0x2b56, 3], [0x3248, 7],
+  \   [0xe000, 6399], [0xfe00, 15], [0xfffd, 0], [0x1f100, 10], [0x1f110, 29],
+  \   [0x1f130, 57], [0x1f170, 29], [0x1f18f, 1], [0x1f19b, 17],
+  \   [0xe0100, 239], [0xf0000, 65533], [0x100000, 65533],
   \ ], '[
   \    v:val[0],
   \    v:val[0] + v:val[1],
   \    max([1, libcallnr("", "wcwidth", v:val[0])]),
   \ ]'))
-  " }}}
-else
-  set ambiwidth=double
 endif
+
 if exists('+clipboard')
   if &clipboard =~# '\<autoselect\>'
     set clipboard& clipboard-=autoselect clipboard+=autoselectml
@@ -173,7 +168,6 @@ set display=lastline
 set noequalalways
 set foldmethod=marker
 set fileformats=unix,dos,mac
-set guicursor-=i-ci-ve:ver25
 set grepformat^=%f:%l:%c:%m
 set hidden
 if exists('+langremap')
@@ -182,7 +176,7 @@ endif
 set laststatus=2
 set linebreak
 set list
-let &listchars = "tab:\u00bb ,trail:\u00b7,extends:>,precedes:<,conceal:\u00a6,nbsp:\u00b7"
+set listchars=tab:\\u00bb\ ,trail:\\u00b7,extends:>,precedes:<,conceal:\\u00a6,nbsp:\\u00b7
 set keywordprg=:help
 set mouse=
 set nrformats-=octal
@@ -379,10 +373,12 @@ function! s:toggle_grepprg() abort
   echo &l:grepprg
 endfunction
 
-autocmd MyAutoCmd BufNewFile,BufReadPost *
-\ let &l:grepprg = finddir('.git', expand('%:p:h') . ';') != ''
-\   ? s:GREPPRGS[0]
-\   : s:GREPPRGS[1]
+autocmd MyAutoCmd BufEnter *
+\   if &l:grepprg == ''
+\ |   let &l:grepprg = finddir('.git', expand('%:p:h') . ';') != ''
+\                    ? s:GREPPRGS[0]
+\                    : s:GREPPRGS[1]
+\ | endif
 
 
 
@@ -982,6 +978,7 @@ endfunction  "}}}
 nnoremap [Space]f  <Nop>
 nnoremap [Space]fe  :<C-u>setlocal fileencoding=
 nnoremap [Space]ff  :<C-u>setlocal fileformat=
+nnoremap [Space]fi  :<C-u>setlocal expandtab? shiftwidth? softtabstop?<CR>
 nnoremap [Space]fr  :<C-\>esetcmdpos(8 + strlen(expand('%:p:r'))) ? '' : 'Rename ' . expand("%:p")<CR>
 nnoremap [Space]fs  :<C-u>setlocal filetype? fileencoding? fileformat?<CR>
 nnoremap [Space]ft  :<C-u>setfiletype<Space>
@@ -1332,19 +1329,12 @@ function! s:on_FileType_any() abort
     setlocal omnifunc=syntaxcomplete#Complete
   endif
 
-  " Disable the auto-wrapping
+  " Disable auto-wrapping
   setlocal formatoptions-=t formatoptions-=c
-
-  let undo_options = indent_style#auto_configure()
-  if undo_options != ''
-    let b:undo_ftplugin = exists('b:undo_ftplugin')
-    \                   ? b:undo_ftplugin . ' | ' . undo_options
-    \                   : undo_options
-  endif
 endfunction
 
 
-" Optimize the loading for large files
+" Optimize the loading for large size files
 autocmd MyAutoCmd BufReadPre *
 \   if getfsize(expand("<afile>")) > 1024 * 1024 * 8
 \ |   set eventignore+=FileType
@@ -1483,11 +1473,12 @@ nnoremap [Space]kd  :<C-u>call ku#start(ku#source#lsp_symbol#new())<CR>
 nnoremap [Space]kf  :<C-u>call ku#start(ku#source#file#new())<CR>
 nnoremap [Space]kg  :<C-u>call ku#start(ku#source#metarw#new('git'))<CR>
 nnoremap [Space]kc
-\        :<C-u>call ku#start(ku#source#file#new(), expand('%:h:s?^\.$??:s?.$?&/?'))<CR>
+\        :<C-u>call ku#start(ku#source#file#new(), expand('%:h') != '.' ? expand('%:h') . '/' : '')<CR>
 nnoremap [Space]kj  :<C-u>call ku#start(ku#source#jumplist#new())<CR>
 nnoremap [Space]kk  :<C-u>call ku#restart()<CR>
 nnoremap [Space]kl  :<C-u>call ku#start(<SID>ku_new_list_files_source())<CR>
 nnoremap [Space]km  :<C-u>call ku#start(ku#source#oldfiles#new())<CR>
+nnoremap [Space]kn  :<C-u>call ku#start(ku#source#file#new(expand("~/Sync/Documents/Notes")))<CR>
 nnoremap [Space]kq  :<C-u>call ku#start(ku#source#quickfix#new())<CR>
 nnoremap [Space]kr  :<C-u>call ku#start(ku#source#register#new())<CR>
 nnoremap [Space]ks  :<C-u>call ku#start(ku#source#spell#new())<CR>

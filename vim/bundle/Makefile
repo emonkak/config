@@ -47,7 +47,8 @@ PACKAGE_URLS=\
   https://github.com/thinca/vim-quickrun.git \
   https://github.com/thinca/vim-ref.git \
   https://github.com/thinca/vim-textobj-between.git \
-  https://github.com/tyru/operator-camelize.vim.git
+  https://github.com/tyru/operator-camelize.vim.git \
+  https://github.com/udalov/kotlin-vim.git
 
 PACKAGES=$(foreach url,$(PACKAGE_URLS),$(call PackageNameFromUrl,$(url)))
 
@@ -110,10 +111,10 @@ $(eval \
 all: install
 
 list:
-	@echo -e $(subst $(SPACE),\n,$(sort $(PACKAGES)))
+	@echo -e $(subst $(SPACE),\\n,$(sort $(PACKAGES)))
 
 orphans:
-	@echo -e $(subst $(SPACE),\n,$(filter-out $(PACKAGES) $(MAKEFILE_LIST),$(wildcard *)))
+	@echo -e $(subst $(SPACE),\\n,$(filter-out $(PACKAGES) $(MAKEFILE_LIST),$(wildcard *)))
 
 .PHONY: all list orphans
 
