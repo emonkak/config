@@ -1,3 +1,7 @@
+if expand('<sfile>:t:r') !=# &filetype
+  finish
+endif
+
 setlocal expandtab
 setlocal foldexpr=GoFold(v:lnum)
 setlocal foldmethod=expr

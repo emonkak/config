@@ -1,5 +1,5 @@
-if !exists('g:indent_detection#detection_lines')
-  let g:indent_detection#detection_lines = 100
+if !exists('g:indent_detection#detection_chunks')
+  let g:indent_detection#detection_chunks = 100
 endif
 
 function! indent_detection#configure_options() abort
@@ -28,7 +28,7 @@ function! indent_detection#detect_options() abort
   let l = line('$')
 
   while i < l
-    let lines = getline(i, i + g:indent_detection#detection_lines - 1)
+    let lines = getline(i, i + g:indent_detection#detection_chunks - 1)
     for line in lines
       if line[0] == "\t"
         let tabbed_lines += 1
@@ -50,7 +50,7 @@ function! indent_detection#detect_options() abort
     if tabbed_lines > 0 || spaced_lines > 0
       break
     endif
-    let i += g:indent_detection#detection_lines
+    let i += g:indent_detection#detection_chunks
   endwhile
 
   let total_identions = 0

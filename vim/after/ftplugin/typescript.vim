@@ -1,3 +1,7 @@
+if expand('<sfile>:t:r') !=# &filetype
+  finish
+endif
+
 setlocal expandtab
 setlocal foldexpr=TypescriptFold(v:lnum)
 setlocal foldmethod=expr
@@ -41,4 +45,3 @@ let b:undo_ftplugin .= 'setlocal'
 \                    . ' iskeyword<'
 \                    . ' shiftwidth<'
 \                    . ' softtabstop<'
-\                    . ' ' . indent_style#auto_detect()

@@ -1,3 +1,7 @@
+if expand('<sfile>:t:r') !=# &filetype
+  finish
+endif
+
 setlocal cinoptions-=(0
 setlocal expandtab
 setlocal foldexpr=JavascriptFold(v:lnum)
@@ -9,16 +13,17 @@ setlocal softtabstop=4
 
 function! JavascriptFold(lnum) abort
   let current = getline(a:lnum)
+  let level = indent(a:lnum) / shiftwidth() + 1
 
   if current =~# '\s*}$'
-    let level = indent(a:lnum) / shiftwidth() + 1
     return level > 2 ? '=' : '<' . level
   endif
 
   if current =~# '^\s*\%(export\s\+\%(default\s\+\)\?\)\?\%(class\|\%(async\s\+\)\?function\>\)'
-  \  && current !~# ';\s*$'
-    let level = indent(a:lnum) / shiftwidth() + 1
-    return level > 2 ? '=' : '>' . level
+  \  || (level > 1 && current =~# '^\s*\%(static\s\+\)\?\%(async\s\+\)\?\h\w*(\s*\(\h\|)\)')
+    if current !~# ';\s*$'
+      return level > 2 ? '=' : '>' . level
+    endif
   endif
 
   return '='

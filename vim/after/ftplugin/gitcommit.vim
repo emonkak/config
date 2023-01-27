@@ -1,3 +1,7 @@
+if expand('<sfile>:t:r') !=# &filetype
+  finish
+endif
+
 setlocal nofoldenable
 
 if exists('b:undo_ftplugin')

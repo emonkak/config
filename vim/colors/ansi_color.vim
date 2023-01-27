@@ -4,6 +4,29 @@ set background=dark
 
 let g:colors_name = expand('<sfile>:t:r')
 
+if !exists('g:ansi_color_gui_color_table')
+  let g:ansi_color_gui_color_table = {
+  \   'foreground': 'White',
+  \   'background': 'Black',
+  \   'black': 'Black',
+  \   'red': 'DarkRed',
+  \   'green': 'DarkGreen',
+  \   'yellow': 'DarkYellow',
+  \   'blue': 'DarkBlue',
+  \   'magenta': 'DarkMagenta',
+  \   'cyan': 'DarkCyan',
+  \   'white': 'Gray',
+  \   'bright-black': 'DarkGray',
+  \   'bright-red': 'Red',
+  \   'bright-green': 'Green',
+  \   'bright-yellow': 'Yellow',
+  \   'bright-blue': 'Blue',
+  \   'bright-magenta': 'Magenta',
+  \   'bright-cyan': 'Cyan',
+  \   'bright-white': 'White',
+  \ }
+endif
+
 let s:NR16_COLOR_TABLE = {
 \   'black': 0,
 \   'red': 1,
@@ -41,29 +64,6 @@ let s:NR8_COLOR_TABLE = {
 \   'bright-cyan': 3,
 \   'bright-white': 7,
 \ }
-
-if !exists('g:ansi_color_gui_color_table')
-  let g:ansi_color_gui_color_table = {
-  \   'foreground': 'White',
-  \   'background': 'Black',
-  \   'black': 'Black',
-  \   'red': 'DarkRed',
-  \   'green': 'DarkGreen',
-  \   'yellow': 'DarkYellow',
-  \   'blue': 'DarkBlue',
-  \   'magenta': 'DarkMagenta',
-  \   'cyan': 'DarkCyan',
-  \   'white': 'Gray',
-  \   'bright-black': 'DarkGray',
-  \   'bright-red': 'Red',
-  \   'bright-green': 'Green',
-  \   'bright-yellow': 'Yellow',
-  \   'bright-blue': 'Blue',
-  \   'bright-magenta': 'Magenta',
-  \   'bright-cyan': 'Cyan',
-  \   'bright-white': 'White',
-  \ }
-endif
 
 function! s:h(group, definition) abort
   let args = []

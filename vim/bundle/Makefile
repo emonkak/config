@@ -17,9 +17,9 @@ PACKAGE_URLS=\
   https://github.com/junegunn/vim-easy-align.git \
   https://github.com/jwalton512/vim-blade.git \
   https://github.com/kana/vim-altercmd.git \
+  https://github.com/kana/vim-altr.git \
   https://github.com/kana/vim-arpeggio.git \
   https://github.com/kana/vim-exjumplist.git \
-  https://github.com/kana/vim-gf-user.git \
   https://github.com/kana/vim-grex.git \
   https://github.com/kana/vim-metarw-git.git \
   https://github.com/kana/vim-metarw.git \

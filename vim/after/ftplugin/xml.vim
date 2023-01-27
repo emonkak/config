@@ -1,3 +1,7 @@
+if expand('<sfile>:t:r') !=# &filetype
+  finish
+endif
+
 setlocal expandtab
 setlocal shiftwidth=2
 setlocal softtabstop=2
@@ -8,9 +12,9 @@ setlocal iskeyword+=-
 " Insert the end tag after the cursor.
 " Before: <code{|}
 " After:  <code>{|}</code>
-inoremap <buffer> <LT><LT>  ><LT>/<C-x><C-o><C-r>=
+inoremap <buffer> <lt><lt>  ><lt>/<C-x><C-o><C-r>=
                            \<SID>keys_to_stop_insert_mode_completion()
-                           \<CR><C-o>F<LT>
+                           \<CR><C-o>F<lt>
 
 " Wrap the cursor with the tag.
 " Before: <code{|}
@@ -40,5 +44,5 @@ let b:undo_ftplugin .= 'setlocal'
 \                    . ' iskeyword<'
 \                    . ' shiftwidth<'
 \                    . ' softtabstop<'
-\                    . ' | execute "iunmap" "<buffer>" "<<"'
-\                    . ' | execute "iunmap" "<buffer>" ">>"'
+\                    . ' | silent! execute "iunmap <buffer> <lt><lt>"'
+\                    . ' | silent! execute "iunmap <buffer> >>"'

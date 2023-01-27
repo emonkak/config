@@ -1,3 +1,7 @@
+if expand('<sfile>:t:r') !=# &filetype
+  finish
+endif
+
 setlocal foldmethod=expr
 setlocal foldexpr=RustFold(v:lnum)
 

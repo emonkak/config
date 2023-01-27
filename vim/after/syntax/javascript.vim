@@ -21,6 +21,11 @@ call s:include_html_syntax()
 syntax keyword javaScriptAsync  async
 syntax keyword javaScriptRepeat  of
 
+syntax clear javaScriptDeprecated
+syntax clear javaScriptGlobal
+syntax clear javaScriptMember
+syntax clear javaScriptMessage
+
 syntax clear javaScriptReserved
 syntax keyword javaScriptReserved
 \              await
@@ -35,7 +40,6 @@ syntax keyword javaScriptReserved
 \              delete
 \              do
 \              else
-\              enum
 \              enum
 \              export
 \              extends
@@ -76,8 +80,8 @@ syntax keyword javaScriptImportDeclaration
 \              nextgroup=javaScriptImportedBinding,javaScriptNameSpaceImport,javaScriptNamedImports,javaScriptModuleSpecifier
 \              skipwhite
 syntax match javaScriptImportedBinding
-\            "\<\K\k*"
-\            nextgroup=javaScriptFromClause
+\            "\<\K\k*\(\s*,\s*\)\?"
+\            nextgroup=javaScriptNamedImports,javaScriptFromClause
 \            contained
 \            skipwhite
 syntax match javaScriptNameSpaceImport

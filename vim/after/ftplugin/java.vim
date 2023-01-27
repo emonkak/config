@@ -1,3 +1,7 @@
+if expand('<sfile>:t:r') !=# &filetype
+  finish
+endif
+
 setlocal cinoptions=:1s,l1,g0,t0,(0,j1
 setlocal expandtab
 setlocal foldmethod=syntax

@@ -1,3 +1,7 @@
+if expand('<sfile>:t:r') !=# &filetype
+  finish
+endif
+
 setlocal foldmethod=expr
 let &l:foldexpr = '(getline(v:lnum)[0] == "[") ? ">1" : "="'
 

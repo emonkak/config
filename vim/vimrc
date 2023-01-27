@@ -3,15 +3,16 @@
 " Absolute  {{{2
 
 if has('vim_starting')
+  if has('nvim') && isdirectory('/usr/share/vim/vimfiles')
+    set runtimepath^=/usr/share/vim/vimfiles
+    set runtimepath+=/usr/share/vim/vimfiles/after
+  endif
   if has('win32') || has('win64')
     set runtimepath^=~\\vimfiles\\bundle\\*
     set runtimepath+=~\\vimfiles\\bundle\\*\\after
   else
     set runtimepath^=~/.vim/bundle/*
     set runtimepath+=~/.vim/bundle/*/after
-  endif
-  if has('nvim') && isdirectory('/usr/share/vim/vimfiles')
-    set runtimepath+=/usr/share/vim/vimfiles
   endif
 endif
 
@@ -574,15 +575,15 @@ endfunction
 
 " SyntaxCheck {{{2
 
-command! -bar -nargs=0 SyntaxCheck
-\ echo join(<SID>syntax_check(line('.'), col('.')), '/')
+command! -bar -nargs=0 SyntaxStack
+\ echo join(<SID>syntax_stack(line('.'), col('.')), '/')
 
-function! s:syntax_check(line, col) abort
+function! s:syntax_stack(line, col) abort
   let stack = []
 
   for syn_id in synstack(a:line, a:col)
-    let syn_trans_id = synIDtrans(syn_id)
     let name = synIDattr(syn_id, 'name')
+    let syn_trans_id = synIDtrans(syn_id)
 
     if syn_id != syn_trans_id
       let name .= '<' . synIDattr(syn_trans_id, 'name') . '>'
@@ -619,6 +620,9 @@ function! s:sum_line(acc, line) abort
   \                '\c\(0\(x\x\+\|b[01]\+\|o\?[0-7]\+\)\)\|\d\+\(\.\d\+\)\?')
   if n == ''
     return a:acc
+  endif
+  if stridx(n, '.') >= 0
+    return a:acc + str2float(n)
   endif
   if n[0:1] == '0x'
     let base = 16
@@ -1348,9 +1352,14 @@ autocmd MyAutoCmd BufReadPre *
 autocmd MyAutoCmd InsertLeave *  set nopaste
 
 
-" Visualize ideographic spaces
+" Highlight ideographic spaces
 autocmd MyAutoCmd VimEnter,WinEnter *
 \ match Underlined /[\u3000\ufff9-\ufffc]/
+
+
+" Highlight kangxi Radicals
+autocmd MyAutoCmd VimEnter,WinEnter *
+\ match WarningMsg /[\u2f00-\u2fd5]/
 
 
 " When editing a file, always jump to the last known cursor position
@@ -1482,8 +1491,7 @@ nnoremap [Space]kn  :<C-u>call ku#start(ku#source#file#new(expand("~/Sync/Docume
 nnoremap [Space]kq  :<C-u>call ku#start(ku#source#quickfix#new())<CR>
 nnoremap [Space]kr  :<C-u>call ku#start(ku#source#register#new())<CR>
 nnoremap [Space]ks  :<C-u>call ku#start(ku#source#spell#new())<CR>
-nnoremap [Space]kw
-\        :<C-u>call ku#start(ku#source#project#new(expand('~/Sync/works'), ku#source#file#new()))<CR>
+nnoremap [Space]kw  :<C-u>call ku#start(ku#source#project#new(expand('~/Sync/works'), ku#source#file#new()))<CR>
 nnoremap [Space]kz  :<C-u>call ku#start(ku#source#fold#new())<CR>
 nnoremap [Space]k'  :<C-u>call ku#start(ku#source#mark#new())<CR>
 
@@ -1506,7 +1514,7 @@ function! s:ku_new_list_files_source() abort
   endif
   return ku#source#async#new({
   \   'name': name,
-  \   'default_kind': g:ku#kind#file#module,
+  \   'default_kind': g:ku#kind#file#export,
   \   'command': command,
   \   'selector_fn': { line -> { 'word': line } },
   \ })
@@ -1597,6 +1605,11 @@ function! s:on_lsp_setup() abort
     \        ['package.json']
     \      )
     \   )},
+    \   'initialization_options': {
+    \     'preferences': {
+    \       'disableSuggestions': v:true,
+    \     },
+    \   },
     \   'allowlist': ['javascript', 'javascriptreact', 'typescript', 'typescriptreact'],
     \ })
   endif
@@ -1708,7 +1721,8 @@ let g:quickrun_config = {
 \   },
 \   'javascript/nodejs': {
 \     'command': 'node',
-\     'tempfile': '%{tempname()}.js'
+\     'tempfile': '%{tempname()}.mjs',
+\     'cmdopt': "--experimental-loader 'data:text/javascript,let%20e=true;export%20function%20load(t,o,r)%7Bif(e)%7Bo.format=%22module%22;e=false%7Dreturn%20r(t,o,r)%7D'",
 \   },
 \   'json': {
 \     'cmdopt': '.',
@@ -1870,7 +1884,7 @@ endif
 call smartinput#define_rule({
 \   'at': '/\*\*\%#',
 \   'char': '<CR>',
-\   'input': '<CR><CR><Space>*/<Up><Space>*<Space>',
+\   'input': '<CR><CR>/<Up><Space>',
 \ })
 
 " for Vim Script  {{{

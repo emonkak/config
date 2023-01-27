@@ -1,3 +1,7 @@
+if expand('<sfile>:t:r') !=# &filetype
+  finish
+endif
+
 setlocal commentstring=--%s
 setlocal expandtab
 setlocal shiftwidth=2

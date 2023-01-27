@@ -1,7 +1,13 @@
+if expand('<sfile>:t:r') !=# &filetype
+  finish
+endif
+
 setlocal commentstring=//%s
 setlocal expandtab
 setlocal foldexpr=PHPFold(v:lnum)
 setlocal foldmethod=expr
+setlocal iskeyword+=$
+setlocal omnifunc=
 setlocal shiftwidth=4
 setlocal softtabstop=4
 
@@ -100,9 +106,9 @@ endfunction
 function! s:create_setter(visibility, name, type) abort
   let type_definition = a:type ==# 'mixed' ? '' : a:type . ' '
   return join([
-  \   '    ' . a:visibility . ' function set' . s:camelize(a:name) . '(' . type_definition . '$' . s:lowerCamelize(a:name) . '): void',
+  \   '    ' . a:visibility . ' function set' . s:camelize(a:name) . '(' . type_definition . '$' . s:lower_camelize(a:name) . '): void',
   \   '    {',
-  \   '        $this->' . a:name . ' = ' . '$' . s:lowerCamelize(a:name) . ';',
+  \   '        $this->' . a:name . ' = ' . '$' . s:lower_camelize(a:name) . ';',
   \   '    }'
   \ ], "\n")
 endfunction
@@ -136,7 +142,7 @@ function! s:camelize(string) abort
     \                 'gi')
 endfunction
 
-function! s:lowerCamelize(string) abort
+function! s:lower_camelize(string) abort
     return substitute(s:camelize(a:string),
     \                 '^[a-z]',
     \                 '\=tolower(submatch(0))',
@@ -154,6 +160,7 @@ let b:undo_ftplugin .= 'setlocal'
 \                    . ' expandtab<'
 \                    . ' foldexpr<'
 \                    . ' foldmethod<'
+\                    . ' iskeyword<'
 \                    . ' shiftwidth<'
 \                    . ' softtabstop<'
 \                    . ' | execute "iunabbrev" "<buffer>" "/**"'
