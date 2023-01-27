@@ -263,3 +263,16 @@ media-libs/libheif x265
 
 # for gui-apps/gcolor3
 dev-libs/libportal gtk
+
+# required by dev-libs/glib-2.74.1-r1::gentoo
+# required by app-editors/vscodium-1.73.1.22314::gentoo
+# required by @selected
+# required by @world (argument)
+dev-libs/libpcre2 abi_x86_32
+
+# required by media-gfx/krita-5.1.5::gentoo[python_single_target_python3_10]
+dev-python/PyQt5 widgets declarative gui network
+dev-qt/qtcore icu
+
+# required by www-servers/nginx-1.23.3::gentoo
+>=app-misc/mime-types-2.1.53 nginx

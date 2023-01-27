@@ -1,3 +1,5 @@
+=net-p2p/resilio-sync-9999
+
 # Prevent legacy Python
 dev-lang/python:2.7
 

@@ -48,7 +48,7 @@ GROUP_GENTOO_FILES=\
   gentoo/usr/src/linux/.config \
   gentoo/var/lib/portage/world \
   $(patsubst %, \
-    gentoo/%, \
+    gentoo%, \
     $(shell find /etc/portage/patches -type f))
 GROUP_GENTOO_RULE=$(patsubst gentoo/%, /%, $(1))
 

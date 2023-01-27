@@ -1,5 +1,4 @@
 app-admin/haskell-updater
-app-admin/keepassxc
 app-admin/logrotate
 app-admin/sudo
 app-admin/syslog-ng
@@ -58,11 +57,9 @@ app-text/grip
 app-text/tree
 dev-db/mysql
 dev-haskell/cabal-install
-dev-java/sbt-bin
 dev-lang/ghc
 dev-lang/php
 dev-lang/ruby
-dev-lang/scala
 dev-libs/libdbusmenu
 dev-php/pecl-apcu
 dev-php/pecl-memcached
@@ -146,7 +143,6 @@ net-misc/wget2
 net-misc/whois
 net-p2p/resilio-sync
 net-p2p/transmission
-sci-visualization/gnuplot
 sys-apps/dbus
 sys-apps/dmidecode
 sys-apps/dstat
@@ -171,7 +167,6 @@ sys-apps/ripgrep
 sys-apps/safe-rm
 sys-apps/smartmontools
 sys-apps/usbutils
-sys-apps/usermode-utilities
 sys-auth/nss-mdns
 sys-auth/polkit
 sys-boot/grub:2
@@ -179,7 +174,6 @@ sys-boot/os-prober
 sys-boot/unetbootin
 sys-devel/clang
 sys-devel/gdb
-sys-devel/mold
 sys-fs/dmg2img
 sys-fs/dosfstools
 sys-fs/exfat-utils
@@ -190,7 +184,6 @@ sys-kernel/pt3
 sys-libs/ncurses
 sys-power/acpitool
 sys-power/hibernate-script
-sys-power/suspend
 sys-process/at
 sys-process/cronie
 sys-process/htop
@@ -218,6 +211,7 @@ x11-apps/xset
 x11-apps/xsetroot
 x11-apps/xwininfo
 x11-base/xorg-server
+x11-drivers/xf86-input-wacom
 x11-drivers/xf86-video-intel
 x11-libs/libnotify
 x11-misc/dunst
