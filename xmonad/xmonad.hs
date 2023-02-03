@@ -1,5 +1,5 @@
 -- My xmonad.hs
--- Import  --{{{1
+-- Imports {{{1
 
 import XMonad
 import XMonad.Actions.CycleWS
@@ -12,12 +12,15 @@ import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
+import XMonad.Hooks.StatusBar
 import XMonad.Hooks.UrgencyHook
 import XMonad.Layout.Gaps
-import XMonad.Layout.MultiPanes
+import XMonad.Layout.MultiColumns
+import XMonad.Layout.ThreeColumns
 import XMonad.Layout.Named
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Spacing
+import XMonad.Layout.StableColumns
 import XMonad.Layout.ToggleLayouts
 import XMonad.Prompt
 import XMonad.Prompt.Shell
@@ -32,10 +35,7 @@ import Data.Monoid (All(..))
 import System.Exit (exitWith, ExitCode(..))
 import qualified Data.Map as M
 
-
-
-
--- Configs  --{{{1
+-- Variables {{{1
 
 myTerminal = "alacritty"
 myBorderWidth = 2
@@ -56,22 +56,52 @@ myGrayColor8 = "#4e5a61"
 myGrayColor9 = "#363f45"
 myGrayColor10 = "#21272b"
 
-myAccentColor1 = "#e6f5ff"
-myAccentColor2 = "#d4eeff"
-myAccentColor3 = "#b6e0fc"
-myAccentColor4 = "#8dd0fc"
-myAccentColor5 = "#5ebaf7"
-myAccentColor6 = "#1c95e6"
-myAccentColor7 = "#0675bf"
-myAccentColor8 = "#015994"
-myAccentColor9 = "#024069"
-myAccentColor10 = "#022338"
+myThemeColor1 = "#e6f5ff"
+myThemeColor2 = "#d4eeff"
+myThemeColor3 = "#b6e0fc"
+myThemeColor4 = "#8dd0fc"
+myThemeColor5 = "#5ebaf7"
+myThemeColor6 = "#1c95e6"
+myThemeColor7 = "#0675bf"
+myThemeColor8 = "#015994"
+myThemeColor9 = "#024069"
+myThemeColor10 = "#022338"
+
+-- Log {{{1
+
+myPP = do
+  floated <- withWindowSet isFloat
+  pure $ def
+    { ppCurrent          = xmobarColorWithOffset myGrayColor10 myThemeColor5 . wrapSpaces
+    , ppHidden           = wrapSpaces
+    , ppHiddenNoWindows  = xmobarColor myGrayColor6 "" . wrapSpaces
+    , ppUrgent           = wrap "*" " "
+    , ppSep              = xmobarColor myGrayColor8 "" $ wrap " " " " $ xmobarIcon "separator.xbm"
+    , ppWsSep            = ""
+    , ppTitle            = if floated then ("<fn=1>\xe069</fn> " ++) else id
+    , ppTitleSanitize    = xmobarRaw
+    , ppLayout           = xmobarColor myThemeColor5 "" . layoutIcon
+    }
+  where
+    layoutIcon name = case name of
+      "Spacing Tall"     -> xmobarIcon "layout-tall.xbm"
+      "Spacing ThreeCol" -> xmobarIcon "layout-threecol.xbm"
+      "Full"             -> xmobarIcon "layout-full.xbm"
+      _                  -> xmobarRaw name
+    xmobarIcon = wrap "<icon=" "/>"
+    xmobarColorWithOffset fg bg = wrap ("<fc=" ++ fg ++ "," ++ bg ++ ":1>") "</fc>"
+    wrapSpaces = wrap " " " "
+    isFloat ws = return $ case W.peek ws of
+      Nothing -> False
+      Just w  -> M.member w $ W.floating ws
+
+-- Prompt {{{1
 
 myXPConfig ref = (def :: XPConfig)
   { font              = myFont
   , fgColor           = myGrayColor1
   , bgColor           = myGrayColor10
-  , fgHLight          = myAccentColor5
+  , fgHLight          = myThemeColor5
   , bgHLight          = myGrayColor10
   , borderColor       = myGrayColor10
   , promptBorderWidth = 0
@@ -90,11 +120,8 @@ myXPConfig ref = (def :: XPConfig)
       , ((controlMask, xK_w), killWord Prev)
       ]
 
-
-
-
--- Hooks  --{{{1
--- EventHook  --{{{2
+-- Hooks {{{1
+-- Event Hook {{{2
 
 myEventHook = removeBorderEventHook $ foldr (<||>) (pure False)
   [ className =? "Wine"
@@ -110,62 +137,23 @@ removeBorderEventHook query e = do
   where
     w = ev_window e
 
-
-
-
-
--- LayoutHook  --{{{2
+-- Layout Hook {{{2
 
 myLayoutHook = avoidStruts $ smartBorders $ toggleLayouts Full $
                spacing 4 $ gaps [(U, 4), (D, 4), (L, 4), (R, 4)] $
                (tallLayout ||| threeColLayout)
   where
-    tallLayout = named "Tall" $ MultiPanes (3/100) ((3/100) * (16/9))
-      [ Pane (PaneSlotAtMost 1) (1/2) []
-      , Pane (PaneSlotAtLeast 1) (1/2) []
+    tallLayout = named "Tall" $ stableColumns (3/100) ((3/100) * (16/9))
+      [ staticColumn 1 (1/2) []
+      , dynamicColumn 1 (1/2) []
       ]
-    threeColLayout = named "ThreeCol" $ MultiPanes (3/100) ((3/100) * (16/9))
-      [ Pane (PaneSlotAtMost 1) (2/4) []
-      , Pane (PaneSlotAtLeast 1) (1/4) []
-      , Pane (PaneSlotAtLeast 2) (1/4) []
+    threeColLayout = named "ThreeCol" $ stableColumns (3/100) ((3/100) * (16/9))
+      [ staticColumn 1 (2/4) []
+      , dynamicColumn 1 (1/4) []
+      , dynamicColumn 2 (1/4) []
       ]
 
-
-
-
--- LogHook  --{{{2
-
-myLogHook h = do
-  floated <- withWindowSet isFloat
-  dynamicLogWithPP $ def
-    { ppOutput           = hPutStrLn h
-    , ppCurrent          = xmobarColorWithOffset myGrayColor10 myAccentColor5 . wrapSpaces
-    , ppHidden           = wrapSpaces
-    , ppHiddenNoWindows  = xmobarColor myGrayColor6 "" . wrapSpaces
-    , ppUrgent           = wrap "*" " "
-    , ppSep              = xmobarColor myGrayColor8 "" $ wrap " " " " $ xmobarIcon "separator.xbm"
-    , ppWsSep            = ""
-    , ppTitle            = if floated then ("<fn=1>\xe069</fn> " ++) else id
-    , ppTitleSanitize    = xmobarRaw
-    , ppLayout           = xmobarColor myAccentColor5 "" . layoutIcon
-    }
-  where
-    layoutIcon name = case name of
-      "Spacing Tall"     -> xmobarIcon "layout-tall.xbm"
-      "Spacing ThreeCol" -> xmobarIcon "layout-threecol.xbm"
-      "Full"             -> xmobarIcon "layout-full.xbm"
-      _                  -> xmobarRaw name
-    xmobarIcon = wrap "<icon=" "/>"
-    xmobarColorWithOffset fg bg = wrap ("<fc=" ++ fg ++ "," ++ bg ++ ":1>") "</fc>"
-    wrapSpaces = wrap " " " "
-    isFloat ws = return $ case W.peek ws of
-      Nothing -> False
-      Just w  -> M.member w $ W.floating ws
-
-
-
-
--- ManageHook  --{{{2
+-- Manage Hook {{{2
 
 myManageHook = manageDocks
   <+> composeOne
@@ -206,20 +194,14 @@ myManageHook = manageDocks
       maybe False (const True) <$> getStringProperty d w p
     role = stringProperty "WM_WINDOW_ROLE"
 
-
-
-
--- StartupHook  --{{{2
+-- Startup Hook {{{2
 
 myStartupHook = do
   setWMName "LG3D"
   setDefaultCursor xC_left_ptr
   return ()
 
-
-
-
--- Keys  --{{{1
+-- Keys {{{1
 
 myKeys conf@(XConfig { XMonad.modMask = modMask }) = M.fromList $
   [ ((modMask,                 xK_Return),       promote)
@@ -238,8 +220,8 @@ myKeys conf@(XConfig { XMonad.modMask = modMask }) = M.fromList $
 
   , ((modMask,                 xK_h),            sendMessage Shrink)
   , ((modMask,                 xK_l),            sendMessage Expand)
-  , ((modMask .|. shiftMask,   xK_h),            sendMessage ShrinkClient)
-  , ((modMask .|. shiftMask,   xK_l),            sendMessage ExpandClient)
+  , ((modMask .|. shiftMask,   xK_h),            sendMessage ShrinkRow)
+  , ((modMask .|. shiftMask,   xK_l),            sendMessage ExpandRow)
 
   , ((modMask,                 xK_b),            sendMessage ToggleStruts)
   , ((modMask,                 xK_f),            sendMessage ToggleLayout)
@@ -300,10 +282,7 @@ myKeys conf@(XConfig { XMonad.modMask = modMask }) = M.fromList $
                   , ((0,         xK_t), safeSpawn "transmission-gtk" [])
                   ]
 
-
-
-
--- Mouse Bindings --{{{1
+-- Mouse Bindings {{{1
 
 myMouseBindings (XConfig { XMonad.modMask = modMask }) = M.fromList
   [ ((modMask, button1), \w -> focus w >> mouseMoveWindow w
@@ -316,31 +295,29 @@ myMouseBindings (XConfig { XMonad.modMask = modMask }) = M.fromList
                                        >>= windows . W.shift)
   ]
 
-
-
-
--- Main  --{{{1
+-- Main {{{1
 
 main = do
-  statusPipe <- spawnPipe "xmobar"
+  statusBar <- statusBarPipe "xmobar" myPP
+  xmonad $
+    withUrgencyHook NoUrgencyHook $
+    withSB statusBar $
+    ewmh $ docks $ def
+      { terminal           = myTerminal
+      , borderWidth        = myBorderWidth
+      , modMask            = myModMask
+      , workspaces         = myWorkspaces
 
-  xmonad $ withUrgencyHook NoUrgencyHook $ docks $ ewmh $ def
-    { terminal           = myTerminal
-    , borderWidth        = myBorderWidth
-    , modMask            = myModMask
-    , workspaces         = myWorkspaces
+      , normalBorderColor  = myGrayColor10
+      , focusedBorderColor = myThemeColor6
 
-    , normalBorderColor  = myGrayColor10
-    , focusedBorderColor = myAccentColor6
+      , keys               = myKeys
+      , mouseBindings      = myMouseBindings
 
-    , keys               = myKeys
-    , mouseBindings      = myMouseBindings
+      , handleEventHook    = myEventHook
+      , layoutHook         = myLayoutHook
+      , manageHook         = myManageHook
+      , startupHook        = myStartupHook
 
-    , handleEventHook    = myEventHook
-    , layoutHook         = myLayoutHook
-    , logHook            = myLogHook statusPipe
-    , manageHook         = myManageHook
-    , startupHook        = myStartupHook
-
-    , focusFollowsMouse  = True
-    }
+      , focusFollowsMouse  = True
+      }

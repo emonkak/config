@@ -8,7 +8,7 @@ executable xmonad
   main-is:            ../xmonad.hs
   ghc-options:        -Wall -Wno-missing-signatures -Wno-name-shadowing -Wno-unused-top-binds
   other-modules:      Sound.Pulse.Pactl
-                    , XMonad.Layout.MultiPanes
+                    , XMonad.Layout.StableColumns
   build-depends:      aeson
                     , base
                     , bytestring
