@@ -96,7 +96,10 @@ myXPConfig ref = (def :: XPConfig)
 -- Hooks  --{{{1
 -- EventHook  --{{{2
 
-myEventHook = removeBorderEventHook (className =? "Wine")
+myEventHook = removeBorderEventHook $ foldr (<||>) (pure False)
+  [ className =? "Wine"
+  , className =? "photoshop.exe"
+  ]
 
 removeBorderEventHook :: Query Bool -> XMonad.Event -> X All
 removeBorderEventHook query e = do
