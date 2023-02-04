@@ -28,6 +28,8 @@ uim-xim &
 
 dunst &
 
+geekytray &
+
 case ${1##*/} in
   fluxbox)
     exec dbus-launch --exit-with-session startfluxbox
