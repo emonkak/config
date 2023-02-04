@@ -148,7 +148,7 @@ staticColumn :: Int -> Rational -> [Rational] -> Column
 staticColumn n = Column (ColumnKindStatic n)
 
 dynamicColumn :: Int -> Rational -> [Rational] -> Column
-dynamicColumn n = Column (ColumnKindStatic n)
+dynamicColumn n = Column (ColumnKindDynamic n)
 
 data Column = Column
   { columnKind :: ColumnKind
@@ -187,27 +187,27 @@ tile columns viewport numWindows =
 
 placeRows :: NumWindows -> [Column] -> [NumRows]
 placeRows numWindows columns =
-  let primaryColumns = indexed columns
-      secondaryColumns = filter (isSecondary . columnKind . snd) $ indexed columns
+  let allColumns = indexed columns
+      dynamicColumns = filter (isDynamic . columnKind . snd) $ allColumns
    in map snd $ IM.toAscList $ foldr
     (uncurry $ IM.insertWith (+))
     IM.empty
-    (placeRows' numWindows primaryColumns secondaryColumns)
+    (placeRows' numWindows allColumns dynamicColumns)
   where
-    isSecondary (ColumnKindStatic _) = False
-    isSecondary (ColumnKindDynamic _) = True
+    isDynamic (ColumnKindStatic _) = False
+    isDynamic (ColumnKindDynamic _) = True
 
 placeRows' :: NumWindows -> [(ColumnIndex, Column)] -> [(ColumnIndex, Column)] -> [(ColumnIndex, NumRows)]
 placeRows' _ [] [] = []
-placeRows' 0 primaryColumns _ = zip (map fst primaryColumns) (repeat 0)
-placeRows' numWindows [] secondaryColumns =
-  let (division, remainder) = quotRem numWindows $ length secondaryColumns
-      (xs, ys) = splitAt remainder secondaryColumns
+placeRows' 0 allColumns _ = zip (map fst allColumns) (repeat 0)
+placeRows' numWindows [] dynamicColumns =
+  let (division, remainder) = quotRem numWindows $ length dynamicColumns
+      (xs, ys) = splitAt remainder dynamicColumns
    in map ((, division + 1) . fst) xs <> map ((, division) . fst) ys
-placeRows' numWindows ((index, column):primaryColumns) secondaryColumns =
+placeRows' numWindows ((index, column):allColumns) dynamicColumns =
   let capacity = getCapacity $ columnKind column
       fills    = min numWindows capacity
-   in (index, fills):placeRows' (numWindows - fills) primaryColumns secondaryColumns
+   in (index, fills):placeRows' (numWindows - fills) allColumns dynamicColumns
 
 splitHorizontally :: RealFrac a => [a] -> Rectangle -> [Rectangle]
 splitHorizontally ratios viewport = splitHorizontally' ratios (sum ratios) viewport
