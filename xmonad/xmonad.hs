@@ -15,8 +15,6 @@ import XMonad.Hooks.SetWMName
 import XMonad.Hooks.StatusBar
 import XMonad.Hooks.UrgencyHook
 import XMonad.Layout.Gaps
-import XMonad.Layout.MultiColumns
-import XMonad.Layout.ThreeColumns
 import XMonad.Layout.Named
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Spacing
@@ -148,9 +146,9 @@ myLayoutHook = avoidStruts $ smartBorders $ toggleLayouts Full $
       , dynamicColumn 1 (1/2) []
       ]
     threeColLayout = named "ThreeCol" $ stableColumns (3/100) ((3/100) * (16/9))
-      [ staticColumn 1 (2/4) []
+      [ staticColumn 1 (1/2) []
       , dynamicColumn 1 (1/4) []
-      , dynamicColumn 2 (1/4) []
+      , dynamicColumn 3 (1/4) []
       ]
 
 -- Manage Hook {{{2
@@ -273,9 +271,7 @@ myKeys conf@(XConfig { XMonad.modMask = modMask }) = M.fromList $
                     , (k, w) <- zip [xK_1 .. xK_9] (XMonad.workspaces conf)
                     ]
 
-    lancherKeys = [ ((0,         xK_2), safeSpawn "v2c" [])
-                  , ((0,         xK_c), safeSpawn "brave-bin" [])
-                  , ((shiftMask, xK_c), safeSpawn "brave-bin" ["--profile-directory=Profile 1"])
+    lancherKeys = [ ((0,         xK_c), safeSpawn "microsoft-edge-stable" [])
                   , ((0,         xK_f), safeSpawn "firefox-bin" [])
                   , ((0,         xK_g), safeSpawn "geeqie" [])
                   , ((0,         xK_p), safeSpawn "pavucontrol" [])

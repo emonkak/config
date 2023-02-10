@@ -1,8 +1,6 @@
 cabal-version:      2.4
 name:               xmonad-config
 version:            0.1.0.0
-author:             Shota Nozaki
-maintainer:         emonkak@gmail.com
 
 executable xmonad
   main-is:            ../xmonad.hs

@@ -1,10 +1,9 @@
-#!/bin/bash -eu
+#!/bin/env bash
+
+set -o errexit -o nounset
 
 cabal build
 
-bin=$(cabal list-bin xmonad)
+bin="$(cabal list-bin xmonad)"
 
-if [ -f "$bin" ]
-then
-  mv "$bin" "$1"
-fi
+[ -f "$bin" ] && install "$bin" "$1"

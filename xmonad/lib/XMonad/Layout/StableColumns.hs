@@ -22,9 +22,6 @@ import XMonad.Core (LayoutClass(..), Message, XState(..), fromMessage)
 import XMonad.Layout (IncMasterN(..), Resize(..))
 import qualified XMonad.StackSet as W
 
-stableColumns :: Rational -> Rational -> [Column] -> StableColumns a
-stableColumns = StableColumns
-
 data StableColumns a = StableColumns
   { stableColumnsColumnIncrement :: Rational
   , stableColumnsRowIncrement :: Rational
@@ -69,6 +66,9 @@ instance LayoutClass StableColumns a where
            ]
 
   description _ = "StableColumns"
+
+stableColumns :: Rational -> Rational -> [Column] -> StableColumns a
+stableColumns = StableColumns
 
 inclusiveIndex :: (Num a, Ord a) => a -> [a] -> Maybe (a, a, a)
 inclusiveIndex index sizes = inclusiveIndex' 0 0 index sizes
@@ -144,12 +144,6 @@ handleIncMaster (StableColumns columnIncrement rowIncrement columns) columnIndex
       | i == index = column { columnKind = incrementCapacity n (columnKind column) }
       | otherwise  = column
 
-staticColumn :: Int -> Rational -> [Rational] -> Column
-staticColumn n = Column (ColumnKindStatic n)
-
-dynamicColumn :: Int -> Rational -> [Rational] -> Column
-dynamicColumn n = Column (ColumnKindDynamic n)
-
 data Column = Column
   { columnKind :: ColumnKind
   , columnRatio :: Rational
@@ -161,6 +155,12 @@ data ColumnKind
   = ColumnKindStatic Int
   | ColumnKindDynamic Int
   deriving (Read, Show)
+
+staticColumn :: Int -> Rational -> [Rational] -> Column
+staticColumn n = Column (ColumnKindStatic n)
+
+dynamicColumn :: Int -> Rational -> [Rational] -> Column
+dynamicColumn n = Column (ColumnKindDynamic n)
 
 getCapacity :: ColumnKind -> Int
 getCapacity (ColumnKindStatic n) = n
