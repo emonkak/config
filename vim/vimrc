@@ -41,30 +41,31 @@ endif
 
 " Syntax {{{2
 
+let g:ansi_colors = {
+\   'foreground': '#e8eaeb',
+\   'background': '#21272b',
+\   'black': '#363f45',
+\   'red': '#f7554d',
+\   'green': '#10a184',
+\   'yellow': '#c97a12',
+\   'blue': '#1c95e6',
+\   'magenta': '#f74d90',
+\   'cyan': '#9d77fc',
+\   'white': '#869096',
+\   'bright-black': '#657078',
+\   'bright-red': '#ffb6b3',
+\   'bright-green': '#38e0bf',
+\   'bright-yellow': '#f7ba6a',
+\   'bright-blue': '#8dd0fc',
+\   'bright-magenta': '#fcb3d0',
+\   'bright-cyan': '#cfbdff',
+\   'bright-white': '#c5c6c7',
+\ }
+
 if (1 < &t_Co || has('gui')) && has('syntax') && !exists('g:syntax_on')
   syntax enable
   if !exists('g:colors_name')
-    let g:ansi_color_gui_color_table = {
-    \   'foreground': '#e8eaeb',
-    \   'background': '#21272b',
-    \   'black': '#363f45',
-    \   'red': '#f7554d',
-    \   'green': '#10a184',
-    \   'yellow': '#c97a12',
-    \   'blue': '#1c95e6',
-    \   'magenta': '#f74d90',
-    \   'cyan': '#9d77fc',
-    \   'white': '#869096',
-    \   'bright-black': '#657078',
-    \   'bright-red': '#ffb6b3',
-    \   'bright-green': '#38e0bf',
-    \   'bright-yellow': '#f7ba6a',
-    \   'bright-blue': '#8dd0fc',
-    \   'bright-magenta': '#fcb3d0',
-    \   'bright-cyan': '#cfbdff',
-    \   'bright-white': '#c5c6c7',
-    \ }
-    colorscheme ansi_color
+    colorscheme ansi_colors
   endif
 endif
 
@@ -94,8 +95,8 @@ if has('gui_running')
     set guifont=Monospace\ 10
     set linespace=0
   elseif has('gui_macvim')
-    set guifont=Menlo:h10
-    set linespace=4
+    set guifont=Monaco:h10.5
+    set linespace=2
     set macmeta
   elseif has('gui_win32')
     set guifont=Consolas:h10.5
@@ -135,20 +136,15 @@ if has('linux') && exists('*setcellwidths')
   \   [0x2500, 75], [0x2550, 35], [0x2580, 15], [0x2592, 3], [0x25a0, 1],
   \   [0x25a3, 6], [0x25b2, 1], [0x25b6, 0], [0x25b7, 0], [0x25bc, 1],
   \   [0x25c0, 0], [0x25c1, 0], [0x25c6, 2], [0x25cb, 0], [0x25ce, 3],
-  \   [0x25e2, 3], [0x25ef, 0], [0x2605, 1], [0x2609, 0], [0x260e, 1],
-  \   [0x261c, 0], [0x261e, 0], [0x2640, 0], [0x2642, 0], [0x2660, 1],
-  \   [0x2663, 2], [0x2667, 3], [0x266c, 1], [0x266f, 0], [0x269e, 1],
-  \   [0x26bf, 0], [0x26c6, 7], [0x26cf, 4], [0x26d5, 12], [0x26e3, 0],
-  \   [0x26e8, 1], [0x26eb, 6], [0x26f4, 0], [0x26f6, 3], [0x26fb, 1],
-  \   [0x26fe, 1], [0x273d, 0], [0x2776, 9], [0x2b56, 3], [0x3248, 7],
-  \   [0xe000, 6399], [0xfe00, 15], [0xfffd, 0], [0x1f100, 10], [0x1f110, 29],
-  \   [0x1f130, 57], [0x1f170, 29], [0x1f18f, 1], [0x1f19b, 17],
+  \   [0x25e2, 3], [0x25ef, 0], [0x2600, 512], [0x2b56, 3], [0x3248, 7],
+  \   [0xe000, 6399], [0xfe00, 15], [0xfffd, 0], [0x1f000, 3066],
   \   [0xe0100, 239], [0xf0000, 65533], [0x100000, 65533],
   \ ], '[
   \    v:val[0],
   \    v:val[0] + v:val[1],
   \    max([1, libcallnr("", "wcwidth", v:val[0])]),
   \ ]'))
+  set ambiwidth=single
 endif
 
 if exists('+clipboard')
@@ -573,7 +569,7 @@ endfunction
 
 
 
-" SyntaxCheck {{{2
+" SyntaxStack {{{2
 
 command! -bar -nargs=0 SyntaxStack
 \ echo join(<SID>syntax_stack(line('.'), col('.')), '/')

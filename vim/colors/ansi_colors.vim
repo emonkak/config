@@ -4,8 +4,8 @@ set background=dark
 
 let g:colors_name = expand('<sfile>:t:r')
 
-if !exists('g:ansi_color_gui_color_table')
-  let g:ansi_color_gui_color_table = {
+if !exists('g:ansi_colors')
+  let g:ansi_colors = {
   \   'foreground': 'White',
   \   'background': 'Black',
   \   'black': 'Black',
@@ -27,70 +27,67 @@ if !exists('g:ansi_color_gui_color_table')
   \ }
 endif
 
-let s:NR16_COLOR_TABLE = {
-\   'black': 0,
-\   'red': 1,
-\   'green': 2,
-\   'yellow': 3,
-\   'blue': 4,
-\   'magenta': 5,
-\   'cyan': 6,
-\   'white': 7,
-\   'bright-black': 8,
-\   'bright-red': 9,
-\   'bright-green': 10,
-\   'bright-yellow': 11,
-\   'bright-blue': 12,
-\   'bright-magenta': 13,
-\   'bright-cyan': 14,
-\   'bright-white': 15,
-\ }
-
-let s:NR8_COLOR_TABLE = {
-\   'black': 0,
-\   'red': 4,
-\   'green': 2,
-\   'yellow': 6,
-\   'blue': 1,
-\   'magenta': 5,
-\   'cyan': 3,
-\   'white': 7,
-\   'bright-black': 0,
-\   'bright-red': 4,
-\   'bright-green': 2,
-\   'bright-yellow': 6,
-\   'bright-blue': 1,
-\   'bright-magenta': 5,
-\   'bright-cyan': 3,
-\   'bright-white': 7,
-\ }
+if &t_Co < 16
+  let s:TERM_COLOR_NUMBERS = {
+  \   'black': 0,
+  \   'red': 4,
+  \   'green': 2,
+  \   'yellow': 6,
+  \   'blue': 1,
+  \   'magenta': 5,
+  \   'cyan': 3,
+  \   'white': 7,
+  \   'bright-black': 0,
+  \   'bright-red': 4,
+  \   'bright-green': 2,
+  \   'bright-yellow': 6,
+  \   'bright-blue': 1,
+  \   'bright-magenta': 5,
+  \   'bright-cyan': 3,
+  \   'bright-white': 7,
+  \ }
+else
+  let s:TERM_COLOR_NUMBERS = {
+  \   'black': 0,
+  \   'red': 1,
+  \   'green': 2,
+  \   'yellow': 3,
+  \   'blue': 4,
+  \   'magenta': 5,
+  \   'cyan': 6,
+  \   'white': 7,
+  \   'bright-black': 8,
+  \   'bright-red': 9,
+  \   'bright-green': 10,
+  \   'bright-yellow': 11,
+  \   'bright-blue': 12,
+  \   'bright-magenta': 13,
+  \   'bright-cyan': 14,
+  \   'bright-white': 15,
+  \ }
+endif
 
 function! s:h(group, definition) abort
   let args = []
-  let gui_colors = g:ansi_color_gui_color_table
-  let term_colors = &t_Co < 16 ? s:NR8_COLOR_TABLE : s:NR16_COLOR_TABLE
 
-  if has_key(a:definition, 'attr')
-    let attr = join(a:definition.attr, ',')
-    call insert(args, 'cterm=' . attr)
-    call insert(args, 'gui=' . attr)
-  else
-    call insert(args, 'cterm=NONE')
-    call insert(args, 'gui=NONE')
-  endif
+  let attr = has_key(a:definition, 'attr')
+  \        ? join(a:definition.attr, ',')
+  \        : 'NONE'
+  call insert(args, 'cterm=' . attr)
+  call insert(args, 'gui=' . attr)
 
   if has_key(a:definition, 'fg')
-    call insert(args, 'ctermfg=' . get(term_colors, a:definition.fg, 'NONE'))
-    call insert(args, 'guifg=' . get(gui_colors, a:definition.fg, 'NONE'))
+    call insert(args, 'ctermfg=' . get(s:TERM_COLOR_NUMBERS, a:definition.fg, 'NONE'))
+    call insert(args, 'guifg=' . get(g:ansi_colors, a:definition.fg, 'NONE'))
   endi
 
   if has_key(a:definition, 'bg')
-    call insert(args, 'ctermbg=' . get(term_colors, a:definition.bg, 'NONE'))
-    call insert(args, 'guibg=' . get(gui_colors, a:definition.bg, 'NONE'))
+    call insert(args, 'ctermbg=' . get(s:TERM_COLOR_NUMBERS, a:definition.bg, 'NONE'))
+    call insert(args, 'guibg=' . get(g:ansi_colors, a:definition.bg, 'NONE'))
   endif
 
   if has_key(a:definition, 'sp')
-    call insert(args, 'guisp=' . get(gui_colors, a:definition.sp, 'NONE'))
+    call insert(args, 'guisp=' . get(g:ansi_colors, a:definition.sp, 'NONE'))
   endif
 
   execute 'highlight' a:group 'NONE' join(args)
@@ -145,12 +142,12 @@ call s:h('Question', { 'fg': 'bright-green' })
 call s:h('Search', { 'attr': ['reverse'], 'fg': 'bright-yellow' })
 call s:h('SignColumn', { 'fg': 'bright-cyan' })
 call s:h('Special', { 'fg': 'bright-red' })
-call s:h('SpecialKey', { 'fg': 'bright-black' })
+call s:h('SpecialKey', { 'fg': 'black' })
 call s:h('Statement', { 'fg': 'bright-yellow' })
 call s:h('StatusLine', { 'attr': ['bold'], 'bg': 'black' })
 call s:h('StatusLineNC', { 'bg': 'bright-black' })
-call s:h('StatusLineTerm', { 'attr': ['bold', 'reverse'], 'fg': 'bright-green' })
-call s:h('StatusLineTermNC', { 'attr': ['reverse'], 'fg': 'green' })
+call s:h('StatusLineTerm', { 'attr': ['bold'], 'bg': 'black' })
+call s:h('StatusLineTermNC', { 'bg': 'bright-black' })
 call s:h('TabLine', { 'bg': 'black' })
 call s:h('TabLineFill', { 'bg': 'black' })
 call s:h('TabLineSel', { 'attr': ['bold', 'underline'], 'bg': 'black' })
@@ -170,6 +167,7 @@ call s:h('lCursor', { 'bg': 'bright-cyan' })
 
 if has('gui_running')
   call s:h('Normal', { 'fg': 'foreground', 'bg': 'background' })
+  call s:h('Terminal', { 'fg': 'foreground', 'bg': 'background' })
   call s:h('SpellBad', { 'attr': ['undercurl'], 'sp': 'red' })
   call s:h('SpellCap', { 'attr': ['undercurl'], 'sp': 'blue' })
   call s:h('SpellLocal', { 'attr': ['undercurl'], 'sp': 'cyan' })
@@ -179,4 +177,42 @@ else
   call s:h('SpellCap', { 'bg': 'blue' })
   call s:h('SpellLocal', { 'bg': 'cyan' })
   call s:h('SpellRare', { 'bg': 'magenta' })
+endif
+
+if has('nvim')
+  let g:terminal_color_1 = g:ansi_colors['black']
+  let g:terminal_color_2 = g:ansi_colors['red']
+  let g:terminal_color_3 = g:ansi_colors['green']
+  let g:terminal_color_4 = g:ansi_colors['yellow']
+  let g:terminal_color_5 = g:ansi_colors['blue']
+  let g:terminal_color_6 = g:ansi_colors['magenta']
+  let g:terminal_color_7 = g:ansi_colors['cyan']
+  let g:terminal_color_8 = g:ansi_colors['white']
+  let g:terminal_color_9 = g:ansi_colors['bright-black']
+  let g:terminal_color_10 = g:ansi_colors['bright-red']
+  let g:terminal_color_11 = g:ansi_colors['bright-green']
+  let g:terminal_color_12 = g:ansi_colors['bright-yellow']
+  let g:terminal_color_13 = g:ansi_colors['bright-blue']
+  let g:terminal_color_14 = g:ansi_colors['bright-magenta']
+  let g:terminal_color_15 = g:ansi_colors['bright-cyan']
+  let g:terminal_color_16 = g:ansi_colors['bright-white']
+else
+  let g:terminal_ansi_colors = [
+  \   g:ansi_colors['black'],
+  \   g:ansi_colors['red'],
+  \   g:ansi_colors['green'],
+  \   g:ansi_colors['yellow'],
+  \   g:ansi_colors['blue'],
+  \   g:ansi_colors['magenta'],
+  \   g:ansi_colors['cyan'],
+  \   g:ansi_colors['white'],
+  \   g:ansi_colors['bright-black'],
+  \   g:ansi_colors['bright-red'],
+  \   g:ansi_colors['bright-green'],
+  \   g:ansi_colors['bright-yellow'],
+  \   g:ansi_colors['bright-blue'],
+  \   g:ansi_colors['bright-magenta'],
+  \   g:ansi_colors['bright-cyan'],
+  \   g:ansi_colors['bright-white'],
+  \ ]
 endif
