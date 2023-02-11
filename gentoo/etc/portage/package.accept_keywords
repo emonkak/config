@@ -1,6 +1,7 @@
 */*::haskell ~amd64
 */*::local-repo ~amd64
 
+=dev-lang/ghc-9.2* **
 =media-video/rtmpdump-9999 **
 
 app-editors/gvim ~amd64
@@ -44,19 +45,12 @@ x11-themes/* ~amd64
 x11-wm/xmonad ~amd64
 x11-wm/xmonad-contrib ~amd64
 
-# for HEIC Supporting
+# for Geeqie (HEIC Support)
 media-gfx/geeqie ~amd64
 media-libs/imlib2 ~amd64
 
-# NeoVim
+# for NeoVim
 app-editors/neovim ~amd64
 dev-libs/libvterm ~amd64
 dev-libs/tree-sitter ~amd64
 dev-lua/* ~amd64
-
-# Shotcut
-media-libs/mlt ~amd64
-media-video/shotcut ~amd64
-
-=dev-lang/ghc-9.2* **
-=media-video/rtmpdump-9999 **

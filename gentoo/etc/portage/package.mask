@@ -1,10 +1,3 @@
 =net-p2p/resilio-sync-9999
-
-# Prevent legacy Python
 dev-lang/python:2.7
-
-# Prefer media-libs/libjpeg-turbo
 media-libs/jpeg
-
-# Need legacy full color icons yet on some apps (2022-04-13)
-=x11-themes/adwaita-icon-theme-42.0

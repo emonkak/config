@@ -1,25 +1,16 @@
-*/* PYTHON_TARGETS: -python2_7
-*/* PYTHON_SINGLE_TARGET: -python2_7
-
-app-admin/conky imlib lua mpd
-app-arch/unzip natspec  # ShiftJIS Supporting
+app-arch/unzip natspec  # natspec: ShiftJIS Support
 app-editors/gvim LUA_SINGLE_TARGET: -* luajit
 app-editors/gvim gtk lua luajit
 app-editors/vim LUA_SINGLE_TARGET: -* luajit
 app-editors/vim lua luajit terminal
-app-emulation/libvirt qemu virt-network
-app-emulation/qemu opengl qemu-ifup sdl
 app-emulation/wine-vanilla fontconfig gstreamer jpeg mp3 png vulkan xml
-app-eselect/eselect-php fpm
-app-i18n/uim -anthy gtk gtk2 linguas_ja skk xft
+app-eselect/eselect-php fpmmi
+app-i18n/uim -anthy gtk linguas_ja skk xft
 app-misc/mfiler3 migemo
 app-misc/tmux -vim-syntax
 app-portage/eix sqlite
-app-portage/layman sync-plugin-portage
 app-shells/saphire migemo
-app-text/ghostscript-gpl cups
 app-text/poppler cairo qt5
-dev-java/icedtea-bin -cjk
 dev-lang/ghc binary
 dev-lang/perl ithreads
 dev-lang/php bcmath curl fpm gd gmp mysql mysqli pcntl pdo sockets sqlite xmlwriter xslt zip
@@ -27,11 +18,8 @@ dev-lang/python sqlite
 dev-lang/rust rls rustfmt
 dev-lang/rust-bin rls rust-src rustfmt
 dev-lang/scala binary
-dev-libs/libdbusmenu gtk3
 dev-lua/* luajit
 dev-vcs/git perl
-dev-vcs/subversion -dso perl python
-media-gfx/comix rar
 media-gfx/fontforge cairo pango png svg
 media-gfx/gimp exif jpeg pdf png python svg webp
 media-gfx/graphicsmagick png postscript truetype
@@ -49,14 +37,10 @@ media-sound/shntool flac
 media-video/ffmpeg faac mp3 network openssl rtmp theora v4l vorbis x264 xvid
 media-video/vlc aac dvd flac fontconfig matroska mp3 mpeg ogg png stream theora truetype v4l vorbis x264 xv
 net-dns/avahi mdnsresponder-compat
-net-fs/samba cups client
+net-fs/samba client
 net-libs/libvncserver threads
-net-misc/bfgminer opencl scrypt
 net-p2p/transmission gtk
-net-print/cups samba
-net-print/gutenprint cups ppds
 sci-visualization/gnuplot cairo
-sys-apps/groff linguas_ja
 sys-apps/lm-sensors contrib
 sys-apps/smartmontools -minimal
 sys-auth/polkit consolekit
@@ -64,52 +48,13 @@ sys-block/gparted fat ntfs
 sys-boot/grub mount
 sys-devel/llvm clang
 sys-kernel/gentoo-sources symlink
-sys-libs/tdb python
 www-client/google-chrome linguas_ja
-www-client/jd migemo
 www-client/w3m linguas_ja
 www-servers/nginx nginx_modules_http_headers_more
 x11-libs/cairo opengl svg xcb
-x11-libs/gtk+ cups
-x11-libs/libdrm video_cards_radeon
-x11-misc/polybar mpd network
 x11-misc/xmobar -with_weather mpd xft xpm
 x11-terms/rxvt-unicode -vanilla 256-color perl truetype xft unicode3
 x11-terms/xterm truetype
-
-app-text/xmlto text  # required by x11-misc/xdg-utils
-dev-libs/boost icu  # required by media-sound/ncmpcpp
-dev-libs/libpcre2 pcre32  # required by app-shells/fish
-media-libs/gegl cairo  # required by media-gfx/gimp
-sys-devel/clang xml  # required by dotnetcore-sdk-bin
-sys-libs/tevent python  # required by net-fs/samba
-sys-libs/zlib minizip  # required by media-video/vlc
-
-# app-emulation/docker
-sys-libs/libseccomp static-libs
-sys-process/tini static
-
-# for app-text/evince
-dev-libs/glib dbus
-dev-libs/libxml2 python
-
-# for media-video/mpv
-media-libs/libglvnd abi_x86_32
-
-# for x11-base/xorg-server
-sys-auth/pambase elogind
-
-# for sys-power/suspend::gentoo[crypt]
-dev-libs/lzo static-libs
-dev-libs/libgcrypt static-libs
-dev-libs/libgpg-error static-libs
-
-# for games-emulation/dolphin
-media-libs/opus abi_x86_32
-
-# for app-editors/neovim
-app-editors/neovim LUA_SINGLE_TARGET: -* luajit
-dev-lua/mpack lua_targets_luajit
 
 # for Wine
 app-arch/bzip2 abi_x86_32
@@ -125,6 +70,7 @@ dev-libs/libffi abi_x86_32
 dev-libs/libgcrypt abi_x86_32
 dev-libs/libgpg-error abi_x86_32
 dev-libs/libpcre abi_x86_32
+dev-libs/libpcre2 abi_x86_32
 dev-libs/libpthread-stubs abi_x86_32
 dev-libs/libtasn1 abi_x86_32
 dev-libs/libunistring abi_x86_32
@@ -140,6 +86,7 @@ media-libs/freetype abi_x86_32
 media-libs/glu abi_x86_32
 media-libs/harfbuzz abi_x86_32
 media-libs/lcms abi_x86_32
+media-libs/libglvnd abi_x86_32
 media-libs/libjpeg-turbo abi_x86_32
 media-libs/libogg abi_x86_32
 media-libs/libpng abi_x86_32
@@ -160,6 +107,7 @@ net-libs/gnutls abi_x86_32
 net-libs/libasyncns abi_x86_32
 sys-apps/attr abi_x86_32
 sys-apps/dbus abi_x86_32
+sys-apps/systemd-utils abi_x86_32
 sys-apps/tcp-wrappers abi_x86_32
 sys-apps/util-linux abi_x86_32
 sys-auth/consolekit policykit
@@ -184,7 +132,6 @@ virtual/libudev abi_x86_32
 virtual/opengl abi_x86_32
 virtual/pam abi_x86_32
 virtual/pkgconfig abi_x86_32
-x11-base/xcb-proto abi_x86_32
 x11-libs/libICE abi_x86_32
 x11-libs/libSM abi_x86_32
 x11-libs/libX11 abi_x86_32
@@ -204,25 +151,8 @@ x11-libs/libdrm abi_x86_32
 x11-libs/libpciaccess abi_x86_32
 x11-libs/libxcb abi_x86_32
 x11-libs/libxshmfence abi_x86_32
-x11-proto/compositeproto abi_x86_32
-x11-proto/damageproto abi_x86_32
-x11-proto/dri2proto abi_x86_32
-x11-proto/dri3proto abi_x86_32
-x11-proto/fixesproto abi_x86_32
-x11-proto/glproto abi_x86_32
-x11-proto/inputproto abi_x86_32
-x11-proto/kbproto abi_x86_32
-x11-proto/presentproto abi_x86_32
-x11-proto/randrproto abi_x86_32
-x11-proto/recordproto abi_x86_32
-x11-proto/renderproto abi_x86_32
-x11-proto/xextproto abi_x86_32
-x11-proto/xf86bigfontproto abi_x86_32
-x11-proto/xf86driproto abi_x86_32
-x11-proto/xf86vidmodeproto abi_x86_32
-x11-proto/xproto abi_x86_32
 
-# required by app-emulation/wine-vanilla[gstreamer]
+# for app-emulation/wine-vanilla[gstreamer]
 dev-lang/orc abi_x86_32
 dev-libs/fribidi abi_x86_32
 dev-libs/lzo abi_x86_32
@@ -239,40 +169,22 @@ x11-libs/libXv abi_x86_32
 x11-libs/pango abi_x86_32
 x11-libs/pixman abi_x86_32
 
-# for udev
-sys-apps/hwids -udev
-sys-apps/systemd-utils abi_x86_32
-sys-fs/udev abi_x86_32
-sys-libs/libxcrypt abi_x86_32
+# for app-editors/neovim
+app-editors/neovim LUA_SINGLE_TARGET: -* luajit
+dev-lua/mpack lua_targets_luajit
 
-# for chromium
-dev-libs/libxml2 icu
-media-libs/harfbuzz icu
-media-libs/libpng -apng
-net-libs/nodejs inspector
-dev-libs/icu abi_x86_32
+# for x11-misc/xdg-utils
+app-text/xmlto text
 
-# for sys-boot/unetbootin
-dev-libs/libbsd abi_x86_32
-
-# for net-fs/cifs-utils
-app-crypt/libmd abi_x86_32
+# for media-video/vlc
+sys-libs/zlib minizip
 
 # for media-gfx/imagemagick[heif]
 media-libs/libheif x265
 
-# for gui-apps/gcolor3
-dev-libs/libportal gtk
+# for www-servers/nginx
+app-misc/mime-types nginx
 
-# required by dev-libs/glib-2.74.1-r1::gentoo
-# required by app-editors/vscodium-1.73.1.22314::gentoo
-# required by @selected
-# required by @world (argument)
-dev-libs/libpcre2 abi_x86_32
-
-# required by media-gfx/krita-5.1.5::gentoo[python_single_target_python3_10]
+# for media-gfx/krita
 dev-python/PyQt5 widgets declarative gui network
 dev-qt/qtcore icu
-
-# required by www-servers/nginx-1.23.3::gentoo
->=app-misc/mime-types-2.1.53 nginx

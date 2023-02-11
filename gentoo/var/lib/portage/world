@@ -47,7 +47,6 @@ app-portage/flaggie
 app-portage/g-cpan
 app-portage/gentoolkit
 app-portage/hackport
-app-shells/fish
 app-shells/fzf
 app-shells/gentoo-zsh-completions
 app-shells/zsh
@@ -60,7 +59,6 @@ dev-haskell/cabal-install
 dev-lang/ghc
 dev-lang/php
 dev-lang/ruby
-dev-libs/libdbusmenu
 dev-php/pecl-apcu
 dev-php/pecl-memcached
 dev-php/pecl-redis
@@ -78,9 +76,7 @@ dev-util/rust-analyzer
 dev-util/strace
 dev-vcs/git
 dev-vcs/tig
-games-emulation/dolphin
 gnome-extra/gucharmap
-gui-apps/gcolor3
 mail-client/mailx
 mail-mta/msmtp
 media-fonts/font-misc-misc
@@ -96,6 +92,7 @@ media-gfx/graphicsmagick
 media-gfx/graphviz
 media-gfx/imagemagick
 media-gfx/inkscape
+media-gfx/krita
 media-gfx/mcomix
 media-gfx/optipng
 media-gfx/pngquant
@@ -104,6 +101,8 @@ media-libs/exiftool
 media-libs/faad2
 media-libs/fontconfig
 media-libs/freetype
+media-libs/libva
+media-libs/libva-intel-media-driver
 media-libs/mozjpeg
 media-plugins/alsa-plugins
 media-sound/alsa-utils
@@ -196,6 +195,7 @@ virtual/wine
 www-client/brave-bin
 www-client/firefox-bin
 www-client/google-chrome
+www-client/microsoft-edge
 www-servers/nginx
 x11-apps/igt-gpu-tools
 x11-apps/setxkbmap
