@@ -1,44 +1,23 @@
 # My zshrc
-# Misc.  #{{{1
+# Prelude  #{{{1
 
 umask 022  # Default permission
 ulimit -c 0  # Don't create core file
 stty stop undef
 stty start undef
 
-if which dircolors &>/dev/null && [ -f "$HOME/.colorrc" ]
+if which dircolors &> /dev/null && [ -f "$HOME/.colorrc" ]
 then
   eval `dircolors "$HOME/.colorrc"`
 fi
 
 
 
-# Parameters  #{{{1
+# Options  #{{{1
 
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=100000
 SAVEHIST=100000
-
-
-zshaddhistory() {
-  line=(${(z)1})
-
-  # Save "dd", "rm" and "rmdir" only to the internal history.
-  [[ $line[1] = (dd|rm(|dir)) ]] && return 2
-  [[ $line[1] = s(|udo) && $line[2] = (dd|rm(|dir)) ]] && return 2
-
-  # Suppress to save commonly used commands.
-  [[ $line[1] = (exit|pwd) ]] && return 1
-  [[ $line[1] = (ls|la|ll|lla) && $line[2] = ';' ]] && return 1
-
-  # Suppress to save invalid command.
-  whence $line[1] >| /dev/null || return 1
-}
-
-
-
-
-# Options  #{{{1
 
 setopt append_history
 setopt auto_cd
@@ -69,142 +48,6 @@ setopt share_history
 unsetopt beep
 unsetopt extended_history
 unsetopt flow_control
-
-
-
-
-# Autoloads  #{{{1
-
-autoload -Uz add-zsh-hook
-
-# cdr  #{{{2
-
-if [[ -n $(echo ${^fpath}/chpwd_recent_dirs(N)) && -n $(echo ${^fpath}/cdr(N)) ]]
-then
-  autoload -Uz chpwd_recent_dirs cdr
-
-  add-zsh-hook chpwd chpwd_recent_dirs
-
-  mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/shell"
-
-  zstyle ':completion:*:*:cdr:*:*' menu selection
-  zstyle ':completion:*' recent-dirs-insert both
-  zstyle ':chpwd:*' recent-dirs-max 500
-  zstyle ':chpwd:*' recent-dirs-default true
-  zstyle ':chpwd:*' recent-dirs-file "${XDG_CACHE_HOME:-$HOME/.cache}/shell/chpwd-recent-dirs"
-  zstyle ':chpwd:*' recent-dirs-pushd true
-fi
-
-
-
-
-# compinit  #{{{2
-
-autoload -Uz compinit && compinit -u
-
-zstyle ':completion:*' completer _complete _expand _ignored _match _oldlist _prefix
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-zstyle ':completion:*' menu select=1
-zstyle ':completion:*' use-cache true
-zstyle ':completion:*' verbose true
-zstyle ':completion:*:cd:*' ignore-parents parent pwd
-zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
-zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
-
-
-
-
-# select-word-style  #{{{2
-
-autoload -Uz select-word-style
-
-select-word-style default
-
-zstyle ':zle:*' word-chars " _-./;@"
-zstyle ':zle:*' word-style unspecified
-
-
-
-
-# vcs_info  #{{{2
-
-autoload -Uz vcs_info
-zstyle ':vcs_info:git:*' check-for-changes false
-zstyle ':vcs_info:git:*' unstagedstr '!'
-zstyle ':vcs_info:*' actionformats '[%s:%b%u|%a]'
-zstyle ':vcs_info:*' formats '[%s:%b%u]'
-zstyle ':vcs_info:bzr:*' use-simple true
-
-add-zsh-hook precmd vcs_info
-
-
-
-
-# zargs  #{{{2
-
-autoload -Uz zargs
-
-
-
-
-# zmv  #{{{2
-
-autoload -Uz zmv
-alias zmv='noglob zmv'
-
-
-
-
-# zsh-syntax-highlighting  #{{{2
-
-if [ -f ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-  source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-fi
-
-
-
-
-# Hooks  #{{{1
-
-if [ -n "$WINDOW" ]  # is GNU screen
-then
-  preexec() {
-    local -a cmd; cmd=(${(z)2})
-    case "$cmd[1]" in
-    sudo)
-      cmd=$cmd[2]
-      ;;
-    fg|%*)
-      local -A jt; jt=(${(kv)jobtexts})
-      cmd=${(z)${(e):-\$jt$num}}
-      ;;
-    *)
-      cmd=$cmd[1]
-      ;;
-    esac
-    print -Pn "\ek$cmd:t\e\\"
-  }
-  precmd() {
-    print -Pn "\ek$ZSH_NAME\e\\"
-  }
-elif [[ -n "$TMUX" ]]
-then
-  precmd() {
-    print -Pn "\e]0;%m@%n:%~\a"
-  }
-elif [[ "$TERM" == (xterm*|rxvt*) ]]
-then
-  precmd() {
-    print -Pn "\e]0;%m@%n:%~\a"
-  }
-fi
-
-# Highlight executed command
-accept-line() {
-  zle .accept-line && region_highlight=("0 ${#BUFFER} bold")
-}
-zle -N accept-line
 
 
 
@@ -309,6 +152,122 @@ alias -s {7z,gz,rar,tar,xz,zip}='aunpack'
 
 
 
+# Hooks  #{{{1
+
+zshaddhistory() {
+  line=(${(z)1})
+
+  # Save "dd", "rm" and "rmdir" only to the internal history.
+  [[ $line[1] = (dd|rm(|dir)) ]] && return 2
+  [[ $line[1] = s(|udo) && $line[2] = (dd|rm(|dir)) ]] && return 2
+
+  # Suppress to save commonly used commands.
+  [[ $line[1] = (exit|pwd) ]] && return 1
+  [[ $line[1] = (ls|la|ll|lla) && $line[2] = ';' ]] && return 1
+
+  # Suppress to save invalid command.
+  whence $line[1] >| /dev/null || return 1
+}
+
+if [[ -n "$TMUX" ]] || [[ "$TERM" == (xterm*|rxvt*) ]]
+then
+  precmd() {
+    print -Pn "\e]0;%m@%n:%~\a"
+  }
+fi
+
+# Highlight the executed command.
+accept-line() {
+  zle .accept-line && region_highlight=("0 ${#BUFFER} bold")
+}
+zle -N accept-line
+
+
+
+
+# Autoloads  #{{{1
+
+autoload -Uz add-zsh-hook
+
+# cdr  #{{{2
+
+if [[ -n $(echo ${^fpath}/chpwd_recent_dirs(N)) && -n $(echo ${^fpath}/cdr(N)) ]]
+then
+  autoload -Uz chpwd_recent_dirs cdr
+
+  add-zsh-hook chpwd chpwd_recent_dirs
+
+  mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/shell"
+
+  zstyle ':completion:*:*:cdr:*:*' menu selection
+  zstyle ':completion:*' recent-dirs-insert both
+  zstyle ':chpwd:*' recent-dirs-max 500
+  zstyle ':chpwd:*' recent-dirs-default true
+  zstyle ':chpwd:*' recent-dirs-file "${XDG_CACHE_HOME:-$HOME/.cache}/shell/chpwd-recent-dirs"
+  zstyle ':chpwd:*' recent-dirs-pushd true
+fi
+
+
+
+
+# compinit  #{{{2
+
+autoload -Uz compinit && compinit -u
+
+zstyle ':completion:*' completer _complete _expand _ignored _match _oldlist _prefix
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' menu select=1
+zstyle ':completion:*' use-cache true
+zstyle ':completion:*' verbose true
+zstyle ':completion:*:cd:*' ignore-parents parent pwd
+zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
+zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
+
+
+
+
+# select-word-style  #{{{2
+
+autoload -Uz select-word-style
+
+select-word-style default
+
+zstyle ':zle:*' word-chars " _-./;@"
+zstyle ':zle:*' word-style unspecified
+
+
+
+
+# vcs_info  #{{{2
+
+autoload -Uz vcs_info
+zstyle ':vcs_info:git:*' check-for-changes false
+zstyle ':vcs_info:git:*' unstagedstr '!'
+zstyle ':vcs_info:*' actionformats '[%s:%b%u|%a]'
+zstyle ':vcs_info:*' formats '[%s:%b%u]'
+zstyle ':vcs_info:bzr:*' use-simple true
+
+add-zsh-hook precmd vcs_info
+
+
+
+
+# zargs  #{{{2
+
+autoload -Uz zargs
+
+
+
+
+# zmv  #{{{2
+
+autoload -Uz zmv
+alias zmv='noglob zmv'
+
+
+
+
 # Line Editor  #{{{1
 
 bindkey -e
@@ -367,6 +326,16 @@ then
   bindkey '^X^c' fzf-cdr
   bindkey '^Xh' fzf-history
   bindkey '^X^h' fzf-history
+fi
+
+
+
+
+# Include  #{{{1
+
+if [ -f ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]
+then
+  source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
 
 

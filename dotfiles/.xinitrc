@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export BROWSER='brave-bin'
+export BROWSER='microsoft-edge-stable'
 export QT_QPA_PLATFORMTHEME=qt5ct
 export QT_STYLE_OVERRIDE=adwaita-dark
 
@@ -30,11 +30,13 @@ dunst &
 
 geekytray &
 
-case ${1##*/} in
-  fluxbox)
-    exec dbus-launch --exit-with-session startfluxbox
+session="${1##*/}"
+
+case "${session}" in
+  Xsession)
+    exec dbus-launch --exit-with-session xmonad
     ;;
   *)
-    exec dbus-launch --exit-with-session xmonad
+    exec dbus-launch --exit-with-session "${session}"
     ;;
 esac
