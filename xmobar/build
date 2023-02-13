@@ -1,0 +1,9 @@
+#!/bin/env bash
+
+set -o errexit -o nounset
+
+cabal build
+
+bin="$(cabal list-bin xmobar)"
+
+[ -f "$bin" ] && install "$bin" "$1"

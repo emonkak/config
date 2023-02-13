@@ -2,11 +2,11 @@ import Xmobar
 
 import Monitors.CatNum (CatNum(..))
 import Monitors.PulseAudio (PulseAudio(..))
-import System.Directory (getHomeDirectory)
-import System.IO (FilePath)
+import System.Environment (getExecutablePath)
+import System.FilePath.Posix (takeDirectory)
 
 makeConfig :: FilePath -> Config
-makeConfig homeDirectory = defaultConfig
+makeConfig configDirectory = defaultConfig
   { font = "xft:M PLUS Code Latin 60:pixelsize=11,Noto Sans CJK JP:pixelsize=11,Noto Emoji:pixelsize=11"
   , additionalFonts = [ "xft:Material Icons:pixelsize=16" ]
   , bgColor = "#21272b"
@@ -87,11 +87,11 @@ makeConfig homeDirectory = defaultConfig
                , Run $ Date "%Y-%m-%d %a %H:%M:%S" "date" 10
                ]
   , template = " %StdinReader% }{ %mpd%  %cpu% %cputemp%  %memory%  %disku%  %eth0%  %pulseaudio%  %date% "
-  , iconRoot = homeDirectory <> "/.xmonad/icons"
+  , iconRoot = configDirectory <> "/icons"
   }
 
 main :: IO ()
 main = do
-  homeDirectory <- getHomeDirectory
-  let config = makeConfig homeDirectory
+  configDirectory <- takeDirectory <$> getExecutablePath
+  let config = makeConfig configDirectory
   xmobar config

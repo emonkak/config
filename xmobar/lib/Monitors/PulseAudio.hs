@@ -47,10 +47,10 @@ runPulseAudio :: Args -> (String -> IO ()) -> Ptr PaVolumeMonitor -> IO ()
 runPulseAudio args outputCallback volumeMonitorPtr = do
   callbackFunPtr <- wrapVolumeCallback $ \volume muted -> do
     let run argv = do
-        opts <- io $ parseOptsWith optDescriptions defaultOpts argv
-        volumeStr <- formatVolume $ realToFrac volume
-        statusStr <- formatStatus opts $ not $ muted /= 0
-        parseTemplate [volumeStr, statusStr]
+            opts <- io $ parseOptsWith optDescriptions defaultOpts argv
+            volumeStr <- formatVolume $ realToFrac volume
+            statusStr <- formatStatus opts $ not $ muted /= 0
+            parseTemplate [volumeStr, statusStr]
 
     output <- pulseAudioConfig >>= (runReaderT $ doArgs args run (\_ -> pure True))
 
