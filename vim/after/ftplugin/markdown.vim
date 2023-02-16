@@ -10,7 +10,7 @@ setlocal softtabstop=2
 
 function! MarkdownFold(lnum) abort
   let current = getline(a:lnum)
-  if current =~ '^#\{1,6}' && !s:in_syntax(a:lnum, 'markdownCodeBlock')
+  if current =~ '^#\{1,6}' && s:in_syntax(a:lnum, 'markdownHeading')
     return '>1'
   elseif current =~ '^>\s'
     let prev = getline(a:lnum - 1)
@@ -21,13 +21,13 @@ function! MarkdownFold(lnum) abort
     if next == ''
       return 's1'
     endif
-  elseif current =~ '^\(`\{3}\|\~\{3}\)'
+  elseif current =~ '^\(`\{3,}\|\~\{3,}\|\$\{3,}\)'
     let prev = getline(a:lnum - 1)
-    if prev == '' && !s:in_syntax(a:lnum - 1, 'markdownCodeBlock')
+    if prev == '' && !s:in_syntax(a:lnum - 1, 'markdownFencedCode')
       return 'a1'
     endif
     let next = getline(a:lnum + 1)
-    if next == '' && !s:in_syntax(a:lnum + 1, 'markdownCodeBlock')
+    if next == '' && !s:in_syntax(a:lnum + 1, 'markdownFencedCode')
       return 's1'
     endif
   endif
