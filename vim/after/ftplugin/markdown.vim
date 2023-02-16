@@ -5,8 +5,8 @@ endif
 setlocal expandtab
 setlocal foldexpr=MarkdownFold(v:lnum)
 setlocal foldmethod=expr
-setlocal shiftwidth=2
-setlocal softtabstop=2
+setlocal shiftwidth=4
+setlocal softtabstop=4
 
 function! MarkdownFold(lnum) abort
   let current = getline(a:lnum)

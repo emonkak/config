@@ -107,11 +107,11 @@ syntax region markdownUrlTitle
 \ contained
 
 syntax match markdownLine
-\ '^\%(\t\| \{4}\)*'
+\ '^\%(\t\| \{2,4}\)\{-}'
 \ nextgroup=@markdownInline,@markdownBlock
 
 syntax cluster markdownBlock
-\ contains=markdownDefinitionIdentifier,markdownIndentedCode,markdownFencedCode,markdownUnorderedList,markdownOrderedList,markdownBlockquote,markdownSeparator,markdownHeadingUnderline,markdownHeading
+\ contains=markdownDefinitionIdentifier,markdownIndentedCode,markdownFencedCode,markdownListItem,markdownBlockquote,markdownThematicBreak,markdownHeadingUnderline,markdownHeading
 
 syntax region markdownHeading
 \ matchgroup=markdownHeadingDelimiter
@@ -125,7 +125,7 @@ syntax match markdownHeadingUnderline
 \ ' \{0,3}\%(=\{3,}\|-\{3,}\)\%(\s*$\n\?\)\@='
 \ contained
 
-syntax match markdownSeparator
+syntax match markdownThematicBreak
 \ ' \{0,3}\([*\-_]\)\%( \{0,2}\1\)\{2,}\s*$\n\?'
 \ contained
 
@@ -134,19 +134,41 @@ syntax match markdownBlockquote
 \ contained
 \ nextgroup=@markdownInline,@markdownBlock
 
-syntax region markdownUnorderedList
-\ matchgroup=markdownListMarker
+syntax region markdownListItem
+\ matchgroup=markdownListItemMarker
 \ start=' \{0,3}[*+-]\s\+'
 \ end='$'
 \ oneline
 \ contains=@markdownInline
 \ contained
-syntax region markdownOrderedList
-\ matchgroup=markdownListMarker
-\ start=' \{0,3}[0-9]\.\s\+'
+\ nextgroup=markdownListIndent
+\ skipempty
+\ skipnl
+syntax region markdownListItem
+\ matchgroup=markdownListItemMarker
+\ start=' \{0,3}[0-9]\+\.\s\+'
 \ end='$'
 \ oneline
 \ contains=@markdownInline
+\ contained
+\ nextgroup=markdownListIndent
+\ skipempty
+\ skipnl
+
+syntax region markdownListIndent
+\ start='\%(\t\| \{2,4}\)\+'
+\ end='$'
+\ keepend
+\ oneline
+\ contains=markdownIndentedBlock
+\ contained
+\ nextgroup=markdownListIndent
+\ skipempty
+\ skipnl
+
+syntax match markdownIndentedBlock
+\ '\%(\t\| \{2,4}\)\+'
+\ nextgroup=@markdownInline,@markdownBlock
 \ contained
 
 syntax region markdownFencedCode
@@ -155,6 +177,7 @@ syntax region markdownFencedCode
 \ end='\z1\z2\s*$'
 \ contains=NONE
 \ contained
+\ extend
 
 syntax region markdownIndentedCode
 \ start='\t[^\t]\@='
@@ -188,7 +211,7 @@ syntax region markdownFrontmatter
 highlight default link markdownCodeDelimiter Delimiter
 highlight default link markdownFrontmatterDelimiter Delimiter
 highlight default link markdownHeadingDelimiter Delimiter
-highlight default link markdownListMarker Statement
+highlight default link markdownListItemMarker Statement
 
 highlight default link markdownAmpersand Special
 highlight default link markdownBlockquote Comment
