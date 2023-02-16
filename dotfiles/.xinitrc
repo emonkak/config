@@ -19,7 +19,7 @@ xcape -e '#133=Escape;#134=Zenkaku_Hankaku'
 
 xinput --set-ptr-feedback "ThinkPS/2 Kensington ThinkingMouse" 4 2 1
 
-xsetroot -solid '#4e5a61'
+xsetroot -solid '#3f576e'
 
 export GTK_IM_MODULE='uim'
 export QT_IM_MODULE='uim'
@@ -33,7 +33,7 @@ geekytray &
 session="${1##*/}"
 
 case "${session}" in
-  Xsession)
+  Xsession|'')
     exec dbus-launch --exit-with-session xmonad
     ;;
   *)

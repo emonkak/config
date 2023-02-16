@@ -43,42 +43,26 @@ myStatusbarHeight = 21
 
 myFont = "xft:M PLUS Code Latin 60:pixelsize=11,Noto Sans CJK JP:pixelsize=11,Noto Emoji:pixelsize=11"
 
-myGrayColor1 = "#f5f6f7"
-myGrayColor2 = "#e8eaeb"
-myGrayColor3 = "#d9dadb"
-myGrayColor4 = "#c5c6c7"
-myGrayColor5 = "#a8aeb3"
-myGrayColor6 = "#869096"
-myGrayColor7 = "#657078"
-myGrayColor8 = "#4e5a61"
-myGrayColor9 = "#363f45"
-myGrayColor10 = "#21272b"
-
-myThemeColor1 = "#e6f5ff"
-myThemeColor2 = "#d4eeff"
-myThemeColor3 = "#b6e0fc"
-myThemeColor4 = "#8dd0fc"
-myThemeColor5 = "#5ebaf7"
-myThemeColor6 = "#1c95e6"
-myThemeColor7 = "#0675bf"
-myThemeColor8 = "#015994"
-myThemeColor9 = "#024069"
-myThemeColor10 = "#022338"
+myPrimaryColor = "#5686d7"
+mySecondaryColor = "#698aa8"
+myMutedColor = "#3f576e"
+myForegroundColor = "#d1dbe7"
+myBackgroundColor = "#22262b"
 
 -- Log {{{1
 
 myPP = do
   floated <- withWindowSet isFloat
   pure $ def
-    { ppCurrent          = xmobarColorWithOffset myGrayColor10 myThemeColor5 . wrapSpaces
+    { ppCurrent          = xmobarColor myBackgroundColor myPrimaryColor . wrapSpaces
     , ppHidden           = wrapSpaces
-    , ppHiddenNoWindows  = xmobarColor myGrayColor6 "" . wrapSpaces
+    , ppHiddenNoWindows  = xmobarColor myMutedColor "" . wrapSpaces
     , ppUrgent           = wrap "*" " "
-    , ppSep              = xmobarColor myGrayColor8 "" $ wrap " " " " $ xmobarIcon "separator.xbm"
+    , ppSep              = xmobarColor myMutedColor "" $ wrap " " " " $ xmobarIcon "separator.xbm"
     , ppWsSep            = ""
     , ppTitle            = if floated then ("<fn=1>\xe069</fn> " ++) else id
     , ppTitleSanitize    = xmobarRaw
-    , ppLayout           = xmobarColor myThemeColor5 "" . layoutIcon
+    , ppLayout           = xmobarColor myPrimaryColor "" . layoutIcon
     }
   where
     layoutIcon name = case name of
@@ -87,7 +71,6 @@ myPP = do
       "Full"             -> xmobarIcon "layout-full.xbm"
       _                  -> xmobarRaw name
     xmobarIcon = wrap "<icon=" "/>"
-    xmobarColorWithOffset fg bg = wrap ("<fc=" ++ fg ++ "," ++ bg ++ ":1>") "</fc>"
     wrapSpaces = wrap " " " "
     isFloat ws = return $ case W.peek ws of
       Nothing -> False
@@ -97,11 +80,11 @@ myPP = do
 
 myXPConfig ref = (def :: XPConfig)
   { font              = myFont
-  , fgColor           = myGrayColor1
-  , bgColor           = myGrayColor10
-  , fgHLight          = myThemeColor5
-  , bgHLight          = myGrayColor10
-  , borderColor       = myGrayColor10
+  , fgColor           = myForegroundColor
+  , bgColor           = myBackgroundColor
+  , fgHLight          = myPrimaryColor
+  , bgHLight          = myBackgroundColor
+  , borderColor       = myBackgroundColor
   , promptBorderWidth = 0
   , position          = Top
   , height            = myStatusbarHeight
@@ -304,8 +287,8 @@ main = do
       , modMask            = myModMask
       , workspaces         = myWorkspaces
 
-      , normalBorderColor  = myGrayColor10
-      , focusedBorderColor = myThemeColor6
+      , normalBorderColor  = myBackgroundColor
+      , focusedBorderColor = myPrimaryColor
 
       , keys               = myKeys
       , mouseBindings      = myMouseBindings
