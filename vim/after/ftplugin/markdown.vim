@@ -21,7 +21,7 @@ function! MarkdownFold(lnum) abort
     if next == ''
       return 's1'
     endif
-  elseif current =~ '^\(`\{3,}\|\~\{3,}\|\$\{3,}\)'
+  elseif current =~ '^\(`\{3,}\|\~\{3,}\)'
     let prev = getline(a:lnum - 1)
     if prev == '' && !s:in_syntax(a:lnum - 1, 'markdownFencedCode')
       return 'a1'

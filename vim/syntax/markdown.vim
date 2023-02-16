@@ -5,7 +5,7 @@ endif
 syntax sync minlines=100
 
 syntax cluster markdownInline
-\ contains=markdownReferenceLabel,markdownFootnote,markdownInlineCode,markdownDelete,markdownStrong,markdownEmphasis,markdownAmpersand,markdownEscape
+\ contains=markdownReferenceLabel,markdownFootnote,markdownInlineMath,markdownInlineCode,markdownDelete,markdownStrong,markdownEmphasis,markdownAmpersand,markdownEscape
 
 syntax match markdownEscape
 \ '\\[!#$()*+\-.\[\\\]_`{}~]'
@@ -46,7 +46,7 @@ syntax region markdownInlineCode
 \ end='\S\@<=`'
 \ skip='\\`'
 \ oneline
-syntax region markdownInlineCode
+syntax region markdownInlineMath
 \ start='\$\S\@='
 \ end='\S\@<=\$'
 \ skip='\\\$'
@@ -111,7 +111,7 @@ syntax match markdownLine
 \ nextgroup=@markdownInline,@markdownBlock
 
 syntax cluster markdownBlock
-\ contains=markdownDefinitionIdentifier,markdownIndentedCode,markdownFencedCode,markdownListItem,markdownBlockquote,markdownThematicBreak,markdownHeadingUnderline,markdownHeading
+\ contains=markdownDefinitionIdentifier,markdownIndentedCode,markdownFencedCode,markdownMath,markdownListItem,markdownBlockquote,markdownThematicBreak,markdownHeadingUnderline,markdownHeading
 
 syntax region markdownHeading
 \ matchgroup=markdownHeadingDelimiter
@@ -171,14 +171,6 @@ syntax match markdownIndentedBlock
 \ nextgroup=@markdownInline,@markdownBlock
 \ contained
 
-syntax region markdownFencedCode
-\ matchgroup=markdownCodeDelimiter
-\ start='\z(\s*\)\z(`\{3,}\|\~\{3,}\|\$\{3,}\).*$'
-\ end='\z1\z2\s*$'
-\ contains=NONE
-\ contained
-\ extend
-
 syntax region markdownIndentedCode
 \ start='\t[^\t]\@='
 \ end='$'
@@ -191,6 +183,22 @@ syntax region markdownIndentedCode
 \ oneline
 \ contains=NONE
 \ contained
+
+syntax region markdownFencedCode
+\ matchgroup=markdownCodeDelimiter
+\ start='\z(\s*\)\z(`\{3,}\|\~\{3,}\).*$'
+\ end='\z1\z2\s*$'
+\ contains=NONE
+\ contained
+\ extend
+
+syntax region markdownMath
+\ matchgroup=markdownMathDelimiter
+\ start='\s*\$\{2}'
+\ end='\$\{2}\s*$'
+\ contains=NONE
+\ contained
+\ extend
 
 syntax region markdownDefinitionIdentifier
 \ start=' \{0,3}\[\S\@='
@@ -212,6 +220,7 @@ highlight default link markdownCodeDelimiter Delimiter
 highlight default link markdownFrontmatterDelimiter Delimiter
 highlight default link markdownHeadingDelimiter Delimiter
 highlight default link markdownListItemMarker Statement
+highlight default link markdownMathDelimiter Delimiter
 
 highlight default link markdownAmpersand Special
 highlight default link markdownBlockquote Comment
@@ -226,6 +235,8 @@ highlight default link markdownHeading markdownBold
 highlight default link markdownHeadingUnderline Delimiter
 highlight default link markdownIndentedCode String
 highlight default link markdownInlineCode String
+highlight default link markdownInlineMath String
+highlight default link markdownMath String
 highlight default link markdownReferenceIdentifier Typedef
 highlight default link markdownReferenceLabel Define
 highlight default link markdownReferenceUrl String
