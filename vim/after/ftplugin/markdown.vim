@@ -12,7 +12,7 @@ function! MarkdownFold(lnum) abort
   let current = getline(a:lnum)
   if current =~ '^#\{1,6}' && s:in_syntax(a:lnum, 'markdownHeading')
     return '>1'
-  elseif current =~ '^>\s'
+  elseif current =~ '^>' && s:in_syntax(a:lnum, 'markdownBlockquote')
     let prev = getline(a:lnum - 1)
     if prev == ''
       return 'a1'
