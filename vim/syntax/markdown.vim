@@ -153,7 +153,7 @@ syntax match markdownHtmlUnquotedValue
 \ skipnl
 
 syntax match markdownLine
-\ '^\%(\t\| \{2,4}\)\{-}'
+\ '^'
 \ nextgroup=@markdownInline,@markdownBlock
 
 syntax cluster markdownBlock
