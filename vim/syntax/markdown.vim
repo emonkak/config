@@ -290,8 +290,8 @@ highlight default link markdownMathDelimiter Delimiter
 highlight default link markdownReferenceIdentifier Typedef
 highlight default link markdownReferenceLabel Define
 highlight default link markdownReferenceUrl String
-highlight default link markdownSeparator Delimiter
 highlight default link markdownStrong markdownBold
+highlight default link markdownThematicBreak Delimiter
 highlight default link markdownUrl String
 highlight default link markdownUrlTitle String
 
