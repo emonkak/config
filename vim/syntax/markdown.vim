@@ -5,13 +5,13 @@ endif
 syntax sync minlines=100
 
 syntax cluster markdownInline
-\ contains=markdownReferenceLabel,markdownFootnote,markdownInlineMath,markdownInlineCode,markdownDelete,markdownStrong,markdownEmphasis,markdownAmpersand,markdownEscape
+\ contains=markdownHtmlTag,markdownReferenceLabel,markdownFootnote,markdownInlineMath,markdownInlineCode,markdownDelete,markdownStrong,markdownEmphasis,markdownAmpersand,markdownEscape
 
 syntax match markdownEscape
 \ '\\[!#$()*+\-.\[\\\]_`{}~]'
 
 syntax match markdownAmpersand
-\ '&\%([a-zA-Z0-9]\+\|#[0-9]\+\|#x[0-9a-fA-F]\+\);'
+\ '&\%([0-9A-Za-z]\+\|#[0-9]\+\|#x[0-9A-Fa-f]\+\);'
 
 syntax region markdownEmphasis
 \ start='\*\S\@='
@@ -105,6 +105,52 @@ syntax region markdownUrlTitle
 \ skip='\\)'
 \ oneline
 \ contained
+
+syntax region markdownHtmlTag
+\ start='</\?'
+\ end='\s*>'
+\ contains=markdownHtmlTagName
+\ keepend
+syntax match markdownHtmlTagName
+\ '<\s*[A-Za-z][\-0-9A-Za-z]*'hs=s+1
+\ contained
+\ nextgroup=markdownHtmlAttribute
+\ skipempty
+\ skipnl
+syntax match markdownHtmlTagName
+\ '</\s*[A-Za-z][\-0-9A-Za-z]*'hs=s+2
+\ contained
+\ nextgroup=markdownHtmlAttribute
+\ skipempty
+\ skipnl
+syntax region markdownHtmlAttribute
+\ start='\s\+[-0-9A-Za-z]\+\s*='
+\ end='\z1'
+\ contained
+\ nextgroup=markdownHtmlUnquotedValue,markdownHtmlQuotedValue
+\ skipempty
+\ skipnl
+\ skipwhite
+syntax region markdownHtmlQuotedValue
+\ start="'"
+\ end="'"
+\ contained
+\ nextgroup=markdownHtmlAttribute
+\ skipempty
+\ skipnl
+syntax region markdownHtmlQuotedValue
+\ start='"'
+\ end='"'
+\ contained
+\ nextgroup=markdownHtmlAttribute
+\ skipempty
+\ skipnl
+syntax match markdownHtmlUnquotedValue
+\ '\S\+'
+\ contained
+\ nextgroup=markdownHtmlAttribute
+\ skipempty
+\ skipnl
 
 syntax match markdownLine
 \ '^\%(\t\| \{2,4}\)\{-}'
@@ -216,14 +262,9 @@ syntax region markdownFrontmatter
 \ end='^-\{3}\s*$'
 \ contains=NONE
 
-highlight default link markdownCodeDelimiter Delimiter
-highlight default link markdownFrontmatterDelimiter Delimiter
-highlight default link markdownHeadingDelimiter Delimiter
-highlight default link markdownListItemMarker Statement
-highlight default link markdownMathDelimiter Delimiter
-
 highlight default link markdownAmpersand Special
 highlight default link markdownBlockquote Comment
+highlight default link markdownCodeDelimiter Delimiter
 highlight default link markdownDefinitionIdentifier Typedef
 highlight default link markdownDelete Comment
 highlight default link markdownEmphasis markdownItalic
@@ -231,12 +272,21 @@ highlight default link markdownEscape Special
 highlight default link markdownFencedCode String
 highlight default link markdownFootnote Define
 highlight default link markdownFrontmatter Comment
+highlight default link markdownFrontmatterDelimiter Delimiter
 highlight default link markdownHeading markdownBold
+highlight default link markdownHeadingDelimiter Delimiter
 highlight default link markdownHeadingUnderline Delimiter
+highlight default link markdownHtmlAttribute Type
+highlight default link markdownHtmlQuotedValue String
+highlight default link markdownHtmlTag Identifier
+highlight default link markdownHtmlTagName Statement
+highlight default link markdownHtmlUnquotedValue String
 highlight default link markdownIndentedCode String
 highlight default link markdownInlineCode String
 highlight default link markdownInlineMath String
+highlight default link markdownListItemMarker Statement
 highlight default link markdownMath String
+highlight default link markdownMathDelimiter Delimiter
 highlight default link markdownReferenceIdentifier Typedef
 highlight default link markdownReferenceLabel Define
 highlight default link markdownReferenceUrl String
