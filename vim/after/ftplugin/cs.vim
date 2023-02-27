@@ -15,17 +15,16 @@ inoreabbrev <buffer> ///  /// <summary><CR><CR></summary><Up>
 function! CsFold(lnum) abort
   let current = getline(a:lnum)
 
-  if current =~# '\s*}$'
-    let level = indent(a:lnum) / shiftwidth()
-    return level > 2 ? '=' : '<' . (level + 1)
-  endif
-
-  if current =~# '^\s*\('
-             \ . '\(\(abstract\|partial\|public\|private\|protected\|protected\|internal\|static\)\s\+\)*\(class\|enum\|interface\)'
-             \ . '\|namespace'
-             \ . '\)\>[^;]*$'
-    let level = indent(a:lnum) / shiftwidth()
-    return level > 2 ? '=' : '>' . (level + 1)
+  if current =~# '^\s*\%('
+  \            . '\%(\%(abstract\|partial\|public\|private\|protected\|protected\|internal\|static\)\s\+\)*\%(class\|enum\|interface\)'
+  \            . '\|namespace'
+  \            . '\)\>'
+  \ && current !~# '\s*;\s*$'
+    let level = indent(a:lnum) / shiftwidth() + 1
+    return '>' . level
+  elseif current =~# '^\s*}\s*$'
+    let level = indent(a:lnum) / shiftwidth() + 1
+    return '<' . level
   endif
 
   return '='

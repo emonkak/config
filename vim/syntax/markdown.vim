@@ -146,7 +146,7 @@ syntax region markdownHtmlQuotedValue
 \ skipempty
 \ skipnl
 syntax match markdownHtmlUnquotedValue
-\ '\S\+'
+\ '[^''"]\S*'
 \ contained
 \ nextgroup=markdownHtmlAttribute
 \ skipempty
@@ -269,7 +269,7 @@ highlight default link markdownDefinitionIdentifier Typedef
 highlight default link markdownDelete Comment
 highlight default link markdownEmphasis markdownItalic
 highlight default link markdownEscape Special
-highlight default link markdownFencedCode String
+highlight default link markdownFencedCode Comment
 highlight default link markdownFootnote Define
 highlight default link markdownFrontmatter Comment
 highlight default link markdownFrontmatterDelimiter Delimiter
@@ -281,11 +281,11 @@ highlight default link markdownHtmlQuotedValue String
 highlight default link markdownHtmlTag Identifier
 highlight default link markdownHtmlTagName Statement
 highlight default link markdownHtmlUnquotedValue String
-highlight default link markdownIndentedCode String
+highlight default link markdownIndentedCode Comment
 highlight default link markdownInlineCode String
 highlight default link markdownInlineMath String
 highlight default link markdownListItemMarker Statement
-highlight default link markdownMath String
+highlight default link markdownMath Comment
 highlight default link markdownMathDelimiter Delimiter
 highlight default link markdownReferenceIdentifier Typedef
 highlight default link markdownReferenceLabel Define

@@ -111,9 +111,8 @@ endfunction
 " =====================
 function! s:get_body(query) abort
     " <query>の検索結果を取得 {{{2
-    let url = 'https://eow.alc.co.jp/' . webapi#http#encodeURIComponent(a:query)
-      \ . '/UTF-8/'
-    let result = webapi#http#get(url)
+    let url = 'https://eow.alc.co.jp/search'
+    let result = webapi#http#get(url, { 'q': a:query })
     if result.status != '200'
         return ''
     endif
@@ -153,6 +152,9 @@ function! s:get_body(query) abort
 
     " wordclassの前に改行を挿入 {{{2
     let body = substitute(body, '<span class="wordclass">', '\n', 'g')
+    
+    " 検索結果の前に改行を挿入 {{{2
+    let body = substitute(body, '<div class="search-sentence-ttl"', '\n\n&', 'g')
 
     " 全文へのリンク {{{2
     let body = substitute(body,

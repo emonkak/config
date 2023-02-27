@@ -9,23 +9,21 @@ setlocal shiftwidth=4
 setlocal softtabstop=4
 
 function! PythonFold(lnum) abort
-  let current = getline(a:lnum);
+  let current = getline(a:lnum)
 
   if current =~# '^\s*\%(class\|def\)\>'
     let level = indent(a:lnum) / shiftwidth() + 1
     return '>' . level
-  endif
-
-  let next_lnum = nextnonblank(a:lnum + 1)
-  if next_lnum == 0 || next_lnum == a:lnum + 1
-    return '='
-  endif
-
-  let next_indent = indent(next_lnum)
-  let curernt_indent = indent(a:lnum)
-  if next_indent < curernt_indent
-    let level = next_indent / shiftwidth() + 1;
-    return '<' . level
+  elseif current =~# '\S'
+    let next_lnum = nextnonblank(a:lnum + 1)
+    if a:lnum + 1 < next_lnum
+      let current_indent = indent(a:lnum)
+      let next_indent = indent(next_lnum)
+      if current_indent > next_indent
+        let level = next_indent / shiftwidth() + 1
+          return '<' . level
+      endif
+    endif
   endif
 
   return '='

@@ -12,7 +12,7 @@ PACKAGE_URLS=\
   https://github.com/emonkak/vim-metarw-gist.git \
   https://github.com/emonkak/vim-operator-comment.git \
   https://github.com/emonkak/vim-operator-sort.git \
-  https://github.com/emonkak/vim-surround.git \
+  https://github.com/emonkak/vim-surround-obj.git \
   https://github.com/hail2u/vim-css3-syntax.git \
   https://github.com/junegunn/vim-easy-align.git \
   https://github.com/jwalton512/vim-blade.git \
@@ -39,6 +39,7 @@ PACKAGE_URLS=\
   https://github.com/kana/vim-textobj-line.git \
   https://github.com/kana/vim-textobj-syntax.git \
   https://github.com/kana/vim-textobj-user.git \
+  https://github.com/lambdalisue/fern.vim.git \
   https://github.com/lambdalisue/suda.vim.git \
   https://github.com/mattn/webapi-vim.git \
   https://github.com/prabirshrestha/vim-lsp.git \

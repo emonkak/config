@@ -1,4 +1,4 @@
-let s:TKK = '409266.1674047641'
+let s:TKK = [409266, 1674047641]
 
 function! google_translate#translate(text, source_lang, target_lang) abort
   let url = 'https://translate.google.com/translate_a/single'
@@ -8,7 +8,7 @@ function! google_translate#translate(text, source_lang, target_lang) abort
   \   'tl': a:target_lang,
   \   'dt': 't',
   \   'q': a:text,
-  \   'tk': google_translate#token(a:text),
+  \   'tk': join(google_translate#generate_tk(a:text), '.'),
   \ }
   let response = webapi#http#get(url, query)
 
@@ -22,52 +22,54 @@ function! google_translate#translate(text, source_lang, target_lang) abort
   \ : ''
 endfunction
 
-function! google_translate#token(text) abort
-  let a = split(a:text, '.\zs')
-  let b = s:TKK
-  let c = split(b, '\.')
-  let d = str2nr(c[0])
-  let e = []
-  let f = 0
+function! google_translate#generate_tk(text) abort
+  let key = s:TKK[0]
+  let characters = split(a:text, '.\zs')
+  let i = 0
+  let l = len(characters)
 
-  while f < len(a)
-    let g = char2nr(a[f])
-    if 128 > g
-      call add(e, g)
+  while i < l
+    let n = char2nr(characters[i])
+
+    if 128 > n
+      let key = s:next_tk(key, n)
     else
-      if 2048 > g
-        call add(e, s:i32_or(s:i32_signed_right_shift(g, 6), 192))
-        call add(e, s:i32_or(s:i32_signed_right_shift(g, 6), 192))
+      if 2048 > n
+        let key = s:next_tk(key, s:i32_or(s:i32_signed_right_shift(n, 6), 192))
+        let key = s:next_tk(key, s:i32_or(s:i32_signed_right_shift(n, 6), 192))
       else
-        if 55296 == s:i32_and(g, 64512)
-        \  && f + 1 < len(a)
-        \  && 56320 == s:i32_and(a[f + 1], 64512)
-          let f += 1
-          let g = 65536 + s:i32_left_shift(s:i32_and(g, 1023), 10) + s:i32_and(a[f], 1023)
-          call add(e, s:i32_or(s:i32_signed_right_shift(g, 18), 240))
-          call add(e, s:i32_or(s:i32_and(s:i32_signed_right_shift(g, 12), 63), 128))
+        if 55296 == s:i32_and(n, 64512)
+        \  && i + 1 < l
+        \  && 56320 == s:i32_and(characters[i + 1], 64512)
+          let i += 1
+          let n = 65536 + s:i32_left_shift(s:i32_and(n, 1023), 10) + s:i32_and(characters[i], 1023)
+          let key = s:next_tk(key, s:i32_or(s:i32_signed_right_shift(n, 18), 240))
+          let key = s:next_tk(key, s:i32_or(s:i32_and(s:i32_signed_right_shift(n, 12), 63), 128))
         else
-          call add(e, s:i32_or(s:i32_signed_right_shift(g, 12), 224))
-          call add(e, s:i32_or(s:i32_and(s:i32_signed_right_shift(g, 6), 63), 128))
+          let key = s:next_tk(key, s:i32_or(s:i32_signed_right_shift(n, 12), 224))
+          let key = s:next_tk(key, s:i32_or(s:i32_and(s:i32_signed_right_shift(n, 6), 63), 128))
         endif
       endif
-      call add(e, s:i32_or(s:i32_and(g, 63), 128))
+      let key = s:next_tk(key, s:i32_or(s:i32_and(n, 63), 128))
     endif
-    let f += 1
+
+    let i += 1
   endwhile
 
-  let a = d
-  for ff in e
-    let a = s:xr(a + ff, '+-a^+6')
-  endfor
+  let key = s:xr(key, '+-3^+b+-f')
+  let key = s:i32_xor(key, s:TKK[1])
 
-  let a = s:xr(a, '+-3^+b+-f')
-  let a = s:i32_xor(a, str2nr(c[1]))
-  if a < 0
-    let a = s:i32_and(a, 2147483647) + 2147483648
+  if key < 0
+    let key = s:i32_and(key, 2147483647) + 2147483648
   endif
-  let a = a % 1000000
-  return a . '.' . s:i32_xor(a, d)
+
+  let key = key % 1000000
+
+  return [key, s:i32_xor(key, s:TKK[0])]
+endfunction
+
+function! s:next_tk(key, x) abort
+  return s:xr(a:key + a:x, '+-a^+6')
 endfunction
 
 function! s:xr(a, b) abort

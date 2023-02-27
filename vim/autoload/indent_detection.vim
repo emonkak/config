@@ -1,5 +1,5 @@
-if !exists('g:indent_detection#detection_chunks')
-  let g:indent_detection#detection_chunks = 100
+if !exists('g:indent_detection#chunk_size')
+  let g:indent_detection#chunk_size = 100
 endif
 
 function! indent_detection#configure_options() abort
@@ -8,8 +8,9 @@ function! indent_detection#configure_options() abort
   let undo_options = []
 
   for [key, value] in items(options)
-    if value != getbufvar(bufnr, '&' . key)
-      call setbufvar(bufnr, '&' . key, value)
+    let option_name = '&' . key
+    if value != getbufvar(bufnr, option_name)
+      call setbufvar(bufnr, option_name, value)
       call add(undo_options, key . '<')
     endif
   endfor
@@ -28,15 +29,14 @@ function! indent_detection#detect_options() abort
   let l = line('$')
 
   while i < l
-    let lines = getline(i, i + g:indent_detection#detection_chunks - 1)
-    for line in lines
+    for line in getline(i, i + g:indent_detection#chunk_size - 1)
       if line[0] == "\t"
         let tabbed_lines += 1
       else
         " The position of the first non-space character is the indentation
         " width.
         let space_width = match(line, '[^ ]')
-        if space_width != -1
+        if space_width >= 0
           let indent_width = space_width - last_space_width
           if indent_width >= 2  " minimum indentation is 2 spaces
             let indent_widths[indent_width] =
@@ -50,7 +50,7 @@ function! indent_detection#detect_options() abort
     if tabbed_lines > 0 || spaced_lines > 0
       break
     endif
-    let i += g:indent_detection#detection_chunks
+    let i += g:indent_detection#chunk_size
   endwhile
 
   let total_identions = 0

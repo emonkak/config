@@ -12,11 +12,6 @@ endif
 function! RustFold(lnum)
   let current = getline(a:lnum)
 
-  if current =~# '^\s*}$'
-    let level = indent(a:lnum) / shiftwidth() + 1
-    return level > 3 ? '=' : '<' . level
-  endif
-
   if current =~# '^\s*\%('
   \            . 'macro_rules!\|'
   \            . '\%(unsafe\s\+\)\?impl\|'
@@ -24,7 +19,10 @@ function! RustFold(lnum)
   \            . '\)'
   \  && current !~# '[;}]\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return level > 3 ? '=' : '>' . level
+    return '>' . level
+  elseif current =~# '^\s*}\s*$'
+    let level = indent(a:lnum) / shiftwidth() + 1
+    return '<' . level
   endif
 
   return '='

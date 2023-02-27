@@ -10,14 +10,13 @@ setlocal softtabstop=2
 
 function! VimFold(lnum) abort
   let current = getline(a:lnum)
-  if current =~# '^\s*endfunction$'
-    let level = indent(a:lnum) / shiftwidth() + 1
-    return '<' . level
-  endif
 
   if current =~# '^\s*function!\?\>'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return '>' . level
+    return 'a1'
+  elseif current =~# '^\s*endfunction\s*$'
+    let level = indent(a:lnum) / shiftwidth() + 1
+    return 's1'
   endif
 
   return '='

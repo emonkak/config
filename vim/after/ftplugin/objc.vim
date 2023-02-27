@@ -10,11 +10,19 @@ setlocal softtabstop=4
 
 function! ObjcFold(lnum) abort
   let current = getline(a:lnum)
-  return (current =~# '^@\%(implementation\|interface\|protocol\)\>') ? '>1'
-  \    : (current =~# '^[-+]') ? '>2'
-  \    : (current =~# '^}') ? '<2'
-  \    : (current =~# '^@end') ? '<1'
-  \    : '='
+
+  if current =~# '^\s*@\%(implementation\|interface\|protocol\)\>'
+  \ && current !~# '@end\s*$'
+    return '>1'
+  elseif current =~# '^\s*@end\s*$'
+    return '<1'
+  elseif current =~# '^[-+]' && current !~# '}\s*$'
+    return '>2'
+  elseif current =~# '^}\s*$'
+    return '<2'
+  endif
+
+  return '='
 endfunction
 
 if exists('b:undo_ftplugin')

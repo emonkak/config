@@ -18,7 +18,7 @@ endif
 
 filetype plugin indent on
 
-function! s:SID_PREFIX()
+function! s:SID_PREFIX() abort
   return matchstr(expand('<sfile>'), '<SNR>\d\+_')
 endfunction
 let s:SID = s:SID_PREFIX()
@@ -28,8 +28,9 @@ let s:SID = s:SID_PREFIX()
 
 " Encoding  {{{2
 
+set ambiwidth=single
 set encoding=utf-8
-set fileencodings=utf-8,iso-2022-jp,euc-jp,cp932,ucs-bom
+set fileencodings=ucs-bom,utf-8,iso-2022-jp,euc-jp,cp932
 
 if has('win32') || has('win64')
   set fileformat=unix
@@ -42,24 +43,24 @@ endif
 " Syntax {{{2
 
 let g:ansi_colors = {
-\   'foreground': '#e8eaeb',
-\   'background': '#21272b',
-\   'black': '#363f45',
-\   'red': '#f7554d',
-\   'green': '#10a184',
-\   'yellow': '#c97a12',
-\   'blue': '#1c95e6',
-\   'magenta': '#f74d90',
-\   'cyan': '#9d77fc',
-\   'white': '#869096',
-\   'bright-black': '#657078',
-\   'bright-red': '#ffb6b3',
-\   'bright-green': '#38e0bf',
-\   'bright-yellow': '#f7ba6a',
-\   'bright-blue': '#8dd0fc',
-\   'bright-magenta': '#fcb3d0',
-\   'bright-cyan': '#cfbdff',
-\   'bright-white': '#c5c6c7',
+\   'background': '#22262b',
+\   'foreground': '#d1dbe7',
+\   'black': '#323c47',
+\   'red': '#cf6950',
+\   'green': '#159598',
+\   'yellow': '#aa7f2c',
+\   'blue': '#5686d7',
+\   'magenta': '#d95a88',
+\   'cyan': '#3790b3',
+\   'white': '#698aa8',
+\   'bright-black': '#3f576e',
+\   'bright-red': '#e9b5a8',
+\   'bright-green': '#8ccccd',
+\   'bright-yellow': '#d9bd95',
+\   'bright-blue': '#afc0f0',
+\   'bright-magenta': '#f1afc2',
+\   'bright-cyan': '#9cc7dd',
+\   'bright-white': '#b2c3d5',
 \ }
 
 if (1 < &t_Co || has('gui')) && has('syntax') && !exists('g:syntax_on')
@@ -95,8 +96,8 @@ if has('gui_running')
     set guifont=Monospace\ 10
     set linespace=0
   elseif has('gui_macvim')
-    set guifont=Monaco:h10.5
-    set linespace=2
+    set guifont=Menlo:h12
+    set linespace=4
     set macmeta
   elseif has('gui_win32')
     set guifont=Consolas:h10.5
@@ -107,44 +108,6 @@ if has('gui_running')
   set guicursor=a:blinkwait4000-blinkon1500-blinkoff500
   set guioptions=AcgM
   set visualbell
-endif
-
-if has('linux') && exists('*setcellwidths')
-  call setcellwidths(map([
-  \   [0x0101, 0], [0x0111, 0], [0x0113, 0], [0x011b, 0], [0x0126, 1],
-  \   [0x012b, 0], [0x0131, 2], [0x0138, 0], [0x013f, 3], [0x0144, 0],
-  \   [0x0148, 3], [0x014d, 0], [0x0152, 1], [0x0166, 1], [0x016b, 0],
-  \   [0x01ce, 0], [0x01d0, 0], [0x01d2, 0], [0x01d4, 0], [0x01d6, 0],
-  \   [0x01d8, 0], [0x01da, 0], [0x01dc, 0], [0x0251, 0], [0x0261, 0],
-  \   [0x02c4, 0], [0x02c7, 0], [0x02c9, 2], [0x02cd, 0], [0x02d0, 0],
-  \   [0x02d8, 3], [0x02dd, 0], [0x02df, 0], [0x0300, 111], [0x0391, 16],
-  \   [0x03a3, 6], [0x03b1, 16], [0x03c3, 6], [0x0401, 0], [0x0410, 63],
-  \   [0x0451, 0], [0x2010, 0], [0x2013, 2], [0x2016, 0], [0x2018, 0],
-  \   [0x2019, 0], [0x201c, 0], [0x201d, 0], [0x2020, 2], [0x2024, 3],
-  \   [0x2030, 0], [0x2032, 1], [0x2035, 0], [0x203b, 0], [0x203e, 0],
-  \   [0x2074, 0], [0x207f, 0], [0x2081, 3], [0x20ac, 0], [0x2103, 0],
-  \   [0x2105, 0], [0x2109, 0], [0x2113, 0], [0x2116, 0], [0x2121, 1],
-  \   [0x2126, 0], [0x212b, 0], [0x2153, 1], [0x215b, 3], [0x2160, 11],
-  \   [0x2170, 9], [0x2189, 0], [0x2190, 4], [0x2195, 4], [0x21b8, 1],
-  \   [0x21d2, 0], [0x21d4, 0], [0x21e7, 0], [0x2200, 0], [0x2202, 1],
-  \   [0x2207, 1], [0x220b, 0], [0x220f, 0], [0x2211, 0], [0x2215, 0],
-  \   [0x221a, 0], [0x221d, 3], [0x2223, 0], [0x2225, 0], [0x2227, 5],
-  \   [0x222e, 0], [0x2234, 3], [0x223c, 1], [0x2248, 0], [0x224c, 0],
-  \   [0x2252, 0], [0x2260, 1], [0x2264, 3], [0x226a, 1], [0x226e, 1],
-  \   [0x2282, 1], [0x2286, 1], [0x2295, 0], [0x2299, 0], [0x22a5, 0],
-  \   [0x22bf, 0], [0x2312, 0], [0x2460, 59], [0x249c, 77], [0x24eb, 20],
-  \   [0x2500, 75], [0x2550, 35], [0x2580, 15], [0x2592, 3], [0x25a0, 1],
-  \   [0x25a3, 6], [0x25b2, 1], [0x25b6, 0], [0x25b7, 0], [0x25bc, 1],
-  \   [0x25c0, 0], [0x25c1, 0], [0x25c6, 2], [0x25cb, 0], [0x25ce, 3],
-  \   [0x25e2, 3], [0x25ef, 0], [0x2600, 512], [0x2b56, 3], [0x3248, 7],
-  \   [0xe000, 6399], [0xfe00, 15], [0xfffd, 0], [0x1f000, 3066],
-  \   [0xe0100, 239], [0xf0000, 65533], [0x100000, 65533],
-  \ ], '[
-  \    v:val[0],
-  \    v:val[0] + v:val[1],
-  \    max([1, libcallnr("", "wcwidth", v:val[0])]),
-  \ ]'))
-  set ambiwidth=single
 endif
 
 if exists('+clipboard')
@@ -372,9 +335,7 @@ endfunction
 
 autocmd MyAutoCmd BufEnter *
 \   if &l:grepprg == ''
-\ |   let &l:grepprg = finddir('.git', expand('%:p:h') . ';') != ''
-\                    ? s:GREPPRGS[0]
-\                    : s:GREPPRGS[1]
+\ |   let &l:grepprg = s:GREPPRGS[finddir('.git', expand('%:p:h') . ';') ? 0 : 1]
 \ | endif
 
 
@@ -449,20 +410,20 @@ AlterCommand cd  CD
 
 
 
-" FoldDebug  {{{2
+" FoldDump  {{{2
 
-command! -range=% FoldDebug
+command! -range=% FoldDump
 \ <line1>,<line2>global/^/echo  printf("%*d [%2s] %s",
 \   len(line('$')),
 \   line('.'),
 \   eval(substitute(&l:foldexpr, '\<v:lnum\>', line('.'), '')),
 \   getline('.')
-\ )
+\ ) | nohlsearch
 
 
 
 
-" Indent helpers  {{{2
+" Indent setters  {{{2
 
 command! -bar -nargs=1 SpaceIndent
 \ setlocal expandtab shiftwidth=<args> softtabstop=<args> tabstop<
@@ -536,6 +497,47 @@ AlterCommand so[urce]  Source
 
 
 
+" Sum  {{{2
+
+command! -range Sum
+\ <line2>put
+\ =string(s:fold_lines(function('s:sum_line'), 0, <line1>, <line2>))
+
+function! s:fold_lines(f, acc, start_lnum, end_lnum) abort
+  let acc = a:acc
+
+  for lnum in range(a:start_lnum, a:end_lnum)
+    let line = getline(lnum)
+    let acc = a:f(acc, line)
+  endfor
+
+  return acc
+endfunction
+
+function! s:sum_line(acc, line) abort
+  let n = matchstr(a:line,
+  \                '\c\(0\(x\x\+\|b[01]\+\|o\?[0-7]\+\)\)\|\d\+\(\.\d\+\)\?')
+  if n == ''
+    return a:acc
+  endif
+  if stridx(n, '.') >= 0
+    return a:acc + str2float(n)
+  endif
+  if n[0:1] == '0x'
+    let base = 16
+  elseif n[0:1] == '0b'
+    let base = 2
+  elseif n[0] == '0'
+    let base = 8
+  else
+    let base = 10
+  endif
+  return a:acc + str2nr(n, base)
+endfunction
+
+
+
+
 " SuspendWithAutomticCD  {{{2
 
 command! -bar -nargs=0 SuspendWithAutomticCD
@@ -594,47 +596,6 @@ endfunction
 
 
 
-" Sum  {{{2
-
-command! -range Sum
-\ <line2>put
-\ =string(s:fold_lines(function('s:sum_line'), 0, <line1>, <line2>))
-
-function! s:fold_lines(f, acc, start_lnum, end_lnum) abort
-  let acc = a:acc
-
-  for lnum in range(a:start_lnum, a:end_lnum)
-    let line = getline(lnum)
-    let acc = a:f(acc, line)
-  endfor
-
-  return acc
-endfunction
-
-function! s:sum_line(acc, line) abort
-  let n = matchstr(a:line,
-  \                '\c\(0\(x\x\+\|b[01]\+\|o\?[0-7]\+\)\)\|\d\+\(\.\d\+\)\?')
-  if n == ''
-    return a:acc
-  endif
-  if stridx(n, '.') >= 0
-    return a:acc + str2float(n)
-  endif
-  if n[0:1] == '0x'
-    let base = 16
-  elseif n[0:1] == '0b'
-    let base = 2
-  elseif n[0] == '0'
-    let base = 8
-  else
-    let base = 10
-  endif
-  return a:acc + str2nr(n, base)
-endfunction
-
-
-
-
 " TabpageTitle  {{{2
 
 command! -bar -nargs=* TabpageTitle
@@ -674,10 +635,7 @@ AlterCommand new  New
 " Mappings  {{{1
 " QuickFix  {{{2
 
-" The prefix
 noremap q  <Nop>
-
-" Alternative for the original action
 nnoremap Q  q
 
 
@@ -725,9 +683,7 @@ nnoremap qwg  :<C-u>LGrep<Space>
 
 " Tab pages  {{{2
 
-" The prefix
 noremap <C-t>  <Nop>
-
 
 nnoremap <silent> <C-t>n  :<C-u>tabnew \| :tabmove<CR>
 nnoremap <silent> <C-t>c  :<C-u>tabclose<CR>
@@ -758,7 +714,7 @@ nmap <C-t><C-k>  <C-t>k
 nmap <C-t><C-t>  <C-t>j
 
 
-" Move specific tag page
+" Move the specific tag page
 for s:i in range(10)
   execute 'nnoremap <silent>' ('<C-t>'.(s:i))  ((s:i+1).'gt')
 endfor
@@ -779,7 +735,6 @@ nmap <C-t><C-h>  <C-t>h
 
 " Argument list  {{{2
 
-" The prefix
 noremap <C-g>  <Nop>
 
 nnoremap <silent> <C-g>l  :args<CR>
@@ -804,7 +759,7 @@ nmap <C-g><C-Space>  <C-g><Space>
 
 " Command-line editing  {{{2
 
-" GNU Emacs like mappings
+" Some mappings like GNU Emacs
 cnoremap <C-b>  <Left>
 cnoremap <C-f>  <Right>
 cnoremap <C-a>  <Home>
@@ -823,7 +778,7 @@ cnoremap <Up>  <C-p>
 cnoremap <Down>  <C-n>
 
 
-" Alternative key for the action to open the command-line history
+" An alternative key for the action to open the command-line history
 cnoremap <C-o>  <C-f>
 
 
@@ -860,7 +815,7 @@ endfunction
 
 " Insert mode  {{{2
 
-" GNU Emacs like mappings
+" Some mappings like GNU Emacs
 inoremap <C-b>  <Left>
 inoremap <C-f>  <Right>
 inoremap <C-d>  <Delete>
@@ -875,27 +830,27 @@ inoremap <expr> <C-k>
 inoremap <expr> <C-y>  pumvisible() ? "\<C-y>" : "\<C-r>+"
 
 
-" Alternatives for original actions
+" Alternative keys for original actions
 inoremap <C-\>  <C-a>
 inoremap <C-q>  <C-d>
 
 
-" To be able to undo these types of deletion
+" Make to be able to undo for these deletions
 inoremap <C-w>  <C-g>u<C-w>
 inoremap <C-u>  <C-g>u<C-u>
 
 
-" Complete or indent
+" Do complete or indent
 inoremap <expr> <Tab>  pumvisible()
-                   \ ? "\<C-n>"
-                   \ : <SID>should_indent_rather_than_complete()
-                   \ ? "\<C-i>"
-                   \ : <SID>keys_to_complete()
-inoremap <expr> <S-Tab>  pumvisible()
-                     \ ? "\<C-p>"
+                     \ ? "\<C-n>"
                      \ : <SID>should_indent_rather_than_complete()
                      \ ? "\<C-i>"
                      \ : <SID>keys_to_complete()
+inoremap <expr> <S-Tab>  pumvisible()
+                       \ ? "\<C-p>"
+                       \ : <SID>should_indent_rather_than_complete()
+                       \ ? "\<C-i>"
+                       \ : <SID>keys_to_complete()
 
 function! s:should_indent_rather_than_complete() abort  "{{{
   return getline('.')[col('.') - 2] !~ '^\S'
@@ -1035,8 +990,8 @@ function! s:ask_tabpage_number() abort  "{{{
 endfunction  "}}}
 
 function! s:move_window_into_tabpage(target_tabpagenr) abort  "{{{
-  " Move the current window into a:target_tabpagenr.
-  if a:target_tabpagenr <= 0  " ignore invalid number.
+  " Move the current window into a:target_tabpagenr
+  if a:target_tabpagenr <= 0  " ignore invalid number
     return
   endif
   let original_tabnr = tabpagenr()
@@ -1045,7 +1000,7 @@ function! s:move_window_into_tabpage(target_tabpagenr) abort  "{{{
 
   if a:target_tabpagenr > tabpagenr('$')
     tabnew
-    tabmove  " Move new tabpage at the last.
+    tabmove  " Move new tabpage at the last
     execute target_bufnr 'buffer'
     let target_tabpagenr = tabpagenr()
   else
@@ -1264,6 +1219,7 @@ nnoremap <C-k>  <C-o>
 nnoremap ZZ  <Nop>
 nnoremap ZQ  <Nop>
 
+
 " The shortcut for :update
 nnoremap <silent> <Leader><Leader>  :<C-u>update<CR>
 
@@ -1287,7 +1243,7 @@ function! s:start_insert_mode_with_blank_lines(command) abort  "{{{
 endfunction  "}}}
 
 
-" Make searching directions consistent
+" Make search directions consistent
 nnoremap <expr> n  v:searchforward ? 'nzv' : 'Nzv'
 nnoremap <expr> N  v:searchforward ? 'Nzv' : 'nzv'
 vnoremap <expr> n  v:searchforward ? 'nzv' : 'Nzv'
@@ -1301,6 +1257,7 @@ nnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
 vnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
 
 
+" A fallback for repeat
 nnoremap \  .
 
 
@@ -1348,14 +1305,9 @@ autocmd MyAutoCmd BufReadPre *
 autocmd MyAutoCmd InsertLeave *  set nopaste
 
 
-" Highlight ideographic spaces
+" Highlight special characters
 autocmd MyAutoCmd VimEnter,WinEnter *
-\ match Underlined /[\u3000\ufff9-\ufffc]/
-
-
-" Highlight kangxi Radicals
-autocmd MyAutoCmd VimEnter,WinEnter *
-\ match WarningMsg /[\u2f00-\u2fd5]/
+\ match Underlined /[\u00a0\u1680\u2000-\u200a\u202f\u205f\u2f00-\u2fd5\u3000]/
 
 
 " When editing a file, always jump to the last known cursor position
@@ -1365,7 +1317,7 @@ autocmd MyAutoCmd BufReadPost *
 \ | endif
 
 
-" Avoid duplicate `filetype` setting
+" Avoid to set `filetype` twice
 let g:ft_ignore_pat = '^\(ebuild\|eclass\)$'
 
 
@@ -1451,23 +1403,22 @@ function! s:on_FileType_ku() abort
 
   nmap <buffer> <Esc>  <Plug>(ku-quit-session)
 
-  imap <buffer> <expr> <SID>(ku-quit-session-if-empty)
-  \    col('$') <= 2 ? '<Plug>(ku-quit-session)' : ''
-  imap <buffer> <SID>(ku-delete-backward-char)
-  \    <Plug>(ku-delete-backward-char)
-  imap <buffer> <SID>(ku-delete-backward-line)
-  \    <Plug>(ku-delete-backward-line)
-  imap <buffer> <SID>(ku-delete-backward-component)
-  \    <Plug>(ku-delete-backward-component)
+  imap <buffer> <expr> <BS> <SID>ku_prompt_is_empty()
+                          \ ? '<Plug>(ku-quit-session)'
+                          \ : '<Plug>(ku-delete-backward-char)'
+  imap <buffer> <expr> <C-h> <SID>ku_prompt_is_empty()
+                           \ ? '<Plug>(ku-quit-session)'
+                           \ : '<Plug>(ku-delete-backward-char)'
+  imap <buffer> <expr> <C-u> <SID>ku_prompt_is_empty()
+                           \ ? '<Plug>(ku-quit-session)'
+                           \ : '<Plug>(ku-delete-backward-line)'
+  imap <buffer> <expr> <C-w> <SID>ku_prompt_is_empty()
+                           \ ? '<Plug>(ku-quit-session)'
+                           \ : '<Plug>(ku-delete-backward-component)'
+endfunction
 
-  inoremap <buffer> <script> <BS>
-  \        <SID>(ku-quit-session-if-empty)<SID>(ku-delete-backward-char)
-  inoremap <buffer> <script> <C-h>
-  \        <SID>(ku-quit-session-if-empty)<SID>(ku-delete-backward-char)
-  inoremap <buffer> <script> <C-u>
-  \        <SID>(ku-quit-session-if-empty)<SID>(ku-delete-backward-line)
-  inoremap <buffer> <script> <C-w>
-  \        <SID>(ku-quit-session-if-empty)<SID>(ku-delete-backward-component)
+function! s:ku_prompt_is_empty() abort
+  return col('$') <= 2
 endfunction
 
 
@@ -1477,11 +1428,10 @@ nnoremap [Space]kb  :<C-u>call ku#start(ku#source#buffer#new())<CR>
 nnoremap [Space]kd  :<C-u>call ku#start(ku#source#lsp_symbol#new())<CR>
 nnoremap [Space]kf  :<C-u>call ku#start(ku#source#file#new())<CR>
 nnoremap [Space]kg  :<C-u>call ku#start(ku#source#metarw#new('git'))<CR>
-nnoremap [Space]kc
-\        :<C-u>call ku#start(ku#source#file#new(), expand('%:h') != '.' ? expand('%:h') . '/' : '')<CR>
+nnoremap [Space]kc  :<C-u>call <SID>ku_start_with_current_directory(ku#source#file#new())<CR>
 nnoremap [Space]kj  :<C-u>call ku#start(ku#source#jumplist#new())<CR>
 nnoremap [Space]kk  :<C-u>call ku#restart()<CR>
-nnoremap [Space]kl  :<C-u>call ku#start(<SID>ku_new_list_files_source())<CR>
+nnoremap [Space]kl  :<C-u>call ku#start(<SID>ku_list_files_source())<CR>
 nnoremap [Space]km  :<C-u>call ku#start(ku#source#oldfiles#new())<CR>
 nnoremap [Space]kn  :<C-u>call ku#start(ku#source#file#new(expand("~/Sync/Documents/Notes")))<CR>
 nnoremap [Space]kq  :<C-u>call ku#start(ku#source#quickfix#new())<CR>
@@ -1491,8 +1441,14 @@ nnoremap [Space]kw  :<C-u>call ku#start(ku#source#project#new(expand('~/Sync/wor
 nnoremap [Space]kz  :<C-u>call ku#start(ku#source#fold#new())<CR>
 nnoremap [Space]k'  :<C-u>call ku#start(ku#source#mark#new())<CR>
 
+function! s:ku_start_with_current_directory(source) abort
+  let initial_pattern = expand('%:h') != '.' ? expand('%:h') . '/' : ''
+  call ku#start(a:source, {
+  \   'initial_pattern': initial_pattern,
+  \ })
+endfunction
 
-function! s:ku_new_list_files_source() abort
+function! s:ku_list_files_source() abort
   if isdirectory('.git')
     let name = 'async/git'
     let command = [
@@ -1505,7 +1461,7 @@ function! s:ku_new_list_files_source() abort
     let command = [
     \  'fzf-filter', '-l', '1000',
     \  '--',
-    \  'fd', '--type', 'f', '-c', 'never', '--max-results', '10000',
+    \  'fd', '--type', 'f', '--strip-cwd-prefix', '-c', 'never', '--max-results', '10000',
     \ ]
   endif
   return ku#source#async#new({
@@ -1657,13 +1613,13 @@ Arpeggio map or  <Plug>(operator-replace)
 
 " operator-sort  {{{2
 
-nmap [Space]S  <Plug>(operator-sort)$
-vmap [Space]S  <Plug>(operator-sort)$
+nmap [Space]S  <Plug>(operator-sort!)
+vmap [Space]S  <Plug>(operator-sort!)
 nmap [Space]s  <Plug>(operator-sort)
 vmap [Space]s  <Plug>(operator-sort)
 
-nmap [Space]N  <Plug>(operator-sort)$
-vmap [Space]N  <Plug>(operator-sort)$
+nmap [Space]N  <Plug>(operator-sort-numeric!)
+vmap [Space]N  <Plug>(operator-sort-numeric!)
 nmap [Space]n  <Plug>(operator-sort-numeric)
 vmap [Space]n  <Plug>(operator-sort-numeric)
 
@@ -1858,16 +1814,6 @@ endfunction
 
 
 
-" smartword  {{{2
-
-map w  <Plug>(smartword-w)
-map b  <Plug>(smartword-b)
-map e  <Plug>(smartword-e)
-map ge  <Plug>(smartword-ge)
-
-
-
-
 " smartinput  {{{2
 
 let g:smartinput_no_default_key_mappings = 1
@@ -1945,6 +1891,16 @@ call smartinput#map_trigger_keys()
 
 
 
+" smartword  {{{2
+
+map w  <Plug>(smartword-w)
+map b  <Plug>(smartword-b)
+map e  <Plug>(smartword-e)
+map ge  <Plug>(smartword-ge)
+
+
+
+
 " submode  {{{2
 
 call submode#enter_with('scroll', 'nv', '', '[Space]j')
@@ -1988,19 +1944,22 @@ let g:submode_timeout = 0
 
 
 
-" surround  {{{2
+" surround-obj  {{{2
 
-map s  <Plug>(surround-operator-add)
-map S  <Plug>(surround-operator-add)$
+map s  <Plug>(surround-obj-add)
+map S  <Plug>(surround-obj-add)$
 
-" A textobj for a quote string without leading or trailing white spaces. These
-" mappings are included it by default.
-omap a'  <Plug>(surround-textobj-a:')
-vmap a'  <Plug>(surround-textobj-a:')
-omap a"  <Plug>(surround-textobj-a:")
-vmap a"  <Plug>(surround-textobj-a:")
-omap a`  <Plug>(surround-textobj-a:`)
-vmap a`  <Plug>(surround-textobj-a:`)
+nmap cs  <Plug>(surround-obj-change)
+nmap ds  <Plug>(surround-obj-delete)
+
+" By default, a text object for a quote string contains trailing white spaces.
+" These mappings aren't included it.
+omap a'  <Plug>(surround-obj-a:')
+vmap a'  <Plug>(surround-obj-a:')
+omap a"  <Plug>(surround-obj-a:")
+vmap a"  <Plug>(surround-obj-a:")
+omap a`  <Plug>(surround-obj-a:`)
+vmap a`  <Plug>(surround-obj-a:`)
 
 
 

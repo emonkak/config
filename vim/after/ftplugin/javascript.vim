@@ -6,24 +6,21 @@ setlocal cinoptions-=(0
 setlocal expandtab
 setlocal foldexpr=JavascriptFold(v:lnum)
 setlocal foldmethod=expr
-setlocal iskeyword+=$
-setlocal iskeyword-=58
+setlocal iskeyword+=$ iskeyword-=:
 setlocal shiftwidth=4
 setlocal softtabstop=4
 
 function! JavascriptFold(lnum) abort
   let current = getline(a:lnum)
-  let level = indent(a:lnum) / shiftwidth() + 1
 
-  if current =~# '\s*}$'
-    return level > 2 ? '=' : '<' . level
-  endif
-
-  if current =~# '^\s*\%(export\s\+\%(default\s\+\)\?\)\?\%(class\|\%(async\s\+\)\?function\>\)'
-  \  || (level > 1 && current =~# '^\s*\%(static\s\+\)\?\%(async\s\+\)\?\h\w*(\s*\(\h\|)\)')
-    if current !~# ';\s*$'
-      return level > 2 ? '=' : '>' . level
-    endif
+  if current =~# '^'
+  \            . '\%(export\s\+\%(default\s\+\)\?\)\?'
+  \            . '\%(class\|\%(async\s\+\)\?function\)'
+  \            . '\>'
+  \ && current !~# '\s*[;}]\s*$'
+    return '>1'
+  elseif current =~# '^}\s*$'
+    return '<1'
   endif
 
   return '='

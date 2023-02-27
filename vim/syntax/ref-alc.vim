@@ -18,7 +18,8 @@ endif
 syntax region refAlcMidashi oneline concealends
 \ matchgroup=refAlcConceal start='^\*' end='\*'
 
-syntax match refAlcKeyword '◆'
+syntax match refAlcKeyword '[◆→＝]'
+syntax match refAlcSeparator '｜'
 
 syntax match refAlcLabel       '【.\{-}】'
 syntax match refAlcAnnotation  '〔.\{-}〕'
@@ -32,6 +33,7 @@ syntax match refAlcURL         'https\?://\S\+'
 
 " Highlight Group Link
 highlight def link refAlcKeyword     Statement
+highlight def link refAlcSeparator   NonText
 highlight def link refAlcMidashi     Title
 highlight def link refAlcLabel       Constant
 highlight def link refAlcAnnotation  Comment

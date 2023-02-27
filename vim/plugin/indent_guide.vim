@@ -13,7 +13,7 @@ function! s:update_listchars() abort
   else
     call add(settings, 'leadmultispace: ')
   endif
-  try 
+  try
     let &l:listchars = join(settings, ',')
     return 1
   catch /^Vim\%((\a\+)\)\=:E474:/
@@ -25,7 +25,6 @@ if s:update_listchars()
   augroup plugin-indent-guide
     autocmd!
     autocmd BufEnter *  call s:update_listchars()
-    autocmd WinEnter *  call s:update_listchars()
     autocmd OptionSet expandtab,listchars,shiftwidth
     \ call s:update_listchars()
   augroup END
