@@ -44,7 +44,8 @@ myStatusbarHeight = 21
 myFont = "xft:M PLUS Code Latin 60:pixelsize=11,Noto Sans CJK JP:pixelsize=11,Noto Emoji:pixelsize=11"
 
 myPrimaryColor = "#5686d7"
-mySecondaryColor = "#698aa8"
+mySecondaryColor = "#cf6950"
+myGrayColor = "#698aa8"
 myMutedColor = "#3f576e"
 myForegroundColor = "#d1dbe7"
 myBackgroundColor = "#22262b"
