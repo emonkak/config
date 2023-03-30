@@ -6,8 +6,8 @@ import System.Environment (getExecutablePath)
 import System.FilePath.Posix (takeDirectory)
 
 myPrimaryColor = "#5686d7"
-mySecondaryColor = "#698aa8"
-myThirdColor = "#cf6950"
+mySecondaryColor = "#cf6950"
+myGrayColor = "#698aa8"
 myMutedColor = "#3f576e"
 myForegroundColor = "#d1dbe7"
 myBackgroundColor = "#22262b"
@@ -22,13 +22,13 @@ makeConfig configDirectory = defaultConfig
   , overrideRedirect = True
   , commands = [ Run StdinReader
                , Run $ MPD
-                 [ "-t", "<statei> <title><fc=" ++ mySecondaryColor ++ ">/</fc><artist> <fc=" ++ mySecondaryColor ++ ">(<volume>%)</fc>"
+                 [ "-t", "<statei> <title><fc=" ++ myGrayColor ++ ">/</fc><artist> <fc=" ++ myGrayColor ++ ">(<volume>%)</fc>"
                  , "-M", "20"
                  , "-e", "..."
                  , "--"
                  , "-P", "<fc=" ++ myPrimaryColor ++ "><fn=1>\xe405</fn></fc>"
-                 , "-S", "<fc=" ++ mySecondaryColor ++ "><fn=1>\xe047</fn></fc>"
-                 , "-Z", "<fc=" ++ mySecondaryColor ++ "><fn=1>\xe034</fn></fc>"
+                 , "-S", "<fc=" ++ myGrayColor ++ "><fn=1>\xe047</fn></fc>"
+                 , "-Z", "<fc=" ++ myGrayColor ++ "><fn=1>\xe034</fn></fc>"
                  , "-h", "127.0.0.1"
                  , "-p", "6600"
                  ] 10
@@ -37,19 +37,19 @@ makeConfig configDirectory = defaultConfig
                  , "-L", "50"
                  , "-H", "75"
                  , "-n", myPrimaryColor
-                 , "-h", myThirdColor
+                 , "-h", mySecondaryColor
                  , "-S", "True"
                  , "-p", "3"
                  ] 10
                , Run $ CatNum "cputemp"
                  [ "/sys/bus/platform/devices/coretemp.0/hwmon/hwmon1/temp1_input"
                  ]
-                 [ "-t", "<fc=" ++ mySecondaryColor ++ ">(</fc><n0><fc=" ++ mySecondaryColor ++ ">)</fc>"
+                 [ "-t", "<fc=" ++ myGrayColor ++ ">(</fc><n0><fc=" ++ myGrayColor ++ ">)</fc>"
                  , "-L", "50000"
                  , "-H", "70000"
-                 , "-l", mySecondaryColor
+                 , "-l", myGrayColor
                  , "-n", myPrimaryColor
-                 , "-h", myThirdColor
+                 , "-h", mySecondaryColor
                  , "-m", "4"
                  , "--"
                  , "--divier", "1000"
@@ -60,7 +60,7 @@ makeConfig configDirectory = defaultConfig
                  , "-L", "50"
                  , "-H", "75"
                  , "-n", myPrimaryColor
-                 , "-h", myThirdColor
+                 , "-h", mySecondaryColor
                  , "-S", "True"
                  , "-p", "3"
                  ] 10
@@ -77,9 +77,9 @@ makeConfig configDirectory = defaultConfig
                  [ "-t", "<fc=" ++ myPrimaryColor ++ "><fn=1>\xe5d8</fn></fc> <tx> <fc=" ++ myPrimaryColor ++ "><fn=1>\xe5db</fn></fc> <rx>"
                  , "-L", "10000"
                  , "-H", "1000000"
-                 , "-l", mySecondaryColor
+                 , "-l", myGrayColor
                  , "-n", myPrimaryColor
-                 , "-h", myThirdColor
+                 , "-h", mySecondaryColor
                  , "-S", "True"
                  , "-m", "8"
                  ] 10
@@ -89,7 +89,7 @@ makeConfig configDirectory = defaultConfig
                  , "-p", "3"
                  , "--"
                  , "--on", "<fc=" ++ myPrimaryColor ++ "><fn=1>\xe050</fn></fc>"
-                 , "--off", "<fc=" ++ mySecondaryColor ++ "><fn=1>\xe04f</fn></fc>"
+                 , "--off", "<fc=" ++ myGrayColor ++ "><fn=1>\xe04f</fn></fc>"
                  ]
                , Run $ Date "%Y-%m-%d %a %H:%M:%S" "date" 10
                ]
