@@ -155,18 +155,28 @@ alias -s {7z,gz,rar,tar,xz,zip}='aunpack'
 # Hooks  #{{{1
 
 zshaddhistory() {
-  line=(${(z)1})
+  args=(${(z)1})
 
   # Save "dd", "rm" and "rmdir" only to the internal history.
-  [[ $line[1] = (dd|rm(|dir)) ]] && return 2
-  [[ $line[1] = s(|udo) && $line[2] = (dd|rm(|dir)) ]] && return 2
+  [[ $args[1] = (dd|rm(|dir)) ]] && return 2
+  [[ $args[1] = s(|udo) && $line[2] = (dd|rm(|dir)) ]] && return 2
 
   # Suppress to save commonly used commands.
-  [[ $line[1] = (exit|pwd) ]] && return 1
-  [[ $line[1] = (ls|la|ll|lla) && $line[2] = ';' ]] && return 1
+  [[ $args[1] = (exit|pwd) ]] && return 1
+  [[ $args[1] = (ls|la|ll|lla) ]] && return 1
 
-  # Suppress to save invalid command.
-  whence $line[1] >| /dev/null || return 1
+  # Suppress to save an invalid command.
+  i=1
+  while [[ $i -lt ${#args[@]} ]]
+  do
+    # Skip variable assignment.
+    if ! [[ $args[$i] =~ '^[A-Z][0-9A-Za-z_]*=' ]]
+    then
+      whence $args[$i] >| /dev/null || return 1
+      break
+    fi
+    i=$(($i + 1))
+  done
 }
 
 if [[ -n "$TMUX" ]] || [[ "$TERM" == (xterm*|rxvt*) ]]

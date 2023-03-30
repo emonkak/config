@@ -49,7 +49,7 @@ export LANG='en_US.UTF-8'
 export LC_MESSAGES='C'
 export LC_TIME='C'
 
-export BROWSER='brave-bin'
+export BROWSER='microsoft-edge-stable'
 export EDITOR='nvim'
 export PAGER='less'
 
