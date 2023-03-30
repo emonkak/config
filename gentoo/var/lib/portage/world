@@ -8,6 +8,7 @@ app-arch/lha
 app-arch/p7zip
 app-arch/unrar
 app-arch/unzip
+app-arch/xar
 app-arch/zip
 app-cdr/bchunk
 app-cdr/dvd+rw-tools
@@ -31,6 +32,7 @@ app-misc/delta
 app-misc/evtest
 app-misc/jq
 app-misc/mfiler3
+app-misc/neofetch
 app-misc/nnn
 app-misc/ranger
 app-misc/ticker
@@ -142,6 +144,7 @@ net-misc/wget2
 net-misc/whois
 net-p2p/resilio-sync
 net-p2p/transmission
+sys-apps/cpuid
 sys-apps/dbus
 sys-apps/dmidecode
 sys-apps/dstat

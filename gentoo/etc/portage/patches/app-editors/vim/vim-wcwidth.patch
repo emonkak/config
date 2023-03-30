@@ -1,0 +1,18 @@
+diff --git a/src/mbyte.c b/src/mbyte.c
+index 57aa61999..dcd511be6 100644
+--- a/src/mbyte.c
++++ b/src/mbyte.c
+@@ -120,13 +120,9 @@
+ # include <wchar.h>
+ #endif
+ 
+-#if 0
+-// This has been disabled, because several people reported problems with the
+-// wcwidth() and iswprint() library functions, esp. for Hebrew.
+ # ifdef __STDC_ISO_10646__
+ #  define USE_WCHAR_FUNCTIONS
+ # endif
+-#endif
+ 
+ static int dbcs_char2len(int c);
+ static int dbcs_char2bytes(int c, char_u *buf);
