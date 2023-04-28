@@ -8,7 +8,8 @@ PACKAGE_URLS=\
   https://github.com/blueyed/vim-auto-programming \
   https://github.com/dhruvasagar/vim-table-mode.git \
   https://github.com/emonkak/vim-accelerate.git \
-  https://github.com/emonkak/vim-ku.git \
+  https://github.com/emonkak/vim-foldsort.git \
+  https://github.com/emonkak/vim-luis.git \
   https://github.com/emonkak/vim-metarw-gist.git \
   https://github.com/emonkak/vim-operator-comment.git \
   https://github.com/emonkak/vim-operator-sort.git \

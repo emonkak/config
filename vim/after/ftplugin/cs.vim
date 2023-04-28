@@ -19,9 +19,11 @@ function! CsFold(lnum) abort
   \            . '\%(\%(abstract\|partial\|public\|private\|protected\|protected\|internal\|static\)\s\+\)*\%(class\|enum\|interface\)'
   \            . '\|namespace'
   \            . '\)\>'
-  \ && current !~# '\s*;\s*$'
+  \ && current !~# '[;}]\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return '>' . level
+    if level <= 2
+      return '>' . level
+    endif
   elseif current =~# '^\s*}\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
     return '<' . level

@@ -17,7 +17,7 @@ function! JavascriptFold(lnum) abort
   \            . '\%(export\s\+\%(default\s\+\)\?\)\?'
   \            . '\%(class\|\%(async\s\+\)\?function\)'
   \            . '\>'
-  \ && current !~# '\s*[;}]\s*$'
+  \ && current !~# '[;}]\s*$'
     return '>1'
   elseif current =~# '^}\s*$'
     return '<1'

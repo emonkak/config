@@ -36,10 +36,14 @@ function! PHPFold(lnum) abort
              \ . '\)\>'
   \ && current !~# ';\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return '>' . level
-  elseif current =~# '\s*}\s*$'
+    if level <= 2
+      return '>' . level
+    endif
+  elseif current =~# '^\s*}\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return '<' . level
+    if level <= 2
+      return '<' . level
+    endif
   endif
 
   return '='

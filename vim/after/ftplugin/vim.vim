@@ -5,6 +5,7 @@ endif
 setlocal expandtab
 setlocal foldexpr=VimFold(v:lnum)
 setlocal foldmethod=expr
+setlocal iskeyword-=#
 setlocal shiftwidth=2
 setlocal softtabstop=2
 

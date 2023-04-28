@@ -18,12 +18,10 @@ endif
 
 filetype plugin indent on
 
-function! s:SID_PREFIX() abort
-  return matchstr(expand('<sfile>'), '<SNR>\d\+_')
+function! s:SID() abort
+  return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
 endfunction
-let s:SID = s:SID_PREFIX()
-
-
+let s:SID = '<SNR>' . s:SID() . '_'
 
 
 " Encoding  {{{2
@@ -36,8 +34,6 @@ if has('win32') || has('win64')
   set fileformat=unix
   set termencoding=cp932
 endif
-
-
 
 
 " Syntax {{{2
@@ -71,8 +67,6 @@ if (1 < &t_Co || has('gui')) && has('syntax') && !exists('g:syntax_on')
 endif
 
 
-
-
 " File and Directory  {{{2
 
 if &directory =~# '^\.'
@@ -85,8 +79,6 @@ if &undodir ==# '.'
 endif
 set nowritebackup
 set viminfo^='1000 viminfo-='100
-
-
 
 
 " User Interface  {{{2
@@ -136,7 +128,7 @@ endif
 set laststatus=2
 set linebreak
 set list
-set listchars=tab:\\u00bb\ ,trail:\\u00b7,extends:>,precedes:<,conceal:\\u00a6,nbsp:\\u00b7
+let &listchars = "tab:\u00bb ,trail:\u00b7,extends:>,precedes:<,conceal:\u00a6,nbsp:\u00b7"
 set keywordprg=:help
 set mouse=
 set nrformats-=octal
@@ -162,9 +154,6 @@ set wildmenu
 set wildmode=full
 
 
-
-
-
 " Indent  {{{2
 
 set autoindent
@@ -184,8 +173,6 @@ set smartcase
 set smartindent
 
 
-
-
 " Status-line  {{{2
 
 let &statusline = '%<%f %h%m%r%w'
@@ -196,8 +183,6 @@ let &statusline = '%<%f %h%m%r%w'
 \               . ']'
 \               . '[%{&l:fileformat}]'
 \               . '   %-14.(%l,%c%V%) %P'
-
-
 
 
 " Tab-line  {{{2
@@ -235,8 +220,6 @@ set showtabline=1
 let &tabline = '%!' . s:SID . 'my_tabline()'
 
 
-
-
 " Misc.  {{{2
 
 augroup MyAutoCmd
@@ -250,16 +233,12 @@ let g:mapleader = ','
 let g:maplocalleader = '.'
 
 
-
-
 " Utilities  "{{{1
 function! s:complete_file(arglead, cmdline, cursorpos) abort  "{{{2
   return glob(join(split(a:cmdline, '\s', 1)[1:], ' ') . '*',
   \           0,
   \           1)
 endfunction
-
-
 
 
 function! s:complete_cdpath(arglead, cmdline, cursorpos) abort  "{{{2
@@ -269,8 +248,6 @@ function! s:complete_cdpath(arglead, cmdline, cursorpos) abort  "{{{2
   \                   1),
   \          'v:val[:-2]')
 endfunction
-
-
 
 
 " Commands  {{{1
@@ -301,8 +278,6 @@ command! -bang -bar -complete=file -nargs=? Mac
 \ edit<bang> ++ff=mac <args>
 
 
-
-
 " :grep wrappers  {{{2
 
 command! -complete=customlist,s:complete_file -nargs=+ Grep
@@ -311,9 +286,9 @@ command! -complete=customlist,s:complete_file -nargs=+ Lgrep
 \ call s:grep('lgrep', 'lwindow', [<f-args>])
 
 function! s:grep(command, window_command, args) abort
-  let pattern = escape(shellescape(a:args[-1], 1), '|')
+  let pattern = escape(shellescape(a:args[-1]), '|')
   let target = len(a:args) > 1
-  \          ? escape(shellescape(join(a:args[:-2], ' '), 1), '|')
+  \          ? escape(shellescape(join(a:args[:-2], ' ')), '|')
   \          : ''
   execute (a:command . '!') pattern target
   execute a:window_command
@@ -323,8 +298,8 @@ AlterCommand gr[ep]  Grep
 AlterCommand lgr[ep]  LGrep
 
 let s:GREPPRGS = [
+\   executable('rg') ? 'rg --vimgrep --no-heading' : 'grep -nHE',
 \   'git grep --line-number --column',
-\   executable('rg') ? 'rg --vimgrep --no-heading' : 'grep -nHE'
 \ ]
 
 function! s:toggle_grepprg() abort
@@ -333,12 +308,15 @@ function! s:toggle_grepprg() abort
   echo &l:grepprg
 endfunction
 
-autocmd MyAutoCmd BufEnter *
+function! s:detect_optimal_greprg() abort
+  let git_dir = finddir('.git', expand('%:p:h') . ';')
+  return s:GREPPRGS[git_dir ? 1 : 0]
+endfunction
+
+autocmd MyAutoCmd BufRead *
 \   if &l:grepprg == ''
-\ |   let &l:grepprg = s:GREPPRGS[finddir('.git', expand('%:p:h') . ';') ? 0 : 1]
+\ |   let &l:grepprg = s:detect_optimal_greprg()
 \ | endif
-
-
 
 
 " :make wrappers  {{{2
@@ -361,8 +339,6 @@ AlterCommand mak[e]  Make
 AlterCommand lmak[e]  Lmake
 
 
-
-
 " BufferSweap  {{{2
 
 command! -bang -nargs=0 BufferSweap  call s:cmd_BufferSweap(<bang>0)
@@ -382,8 +358,6 @@ function! s:cmd_BufferSweap(is_banged) abort
     echo len(bufnrs) 'buffers are deleted'
   endif
 endfunction
-
-
 
 
 " CD  {{{2
@@ -408,8 +382,6 @@ endfunction
 AlterCommand cd  CD
 
 
-
-
 " FoldDump  {{{2
 
 command! -range=% FoldDump
@@ -421,8 +393,6 @@ command! -range=% FoldDump
 \ ) | nohlsearch
 
 
-
-
 " Indent setters  {{{2
 
 command! -bar -nargs=1 SpaceIndent
@@ -430,8 +400,6 @@ command! -bar -nargs=1 SpaceIndent
 
 command! -bar -nargs=1 TabIndent
 \ setlocal noexpandtab shiftwidth< softtabstop< tabstop=<args>
-
-
 
 
 " Note  {{{2
@@ -443,8 +411,6 @@ command! -bar -nargs=? Note
 \   strftime('%Y-%m-%d'),
 \   <q-args> != '' ? '_' . <q-args> : ''
 \ )
-
-
 
 
 " Rename  {{{2
@@ -475,15 +441,11 @@ function! s:cmd_Rename(path) abort
 endfunction
 
 
-
-
 " Reverse  {{{2
 
 command! -bar -range=% Reverse
 \   <line1>,<line2>global/^/m<line1>-1
 \ | nohlsearch
-
-
 
 
 " Source  {{{2
@@ -493,8 +455,6 @@ command! -bar -complete=file -nargs=1 Source
 \ | source <args>
 
 AlterCommand so[urce]  Source
-
-
 
 
 " Sum  {{{2
@@ -536,8 +496,6 @@ function! s:sum_line(acc, line) abort
 endfunction
 
 
-
-
 " SuspendWithAutomticCD  {{{2
 
 command! -bar -nargs=0 SuspendWithAutomticCD
@@ -569,8 +527,6 @@ function! s:cmd_SuspendWithAutomticCD() abort
 endfunction
 
 
-
-
 " SyntaxStack {{{2
 
 command! -bar -nargs=0 SyntaxStack
@@ -593,9 +549,6 @@ function! s:syntax_stack(line, col) abort
   return stack
 endfunction
 
-
-
-
 " TabpageTitle  {{{2
 
 command! -bar -nargs=* TabpageTitle
@@ -607,22 +560,20 @@ command! -bar -nargs=* TabpageTitle
 \ | redraw!
 
 
-
-
 " Window helpers  {{{2
 
 command! -bar -complete=file -nargs=* Split
-\ MaybeVertical split <args>
+\ Vertical split <args>
 command! -bar -complete=file -nargs=* SplitTop
-\ MaybeVertical topleft split <args>
+\ Vertical topleft split <args>
 command! -bar -complete=file -nargs=* SplitBottom
-\ MaybeVertical botright split <args>
+\ Vertical botright split <args>
 command! -bar -complete=help -nargs=* Help
-\ MaybeVertical help <args>
+\ Vertical help <args>
 command! -bar -complete=file -nargs=* New
-\ MaybeVertical new <args>
+\ Vertical new <args>
 
-command! -bar -nargs=* MaybeVertical
+command! -bar -nargs=* Vertical
 \ execute (winwidth(0) >= 150 ? 'vertical' : '') <q-args>
 
 AlterCommand sp[lit]  Split
@@ -630,14 +581,11 @@ AlterCommand h[elp]  Help
 AlterCommand new  New
 
 
-
-
 " Mappings  {{{1
 " QuickFix  {{{2
 
 noremap q  <Nop>
 nnoremap Q  q
-
 
 " For quickfix list
 nnoremap <silent> qj  :cnext<CR>
@@ -657,7 +605,6 @@ nnoremap <silent> qm  :<C-u>Make<CR>
 nnoremap qM  :<C-u>Make<Space>
 nnoremap q<Space>  :<C-u>Make<Space>
 nnoremap qg  :<C-u>Grep<Space>
-
 
 " For location list
 nnoremap <silent> qwj  :lnext<CR>
@@ -679,8 +626,6 @@ nnoremap qw<Space>  :<C-u>Lmake<Space>
 nnoremap qwg  :<C-u>LGrep<Space>
 
 
-
-
 " Tab pages  {{{2
 
 noremap <C-t>  <Nop>
@@ -700,7 +645,6 @@ nnoremap <silent> <C-t><Space>  :<C-u>TabpageTitle<CR>
 nmap <silent> <C-t><C-@>  <C-t><Space>
 nmap <silent> <C-t><C-Space>  <C-t><Space>
 
-
 " Moving around tab pages
 nnoremap <silent> <C-t>j
 \ :<C-u>execute 'tabnext' 1 + (tabpagenr() + v:count1 - 1) % tabpagenr('$')<CR>
@@ -713,13 +657,11 @@ nmap <C-t><C-j>  <C-t>j
 nmap <C-t><C-k>  <C-t>k
 nmap <C-t><C-t>  <C-t>j
 
-
 " Move the specific tag page
 for s:i in range(10)
   execute 'nnoremap <silent>' ('<C-t>'.(s:i))  ((s:i+1).'gt')
 endfor
 unlet s:i
-
 
 " Moving tabpages them selves
 nnoremap <silent> <C-t>l  :<C-u>execute 'tabmove' '+'.v:count1<CR>
@@ -729,8 +671,6 @@ nnoremap <silent> <C-t>H  :<C-u>tabmove 0<CR>
 
 nmap <C-t><C-l>  <C-t>l
 nmap <C-t><C-h>  <C-t>h
-
-
 
 
 " Argument list  {{{2
@@ -754,9 +694,6 @@ nmap <C-g><C-w><C-k>  <C-g>wk
 nmap <C-g><C-@>  <C-g><Space>
 nmap <C-g><C-Space>  <C-g><Space>
 
-
-
-
 " Command-line editing  {{{2
 
 " Some mappings like GNU Emacs
@@ -770,22 +707,17 @@ cnoremap <C-k>
 cnoremap <expr> <C-u>  getcmdline() == '' ? "\<C-c>" : "\<C-u>"
 cnoremap <expr> <C-w>  getcmdline() == '' ? "\<C-c>" : "\<C-w>"
 
-
 " Swap <C-p> and <C-n> to <Up> and <Down>
 cnoremap <C-p>  <Up>
 cnoremap <C-n>  <Down>
 cnoremap <Up>  <C-p>
 cnoremap <Down>  <C-n>
 
-
-" An alternative key for the action to open the command-line history
+" An alternative key to open the command-line history
 cnoremap <C-o>  <C-f>
-
 
 " Escape the slash character when command-line type is 'search'
 cnoremap <expr> /  index(['/', '?'], getcmdtype()) >= 0 ? '\/' : '/'
-
-
 
 
 " Command-line window  {{{2
@@ -810,9 +742,6 @@ function! s:on_CmdwinEnter() abort
   startinsert!
 endfunction
 
-
-
-
 " Insert mode  {{{2
 
 " Some mappings like GNU Emacs
@@ -829,16 +758,13 @@ inoremap <expr> <C-k>
 \        repeat("\<Delete>", max([strchars(getline('.')[col('.') - 1:]), 1]))
 inoremap <expr> <C-y>  pumvisible() ? "\<C-y>" : "\<C-r>+"
 
-
 " Alternative keys for original actions
 inoremap <C-\>  <C-a>
 inoremap <C-q>  <C-d>
 
-
 " Make to be able to undo for these deletions
 inoremap <C-w>  <C-g>u<C-w>
 inoremap <C-u>  <C-g>u<C-u>
-
 
 " Do complete or indent
 inoremap <expr> <Tab>  pumvisible()
@@ -857,9 +783,7 @@ function! s:should_indent_rather_than_complete() abort  "{{{
 endfunction  "}}}
 
 function! s:keys_to_complete() abort  "{{{
-  if &l:filetype ==# 'vim'
-    return "\<C-x>\<C-v>"
-  elseif &l:omnifunc != ''
+  if &l:omnifunc != ''
     return "\<C-x>\<C-o>"
   elseif &l:completefunc != ''
     return "\<C-x>\<C-u>"
@@ -868,18 +792,13 @@ function! s:keys_to_complete() abort  "{{{
   endif
 endfunction  "}}}
 
-
-
-
 " The <Space>  {{{2
 
 map <Space>  [Space]
 noremap [Space]  <Nop>
 
-
 nnoremap <silent> [Space]w  :<C-u>w<CR>
 nnoremap <silent> [Space]W  :<C-u>SudaWrite<CR>
-
 
 " Close temporary windows such as 'quickfix', 'help'
 nnoremap <silent> [Space]c  :<C-u>call <SID>close_temporary_windows()<CR>
@@ -898,7 +817,6 @@ function! s:close_temporary_windows() abort  "{{{
     endif
   endfor
 endfunction  "}}}
-
 
 nnoremap [Space]o  <Nop>
 nnoremap <silent> [Space]oc  :<C-u>call <SID>toggle_colorcolumn()<CR>
@@ -929,7 +847,6 @@ function! s:toggle_colorcolumn() abort  "{{{
   endif
 endfunction  "}}}
 
-
 nnoremap [Space]f  <Nop>
 nnoremap [Space]fe  :<C-u>setlocal fileencoding=
 nnoremap [Space]ff  :<C-u>setlocal fileformat=
@@ -938,26 +855,20 @@ nnoremap [Space]fr  :<C-\>esetcmdpos(8 + strlen(expand('%:p:r'))) ? '' : 'Rename
 nnoremap [Space]fs  :<C-u>setlocal filetype? fileencoding? fileformat?<CR>
 nnoremap [Space]ft  :<C-u>setfiletype<Space>
 
-
 nnoremap [Space]l  zo
 nnoremap [Space]h  zc
 nnoremap [Space]H  zM
 nnoremap [Space]v  zMzv
 
-
 nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
 nnoremap <silent> [Space]%  :<C-u>Source %<CR>
 
-
-" Paste the clipboard content
+" Put the clipboard content
 nnoremap [Space]p  "+p
-
 
 " Enter the command-line window
 nnoremap [Space]:  q:
 xnoremap [Space]:  q:
-
-
 
 
 " Windows  {{{2
@@ -965,14 +876,11 @@ xnoremap [Space]:  q:
 nnoremap <Tab>  <C-w>w
 nnoremap <S-Tab>  <C-w>W
 
-
 nnoremap <C-w>*  :<C-u>Split \| normal! *<CR>
 nnoremap <C-w>#  :<C-u>Split \| normal! #<CR>
 
-
 nnoremap <C-w>f  :<C-u>Split wincmd f<CR>
 nnoremap <C-w><C-f>  :<C-u>Split wincmd f<CR>
-
 
 nnoremap <silent> <C-w>t
 \ :call <SID>move_window_into_tabpage(<SID>ask_tabpage_number())<CR>
@@ -1024,10 +932,7 @@ function! s:move_window_into_tabpage(target_tabpagenr) abort  "{{{
   execute target_tabpagenr 'tabnext'
 endfunction  "}}}
 
-
 nnoremap <C-w>Q  :<C-u>quit!<CR>
-
-
 
 
 " Marks  {{{2
@@ -1070,8 +975,6 @@ function! s:pop_from_markring() abort  "{{{
 endfunction  "}}}
 
 
-
-
 " Text objects  {{{2
 
 " Synonym for <>
@@ -1080,27 +983,19 @@ vnoremap aa  a>
 onoremap ia  i>
 vnoremap ia  i>
 
-
 " Synonym for []
 onoremap ar  a]
 vnoremap ar  a]
 onoremap ir  i]
 vnoremap ir  i]
 
-
-
 " Select the last changed text
-nnoremap <Plug>(textobj-last-changed-text)  `[v`]h
-onoremap <silent> <Plug>(textobj-last-changed-text)  :<C-u>normal! gc<CR>
-vnoremap <silent> <Plug>(textobj-last-changed-text)  :<C-u>normal! gc<CR>
-
-map gc  <Plug>(textobj-last-changed-text)
-
+nnoremap gc  `[v`]h
+onoremap gc  :<C-u>normal! gc<CR>
+vnoremap gc  :<C-u>normal! gc<CR>
 
 " Select the last selected text
 onoremap <silent> gv  :<C-u>normal! gv<CR>
-
-
 
 
 " Operators  {{{2
@@ -1114,13 +1009,13 @@ call operator#user#define('decrement',
 function! s:operator_increment(motion_wiseness) abort
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  execute 'normal!' '`['.visual_command.'`]g'."\<C-a>"
+  execute 'normal!' ('`[' . visual_command . '`]g' . "\<C-a>")
 endfunction
 
 function! s:operator_decrement(motion_wiseness) abort
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  execute 'normal!' '`['.visual_command.'`]g'."\<C-x>"
+  execute 'normal!' ('`[' . visual_command . '`]g' . "\<C-x>")
 endfunction
 
 map g<C-a>  <Plug>(operator-increment)
@@ -1137,17 +1032,22 @@ call operator#user#define('search-backward',
 \                         'let v:searchforward = 0')
 
 function! s:operator_search(motion_wiseness) abort
-  let reg_0 = [@0, getregtype('0')]
+  let reg_value = getreg('"')
+  let reg_type = getregtype('0')
 
-  let visual_command =
-  \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  execute 'normal!' '`['.visual_command.'`]"0y'
+  try
+    let visual_command =
+    \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
+    execute 'normal!' ('`[' . visual_command . '`]""y')
 
-  let @/ = '\V' . substitute(escape(@0, '\'), '\n', '\\n', 'g')
-  call histadd('/', @/)
-  execute 'normal!' v:searchforward ? 'n' : 'N'
+    let pattern = '\V' . substitute(escape(@", '\'), '\n', '\\n', 'g')
+    call setreg('/', pattern)
+    call histadd('/', pattern)
 
-  call setreg('0', reg_0[0], reg_0[1])
+    execute 'normal!' (v:searchforward ? 'n' : 'N')
+  finally
+    call setreg('"', reg_value, reg_type)
+  endtry
 endfunction
 
 vmap *  <Plug>(operator-search-forward)
@@ -1161,17 +1061,19 @@ call operator#user#define('translate', s:SID . 'operator_translate')
 function! s:operator_translate(motion_wiseness) abort
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  execute 'normal!' '`['.visual_command.'`]y'
+  execute 'normal!' ('`[' . visual_command . '`]""y')
 
-  let text = @"
+  let input_text = @"
 
-  if text =~ '[^\x00-\x7F]'
-    let @" = google_translate#translate(text, 'ja', 'en')
+  if input_text =~ '[^\x00-\x7F]'
+    let translated_text = google_translate#translate(input_text, 'ja', 'en')
   else
-    let @" = google_translate#translate(text, 'en', 'ja')
+    let translated_text = google_translate#translate(input_text, 'en', 'ja')
   endif
 
-  echo trim(@", "\n") . "\n"
+  let @" = translated_text
+
+  echon trim(translated_text) "\n"
 endfunction
 
 Arpeggio map ot  <Plug>(operator-translate)
@@ -1185,12 +1087,10 @@ call operator#user#define('yank-clipboard',
 function! s:operator_yank_clipboard(motion_wiseness) abort
   let visual_command =
   \ operator#user#visual_command_from_wise_name(a:motion_wiseness)
-  execute 'normal!' '`['.visual_command.'`]"+y'
+  execute 'normal!' ('`[' . visual_command . '`]"+y')
 endfunction
 
 Arpeggio map oy  <Plug>(operator-yank-clipboard)
-
-
 
 
 " Misc.  {{{2
@@ -1200,29 +1100,23 @@ nnoremap <C-h>  :<C-u>Help<Space>
 nnoremap <C-o>  :<C-u>edit<Space>
 nnoremap <C-w>.  :<C-u>edit .<CR>
 
-
 " x/X without register
 nnoremap X  "_X
 nnoremap x  "_x
 
-
 " To yank from the cursor to the end of line
 nnoremap Y  y$
-
 
 " Jump list navigations
 nnoremap <C-j>  <C-i>
 nnoremap <C-k>  <C-o>
 
-
 " Disable dangerous keys
 nnoremap ZZ  <Nop>
 nnoremap ZQ  <Nop>
 
-
 " The shortcut for :update
 nnoremap <silent> <Leader><Leader>  :<C-u>update<CR>
-
 
 " Like o/O, but insert additional [count] blank lines
 nnoremap <expr> <Plug>(arpeggio-default:o)
@@ -1242,7 +1136,6 @@ function! s:start_insert_mode_with_blank_lines(command) abort  "{{{
   endif
 endfunction  "}}}
 
-
 " Make search directions consistent
 nnoremap <expr> n  v:searchforward ? 'nzv' : 'Nzv'
 nnoremap <expr> N  v:searchforward ? 'Nzv' : 'nzv'
@@ -1251,24 +1144,18 @@ vnoremap <expr> N  v:searchforward ? 'Nzv' : 'nzv'
 onoremap <expr> n  v:searchforward ? 'n' : 'N'
 onoremap <expr> N  v:searchforward ? 'N' : 'n'
 
-
 " Jump to the definition of the keyword under the cursor
 nnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
 vnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
 
-
 " A fallback for repeat
-nnoremap \  .
-
+nnoremap <silent> \  .
 
 noremap <C-z>  <Nop>
 nnoremap <C-z>  :<C-u>SuspendWithAutomticCD<CR>
 
-
 noremap <Leader>  <Nop>
 noremap <LocalLeader>  <Nop>
-
-
 
 
 " Filetypes  {{{1
@@ -1290,7 +1177,6 @@ function! s:on_FileType_any() abort
   setlocal formatoptions-=t formatoptions-=c
 endfunction
 
-
 " Optimize the loading for large size files
 autocmd MyAutoCmd BufReadPre *
 \   if getfsize(expand("<afile>")) > 1024 * 1024 * 8
@@ -1300,15 +1186,12 @@ autocmd MyAutoCmd BufReadPre *
 \ |   set eventignore-=FileType
 \ | endif
 
-
 " Unset 'paste' automatically
 autocmd MyAutoCmd InsertLeave *  set nopaste
-
 
 " Highlight special characters
 autocmd MyAutoCmd VimEnter,WinEnter *
 \ match Underlined /[\u00a0\u1680\u2000-\u200a\u202f\u205f\u2f00-\u2fd5\u3000]/
-
 
 " When editing a file, always jump to the last known cursor position
 autocmd MyAutoCmd BufReadPost *
@@ -1316,11 +1199,8 @@ autocmd MyAutoCmd BufReadPost *
 \ |   execute "normal! g`\""
 \ | endif
 
-
 " Avoid to set `filetype` twice
 let g:ft_ignore_pat = '^\(ebuild\|eclass\)$'
-
-
 
 
 " PHP  {{{2
@@ -1329,13 +1209,9 @@ let g:PHP_vintage_case_default_indent = 1
 let g:PHP_noArrowMatching = 1
 
 
-
-
 " Python  {{{2
 
 let g:python_highlight_all = 1
-
-
 
 
 " Rust  {{{2
@@ -1345,13 +1221,9 @@ let g:rust_recommended_style = 1
 let g:cargo_makeprg_params = 'build --all-targets'
 
 
-
-
 " Shell Script  {{{2
 
 let g:is_bash = 1
-
-
 
 
 " Vim Script  {{{2
@@ -1359,20 +1231,13 @@ let g:is_bash = 1
 let g:vim_indent_cont = 0
 
 
-
-
 " Plugins  {{{1
 " accelerate  {{{2
-
-call accelerate#map('nv', 'e', '<C-u>', 'repeat("\<C-u>", v:count1)')
-call accelerate#map('nv', 'e', '<C-d>', 'repeat("\<C-d>", v:count1)')
 
 call accelerate#map('nv', 'e', 'j', 'v:count == 0 ? "gj" : "j"')
 call accelerate#map('nv', 'e', 'k', 'v:count == 0 ? "gk" : "k"')
 call accelerate#map('nv', '', 'h', 'h')
-call accelerate#map('nv', 'e', 'l', 'foldclosed(line(".")) != -1 ? "zo" : "l"')
-
-
+call accelerate#map('nv', 'e', 'l', 'v:count == 0 && foldclosed(line(".")) != -1 ? "zo" : "l"')
 
 
 " exjumplist  {{{2
@@ -1381,98 +1246,12 @@ nmap <M-C-j>  <Plug>(exjumplist-next-buffer)
 nmap <M-C-k>  <Plug>(exjumplist-previous-buffer)
 
 
-
-
 " grex  {{{2
 
 nmap gy  <Plug>(operator-grex-yank)<Plug>(textobj-entire-a)
 vmap gy  <Plug>(operator-grex-yank)
 nmap gd  <Plug>(operator-grex-delete)<Plug>(textobj-entire-a)
 vmap gd  <Plug>(operator-grex-delete)
-
-
-
-
-" ku  {{{2
-
-autocmd MyAutoCmd FileType ku
-\ call s:on_FileType_ku()
-
-function! s:on_FileType_ku() abort
-  call ku#define_default_ui_key_mappings()
-
-  nmap <buffer> <Esc>  <Plug>(ku-quit-session)
-
-  imap <buffer> <expr> <BS> <SID>ku_prompt_is_empty()
-                          \ ? '<Plug>(ku-quit-session)'
-                          \ : '<Plug>(ku-delete-backward-char)'
-  imap <buffer> <expr> <C-h> <SID>ku_prompt_is_empty()
-                           \ ? '<Plug>(ku-quit-session)'
-                           \ : '<Plug>(ku-delete-backward-char)'
-  imap <buffer> <expr> <C-u> <SID>ku_prompt_is_empty()
-                           \ ? '<Plug>(ku-quit-session)'
-                           \ : '<Plug>(ku-delete-backward-line)'
-  imap <buffer> <expr> <C-w> <SID>ku_prompt_is_empty()
-                           \ ? '<Plug>(ku-quit-session)'
-                           \ : '<Plug>(ku-delete-backward-component)'
-endfunction
-
-function! s:ku_prompt_is_empty() abort
-  return col('$') <= 2
-endfunction
-
-
-nnoremap [Space]k  <Nop>
-nnoremap [Space]ka  :<C-u>call ku#start(ku#source#args#new())<CR>
-nnoremap [Space]kb  :<C-u>call ku#start(ku#source#buffer#new())<CR>
-nnoremap [Space]kd  :<C-u>call ku#start(ku#source#lsp_symbol#new())<CR>
-nnoremap [Space]kf  :<C-u>call ku#start(ku#source#file#new())<CR>
-nnoremap [Space]kg  :<C-u>call ku#start(ku#source#metarw#new('git'))<CR>
-nnoremap [Space]kc  :<C-u>call <SID>ku_start_with_current_directory(ku#source#file#new())<CR>
-nnoremap [Space]kj  :<C-u>call ku#start(ku#source#jumplist#new())<CR>
-nnoremap [Space]kk  :<C-u>call ku#restart()<CR>
-nnoremap [Space]kl  :<C-u>call ku#start(<SID>ku_list_files_source())<CR>
-nnoremap [Space]km  :<C-u>call ku#start(ku#source#oldfiles#new())<CR>
-nnoremap [Space]kn  :<C-u>call ku#start(ku#source#file#new(expand("~/Sync/Documents/Notes")))<CR>
-nnoremap [Space]kq  :<C-u>call ku#start(ku#source#quickfix#new())<CR>
-nnoremap [Space]kr  :<C-u>call ku#start(ku#source#register#new())<CR>
-nnoremap [Space]ks  :<C-u>call ku#start(ku#source#spell#new())<CR>
-nnoremap [Space]kw  :<C-u>call ku#start(ku#source#project#new(expand('~/Sync/works'), ku#source#file#new()))<CR>
-nnoremap [Space]kz  :<C-u>call ku#start(ku#source#fold#new())<CR>
-nnoremap [Space]k'  :<C-u>call ku#start(ku#source#mark#new())<CR>
-
-function! s:ku_start_with_current_directory(source) abort
-  let initial_pattern = expand('%:h') != '.' ? expand('%:h') . '/' : ''
-  call ku#start(a:source, {
-  \   'initial_pattern': initial_pattern,
-  \ })
-endfunction
-
-function! s:ku_list_files_source() abort
-  if isdirectory('.git')
-    let name = 'async/git'
-    let command = [
-    \  'fzf-filter', '-l', '1000',
-    \  '--',
-    \  'git', 'ls-files', '--exclude-standard', '-c', '-o',
-    \ ]
-  else
-    let name = 'async/fd'
-    let command = [
-    \  'fzf-filter', '-l', '1000',
-    \  '--',
-    \  'fd', '--type', 'f', '--strip-cwd-prefix', '-c', 'never', '--max-results', '10000',
-    \ ]
-  endif
-  return ku#source#async#new({
-  \   'name': name,
-  \   'default_kind': g:ku#kind#file#export,
-  \   'command': command,
-  \   'selector_fn': { line -> { 'word': line } },
-  \ })
-endfunction
-
-
 
 
 " lsp  {{{2
@@ -1586,6 +1365,132 @@ let g:lsp_tagfunc_source_methods = ['definition']
 command! LspRestart  call lsp#ui#vim#stop_server() | edit
 
 
+" luis  {{{2
+
+autocmd MyAutoCmd FileType luis
+\ call s:on_FileType_luis()
+
+function! s:on_FileType_luis() abort
+  call luis#define_default_ui_key_mappings()
+
+  imap <buffer> <Esc>  <Plug>(luis-quit-session)
+  nmap <buffer> <Esc>  <Plug>(luis-quit-session)
+
+  imap <buffer> <expr> <BS> <SID>luis_prompt_is_empty()
+                          \ ? '<Plug>(luis-quit-session)'
+                          \ : '<Plug>(luis-delete-backward-char)'
+  imap <buffer> <expr> <C-h> <SID>luis_prompt_is_empty()
+                           \ ? '<Plug>(luis-quit-session)'
+                           \ : '<Plug>(luis-delete-backward-char)'
+  imap <buffer> <expr> <C-u> <SID>luis_prompt_is_empty()
+                           \ ? '<Plug>(luis-quit-session)'
+                           \ : '<Plug>(luis-delete-backward-line)'
+  imap <buffer> <expr> <C-w> <SID>luis_prompt_is_empty()
+                           \ ? '<Plug>(luis-quit-session)'
+                           \ : '<Plug>(luis-delete-backward-component)'
+endfunction
+
+function! s:luis_prompt_is_empty() abort
+  return col('$') <= 2
+endfunction
+
+nnoremap [Space]k  <Nop>
+nnoremap [Space]k]  :<C-u>call luis#start(luis#source#tagstack#new())<CR>
+nnoremap [Space]ka  :<C-u>call luis#start(luis#source#args#new())<CR>
+nnoremap [Space]kb  :<C-u>call luis#start(luis#source#buffer#new())<CR>
+nnoremap [Space]kc  :<C-u>call <SID>luis_start_with_pattern(luis#source#file#new(), expand('%:h'))<CR>
+nnoremap [Space]kd  :<C-u>call luis#start(luis#source#lsp_symbol#new())<CR>
+nnoremap [Space]kf  :<C-u>call luis#start(luis#source#file#new())<CR>
+nnoremap [Space]kg  :<C-u>call luis#start(luis#source#metarw#new('git'))<CR>
+nnoremap [Space]kj  :<C-u>call luis#start(luis#source#jumplist#new())<CR>
+nnoremap [Space]kk  :<C-u>call luis#restart()<CR>
+nnoremap [Space]kl  :<C-u>call luis#start(<SID>luis_async_files())<CR>
+nnoremap [Space]km  :<C-u>call luis#start(luis#source#mark#new())<CR>
+nnoremap [Space]kn  :<C-u>call <SID>luis_start_file_at_path(expand("~/Sync/Documents/Notes"))<CR>
+nnoremap [Space]ko  :<C-u>call luis#start(luis#source#oldfiles#new())<CR>
+nnoremap [Space]kq  :<C-u>call luis#start(luis#source#quickfix#new())<CR>
+nnoremap [Space]kr  :<C-u>call luis#start(luis#source#register#new())<CR>
+nnoremap [Space]ks  :<C-u>call luis#start(luis#source#spell#new())<CR>
+nnoremap [Space]kt  :<C-u>call luis#start(<SID>luis_async_tags())<CR>
+nnoremap [Space]kw  :<C-u>call luis#start(luis#source#project#new(expand('~/Sync/works')))<CR>
+nnoremap [Space]kz  :<C-u>call luis#start(luis#source#fold#new())<CR>
+
+function! s:luis_start_with_directory(source, directory) abort
+  let initial_pattern = a:directory != '.' ? a:directory . '/' : ''
+  call luis#start(a:source, {
+  \   'initial_pattern': initial_pattern,
+  \ })
+endfunction
+
+function! s:luis_start_file_at_path(path) abort
+  let source = luis#source#file#new()
+  let hook = { 'path': a:path }
+  function! hook.on_source_enter(source) abort dict
+    lcd `=self.path`
+  endfunction
+  function! hook.on_source_leave(source) abort dict
+    lcd -
+  endfunction
+  return luis#start(source, {
+  \   'hook': hook,
+  \ })
+endfunction
+
+function! s:luis_async_files() abort
+  if isdirectory('.git')
+    let name = 'async/git'
+    let command = [
+    \  'fzf-filter', '-f', '1', '-p', '2', '-d', ' ', '-l', '1000',
+    \  '--',
+    \  'git', 'ls-files', '--exclude-standard', '-v', '-c', '-o',
+    \ ]
+    let options = {
+    \   'selector_func': function('s:make_git_candidate'),
+    \ }
+  else
+    let name = 'async/fd'
+    let command = [
+    \  'fzf-filter', '-l', '1000',
+    \  '--',
+    \  'fd', '--type', 'f', '--strip-cwd-prefix', '-c', 'never', '--max-results', '10000',
+    \ ]
+    let options = {}
+  endif
+  return luis#source#async#new(name, g:luis#kind#file#export, command, options)
+endfunction
+
+function! s:make_git_candidate(line) abort
+  let components = split(a:line, '^\S\zs ')
+  return {
+  \   'word': get(components, 1, ''),
+  \   'kind': get(components, 0, '?'),
+  \   'dup': 1,
+  \ }
+endfunction
+
+function! s:luis_async_tags() abort
+  let name = 'async/tag'
+  let kind = g:luis#kind#tag#export
+  let command = [
+  \  'fzf-filter', '-l', '1000', '-f', '0',
+  \  '--',
+  \  'sh', '-c', 'echo "$@" | xargs -n 1 -P 4 cat', '',
+  \ ]
+  call extend(command, tagfiles())
+  let options = {
+  \   'selector_func': function('s:make_tag_candidate'),
+  \ }
+  return luis#source#async#new(name, kind, command, options)
+endfunction
+
+function! s:make_tag_candidate(line) abort
+  let components = split(a:line, '\t')
+  return {
+  \   'word': get(components, 0, a:line),
+  \   'menu': get(components, 1, ''),
+  \   'dup': 1,
+  \ }
+endfunction
 
 
 " operator-camelize  {{{2
@@ -1594,21 +1499,15 @@ map <Leader>c  <Plug>(operator-camelize)
 map <Leader>C  <Plug>(operator-decamelize)
 
 
-
-
 " operator-comment  {{{2
 
 Arpeggio map oc  <Plug>(operator-comment)
 Arpeggio map od  <Plug>(operator-uncomment)
 
 
-
-
 " operator-replece  {{{2
 
 Arpeggio map or  <Plug>(operator-replace)
-
-
 
 
 " operator-sort  {{{2
@@ -1622,8 +1521,6 @@ nmap [Space]N  <Plug>(operator-sort-numeric!)
 vmap [Space]N  <Plug>(operator-sort-numeric!)
 nmap [Space]n  <Plug>(operator-sort-numeric)
 vmap [Space]n  <Plug>(operator-sort-numeric)
-
-
 
 
 " quickrun  {{{2
@@ -1716,9 +1613,6 @@ nmap <Leader>r  <Plug>(quickrun)
 vmap <Leader>r  <Plug>(quickrun)
 
 
-
-
-
 " ref  "{{{2
 
 autocmd MyAutoCmd FileType ref
@@ -1742,13 +1636,10 @@ vnoremap <silent> <Leader>a  :<C-u>call ref#jump('visual', 'alc')<CR>
 
 AlterCommand ref  Ref
 
-
 let g:ref_no_default_key_mappings = 1
 let g:ref_open = 'Split'
 let g:ref_perldoc_complete_head = 1
 let g:ref_phpmanual_path = '/usr/share/php-docs/en/php-chunked-xhtml'
-
-
 
 
 " scratch  {{{2
@@ -1763,8 +1654,6 @@ function! s:on_User_plugin_scratch_initialize_after() abort
 endfunction
 
 let g:scratch_show_command = 'SplitTop | hide buffer'
-
-
 
 
 " skeleton  {{{2
@@ -1810,8 +1699,6 @@ function! s:on_User_plugin_skeleton_loaded() abort
     normal! gg
   endif
 endfunction
-
-
 
 
 " smartinput  {{{2
@@ -1889,16 +1776,12 @@ call smartinput#define_rule({
 call smartinput#map_trigger_keys()
 
 
-
-
 " smartword  {{{2
 
 map w  <Plug>(smartword-w)
 map b  <Plug>(smartword-b)
 map e  <Plug>(smartword-e)
 map ge  <Plug>(smartword-ge)
-
-
 
 
 " submode  {{{2
@@ -1909,12 +1792,10 @@ call submode#map('scroll', 'nv', 'e', 'j',
 call submode#map('scroll', 'nv', 'e', 'k',
 \                'line(".") != 1 ? "<C-u>" : ""')
 
-
 call submode#enter_with('undo/redo', 'n', '', 'g-', 'g-')
 call submode#enter_with('undo/redo', 'n', '', 'g+', 'g+')
 call submode#map('undo/redo', 'n', '', '-', 'g-')
 call submode#map('undo/redo', 'n', '', '+', 'g+')
-
 
 call submode#enter_with('winsize', 'n', '', '<C-w><Space>',
 \                       ':<C-u>call ' . s:SID . 'submode_winsize()<CR>')
@@ -1938,10 +1819,7 @@ function! s:submode_winsize() abort
   \              left != right && current == right ? "<" : ">")
 endfunction
 
-
 let g:submode_timeout = 0
-
-
 
 
 " surround-obj  {{{2
@@ -1960,8 +1838,34 @@ omap a"  <Plug>(surround-obj-a:")
 vmap a"  <Plug>(surround-obj-a:")
 omap a`  <Plug>(surround-obj-a:`)
 vmap a`  <Plug>(surround-obj-a:`)
+omap i'  <Plug>(surround-obj-i:')
+vmap i'  <Plug>(surround-obj-i:')
+omap i"  <Plug>(surround-obj-i:")
+vmap i"  <Plug>(surround-obj-i:")
+omap i`  <Plug>(surround-obj-i:`)
+vmap i`  <Plug>(surround-obj-i:`)
 
+call surround_obj#define_built_in_objects()
 
+call surround_obj#define_object('a', {
+\   'type': 'alias' ,
+\   'key': '<',
+\ })
+call surround_obj#define_object('r', {
+\   'type': 'alias' ,
+\   'key': '[',
+\ })
+
+call surround_obj#define_object('e', {
+\   'type': 'alias',
+\   'key': '_',
+\ })
+
+call surround_obj#define_object('E', {
+\   'type': 'inline',
+\   'delimiter': '**',
+\   'pattern': '\V\%(\\\@1<!\\\)\@2<!**',
+\ })
 
 
 " table-mode  {{{2
@@ -1969,13 +1873,9 @@ vmap a`  <Plug>(surround-obj-a:`)
 nnoremap <silent> [Space]t  :<C-u>TableModeToggle<CR>
 
 
-
-
 " Fin.  {{{1
 
 set secure
-
-
 
 
 " __END__  {{{1

@@ -13,16 +13,20 @@ function! RustFold(lnum)
   let current = getline(a:lnum)
 
   if current =~# '^\s*\%('
-  \            . 'macro_rules!\|'
-  \            . '\%(unsafe\s\+\)\?impl\|'
-  \            . '\%(pub\%(\s*(\s*\%(crate\|super\)\s*)\)\?\s\+\)\?\%(const\s\+\)\?\%(unsafe\s\+\)\?\%(async\s\+\)\?\%(extern\s\+"[^"]\+"\s\+\)\?\%(enum\|fn\|mod\|struct\|trait\|union\)\>'
+  \            . 'macro_rules!'
+  \            . '\|\%(unsafe\s\+\)\?impl\>'
+  \            . '\|\%(pub\%(\s*(\s*\%(crate\|super\)\s*)\)\?\s\+\)\?\%(const\s\+\)\?\%(unsafe\s\+\)\?\%(async\s\+\)\?\%(extern\s\+"[^"]\+"\s\+\)\?\%(enum\|fn\|mod\|struct\|trait\|union\)\>'
   \            . '\)'
   \  && current !~# '[;}]\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return '>' . level
+    if level <= 3
+      return '>' . level
+    endif
   elseif current =~# '^\s*}\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return '<' . level
+    if level <= 3
+      return '<' . level
+    endif
   endif
 
   return '='

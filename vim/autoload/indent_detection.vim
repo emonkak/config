@@ -4,7 +4,7 @@ endif
 
 function! indent_detection#configure_options() abort
   let options = indent_detection#detect_options()
-  let bufnr = bufnr()
+  let bufnr = bufnr('')
   let undo_options = []
 
   for [key, value] in items(options)
