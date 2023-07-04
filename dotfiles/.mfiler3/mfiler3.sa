@@ -469,8 +469,8 @@ keycommand2 $(export key_f) ( cmdline -q "mask -dotdir 0; mask ''" -2 )
 
 keycommand2 $(export key_ctrl_g) ( external "puts $(cursor)" )
 
-keycommand2 $(export key_Y) ( external -q "print $(path)$(cursor) | xsel --input" )
-keycommand2 $(export key_y) ( external -q "print $(cursor) | xsel --input" )
+keycommand2 $(export key_Y) ( external -q "print $(path)$(cursor) | xclip -i -s clipboard" )
+keycommand2 $(export key_y) ( external -q "print $(cursor) | xclip -i -s clipboard" )
 
 
 

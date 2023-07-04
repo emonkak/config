@@ -46,8 +46,9 @@
 	ch = checkout
 	co = commit --verbose
 	cp = cherry-pick
-	d = diff --ignore-space-change --find-copies
-	dc = diff --ignore-space-change --find-copies --cached
+	d = diff --find-copies
+	dc = diff --find-copies --cached
+	ds = diff --find-copies --cached HEAD^
 	l = log --decorate --source --branches --tags --abbrev-commit
 	lg = log --graph --pretty=oneline --decorate --source --branches --tags --abbrev-commit
 	ls = ls-files

@@ -141,10 +141,10 @@ then
 fi
 alias grep='grep --color --binary-files=without-match --perl-regexp'
 
-if which xsel &>/dev/null
+if which xclip &>/dev/null
 then
-  alias pbcopy='xsel --input --clipboard'
-  alias pbpaste='xsel --output --clipboard'
+  alias pbcopy='xclip -i -s clipboard'
+  alias pbpaste='xclip -o -s clipboard'
 fi
 
 alias -s {7z,gz,rar,tar,xz,zip}='aunpack'
@@ -157,34 +157,32 @@ alias -s {7z,gz,rar,tar,xz,zip}='aunpack'
 zshaddhistory() {
   args=(${(z)1})
 
-  # Save "dd", "rm" and "rmdir" only to the internal history.
-  [[ $args[1] = (dd|rm(|dir)) ]] && return 2
-  [[ $args[1] = s(|udo) && $line[2] = (dd|rm(|dir)) ]] && return 2
+  # Save some danger commands to the internal history.
+  [[ ${args[1]} = (dd|rm(|dir)) ]] && return 2
+  [[ ${args[1]} = s(|udo) && ${args[2]} = (dd|rm(|dir)) ]] && return 2
 
-  # Suppress to save commonly used commands.
-  [[ $args[1] = (exit|pwd) ]] && return 1
-  [[ $args[1] = (ls|la|ll|lla) ]] && return 1
+  # Prevent saving frequently used commands to the history file.
+  [[ ${args[1]} = (exit|la|ll|lla|ls|pwd) ]] && return 1
 
-  # Suppress to save an invalid command.
-  i=1
-  while [[ $i -lt ${#args[@]} ]]
-  do
-    # Skip variable assignment.
-    if ! [[ $args[$i] =~ '^[A-Z][0-9A-Za-z_]*=' ]]
-    then
-      whence $args[$i] >| /dev/null || return 1
-      break
-    fi
-    i=$(($i + 1))
-  done
+  # Otherwise, save after checking the exit status later.
+  LAST_COMMAND=${1//\\$'\n'/}
+  return 2
 }
 
-if [[ -n "$TMUX" ]] || [[ "$TERM" == (xterm*|rxvt*) ]]
-then
-  precmd() {
+precmd() {
+  # Save the last command to the history file if successful.
+  if [[ $? == 0 && -n "${LAST_COMMAND//[[:space:]\n]/}" && -n "${HISTFILE}" ]]
+  then
+    print -sr -- ${=${LAST_COMMAND%%'\n'}}
+    unset LAST_COMMAND
+  fi
+
+  if [[ -n "$TMUX" ]] || [[ "$TERM" == (xterm*|rxvt*) ]]
+  then
+    # Set the terminal title.
     print -Pn "\e]0;%m@%n:%~\a"
-  }
-fi
+  fi
+}
 
 # Highlight the executed command.
 accept-line() {
@@ -352,5 +350,5 @@ fi
 
 
 # __END__  #{{{1
-# vim: expandtab softtabstop=2 shiftwidth=2
+# vim: expandtab softtabstop=2 shiftwidth=2 textwidth=80
 # vim: foldmethod=marker

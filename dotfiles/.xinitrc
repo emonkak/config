@@ -19,16 +19,18 @@ xcape -e '#133=Escape;#134=Zenkaku_Hankaku'
 
 xinput --set-ptr-feedback "ThinkPS/2 Kensington ThinkingMouse" 4 2 1
 
-xsetroot -solid '#3f576e'
-
 export GTK_IM_MODULE='uim'
 export QT_IM_MODULE='uim'
 export XMODIFIERS='@im=uim'
 uim-xim &
 
+picom &
+
 dunst &
 
-geekytray &
+geektray &
+
+hsetroot -solid '#3f576e'
 
 session="${1##*/}"
 
