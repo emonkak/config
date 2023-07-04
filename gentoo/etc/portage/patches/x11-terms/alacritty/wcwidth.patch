@@ -1,25 +1,16 @@
 diff --git a/alacritty/src/display/mod.rs b/alacritty/src/display/mod.rs
-index bcc7358d..b87c383d 100644
+index 4d9c1540..2989e91b 100644
 --- a/alacritty/src/display/mod.rs
 +++ b/alacritty/src/display/mod.rs
-@@ -20,7 +20,6 @@ use serde::{Deserialize, Serialize};
- use wayland_client::EventQueue;
+@@ -21,7 +21,6 @@ use winit::event::ModifiersState;
+ use winit::window::CursorIcon;
  
  use crossfont::{self, Rasterize, Rasterizer};
 -use unicode_width::UnicodeWidthChar;
  
  use alacritty_terminal::ansi::{CursorShape, NamedColor};
  use alacritty_terminal::config::MAX_SCROLLBACK_LINES;
-@@ -438,7 +437,7 @@ impl Preedit {
-         let cursor_end_offset = if let Some(byte_offset) = cursor_byte_offset {
-             // Convert byte offset into char offset.
-             let cursor_end_offset =
--                text[byte_offset..].chars().fold(0, |acc, ch| acc + ch.width().unwrap_or(1));
-+                text[byte_offset..].chars().fold(0, |acc, ch| acc + char_width(ch).unwrap_or(1));
- 
-             Some(cursor_end_offset)
-         } else {
-@@ -1186,7 +1185,7 @@ impl Display {
+@@ -1133,7 +1132,7 @@ impl Display {
                  let is_wide = preedit.text[preedit.cursor_byte_offset.unwrap_or_default()..]
                      .chars()
                      .next()
@@ -28,7 +19,16 @@ index bcc7358d..b87c383d 100644
                      .unwrap_or_default();
  
                  let cursor_column = Column(
-@@ -1498,3 +1497,19 @@ fn window_size(
+@@ -1496,7 +1495,7 @@ impl Preedit {
+         let cursor_end_offset = if let Some(byte_offset) = cursor_byte_offset {
+             // Convert byte offset into char offset.
+             let cursor_end_offset =
+-                text[byte_offset..].chars().fold(0, |acc, ch| acc + ch.width().unwrap_or(1));
++                text[byte_offset..].chars().fold(0, |acc, ch| acc + char_width(ch).unwrap_or(1));
+ 
+             Some(cursor_end_offset)
+         } else {
+@@ -1640,3 +1639,19 @@ fn window_size(
  
      PhysicalSize::new(width as u32, height as u32)
  }
@@ -49,7 +49,7 @@ index bcc7358d..b87c383d 100644
 +    c.width()
 +}
 diff --git a/alacritty/src/main.rs b/alacritty/src/main.rs
-index 2e7c30a9..ed41cf84 100644
+index d9d26022..4a0e92e4 100644
 --- a/alacritty/src/main.rs
 +++ b/alacritty/src/main.rs
 @@ -149,6 +149,10 @@ fn alacritty(options: Options) -> Result<(), Box<dyn Error>> {
@@ -64,7 +64,7 @@ index 2e7c30a9..ed41cf84 100644
      #[cfg(target_os = "macos")]
      env::set_current_dir(dirs::home_dir().unwrap()).unwrap();
 diff --git a/alacritty/src/message_bar.rs b/alacritty/src/message_bar.rs
-index 988a6a31..51983ae2 100644
+index 267f8322..2bc09a11 100644
 --- a/alacritty/src/message_bar.rs
 +++ b/alacritty/src/message_bar.rs
 @@ -1,7 +1,5 @@
@@ -84,7 +84,7 @@ index 988a6a31..51983ae2 100644
              if width == 2 {
                  line.push(' ');
              }
-@@ -183,6 +181,22 @@ impl MessageBuffer {
+@@ -189,6 +187,22 @@ impl MessageBuffer {
      }
  }
  
@@ -162,7 +162,7 @@ index a111166d..e8c14811 100644
  mod tests {
      use super::*;
 diff --git a/alacritty_terminal/src/term/mod.rs b/alacritty_terminal/src/term/mod.rs
-index 8317e701..e2d4b238 100644
+index 3513aa0e..862b094d 100644
 --- a/alacritty_terminal/src/term/mod.rs
 +++ b/alacritty_terminal/src/term/mod.rs
 @@ -6,7 +6,6 @@ use std::{cmp, mem, ptr, slice, str};
@@ -173,7 +173,7 @@ index 8317e701..e2d4b238 100644
  
  use crate::ansi::{
      self, Attr, CharsetIndex, Color, CursorShape, CursorStyle, Handler, NamedColor, StandardCharset,
-@@ -974,8 +973,7 @@ impl<T: EventListener> Handler for Term<T> {
+@@ -975,8 +974,7 @@ impl<T: EventListener> Handler for Term<T> {
      /// A character to be displayed.
      #[inline(never)]
      fn input(&mut self, c: char) {
@@ -183,7 +183,7 @@ index 8317e701..e2d4b238 100644
              Some(width) => width,
              None => return,
          };
-@@ -2077,6 +2075,22 @@ impl<'a> RenderableContent<'a> {
+@@ -2079,6 +2077,22 @@ impl<'a> RenderableContent<'a> {
      }
  }
  

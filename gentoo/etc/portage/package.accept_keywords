@@ -31,6 +31,7 @@ net-misc/wget2 ~amd64
 net-p2p/resilio-sync ~amd64
 net-proxy/mitmproxy ~amd64
 sys-apps/ripgrep ~amd64
+sys-auth/elogind ~amd64
 sys-fs/dmg2img ~amd64
 virtual/rust ~amd64
 www-client/brave-bin ~amd64

@@ -52,6 +52,7 @@ www-client/google-chrome linguas_ja
 www-client/w3m linguas_ja
 www-servers/nginx nginx_modules_http_headers_more
 x11-libs/cairo opengl svg xcb
+x11-misc/picom opengl
 x11-misc/xmobar -with_weather mpd xft xpm
 x11-terms/rxvt-unicode -vanilla 256-color perl truetype xft unicode3
 x11-terms/xterm truetype
@@ -188,3 +189,9 @@ app-misc/mime-types nginx
 # for media-gfx/krita
 dev-python/PyQt5 widgets declarative gui network
 dev-qt/qtcore icu
+
+# for app-editors/vscodium
+app-text/ghostscript-gpl cups
+
+# for media-sound/ncmpcpp
+dev-libs/boost icu

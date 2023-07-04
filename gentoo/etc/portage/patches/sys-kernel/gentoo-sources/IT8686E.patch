@@ -1,6 +1,6 @@
---- a/drivers/hwmon/it87.c	2019-11-25 09:32:01.000000000 +0900
-+++ b/drivers/hwmon/it87.c	2020-12-17 19:54:14.660993052 +0900
-@@ -16,6 +15,7 @@
+--- a/drivers/hwmon/it87.c	2023-05-18 11:58:00.109563709 +0900
++++ b/drivers/hwmon/it87.c	2023-05-18 12:07:57.827331277 +0900
+@@ -16,6 +16,7 @@
   *            IT8622E  Super I/O chip w/LPC interface
   *            IT8623E  Super I/O chip w/LPC interface
   *            IT8628E  Super I/O chip w/LPC interface
@@ -8,7 +8,7 @@
   *            IT8705F  Super I/O chip w/LPC interface
   *            IT8712F  Super I/O chip w/LPC interface
   *            IT8716F  Super I/O chip w/LPC interface
-@@ -63,7 +73,7 @@
+@@ -63,7 +64,7 @@
  
  enum chips { it87, it8712, it8716, it8718, it8720, it8721, it8728, it8732,
  	     it8771, it8772, it8781, it8782, it8783, it8786, it8790,
@@ -17,7 +17,7 @@
  
  static unsigned short force_id;
  module_param(force_id, ushort, 0);
-@@ -157,6 +167,7 @@
+@@ -157,6 +158,7 @@
  #define IT8622E_DEVID 0x8622
  #define IT8623E_DEVID 0x8623
  #define IT8628E_DEVID 0x8628
@@ -25,7 +25,7 @@
  #define IT87_ACT_REG  0x30
  #define IT87_BASE_REG 0x60
  
-@@ -201,6 +212,8 @@
+@@ -201,6 +203,8 @@
  #define IT87_REG_ALARM2        0x02
  #define IT87_REG_ALARM3        0x03
  
@@ -34,149 +34,39 @@
  /*
   * The IT8718F and IT8720F have the VID value in a different register, in
   * Super-I/O configuration space.
-@@ -293,6 +306,10 @@
+@@ -293,6 +297,7 @@
  #define FEAT_PWM_FREQ2		BIT(16)	/* Separate pwm freq 2 */
  #define FEAT_SIX_TEMP		BIT(17)	/* Up to 6 temp sensors */
  #define FEAT_VIN3_5V		BIT(18)	/* VIN3 connected to +5V */
-+#define FEAT_FOUR_FANS		BIT(19)	/* Supports four fans */
-+#define FEAT_FOUR_PWM		BIT(20)	/* Supports four fan controls */
-+#define FEAT_BANK_SEL		BIT(21)	/* Chip has multi-bank support */
-+#define FEAT_SCALING		BIT(22)	/* Internal voltage scaling */
++#define FEAT_BANK_SEL		BIT(19)	/* Chip has multi-bank support */
  
  static const struct it87_devices it87_devices[] = {
  	[it87] = {
-@@ -334,7 +351,7 @@
- 		.features = FEAT_NEWER_AUTOPWM | FEAT_12MV_ADC | FEAT_16BIT_FANS
- 		  | FEAT_TEMP_OFFSET | FEAT_TEMP_OLD_PECI | FEAT_TEMP_PECI
- 		  | FEAT_FAN16_CONFIG | FEAT_FIVE_FANS | FEAT_IN7_INTERNAL
--		  | FEAT_PWM_FREQ2,
-+		  | FEAT_PWM_FREQ2 | FEAT_SCALING,
- 		.peci_mask = 0x05,
- 		.old_peci_mask = 0x02,	/* Actually reports PCH */
- 	},
-@@ -343,7 +360,7 @@
- 		.suffix = "F",
- 		.features = FEAT_NEWER_AUTOPWM | FEAT_12MV_ADC | FEAT_16BIT_FANS
- 		  | FEAT_TEMP_OFFSET | FEAT_TEMP_PECI | FEAT_FIVE_FANS
--		  | FEAT_IN7_INTERNAL | FEAT_PWM_FREQ2,
-+		  | FEAT_IN7_INTERNAL | FEAT_PWM_FREQ2 | FEAT_SCALING,
+@@ -460,6 +465,15 @@
+ 		  | FEAT_SIX_TEMP | FEAT_VIN3_5V,
  		.peci_mask = 0x07,
  	},
- 	[it8732] = {
-@@ -351,7 +368,8 @@
- 		.suffix = "F",
- 		.features = FEAT_NEWER_AUTOPWM | FEAT_16BIT_FANS
- 		  | FEAT_TEMP_OFFSET | FEAT_TEMP_OLD_PECI | FEAT_TEMP_PECI
--		  | FEAT_10_9MV_ADC | FEAT_IN7_INTERNAL,
-+		  | FEAT_10_9MV_ADC | FEAT_IN7_INTERNAL | FEAT_FOUR_FANS
-+		  | FEAT_FOUR_PWM,
- 		.peci_mask = 0x07,
- 		.old_peci_mask = 0x02,	/* Actually reports PCH */
- 	},
-@@ -360,7 +378,7 @@
- 		.suffix = "E",
- 		.features = FEAT_NEWER_AUTOPWM | FEAT_12MV_ADC | FEAT_16BIT_FANS
- 		  | FEAT_TEMP_OFFSET | FEAT_TEMP_PECI | FEAT_IN7_INTERNAL
--		  | FEAT_PWM_FREQ2,
-+		  | FEAT_PWM_FREQ2 | FEAT_SCALING,
- 				/* PECI: guesswork */
- 				/* 12mV ADC (OHM) */
- 				/* 16 bit fans (OHM) */
-@@ -372,7 +390,7 @@
- 		.suffix = "E",
- 		.features = FEAT_NEWER_AUTOPWM | FEAT_12MV_ADC | FEAT_16BIT_FANS
- 		  | FEAT_TEMP_OFFSET | FEAT_TEMP_PECI | FEAT_IN7_INTERNAL
--		  | FEAT_PWM_FREQ2,
-+		  | FEAT_PWM_FREQ2 | FEAT_SCALING,
- 				/* PECI (coreboot) */
- 				/* 12mV ADC (HWSensors4, OHM) */
- 				/* 16 bit fans (HWSensors4, OHM) */
-@@ -411,26 +429,25 @@
- 	[it8790] = {
- 		.name = "it8790",
- 		.suffix = "E",
--		.features = FEAT_NEWER_AUTOPWM | FEAT_12MV_ADC | FEAT_16BIT_FANS
--		  | FEAT_TEMP_OFFSET | FEAT_TEMP_PECI | FEAT_IN7_INTERNAL
--		  | FEAT_PWM_FREQ2,
-+		.features = FEAT_NEWER_AUTOPWM | FEAT_10_9MV_ADC | FEAT_SCALING
-+		  | FEAT_16BIT_FANS | FEAT_TEMP_OFFSET | FEAT_TEMP_PECI
-+		  | FEAT_IN7_INTERNAL | FEAT_PWM_FREQ2,
- 		.peci_mask = 0x07,
- 	},
- 	[it8792] = {
- 		.name = "it8792",
- 		.suffix = "E",
--		.features = FEAT_NEWER_AUTOPWM | FEAT_16BIT_FANS
--		  | FEAT_TEMP_OFFSET | FEAT_TEMP_OLD_PECI | FEAT_TEMP_PECI
--		  | FEAT_10_9MV_ADC | FEAT_IN7_INTERNAL,
-+		.features = FEAT_NEWER_AUTOPWM | FEAT_10_9MV_ADC | FEAT_SCALING
-+		  | FEAT_16BIT_FANS | FEAT_TEMP_OFFSET | FEAT_TEMP_PECI
-+		  | FEAT_IN7_INTERNAL | FEAT_PWM_FREQ2,
- 		.peci_mask = 0x07,
--		.old_peci_mask = 0x02,	/* Actually reports PCH */
- 	},
- 	[it8603] = {
- 		.name = "it8603",
- 		.suffix = "E",
- 		.features = FEAT_NEWER_AUTOPWM | FEAT_12MV_ADC | FEAT_16BIT_FANS
- 		  | FEAT_TEMP_OFFSET | FEAT_TEMP_PECI | FEAT_IN7_INTERNAL
--		  | FEAT_AVCC3 | FEAT_PWM_FREQ2,
-+		  | FEAT_AVCC3 | FEAT_PWM_FREQ2 | FEAT_SCALING,
- 		.peci_mask = 0x07,
- 	},
- 	[it8620] = {
-@@ -439,7 +456,7 @@
- 		.features = FEAT_NEWER_AUTOPWM | FEAT_12MV_ADC | FEAT_16BIT_FANS
- 		  | FEAT_TEMP_OFFSET | FEAT_TEMP_PECI | FEAT_SIX_FANS
- 		  | FEAT_IN7_INTERNAL | FEAT_SIX_PWM | FEAT_PWM_FREQ2
--		  | FEAT_SIX_TEMP | FEAT_VIN3_5V,
-+		  | FEAT_SIX_TEMP | FEAT_VIN3_5V | FEAT_SCALING,
- 		.peci_mask = 0x07,
- 	},
- 	[it8622] = {
-@@ -448,7 +465,7 @@
- 		.features = FEAT_NEWER_AUTOPWM | FEAT_12MV_ADC | FEAT_16BIT_FANS
- 		  | FEAT_TEMP_OFFSET | FEAT_TEMP_PECI | FEAT_FIVE_FANS
- 		  | FEAT_FIVE_PWM | FEAT_IN7_INTERNAL | FEAT_PWM_FREQ2
--		  | FEAT_AVCC3 | FEAT_VIN3_5V,
-+		  | FEAT_AVCC3 | FEAT_VIN3_5V | FEAT_SCALING,
- 		.peci_mask = 0x07,
- 	},
- 	[it8628] = {
-@@ -457,7 +474,16 @@
- 		.features = FEAT_NEWER_AUTOPWM | FEAT_12MV_ADC | FEAT_16BIT_FANS
- 		  | FEAT_TEMP_OFFSET | FEAT_TEMP_PECI | FEAT_SIX_FANS
- 		  | FEAT_IN7_INTERNAL | FEAT_SIX_PWM | FEAT_PWM_FREQ2
--		  | FEAT_SIX_TEMP | FEAT_VIN3_5V,
-+		  | FEAT_SIX_TEMP | FEAT_VIN3_5V | FEAT_SCALING,
-+		.peci_mask = 0x07,
-+	},
 +	[it8686] = {
 +		.name = "it8686",
 +		.suffix = "E",
 +		.features = FEAT_NEWER_AUTOPWM | FEAT_12MV_ADC | FEAT_16BIT_FANS
 +		  | FEAT_TEMP_OFFSET | FEAT_TEMP_PECI | FEAT_SIX_FANS
 +		  | FEAT_IN7_INTERNAL | FEAT_SIX_PWM | FEAT_PWM_FREQ2
-+		  | FEAT_SIX_TEMP | FEAT_BANK_SEL | FEAT_SCALING,
- 		.peci_mask = 0x07,
- 	},
++		  | FEAT_SIX_TEMP | FEAT_BANK_SEL,
++ 		.peci_mask = 0x07,
++ 	},
  };
-@@ -486,6 +512,14 @@
- #define has_pwm_freq2(data)	((data)->features & FEAT_PWM_FREQ2)
- #define has_six_temp(data)	((data)->features & FEAT_SIX_TEMP)
+ 
+ #define has_16bit_fans(data)	((data)->features & FEAT_16BIT_FANS)
+@@ -488,6 +502,7 @@
  #define has_vin3_5v(data)	((data)->features & FEAT_VIN3_5V)
-+#define has_four_fans(data)	((data)->features & (FEAT_FOUR_FANS | \
-+						     FEAT_FIVE_FANS | \
-+						     FEAT_SIX_FANS))
-+#define has_four_pwm(data)	((data)->features & (FEAT_FOUR_PWM | \
-+						     FEAT_FIVE_PWM \
-+						     | FEAT_SIX_PWM))
+ #define has_scaling(data)	((data)->features & (FEAT_12MV_ADC | \
+ 						     FEAT_10_9MV_ADC))
 +#define has_bank_sel(data)	((data)->features & FEAT_BANK_SEL)
-+#define has_scaling(data)	((data)->features & FEAT_SCALING)
  
  struct it87_sio_data {
  	int sioaddr;
-@@ -513,6 +547,7 @@
+@@ -515,6 +530,7 @@
  	int sioaddr;
  	enum chips type;
  	u32 features;
@@ -184,7 +74,7 @@
  	u8 peci_mask;
  	u8 old_peci_mask;
  
-@@ -662,15 +697,39 @@
+@@ -664,6 +680,30 @@
  	750000,
  };
  
@@ -215,10 +105,9 @@
  /*
   * Must be called with data->update_lock held, except during initialization.
   * We ignore the IT87 BUSY flag at this moment - it could lead to deadlocks,
-  * would slow down the IT87 access and should not be necessary.
+@@ -671,8 +711,8 @@
   */
--static int it87_read_value(struct it87_data *data, u8 reg)
-+static int it87_read_value(struct it87_data *data, u16 reg)
+ static int it87_read_value(struct it87_data *data, u8 reg)
  {
 -	outb_p(reg, data->addr + IT87_ADDR_REG_OFFSET);
 -	return inb_p(data->addr + IT87_DATA_REG_OFFSET);
@@ -227,12 +116,9 @@
  }
  
  /*
-@@ -678,10 +737,10 @@
-  * We ignore the IT87 BUSY flag at this moment - it could lead to deadlocks,
-  * would slow down the IT87 access and should not be necessary.
+@@ -682,8 +722,8 @@
   */
--static void it87_write_value(struct it87_data *data, u8 reg, u8 value)
-+static void it87_write_value(struct it87_data *data, u16 reg, u8 value)
+ static void it87_write_value(struct it87_data *data, u8 reg, u8 value)
  {
 -	outb_p(reg, data->addr + IT87_ADDR_REG_OFFSET);
 -	outb_p(value, data->addr + IT87_DATA_REG_OFFSET);
@@ -241,21 +127,7 @@
  }
  
  static void it87_update_pwm_ctrl(struct it87_data *data, int nr)
-@@ -2397,7 +2456,12 @@
- 		return err;
- 
- 	err = -ENODEV;
--	chip_type = force_id ? force_id : superio_inw(sioaddr, DEVID);
-+	chip_type = superio_inw(sioaddr, DEVID);
-+	if (chip_type == 0xffff)
-+		goto exit;
-+
-+	if (force_id)
-+		chip_type = force_id;
- 
- 	switch (chip_type) {
- 	case IT8705F_DEVID:
-@@ -2462,6 +2526,9 @@
+@@ -2464,6 +2504,9 @@
  	case IT8628E_DEVID:
  		sio_data->type = it8628;
  		break;
@@ -265,19 +137,7 @@
  	case 0xffff:	/* No device at all */
  		goto exit;
  	default:
-@@ -2503,8 +2570,10 @@
- 	else
- 		sio_data->skip_in |= BIT(9);
- 
--	if (!has_five_pwm(config))
-+	if (!has_four_pwm(config))
- 		sio_data->skip_pwm |= BIT(3) | BIT(4) | BIT(5);
-+	else if (!has_five_pwm(config))
-+		sio_data->skip_pwm |= BIT(4) | BIT(5);
- 	else if (!has_six_pwm(config))
- 		sio_data->skip_pwm |= BIT(5);
- 
-@@ -2610,7 +2679,8 @@
+@@ -2612,7 +2655,8 @@
  
  		sio_data->beep_pin = superio_inb(sioaddr,
  						 IT87_SIO_BEEP_PIN_REG) & 0x3f;
@@ -287,80 +147,11 @@
  		int reg;
  
  		superio_select(sioaddr, GPIO);
-@@ -2697,6 +2767,34 @@
- 
- 		sio_data->beep_pin = superio_inb(sioaddr,
- 						 IT87_SIO_BEEP_PIN_REG) & 0x3f;
-+	} else if (sio_data->type == it8732) {
-+		int reg;
-+
-+		superio_select(sioaddr, GPIO);
-+
-+		/* Check for pwm2, fan2 */
-+		reg = superio_inb(sioaddr, IT87_SIO_GPIO5_REG);
-+		if (reg & BIT(1))
-+			sio_data->skip_pwm |= BIT(1);
-+		if (reg & BIT(2))
-+			sio_data->skip_fan |= BIT(1);
-+
-+		/* Check for pwm3, fan3, fan4 */
-+		reg = superio_inb(sioaddr, IT87_SIO_GPIO3_REG);
-+		if (reg & BIT(6))
-+			sio_data->skip_pwm |= BIT(2);
-+		if (reg & BIT(7))
-+			sio_data->skip_fan |= BIT(2);
-+		if (reg & BIT(5))
-+			sio_data->skip_fan |= BIT(3);
-+
-+		/* Check if AVCC is on VIN3 */
-+		reg = superio_inb(sioaddr, IT87_SIO_PINX2_REG);
-+		if (reg & BIT(0))
-+			sio_data->internal |= BIT(0);
-+
-+		sio_data->beep_pin = superio_inb(sioaddr,
-+						 IT87_SIO_BEEP_PIN_REG) & 0x3f;
- 	} else {
- 		int reg;
- 		bool uart6;
-@@ -2948,16 +3046,14 @@
- 	it87_check_tachometers_16bit_mode(pdev);
- 
- 	/* Check for additional fans */
--	if (has_five_fans(data)) {
--		tmp = it87_read_value(data, IT87_REG_FAN_16BIT);
-+	tmp = it87_read_value(data, IT87_REG_FAN_16BIT);
- 
--		if (tmp & BIT(4))
--			data->has_fan |= BIT(3); /* fan4 enabled */
--		if (tmp & BIT(5))
--			data->has_fan |= BIT(4); /* fan5 enabled */
--		if (has_six_fans(data) && (tmp & BIT(2)))
--			data->has_fan |= BIT(5); /* fan6 enabled */
--	}
-+	if (has_four_fans(data) && (tmp & BIT(4)))
-+		data->has_fan |= BIT(3); /* fan4 enabled */
-+	if (has_five_fans(data) && (tmp & BIT(5)))
-+		data->has_fan |= BIT(4); /* fan5 enabled */
-+	if (!has_fan16_config(data) && has_six_fans(data) && (tmp & BIT(2)))
-+		data->has_fan |= BIT(5); /* fan6 enabled */
- 
- 	/* Fan input pins may be used for alternative functions */
- 	data->has_fan &= ~sio_data->skip_fan;
-@@ -3059,6 +3155,8 @@
+@@ -3061,6 +3105,7 @@
  	data->features = it87_devices[sio_data->type].features;
  	data->peci_mask = it87_devices[sio_data->type].peci_mask;
  	data->old_peci_mask = it87_devices[sio_data->type].old_peci_mask;
 +	data->bank = 0xff;
-+
  	/*
  	 * IT8705F Datasheet 0.4.1, 3h == Version G.
  	 * IT8712F Datasheet 0.9.1, section 8.3.5 indicates 8h == Version J.
-@@ -3098,7 +3196,7 @@
- 			 "Detected broken BIOS defaults, disabling PWM interface\n");
- 
- 	/* Starting with IT8721F, we handle scaling of internal voltages */
--	if (has_12mv_adc(data)) {
-+	if (has_scaling(data)) {
- 		if (sio_data->internal & BIT(0))
- 			data->in_scaled |= BIT(3);	/* in3 is AVCC */
- 		if (sio_data->internal & BIT(1))

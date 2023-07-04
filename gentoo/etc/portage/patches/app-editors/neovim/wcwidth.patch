@@ -1,13 +1,13 @@
 diff --git a/src/nvim/mbyte.c b/src/nvim/mbyte.c
-index 33d652a51..ee0ab2701 100644
+index ab787524a..c2e0df340 100644
 --- a/src/nvim/mbyte.c
 +++ b/src/nvim/mbyte.c
-@@ -474,6 +474,15 @@ int utf_char2cells(int c)
-       return n;
-     }
+@@ -487,6 +487,15 @@ int utf_char2cells(int c)
+   }
  
+   if (c >= 0x100) {
 +#if 1
-+    n = wcwidth((wchar_t)c);
++    int n = wcwidth((wchar_t)c);
 +    if (n < 0) {
 +      return 6;                 // unprintable, displays <xxxx>
 +    }
@@ -18,7 +18,7 @@ index 33d652a51..ee0ab2701 100644
      if (!utf_printable(c)) {
        return 6;                 // unprintable, displays <xxxx>
      }
-@@ -483,6 +492,7 @@ int utf_char2cells(int c)
+@@ -496,6 +505,7 @@ int utf_char2cells(int c)
      if (p_emoji && intable(emoji_wide, ARRAY_SIZE(emoji_wide), c)) {
        return 2;
      }
@@ -26,7 +26,7 @@ index 33d652a51..ee0ab2701 100644
    } else if (c >= 0x80 && !vim_isprintc(c)) {
      // Characters below 0x100 are influenced by 'isprint' option.
      return 4;                   // unprintable, displays <xx>
-@@ -1022,6 +1032,9 @@ bool utf_iscomposing(int c)
+@@ -1026,6 +1036,9 @@ bool utf_iscomposing(int c)
  // Only for characters of 0x100 and above!
  bool utf_printable(int c)
  {
@@ -35,8 +35,8 @@ index 33d652a51..ee0ab2701 100644
 +#else
    // Sorted list of non-overlapping intervals.
    // 0xd800-0xdfff is reserved for UTF-16, actually illegal.
-   static struct interval nonprint[] =
-@@ -1032,6 +1045,7 @@ bool utf_printable(int c)
+   static struct interval nonprint[] = {
+@@ -1035,6 +1048,7 @@ bool utf_printable(int c)
    };
  
    return !intable(nonprint, ARRAY_SIZE(nonprint), c);

@@ -144,6 +144,7 @@ net-misc/wget2
 net-misc/whois
 net-p2p/resilio-sync
 net-p2p/transmission
+sys-apps/bat
 sys-apps/cpuid
 sys-apps/dbus
 sys-apps/dmidecode
@@ -218,12 +219,14 @@ x11-drivers/xf86-input-wacom
 x11-drivers/xf86-video-intel
 x11-libs/libnotify
 x11-misc/dunst
+x11-misc/hsetroot
+x11-misc/picom
 x11-misc/slim
 x11-misc/x11vnc
 x11-misc/xcape
+x11-misc/xclip
 x11-misc/xdotool
 x11-misc/xmobar
-x11-misc/xsel
 x11-terms/alacritty
 x11-themes/adwaita-icon-theme
 x11-themes/adwaita-qt
