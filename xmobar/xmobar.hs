@@ -7,28 +7,30 @@ import System.FilePath.Posix (takeDirectory)
 
 myPrimaryColor = "#5686d7"
 mySecondaryColor = "#cf6950"
-myGrayColor = "#698aa8"
-myMutedColor = "#3f576e"
+myThirdColor = "#698aa8"
+myLightGrayColor = "#3f576e"
+myDarkGrayColor = "#334454"
 myForegroundColor = "#d1dbe7"
 myBackgroundColor = "#22262b"
 
 makeConfig :: FilePath -> Config
 makeConfig configDirectory = defaultConfig
-  { font = "xft:M PLUS Code Latin 60:pixelsize=11,Noto Sans CJK JP:pixelsize=11,Noto Emoji:pixelsize=11"
-  , additionalFonts = [ "xft:Material Icons:pixelsize=16" ]
+  { font = "Monospace 9"
+  , additionalFonts = [ "Material Icons 12" ]
   , bgColor = myBackgroundColor
   , fgColor = myForegroundColor
-  , position = Top
+  , position = TopH 20
+  , border = NoBorder
   , overrideRedirect = True
-  , commands = [ Run StdinReader
+  , commands = [ Run UnsafeStdinReader
                , Run $ MPD
-                 [ "-t", "<statei> <title><fc=" ++ myGrayColor ++ ">/</fc><artist> <fc=" ++ myGrayColor ++ ">(<volume>%)</fc>"
+                 [ "-t", "<statei> <title><fc=" ++ myThirdColor ++ ">/</fc><artist> <fc=" ++ myThirdColor ++ ">(<volume>%)</fc>"
                  , "-M", "20"
                  , "-e", "..."
                  , "--"
                  , "-P", "<fc=" ++ myPrimaryColor ++ "><fn=1>\xe405</fn></fc>"
-                 , "-S", "<fc=" ++ myGrayColor ++ "><fn=1>\xe047</fn></fc>"
-                 , "-Z", "<fc=" ++ myGrayColor ++ "><fn=1>\xe034</fn></fc>"
+                 , "-S", "<fc=" ++ myThirdColor ++ "><fn=1>\xe047</fn></fc>"
+                 , "-Z", "<fc=" ++ myThirdColor ++ "><fn=1>\xe034</fn></fc>"
                  , "-h", "127.0.0.1"
                  , "-p", "6600"
                  ] 10
@@ -44,10 +46,10 @@ makeConfig configDirectory = defaultConfig
                , Run $ CatNum "cputemp"
                  [ "/sys/bus/platform/devices/coretemp.0/hwmon/hwmon1/temp1_input"
                  ]
-                 [ "-t", "<fc=" ++ myGrayColor ++ ">(</fc><n0><fc=" ++ myGrayColor ++ ">)</fc>"
+                 [ "-t", "<fc=" ++ myThirdColor ++ ">(</fc><n0><fc=" ++ myThirdColor ++ ">)</fc>"
                  , "-L", "50000"
                  , "-H", "70000"
-                 , "-l", myGrayColor
+                 , "-l", myThirdColor
                  , "-n", myPrimaryColor
                  , "-h", mySecondaryColor
                  , "-m", "4"
@@ -77,7 +79,7 @@ makeConfig configDirectory = defaultConfig
                  [ "-t", "<fc=" ++ myPrimaryColor ++ "><fn=1>\xe5d8</fn></fc> <tx> <fc=" ++ myPrimaryColor ++ "><fn=1>\xe5db</fn></fc> <rx>"
                  , "-L", "10000"
                  , "-H", "1000000"
-                 , "-l", myGrayColor
+                 , "-l", myThirdColor
                  , "-n", myPrimaryColor
                  , "-h", mySecondaryColor
                  , "-S", "True"
@@ -89,11 +91,11 @@ makeConfig configDirectory = defaultConfig
                  , "-p", "3"
                  , "--"
                  , "--on", "<fc=" ++ myPrimaryColor ++ "><fn=1>\xe050</fn></fc>"
-                 , "--off", "<fc=" ++ myGrayColor ++ "><fn=1>\xe04f</fn></fc>"
+                 , "--off", "<fc=" ++ myThirdColor ++ "><fn=1>\xe04f</fn></fc>"
                  ]
                , Run $ Date "%Y-%m-%d %a %H:%M:%S" "date" 10
                ]
-  , template = " %StdinReader% }{ %mpd%  %cpu% %cputemp%  %memory%  %disku%  %eth0%  %pulseaudio%  %date% "
+  , template = "} %UnsafeStdinReader% { %mpd%  %cpu% %cputemp%  %memory%  %disku%  %eth0%  %pulseaudio%  %date% "
   , iconRoot = configDirectory <> "/icons"
   }
 

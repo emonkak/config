@@ -39,16 +39,18 @@ myTerminal = "alacritty"
 myBorderWidth = 2
 myModMask = mod4Mask
 myWorkspaces = map show [(1 :: Int)..9]
-myStatusbarHeight = 21
+myStatusbarHeight = 20
 
 myFont = "xft:M PLUS Code Latin 60:pixelsize=11,Noto Sans CJK JP:pixelsize=11,Noto Emoji:pixelsize=11"
 
 myPrimaryColor = "#5686d7"
 mySecondaryColor = "#cf6950"
-myGrayColor = "#698aa8"
-myMutedColor = "#3f576e"
+myThirdColor = "#698aa8"
+myLightGrayColor = "#3f576e"
+myDarkGrayColor = "#334454"
 myForegroundColor = "#d1dbe7"
 myBackgroundColor = "#22262b"
+
 
 -- Log {{{1
 
@@ -57,9 +59,9 @@ myPP = do
   pure $ def
     { ppCurrent          = xmobarColor myBackgroundColor myPrimaryColor . wrapSpaces
     , ppHidden           = wrapSpaces
-    , ppHiddenNoWindows  = xmobarColor myMutedColor "" . wrapSpaces
+    , ppHiddenNoWindows  = xmobarColor myLightGrayColor "" . wrapSpaces
     , ppUrgent           = wrap "*" " "
-    , ppSep              = xmobarColor myMutedColor "" $ wrap " " " " $ xmobarIcon "separator.xbm"
+    , ppSep              = xmobarColor myLightGrayColor "" $ wrap " " " " $ xmobarIcon "separator.xbm"
     , ppWsSep            = ""
     , ppTitle            = if floated then ("<fn=1>\xe069</fn> " ++) else id
     , ppTitleSanitize    = xmobarRaw
@@ -288,7 +290,7 @@ main = do
       , modMask            = myModMask
       , workspaces         = myWorkspaces
 
-      , normalBorderColor  = myBackgroundColor
+      , normalBorderColor  = myDarkGrayColor
       , focusedBorderColor = myPrimaryColor
 
       , keys               = myKeys
