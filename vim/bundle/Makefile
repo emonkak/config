@@ -40,7 +40,6 @@ PACKAGE_URLS=\
   https://github.com/kana/vim-textobj-line.git \
   https://github.com/kana/vim-textobj-syntax.git \
   https://github.com/kana/vim-textobj-user.git \
-  https://github.com/lambdalisue/fern.vim.git \
   https://github.com/lambdalisue/suda.vim.git \
   https://github.com/mattn/webapi-vim.git \
   https://github.com/prabirshrestha/vim-lsp.git \
@@ -48,7 +47,6 @@ PACKAGE_URLS=\
   https://github.com/thinca/vim-qfreplace.git \
   https://github.com/thinca/vim-quickrun.git \
   https://github.com/thinca/vim-ref.git \
-  https://github.com/thinca/vim-textobj-between.git \
   https://github.com/tyru/operator-camelize.vim.git \
   https://github.com/udalov/kotlin-vim.git
 

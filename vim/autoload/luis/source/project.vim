@@ -1,20 +1,24 @@
 function! luis#source#project#new(directory) abort
   let source = copy(s:Source)
-  let source._directory = a:directory
-  let source._cached_candidates = []
+  let source.directory = a:directory
+  let source.cached_candidates = []
   return source
 endfunction
 
-function! s:action_open(kind, candidate) abort
-  if has_key(a:candidate.user_data, 'project_path')
-    let path = a:candidate.user_data.project_path
-    let v:errmsg = ''
-    tcd `=path`
-    call luis#start(luis#source#file#new())
-    return v:errmsg != '' ? v:errmsg : 0
-  else
-    return 'No such directory: ' . string(a:candidate.word)
+function! s:action_open(candidate, context) abort
+  if !has_key(a:candidate.user_data, 'project_path')
+    return 'No project chosen'
   endif
+  let path = a:candidate.user_data.project_path
+  try
+    tcd `=path`
+    let source = luis#source#file#new()
+    let session = luis#new_session(source)
+    call luis#start(session)
+  catch
+    return v:exception
+  endtry
+  return 0
 endfunction
 
 let s:Source = {
@@ -25,18 +29,17 @@ let s:Source = {
 \       'open': function('s:action_open'),
 \     },
 \     'key_table': {},
-\     'prototype': g:luis#kind#common#export,
+\     'prototype': g:luis#kind#common#import(),
 \   },
-\   'matcher': g:luis#matcher#default,
 \ }
 
-function! s:Source.gather_candidates(args) abort dict
-  return self._cached_candidates
+function! s:Source.gather_candidates(context) abort dict
+  return self.cached_candidates
 endfunction
 
-function! s:Source.on_source_enter() abort dict
+function! s:Source.on_source_enter(context) abort dict
   let candidates = []
-  for path in globpath(self._directory, '*/', 1, 1)
+  for path in globpath(self.directory, '*/', 1, 1)
     let path = path[-1:] == '/' ? path[:-2] : path
     call add(candidates, {
     \   'word': fnamemodify(path, ':t'),
@@ -45,5 +48,5 @@ function! s:Source.on_source_enter() abort dict
     \   },
     \ })
   endfor
-  let self._cached_candidates = candidates
+  let self.cached_candidates = candidates
 endfunction

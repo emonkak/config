@@ -50,12 +50,6 @@ endfunction
 function! s:source.get_body(query) abort
     let query = iconv(a:query, &enc, 'utf-8')
 
-    " 変化形でも検索できるように、<query>を'[]'で囲う {{{2
-    if g:ref_alc_intelligent_search
-        let query = substitute(query, '[^ "]\@<!\a\l*\%([^ "]\)\@!',
-          \ '[\0]', 'g')
-    endif
-
     " キャッシュが無効な場合、<query>を検索して返す {{{2
     if !g:ref_alc_use_cache
         return iconv(s:get_body(query), 'utf-8', &enc)

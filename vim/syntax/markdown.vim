@@ -161,8 +161,8 @@ syntax cluster markdownBlock
 
 syntax region markdownHeading
 \ matchgroup=markdownHeadingDelimiter
-\ start=' \{0,3}\z(#\{1,6}\)\s\+'
-\ end='\(\s\+\z1\)\?\s*$'
+\ start=' \{0,3}\z(#\{1,6}\)'
+\ end='\%(\s\+\z1\)\?\s*$'
 \ oneline
 \ contains=@markdownInline
 \ contained
