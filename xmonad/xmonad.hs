@@ -1,10 +1,10 @@
+{-# LANGUAGE BinaryLiterals #-}
 -- My xmonad.hs
 -- Imports {{{1
 
 import XMonad
 import XMonad.Actions.CycleWS
 import XMonad.Actions.FloatSnap
-import XMonad.Actions.NoBorders
 import XMonad.Actions.Promote
 import XMonad.Actions.Submap
 import XMonad.Hooks.DynamicLog
@@ -15,8 +15,8 @@ import XMonad.Hooks.SetWMName
 import XMonad.Hooks.StatusBar
 import XMonad.Hooks.UrgencyHook
 import XMonad.Layout.Gaps
-import XMonad.Layout.Named
 import XMonad.Layout.NoBorders
+import XMonad.Layout.Renamed
 import XMonad.Layout.Spacing
 import XMonad.Layout.StableColumns
 import XMonad.Layout.ToggleLayouts
@@ -41,7 +41,7 @@ myModMask = mod4Mask
 myWorkspaces = map show [(1 :: Int)..9]
 myStatusbarHeight = 20
 
-myFont = "xft:M PLUS Code Latin 60:pixelsize=11,Noto Sans CJK JP:pixelsize=11,Noto Emoji:pixelsize=11"
+myFont = "xft:Native:size=9,Noto Sans CJK JP:size=9,Noto Emoji:size=9"
 
 myPrimaryColor = "#5686d7"
 mySecondaryColor = "#cf6950"
@@ -110,13 +110,22 @@ myXPConfig ref = (def :: XPConfig)
 myEventHook = removeBorderEventHook $ foldr (<||>) (pure False)
   [ className =? "Wine"
   , className =? "photoshop.exe"
+  , className =? "transmission-gtk" <&&> title =? "" <&&> isDialog
   ]
 
 removeBorderEventHook :: Query Bool -> XMonad.Event -> X All
 removeBorderEventHook query e = do
-  whenX (query `runQuery` w) $ do
+  whenX (runQuery query w) $ do
     d <- asks display
-    io $ setWindowBorderWidth d w 0
+    wa <- io $ getWindowAttributes d w
+    io $ configureWindow d w 0b11111 $ WindowChanges
+        { wc_x            = wa_x wa
+        , wc_y            = wa_y wa
+        , wc_width        = wa_width wa + (wa_border_width wa) * 2
+        , wc_height       = wa_height wa + (wa_border_width wa) * 2
+        , wc_border_width = 0
+        , wc_sibling      = 0
+        , wc_stack_mode   = 0 }
   return $ All True
   where
     w = ev_window e
@@ -127,11 +136,11 @@ myLayoutHook = avoidStruts $ smartBorders $ toggleLayouts Full $
                spacing 4 $ gaps [(U, 4), (D, 4), (L, 4), (R, 4)] $
                (tallLayout ||| threeColLayout)
   where
-    tallLayout = named "Tall" $ stableColumns (3/100) ((3/100) * (16/9))
+    tallLayout = renamed [Replace "Tall"] $ stableColumns (3/100) ((3/100) * (16/9))
       [ staticColumn 1 (1/2) []
       , dynamicColumn 1 (1/2) []
       ]
-    threeColLayout = named "ThreeCol" $ stableColumns (3/100) ((3/100) * (16/9))
+    threeColLayout = renamed [Replace "ThreeCol"] $ stableColumns (3/100) ((3/100) * (16/9))
       [ staticColumn 1 (1/2) []
       , dynamicColumn 1 (1/4) []
       , dynamicColumn 3 (1/4) []
@@ -209,7 +218,6 @@ myKeys conf@(XConfig { XMonad.modMask = modMask }) = M.fromList $
 
   , ((modMask,                 xK_b),            sendMessage ToggleStruts)
   , ((modMask,                 xK_f),            sendMessage ToggleLayout)
-  , ((modMask,                 xK_g),            withFocused toggleBorder)
   , ((modMask,                 xK_m),            windows W.focusMaster)
   , ((modMask,                 xK_t),            withFocused $ windows . W.sink)
 

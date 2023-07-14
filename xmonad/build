@@ -6,4 +6,8 @@ cabal build
 
 bin="$(cabal list-bin xmonad)"
 
-[ -f "$bin" ] && install "$bin" "$1"
+if [ -f "${bin}" ]
+then
+  install "${bin}" "$1"
+  install "${bin}" "${HOME}/.local/bin/xmonad"
+fi

@@ -10,9 +10,8 @@ executable xmobar
   build-depends:      base
                     , filepath
                     , mtl
-                    , xmobar
+                    , xmobar>=0.46
   extra-libraries:    pulse
   C-sources:          cbits/pa-volume-monitor.c
   hs-source-dirs:     lib
   default-language:   Haskell2010
-
