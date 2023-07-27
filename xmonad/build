@@ -9,5 +9,4 @@ bin="$(cabal list-bin xmonad)"
 if [ -f "${bin}" ]
 then
   install "${bin}" "$1"
-  install "${bin}" "${HOME}/.local/bin/xmonad"
 fi

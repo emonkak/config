@@ -15,7 +15,7 @@ myBackgroundColor = "#22262b"
 
 makeConfig :: FilePath -> Config
 makeConfig configDirectory = defaultConfig
-  { font = "Native 9"
+  { font = "terminal-ui 9"
   , additionalFonts = [ "Material Icons 12" ]
   , bgColor = myBackgroundColor
   , fgColor = myForegroundColor

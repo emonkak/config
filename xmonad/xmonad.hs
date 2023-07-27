@@ -41,7 +41,7 @@ myModMask = mod4Mask
 myWorkspaces = map show [(1 :: Int)..9]
 myStatusbarHeight = 20
 
-myFont = "xft:Native:size=9,Noto Sans CJK JP:size=9,Noto Emoji:size=9"
+myFont = "xft:cherry:size=9,x12y12pxMaruMinya:size=9,Noto Emoji:size=9"
 
 myPrimaryColor = "#5686d7"
 mySecondaryColor = "#cf6950"
@@ -50,7 +50,6 @@ myLightGrayColor = "#3f576e"
 myDarkGrayColor = "#334454"
 myForegroundColor = "#d1dbe7"
 myBackgroundColor = "#22262b"
-
 
 -- Log {{{1
 
@@ -95,7 +94,7 @@ myXPConfig ref = (def :: XPConfig)
   , promptKeymap      = M.union myKeymap emacsLikeXPKeymap
   }
   where
-    myKeymap = M.fromList $
+    myKeymap = M.fromList
       [ ((controlMask, xK_u), setInput "")
       , ((controlMask, xK_h), deleteString Prev)
       , ((controlMask, xK_m), setSuccess True >> setDone True)
@@ -121,8 +120,8 @@ removeBorderEventHook query e = do
     io $ configureWindow d w 0b11111 $ WindowChanges
         { wc_x            = wa_x wa
         , wc_y            = wa_y wa
-        , wc_width        = wa_width wa + (wa_border_width wa) * 2
-        , wc_height       = wa_height wa + (wa_border_width wa) * 2
+        , wc_width        = wa_width wa + wa_border_width wa * 2
+        , wc_height       = wa_height wa + wa_border_width wa * 2
         , wc_border_width = 0
         , wc_sibling      = 0
         , wc_stack_mode   = 0 }
@@ -161,13 +160,13 @@ myManageHook = manageDocks
     , className =? "fontforge"                            -?> doShiftEmptyAndGo <+> doFloat
     , className =? "libreoffice-startcenter"              -?> doShiftEmptyAndGo
     , className =? "mpv"                                  -?> doCenterFloat
-    , title     =? "Wine System Tray"                     -?> doHideIgnore
     ]
   <+> composeOne
-    [ isFullscreen     -?> doFullFloat
-    , isDialog         -?> doCenterFloat
-    , role =? "pop-up" -?> doFloat
-    , isUnknown        -?> doFloat
+    [ isWineSystemTray                                    -?> doHideIgnore
+    , isFullscreen                                        -?> doFullFloat
+    , isDialog                                            -?> doCenterFloat
+    , role =? "pop-up"                                    -?> doFloat
+    , isUnknown                                           -?> doFloat
     ]
   where
     doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
@@ -183,6 +182,7 @@ myManageHook = manageDocks
             _       -> doShiftAndGo =<< liftX (findWorkspace getSortByIndex Next emptyWS 1)
         _ -> idHook
     isUnknown = (not <$> hasProperty "WM_CLASS") <&&> (not <$> hasProperty "WM_WINDOW_ROLE")
+    isWineSystemTray = className =? "explorer.exe" <&&> title =? "Wine System Tray"
     hasProperty p = ask >>= \w -> liftX $ withDisplay $ \d ->
       maybe False (const True) <$> getStringProperty d w p
     role = stringProperty "WM_WINDOW_ROLE"
@@ -222,7 +222,7 @@ myKeys conf@(XConfig { XMonad.modMask = modMask }) = M.fromList $
   , ((modMask,                 xK_t),            withFocused $ windows . W.sink)
 
   , ((modMask,                 xK_comma),        sendMessage $ IncMasterN (-1))
-  , ((modMask,                 xK_period),       sendMessage $ IncMasterN (1))
+  , ((modMask,                 xK_period),       sendMessage $ IncMasterN 1)
 
   , ((modMask .|. shiftMask,   xK_c),            kill)
   , ((modMask .|. shiftMask,   xK_q),            io $ exitWith ExitSuccess)
