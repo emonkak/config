@@ -1,4 +1,3 @@
-app-admin/haskell-updater
 app-admin/logrotate
 app-admin/sudo
 app-admin/syslog-ng
@@ -15,12 +14,15 @@ app-cdr/dvd+rw-tools
 app-containers/docker
 app-containers/docker-compose
 app-doc/php-docs
+app-editors/hexedit
 app-editors/leafpad
 app-editors/neovim
 app-editors/vim
 app-editors/vscodium
-app-emulation/genymotion-bin
+app-emulation/virtualbox
+app-emulation/virtualbox-modules
 app-emulation/wine-vanilla
+app-emulation/wine-vanilla:8.12
 app-emulation/winetricks
 app-eselect/eselect-repository
 app-i18n/nkf
@@ -48,7 +50,6 @@ app-portage/eix
 app-portage/flaggie
 app-portage/g-cpan
 app-portage/gentoolkit
-app-portage/hackport
 app-shells/fzf
 app-shells/gentoo-zsh-completions
 app-shells/zsh
@@ -57,8 +58,6 @@ app-text/convmv
 app-text/grip
 app-text/tree
 dev-db/mysql
-dev-haskell/cabal-install
-dev-lang/ghc
 dev-lang/php
 dev-lang/ruby
 dev-php/pecl-apcu
@@ -140,7 +139,6 @@ net-misc/rpiplay
 net-misc/sping
 net-misc/telnet-bsd
 net-misc/wakeonlan
-net-misc/wget2
 net-misc/whois
 net-p2p/resilio-sync
 net-p2p/transmission
@@ -180,10 +178,10 @@ sys-devel/gdb
 sys-fs/dmg2img
 sys-fs/dosfstools
 sys-fs/exfat-utils
-sys-fs/ntfs3g
 sys-kernel/gentoo-sources
 sys-kernel/linux-firmware
 sys-kernel/pt3
+sys-libs/libcxx
 sys-libs/ncurses
 sys-power/acpitool
 sys-power/hibernate-script
@@ -196,9 +194,7 @@ sys-process/parallel
 virtual/mysql
 virtual/rust
 virtual/wine
-www-client/brave-bin
 www-client/firefox-bin
-www-client/google-chrome
 www-client/microsoft-edge
 www-servers/nginx
 x11-apps/igt-gpu-tools
@@ -226,12 +222,9 @@ x11-misc/x11vnc
 x11-misc/xcape
 x11-misc/xclip
 x11-misc/xdotool
-x11-misc/xmobar
 x11-terms/alacritty
 x11-themes/adwaita-icon-theme
 x11-themes/adwaita-qt
 x11-themes/slim-themes
 x11-themes/vanilla-dmz-xcursors
 x11-wm/fluxbox
-x11-wm/xmonad
-x11-wm/xmonad-contrib

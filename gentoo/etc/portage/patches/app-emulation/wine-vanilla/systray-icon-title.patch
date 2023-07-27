@@ -1,6 +1,5 @@
-
 diff --git a/dlls/winex11.drv/systray.c b/dlls/winex11.drv/systray.c
-index dde2feb..318e236 100644
+index dde2feb..91654e0 100644
 --- a/dlls/winex11.drv/systray.c
 +++ b/dlls/winex11.drv/systray.c
 @@ -32,28 +32,6 @@ WINE_DEFAULT_DEBUG_CHANNEL(systray);
@@ -55,7 +54,7 @@ index dde2feb..318e236 100644
      if (nid->uFlags & NIF_INFO && nid->cbSize >= NOTIFYICONDATAA_V2_SIZE)
      {
 diff --git a/dlls/winex11.drv/unixlib.h b/dlls/winex11.drv/unixlib.h
-index 7dc1d9f..8226fe6 100644
+index 7dc1d9f..9948e63 100644
 --- a/dlls/winex11.drv/unixlib.h
 +++ b/dlls/winex11.drv/unixlib.h
 @@ -17,6 +17,7 @@
@@ -101,16 +100,26 @@ index 7dc1d9f..8226fe6 100644
      int cy;
      BOOL *layered;
 diff --git a/dlls/winex11.drv/window.c b/dlls/winex11.drv/window.c
-index 98b0b23..65e8338 100644
+index 98b0b23..bdbe9a4 100644
 --- a/dlls/winex11.drv/window.c
 +++ b/dlls/winex11.drv/window.c
-@@ -2248,7 +2248,8 @@ NTSTATUS x11drv_systray_dock( void *arg )
+@@ -2224,7 +2224,7 @@ NTSTATUS x11drv_systray_dock( void *arg )
+     XSetWindowAttributes attr;
+     XVisualInfo visual;
+     struct x11drv_win_data *data;
+-    UNICODE_STRING class_name;
++    UNICODE_STRING class_name, window_title;
+     BOOL layered;
+     HWND hwnd;
+ 
+@@ -2248,7 +2248,9 @@ NTSTATUS x11drv_systray_dock( void *arg )
      *params->layered = layered = (visual.depth == 32);
  
      RtlInitUnicodeString( &class_name, icon_classname );
 -    hwnd = NtUserCreateWindowEx( layered ? WS_EX_LAYERED : 0, &class_name, &class_name, NULL,
++    RtlInitUnicodeString( &window_title, params->icon->tiptext );
 +    hwnd = NtUserCreateWindowEx( layered ? WS_EX_LAYERED : 0, &class_name, &class_name,
-+                                 (UNICODE_STRING*)params->icon->tiptext,
++                                 &window_title,
                                   WS_CLIPSIBLINGS | WS_POPUP, CW_USEDEFAULT, CW_USEDEFAULT,
                                   params->cx, params->cy, NULL, 0, NULL, params->icon, 0,
                                   NULL, 0, FALSE );
