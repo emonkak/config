@@ -28,7 +28,6 @@ function! s:SID() abort
 endfunction
 let s:SID_PREFIX = '<SNR>' . s:SID() . '_'
 
-
 " Syntax {{{2
 
 let g:ansi_colors = {
@@ -59,8 +58,7 @@ if (1 < &t_Co || has('gui')) && has('syntax') && !exists('g:syntax_on')
   endif
 endif
 
-
-" GUI  {{{2
+" Options  {{{2
 
 if has('gui_running')
   if has('gui_gtk')
@@ -81,9 +79,6 @@ if has('gui_running')
   set guioptions=AcgM
 endif
 
-
-" Options  {{{2
-
 set autoindent
 set backspace=indent,eol,start
 if exists('+breakindent')
@@ -103,7 +98,7 @@ set conceallevel=0
 set confirm
 set diffopt=filler,vertical
 if &directory =~# '^\.'
-  set directory-=. directory^=~/.vim/swap
+  set directory-=. directory=~/.local/state/vim/swap
 endif
 set display=lastline
 set noequalalways
@@ -125,7 +120,7 @@ endif
 set laststatus=2
 set linebreak
 set list
-let &listchars = "tab:>\u2500,trail:\u2500,extends:>,precedes:<,conceal:|,nbsp:_"
+let &listchars = "tab:>\u2500,trail:\u2500,extends:>,precedes:<,conceal:|,nbsp:+"
 set mouse=
 set nrformats-=octal
 set pumheight=16
@@ -147,7 +142,7 @@ set title
 set titlestring=%{v:progname}:\ %f\ %h%r%m
 set ttimeoutlen=50
 if &undodir ==# '.'
-  set undodir=~/.vim/undo
+  set undodir=~/.local/state/vim/undo
 endif
 set undofile
 set updatetime=1000
@@ -157,7 +152,6 @@ set wildmenu
 set wildmode=full
 set nowrapscan
 set nowritebackup
-
 
 " Status-line  {{{2
 
@@ -169,7 +163,6 @@ let &statusline = '%<%f %h%m%r%w'
 \               . ']'
 \               . '[%{&l:fileformat}]'
 \               . '   %-14.(%l,%c%V%) %P'
-
 
 " Tab-line  {{{2
 
@@ -205,19 +198,21 @@ endfunction
 set showtabline=1
 let &tabline = '%!' . s:SID_PREFIX . 'my_tabline()'
 
-
 " Misc.  {{{2
 
 augroup MyAutoCmd
   autocmd!
 augroup END
 
-call altercmd#load()
-call arpeggio#load()
-
 let g:mapleader = ','
 let g:maplocalleader = '.'
 
+call altercmd#load()
+call arpeggio#load()
+
+if has('nvim')
+  lua require('lsp_config')
+endif
 
 " Utilities  "{{{1
 function! s:complete_cdpath(arglead, cmdline, cursorpos) abort  "{{{2
@@ -228,13 +223,35 @@ function! s:complete_cdpath(arglead, cmdline, cursorpos) abort  "{{{2
   \          'v:val[:-2]')
 endfunction
 
-
 function! s:complete_file(arglead, cmdline, cursorpos) abort  "{{{2
   return glob(join(split(a:cmdline, '\s', 1)[1:], ' ') . '*',
   \           0,
   \           1)
 endfunction
 
+function! s:find_farthest_parent_file(path, filenames) abort  "{{{2
+  let stack = []
+  let current = a:path
+  while 1
+    let parent = fnamemodify(current, ':h')
+    if current == parent
+      break
+    endif
+    call add(stack, current)
+    let current = parent
+  endwhile
+  call add(stack, current)
+  for i in range(len(stack) - 1, 0, -1)
+    let dir = stack[i]
+    for filename in a:filenames
+      let path = dir . (dir == '/' ? '' : '/') . filename
+      if filereadable(path)
+        return fnamemodify(path, ':p')
+      endif
+    endfor
+  endfor
+  return ''
+endfunction
 
 function! s:readdir(dir) abort  "{{{2
   if exists('*readdir')
@@ -253,7 +270,6 @@ function! s:readdir(dir) abort  "{{{2
   endif
 endfunction
 
-
 function! s:trim(text) abort  "{{{2
   if exists('*trim')
     return trim(a:text)
@@ -261,7 +277,6 @@ function! s:trim(text) abort  "{{{2
     return substitute(a:text, '^\s*\|\s*$', '', 'g')
   endif
 endfunction
-
 
 " Commands  {{{1
 " :edit with specified 'fileencoding'  {{{2
@@ -289,7 +304,6 @@ command! -bang -bar -complete=file -nargs=? Unix
 \ edit<bang> ++ff=unix <args>
 command! -bang -bar -complete=file -nargs=? Mac
 \ edit<bang> ++ff=mac <args>
-
 
 " :grep wrappers  {{{2
 
@@ -331,7 +345,6 @@ autocmd MyAutoCmd BufEnter *
 \ |   let &l:grepprg = s:detect_optimal_greprg()
 \ | endif
 
-
 " :make wrappers  {{{2
 
 command! -complete=file -nargs=* Make
@@ -350,7 +363,6 @@ endfunction
 
 AlterCommand mak[e]  Make
 AlterCommand lmak[e]  Lmake
-
 
 " BufferSweap  {{{2
 
@@ -371,7 +383,6 @@ function! s:cmd_BufferSweap(is_banged) abort
     echo len(bufnrs) 'buffers are deleted'
   endif
 endfunction
-
 
 " CD  {{{2
 
@@ -394,12 +405,10 @@ endfunction
 
 AlterCommand cd  CD
 
-
 " CopyCommand  {{{2
 
 command! -nargs=+ -complete=command CopyCommand
 \ call setreg('"', s:trim(execute(<q-args>)), 'l')
-
 
 " FoldDump  {{{2
 
@@ -411,7 +420,6 @@ command! -range=% FoldDump
 \   getline('.')
 \ ) | nohlsearch
 
-
 " Indent styles  {{{2
 
 command! -bar -nargs=1 SpaceIndent
@@ -419,7 +427,6 @@ command! -bar -nargs=1 SpaceIndent
 
 command! -bar -nargs=1 TabIndent
 \ setlocal noexpandtab shiftwidth< softtabstop< tabstop=<args>
-
 
 " Note  {{{2
 
@@ -431,8 +438,7 @@ command! -bar -nargs=? Note
 \   <q-args> != '' ? '_' . <q-args> : ''
 \ )
 
-
-" PP - Pretty-printing  {{{2
+" PP (Pretty-printing)  {{{2
 
 command! -nargs=? -range PPJson
 \   if <q-args> != ''
@@ -502,7 +508,6 @@ function! s:pretty_print(value, depth, indent_width, Encode) abort
   endif
 endfunction
 
-
 " Remote commands  {{{2
 
 command! -nargs=1 -complete=customlist,s:complete_server_name
@@ -524,7 +529,6 @@ function! s:complete_server_name(arglead, cmdline, cursorpos) abort
   call filter(server_names, { _, name -> stridx(name, a:arglead) == 0 })
   return server_names
 endfunction
-
 
 " Rename  {{{2
 
@@ -556,13 +560,11 @@ function! s:cmd_Rename(new_path) abort
   endif
 endfunction
 
-
 " Reverse  {{{2
 
 command! -bar -range=% Reverse
 \   <line1>,<line2>global/^/m<line1>-1
 \ | nohlsearch
-
 
 " Source  {{{2
 
@@ -571,7 +573,6 @@ command! -bar -complete=file -nargs=1 Source
 \ | source <args>
 
 AlterCommand so[urce]  Source
-
 
 " Sum  {{{2
 
@@ -611,7 +612,6 @@ function! s:sum_line(acc, line) abort
   return a:acc + str2nr(n, base)
 endfunction
 
-
 " SuspendWithAutomticCD  {{{2
 
 command! -bar -nargs=0 SuspendWithAutomticCD
@@ -641,7 +641,6 @@ function! s:cmd_SuspendWithAutomticCD() abort
     suspend
   endif
 endfunction
-
 
 " SyntaxStack {{{2
 
@@ -675,7 +674,6 @@ command! -bar -nargs=* TabpageTitle
 \ | endif
 \ | redraw!
 
-
 " Window helpers  {{{2
 
 command! -bar -complete=file -nargs=* Split
@@ -690,12 +688,11 @@ command! -bar -complete=file -nargs=* New
 \ Vertical new <args>
 
 command! -bar -nargs=* Vertical
-\ execute (winwidth(0) > winheight(0) * 2.5 ? 'vertical' : '') <q-args>
+\ execute (winwidth(0) > winheight(0) * 4 ? 'vertical' : '') <q-args>
 
 AlterCommand sp[lit]  Split
 AlterCommand h[elp]  Help
 AlterCommand new  New
-
 
 " Mappings  {{{1
 " QuickFix  {{{2
@@ -740,7 +737,6 @@ nnoremap <silent> qwm  :<C-u>Lmake<CR>
 nnoremap qwM  :<C-u>Lmake<Space>
 nnoremap qw<Space>  :<C-u>Lmake<Space>
 nnoremap qwg  :<C-u>LGrep<Space>
-
 
 " Tab pages  {{{2
 
@@ -788,7 +784,6 @@ nnoremap <silent> <C-t>H  :<C-u>tabmove 0<CR>
 nmap <C-t><C-l>  <C-t>l
 nmap <C-t><C-h>  <C-t>h
 
-
 " Argument list  {{{2
 
 noremap <C-g>  <Nop>
@@ -835,13 +830,11 @@ cnoremap <C-o>  <C-f>
 " Escape the slash character when command-line type is 'search'.
 cnoremap <expr> /  index(['/', '?'], getcmdtype()) >= 0 ? '\/' : '/'
 
-
 " When you type "s<Space>", it's expanded to "%s//|/g".
 cnoreabbrev <expr> s
 \ [getcmdtype(), getcmdline()] ==# [':', 's']
 \ ? '%s///g<Left><Left>' . getchar()[1:0]
 \ : 's'
-
 
 " Command-line window  {{{2
 
@@ -864,7 +857,6 @@ function! s:on_CmdwinEnter() abort
 
   startinsert!
 endfunction
-
 
 " Insert mode  {{{2
 
@@ -898,7 +890,7 @@ inoremap <expr> <S-Tab>  pumvisible()
                        \ : <SID>keys_to_complete()
 
 function! s:should_indent_rather_than_complete() abort
-  return getline('.')[col('.') - 2] !~ '^\k'
+  return getline('.')[col('.') - 2:] !~ '^\S'
 endfunction
 
 function! s:keys_to_complete() abort
@@ -919,19 +911,19 @@ noremap [Space]  <Nop>
 nnoremap <silent> [Space]w  :<C-u>w<CR>
 nnoremap <silent> [Space]W  :<C-u>SudaWrite<CR>
 
-" Close temporary windows such as 'quickfix', 'help'.
+" Close temporary windows such as 'quickfix' or 'help'.
 nnoremap <silent> [Space]c  :<C-u>call <SID>close_temporary_windows()<CR>
 
 function! s:close_temporary_windows() abort
-  let all_winnrs = range(1, winnr('$'))
-  if len(all_winnrs) < 2
+  let last_winnr = winnr('$')
+  if last_winnr <= 1
     return
   endif
-  let current_winnr = winnr()
-  for winnr in reverse(all_winnrs)
+  for winnr in range(last_winnr, 1, -1)
     let bufnr = winbufnr(winnr)
-    if !buflisted(bufnr) && getbufvar(bufnr, '&buftype') != ''
-      execute winnr . 'wincmd w'
+    if win_gettype(winnr) != '' ||
+    \ (!buflisted(bufnr) && getbufvar(bufnr, '&buftype') != '')
+      execute winnr 'wincmd w'
       wincmd c
     endif
   endfor
@@ -988,7 +980,6 @@ nnoremap [Space]p  "+p
 " Enter the command-line window.
 nnoremap [Space]:  q:
 xnoremap [Space]:  q:
-
 
 " Windows  {{{2
 
@@ -1053,7 +1044,6 @@ endfunction
 
 nnoremap <C-w>Q  :<C-u>quit!<CR>
 
-
 " Marks  {{{2
 
 let s:MARK_CHARACTERS = [
@@ -1093,7 +1083,6 @@ function! s:pop_from_markring() abort
   endwhile
 endfunction
 
-
 " Text objects  {{{2
 
 " Synonym for <>.
@@ -1115,7 +1104,6 @@ vnoremap gc  :<C-u>normal! gc<CR>
 
 " Select the last selected text.
 onoremap <silent> gv  :<C-u>normal! gv<CR>
-
 
 " Operators  {{{2
 " operator-increment/decrement  {{{3
@@ -1139,7 +1127,6 @@ endfunction
 
 map g<C-a>  <Plug>(operator-increment)
 map g<C-x>  <Plug>(operator-decrement)
-
 
 " operator-search-forward/backward  {{{3
 
@@ -1172,7 +1159,6 @@ endfunction
 vmap *  <Plug>(operator-search-forward)
 vmap #  <Plug>(operator-search-backward)
 
-
 " operator-translate  {{{3
 
 call operator#user#define('translate', s:SID_PREFIX . 'operator_translate')
@@ -1199,7 +1185,6 @@ endfunction
 
 Arpeggio map ot  <Plug>(operator-translate)
 
-
 " operator-yank-clipboard  {{{3
 
 call operator#user#define('yank-clipboard',
@@ -1212,7 +1197,6 @@ function! s:operator_yank_clipboard(motion_wiseness) abort
 endfunction
 
 Arpeggio noremap oy  <Plug>(operator-yank-clipboard)
-
 
 " Misc.  {{{2
 
@@ -1280,7 +1264,6 @@ nnoremap <C-z>  :<C-u>SuspendWithAutomticCD<CR>
 noremap <Leader>  <Nop>
 noremap <LocalLeader>  <Nop>
 
-
 " Filetypes  {{{1
 " All filetypes   {{{2
 
@@ -1325,17 +1308,14 @@ autocmd MyAutoCmd BufReadPost *
 " Avoid to set `filetype` twice.
 let g:ft_ignore_pat = '^\(ebuild\|eclass\)$'
 
-
 " PHP  {{{2
 
 let g:PHP_vintage_case_default_indent = 1
 let g:PHP_noArrowMatching = 1
 
-
 " Python  {{{2
 
 let g:python_highlight_all = 1
-
 
 " Rust  {{{2
 
@@ -1343,11 +1323,9 @@ let g:rust_recommended_style = 1
 
 let g:cargo_makeprg_params = 'build --all-targets'
 
-
 " Shell Script  {{{2
 
 let g:is_bash = 1
-
 
 " Vim Script  {{{2
 
@@ -1355,7 +1333,6 @@ let g:vim_indent_cont = 0
 
 " Disable Lua embedding, since this is buggy.
 let g:vimsyn_embed = ''
-
 
 " Plugins  {{{1
 " accelerate  {{{2
@@ -1370,12 +1347,10 @@ call accelerate#map(
 \   'v:count == 0 && foldclosed(line(".")) >= 0 ? "zo" : "l"'
 \ )
 
-
 " exjumplist  {{{2
 
 nmap <M-C-j>  <Plug>(exjumplist-next-buffer)
 nmap <M-C-k>  <Plug>(exjumplist-previous-buffer)
-
 
 " grex  {{{2
 
@@ -1383,118 +1358,6 @@ nmap gy  <Plug>(operator-grex-yank)<Plug>(textobj-entire-a)
 vmap gy  <Plug>(operator-grex-yank)
 nmap gd  <Plug>(operator-grex-delete)<Plug>(textobj-entire-a)
 vmap gd  <Plug>(operator-grex-delete)
-
-
-" lsp  {{{2
-
-autocmd MyAutoCmd User lsp_buffer_enabled
-\ call s:on_lsp_buffer_enabled()
-
-function! s:on_lsp_buffer_enabled() abort
-  setlocal omnifunc=lsp#complete
-  setlocal signcolumn=yes
-
-  if &l:foldmethod != 'expr'
-    setlocal foldmethod=expr
-    setlocal foldexpr=lsp#ui#vim#folding#foldexpr()
-    setlocal foldtext=lsp#ui#vim#folding#foldtext()
-  endif
-
-  if exists('+tagfunc')
-    setlocal tagfunc=lsp#tagfunc
-  endif
-
-  nmap <buffer> <silent> K  <Plug>(lsp-hover)
-
-  nmap <buffer> <silent> <LocalLeader>S  <Plug>(lsp-workspace-symbol-search)
-  nmap <buffer> <silent> <LocalLeader>a  <Plug>(lsp-code-action)
-  nmap <buffer> <silent> <LocalLeader>d  <Plug>(lsp-definition)
-  nmap <buffer> <silent> <LocalLeader>i  <Plug>(lsp-implementation)
-  nmap <buffer> <silent> <LocalLeader>n  <Plug>(lsp-rename)
-  nmap <buffer> <silent> <LocalLeader>r  <plug>(lsp-references)
-  nmap <buffer> <silent> <LocalLeader>s  <plug>(lsp-document-symbol-search)
-  nmap <buffer> <silent> <LocalLeader>t  <Plug>(lsp-type-definition)
-
-  if &l:filetype ==# 'rust' || &l:filetype == 'go'
-    autocmd! BufWritePre <buffer>  LspDocumentFormatSync
-  endif
-endfunction
-
-autocmd MyAutoCmd User lsp_setup
-\ call s:on_lsp_setup()
-
-function! s:on_lsp_setup() abort
-  if executable('haskell-language-server-wrapper')
-    call lsp#register_server({
-    \   'name': 'haskell-language-server',
-    \   'cmd': {server_info -> [
-    \     'haskell-language-server-wrapper',
-    \     '--lsp',
-    \     '--cwd', lsp#utils#uri_to_path(server_info['root_uri'](server_info)),
-    \   ]},
-    \   'root_uri': {server_info -> lsp#utils#path_to_uri(
-    \      lsp#utils#find_nearest_parent_file_directory(
-    \        lsp#utils#get_buffer_path(),
-    \        ['Setup.hs', 'stack.yml']
-    \      )
-    \   )},
-    \   'allowlist': ['haskell'],
-    \ })
-  endif
-  if executable('rust-analyzer')
-    call lsp#register_server({
-    \   'name': 'rust-analyzer',
-    \   'cmd': {server_info -> ['rust-analyzer']},
-    \   'root_uri': {server_info -> lsp#utils#path_to_uri(
-    \      lsp#utils#find_nearest_parent_file_directory(
-    \        lsp#utils#get_buffer_path(),
-    \        ['Cargo.toml']
-    \      )
-    \   )},
-    \   'allowlist': ['rust'],
-    \ })
-  endif
-  if executable('typescript-language-server')
-    call lsp#register_server({
-    \   'name': 'typescript-language-server',
-    \   'cmd': {server_info -> [
-    \     'typescript-language-server',
-    \     '--stdio',
-    \   ]},
-    \   'root_uri': {server_info -> lsp#utils#path_to_uri(
-    \      lsp#utils#find_nearest_parent_file_directory(
-    \        lsp#utils#get_buffer_path(),
-    \        ['package.json']
-    \      )
-    \   )},
-    \   'initialization_options': {
-    \     'preferences': {
-    \       'disableSuggestions': v:true,
-    \     },
-    \   },
-    \   'allowlist': ['javascript', 'javascriptreact', 'typescript', 'typescriptreact'],
-    \ })
-  endif
-endfunction
-
-let g:lsp_diagnostics_float_cursor = 1
-let g:lsp_diagnostics_highlights_enabled = 1
-let g:lsp_diagnostics_signs_error = {'text': 'X'}
-let g:lsp_diagnostics_signs_hint = {'text': '?'}
-let g:lsp_diagnostics_signs_information = {'text': 'i'}
-let g:lsp_diagnostics_signs_warning = {'text': '!'}
-let g:lsp_diagnostics_virtual_text_enabled = 0
-
-let g:lsp_document_highlight_enabled = 0
-let g:lsp_document_code_action_signs_enabled = 0
-
-let g:lsp_tagfunc_source_methods = ['definition']
-
-" let g:lsp_log_verbose = 1
-" let g:lsp_log_file = expand('~/.vim/vim-lsp.log')
-
-command! LspRestart  call lsp#ui#vim#stop_server() | edit
-
 
 " luis  {{{2
 " Mappings  {{{3
@@ -1526,13 +1389,11 @@ nnoremap [Space]kt  :<C-u>call <SID>luis_start_async_tags()<CR>
 nnoremap [Space]kw  :<C-u>call <SID>luis_start(luis#source#project#new(expand('~/Sync/works')))<CR>
 nnoremap [Space]kz  :<C-u>call <SID>luis_start(luis#source#fold#new(win_getid()))<CR>
 
-
 function! s:luis_resume() abort  " {{{3
   if exists('s:luis_last_session')
     call luis#start(s:luis_last_session)
   endif
 endfunction
-
 
 function! s:luis_start(source, ...) abort  " {{{3
   let options = get(a:000, 0, {})
@@ -1541,7 +1402,6 @@ function! s:luis_start(source, ...) abort  " {{{3
     let s:luis_last_session = session
   endif
 endfunction
-
 
 function! s:luis_start_async_files() abort  " {{{3
   if isdirectory('.git')
@@ -1582,7 +1442,6 @@ function! s:luis_start_async_files() abort  " {{{3
   call s:luis_start(source)
 endfunction
 
-
 function! s:luis_start_async_tags() abort  " {{{3
   let name = 'tags'
   let kind = luis#kind#tag#import()
@@ -1599,7 +1458,6 @@ function! s:luis_start_async_tags() abort  " {{{3
   return s:luis_start(source)
 endfunction
 
-
 function! s:luis_start_file_in_path(path) abort  " {{{3
   let source = luis#source#file#new()
   let hook = { 'path': a:path }
@@ -1615,7 +1473,6 @@ function! s:luis_start_file_in_path(path) abort  " {{{3
   call s:luis_start(source, { 'hook': hook })
 endfunction
 
-
 function! s:luis_start_with_path(source, path) abort  " {{{3
   let initial_pattern = a:path != '' && a:path != '.'
   \                   ? a:path . '/'
@@ -1624,7 +1481,6 @@ function! s:luis_start_with_path(source, path) abort  " {{{3
   \   'initial_pattern': initial_pattern,
   \ })
 endfunction
-
 
 function! s:to_git_file_candidate(line) abort  " {{{3
   let components = split(a:line, '^\S\zs\s')
@@ -1639,7 +1495,6 @@ function! s:to_git_file_candidate(line) abort  " {{{3
   \ }
 endfunction
 
-
 function! s:make_tag_candidate(line) abort  " {{{3
   let components = split(a:line, '\t')
   return {
@@ -1649,23 +1504,19 @@ function! s:make_tag_candidate(line) abort  " {{{3
   \ }
 endfunction
 
-
 " operator-camelize  {{{2
 
 map <Leader>c  <Plug>(operator-camelize)
 map <Leader>C  <Plug>(operator-decamelize)
-
 
 " operator-comment  {{{2
 
 Arpeggio map oc  <Plug>(operator-comment)
 Arpeggio map od  <Plug>(operator-uncomment)
 
-
 " operator-replece  {{{2
 
 Arpeggio map or  <Plug>(operator-replace)
-
 
 " operator-sort  {{{2
 
@@ -1678,7 +1529,6 @@ nmap [Space]n  <Plug>(operator-sort-numeric)
 vmap [Space]n  <Plug>(operator-sort-numeric)
 nmap [Space]N  <Plug>(operator-sort-numeric)$
 vmap [Space]N  <Plug>(operator-sort-numeric)$
-
 
 " quickrun  {{{2
 
@@ -1777,6 +1627,33 @@ let g:quickrun_config = {
 nmap <Leader>r  <Plug>(quickrun)
 vmap <Leader>r  <Plug>(quickrun)
 
+" ref  "{{{2
+
+autocmd MyAutoCmd FileType ref
+\ call s:on_FileType_ref()
+
+function! s:on_FileType_ref() abort
+  nmap <buffer> <silent> <CR>  <Plug>(ref-keyword)
+  vmap <buffer> <silent> <CR>  <Plug>(ref-keyword)
+  nmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
+  vmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
+  nmap <buffer> <silent> <C-j>  <Plug>(ref-forward)
+  nmap <buffer> <silent> <C-k>  <Plug>(ref-back)
+  nnoremap <buffer> q  <C-w>c
+endfunction
+
+nmap <silent> K  <Plug>(ref-keyword)
+vmap <silent> K  <Plug>(ref-keyword)
+
+nnoremap <silent> <Leader>a  :<C-u>call ref#jump('normal', 'alc')<CR>
+vnoremap <silent> <Leader>a  :<C-u>call ref#jump('visual', 'alc')<CR>
+
+AlterCommand ref  Ref
+
+let g:ref_no_default_key_mappings = 1
+let g:ref_open = 'Split'
+let g:ref_perldoc_complete_head = 1
+let g:ref_phpmanual_path = '/usr/share/php-docs/en/php-chunked-xhtml'
 
 " scratch  {{{2
 
@@ -1786,11 +1663,11 @@ autocmd MyAutoCmd User PluginScratchInitializeAfter
 \ call s:on_User_plugin_scratch_initialize_after()
 
 function! s:on_User_plugin_scratch_initialize_after() abort
+  setlocal nobuflisted
   map <buffer> <CR>  <Plug>(scratch-evaluate!)
 endfunction
 
 let g:scratch_show_command = 'SplitTop | hide buffer'
-
 
 " skeleton  {{{2
 
@@ -1836,7 +1713,6 @@ function! s:on_User_plugin_skeleton_loaded() abort
   endif
 endfunction
 
-
 " smartinput  {{{2
 " Initialize  {{{3
 
@@ -1847,14 +1723,13 @@ if exists('g:loaded_smartinput')
   call smartinput#define_default_rules()
 endif
 
-" Common rules {{{3
+" Common {{{3
 
 call smartinput#define_rule({
 \   'at': '/\*\*\%#',
 \   'char': '<CR>',
 \   'input': '<CR><CR>/<Up><Space>',
 \ })
-
 
 " for Vim  {{{3
 
@@ -1885,7 +1760,6 @@ call smartinput#define_rule({
 \   'filetype': ['vim'],
 \ })
 
-
 " for PHP  {{{3
 
 call smartinput#define_rule({
@@ -1908,7 +1782,6 @@ call smartinput#define_rule({
 \   'syntax': ['Comment', 'Constant', 'None']
 \ })
 
-
 " for Rust  {{{3
 
 call smartinput#define_rule({
@@ -1918,40 +1791,9 @@ call smartinput#define_rule({
 \   'filetype': ['rust'],
 \ })
 
-
 " Fin.  {{{3
 
 call smartinput#map_trigger_keys()
-
-
-" ref  "{{{2
-
-autocmd MyAutoCmd FileType ref
-\ call s:on_FileType_ref()
-
-function! s:on_FileType_ref() abort
-  nmap <buffer> <silent> <CR>  <Plug>(ref-keyword)
-  vmap <buffer> <silent> <CR>  <Plug>(ref-keyword)
-  nmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
-  vmap <buffer> <silent> <C-]>  <Plug>(ref-keyword)
-  nmap <buffer> <silent> <C-j>  <Plug>(ref-forward)
-  nmap <buffer> <silent> <C-k>  <Plug>(ref-back)
-  nnoremap <buffer> q  <C-w>c
-endfunction
-
-nmap <silent> K  <Plug>(ref-keyword)
-vmap <silent> K  <Plug>(ref-keyword)
-
-nnoremap <silent> <Leader>a  :<C-u>call ref#jump('normal', 'alc')<CR>
-vnoremap <silent> <Leader>a  :<C-u>call ref#jump('visual', 'alc')<CR>
-
-AlterCommand ref  Ref
-
-let g:ref_no_default_key_mappings = 1
-let g:ref_open = 'Split'
-let g:ref_perldoc_complete_head = 1
-let g:ref_phpmanual_path = '/usr/share/php-docs/en/php-chunked-xhtml'
-
 
 " smartword  {{{2
 
@@ -1959,7 +1801,6 @@ map w  <Plug>(smartword-w)
 map b  <Plug>(smartword-b)
 map e  <Plug>(smartword-e)
 map ge  <Plug>(smartword-ge)
-
 
 " submode  {{{2
 
@@ -2001,7 +1842,6 @@ function! s:submode_winsize() abort
 endfunction
 
 let g:submode_timeout = 0
-
 
 " surround-obj  {{{2
 
@@ -2046,16 +1886,13 @@ call surround_obj#define_object('E', {
 \   'pattern': '\V\%(\\\@1<!\\\)\@2<!**',
 \ })
 
-
 " table-mode  {{{2
 
 nnoremap <silent> [Space]t  :<C-u>TableModeToggle<CR>
 
-
 " Fin.  {{{1
 
 set secure
-
 
 " __END__  {{{1
 " vim: expandtab softtabstop=2 shiftwidth=2

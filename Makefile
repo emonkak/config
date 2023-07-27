@@ -59,7 +59,7 @@ GROUP_VIM_FILES=\
     vim/%, \
     $(shell find \
       $(wildcard $(patsubst %,$(HOME)/.vim/%,\
-        after autoload colors compiler ftplugin indent plugin syntax)) -type f))
+        after autoload colors compiler ftplugin indent lua plugin syntax)) -type f))
 GROUP_VIM_RULE=$(patsubst vim/%, $(HOME)/.vim/%, $(1))
 
 

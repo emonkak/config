@@ -42,7 +42,6 @@ PACKAGE_URLS=\
   https://github.com/kana/vim-textobj-user.git \
   https://github.com/lambdalisue/suda.vim.git \
   https://github.com/mattn/webapi-vim.git \
-  https://github.com/prabirshrestha/vim-lsp.git \
   https://github.com/rust-lang/rust.vim.git \
   https://github.com/thinca/vim-qfreplace.git \
   https://github.com/thinca/vim-quickrun.git \
