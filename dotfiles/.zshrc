@@ -143,8 +143,8 @@ alias grep='grep --color --binary-files=without-match --perl-regexp'
 
 if which xclip &>/dev/null
 then
-  alias pbcopy='xclip -i -s clipboard'
-  alias pbpaste='xclip -o -s clipboard'
+  alias pbcopy='xclip -i -selection clipboard'
+  alias pbpaste='xclip -o -selection clipboard'
 fi
 
 alias -s {7z,gz,rar,tar,xz,zip}='aunpack'

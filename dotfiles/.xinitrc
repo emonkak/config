@@ -26,9 +26,9 @@ uim-xim &
 
 picom &
 
-dunst &
-
 geektray &
+
+dunst &
 
 hsetroot -solid '#3f576e'
 
@@ -36,7 +36,7 @@ session="${1##*/}"
 
 case "${session}" in
   Xsession|'')
-    exec dbus-launch --exit-with-session xmonad
+    exec dbus-launch --exit-with-session "${HOME}/.cabal/bin/xmonad"
     ;;
   *)
     exec dbus-launch --exit-with-session "${session}"

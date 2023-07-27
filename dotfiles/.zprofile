@@ -1,5 +1,10 @@
 export PATH
 
+if [ -d "$HOME/.ghcup/bin" ]
+then
+  PATH="$HOME/.ghcup/bin:$PATH"
+fi
+
 if [ -d "$HOME/.cabal/bin" ]
 then
   PATH="$HOME/.cabal/bin:$PATH"
@@ -55,7 +60,5 @@ export PAGER='less'
 
 export LESS='-c -R -L'
 export LV='-c -l'
-
-export WINEARCH="win32"
 
 export MPD_CONF="$HOME/.mpd/mpd.conf"
