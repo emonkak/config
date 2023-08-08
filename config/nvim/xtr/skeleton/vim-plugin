@@ -1,0 +1,7 @@
+if exists('g:loaded_<%=expand('%:t:r')%>')
+  finish
+endif
+
+<%|%>
+
+let g:loaded_<%=expand('%:t:r')%> = 1

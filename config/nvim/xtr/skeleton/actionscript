@@ -1,0 +1,9 @@
+package <%=substitute(expand('%:h'), '/', '.', 'g')%>
+{
+	public class <%=expand('%:t:r')%>
+	{
+		public function <%=expand('%:t:r')%>():void
+		{
+		}
+	}
+}

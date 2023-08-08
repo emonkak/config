@@ -1,0 +1,5 @@
+/etc/X11/xorg.conf
+/etc/fstab
+/etc/portage/
+/usr/src/linux/.config
+/var/lib/portage/world

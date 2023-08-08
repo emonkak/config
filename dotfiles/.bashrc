@@ -4,18 +4,12 @@
 umask 022  # Default permission
 ulimit -c 0  # Don't create core file
 
-
-
-
-# Parameters  #{{{1
+# Options  #{{{1
 
 HISTSIZE=10000  # History size at runtime
 HISTFILESIZE=$HISTSIZE  # History size to save
 HISTCONTROL=ignoreboth
 IGNOREEOF=10
-
-
-
 
 # Prompt  #{{{1
 
@@ -62,10 +56,7 @@ prompt_setup
 
 unset -f prompt_setup
 
-
-
-
-# Alias  #{{{1
+# Aliases  #{{{1
 
 alias ls='ls -F --show-control-chars --color=auto'
 alias la='ls -a'
@@ -82,10 +73,12 @@ alias cd='pushd > /dev/null'
 alias diff='diff -u'
 
 alias g='git'
-alias v='vim'
-
-
-
+if which nvim &>/dev/null
+then
+  alias v='nvim'
+else
+  alias v='vim'
+fi
 
 # __END__  #{{{1
 # vim: filetype=sh foldmethod=marker

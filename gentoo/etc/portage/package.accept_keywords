@@ -27,6 +27,7 @@ gui-apps/gcolor3 ~amd64
 media-fonts/* ~amd64
 media-sound/mpd ~amd64
 media-tv/gtk-v4l ~amd64
+net-im/skypeforlinux ~amd64
 net-p2p/resilio-sync ~amd64
 net-proxy/mitmproxy ~amd64
 sys-apps/ripgrep ~amd64

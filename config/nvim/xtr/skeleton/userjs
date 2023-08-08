@@ -1,0 +1,11 @@
+/// ==UserScript==
+// @name         <%=expand('%:t:r:r')%>
+// @namespace    http://
+// @description  <%=expand('%:t:r:r')%>
+// @include      http://*
+// @exclude      http://*
+// ==/UserScript==
+
+(function() {
+  <%|%>
+})();

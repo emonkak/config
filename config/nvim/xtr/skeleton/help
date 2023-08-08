@@ -1,0 +1,67 @@
+*{name}.txt*	{abstract}
+
+Author: Shota Nozaki <emonkak@gmail.com>
+License: MIT license
+
+==============================================================================
+CONTENTS						*{name}-contents*
+
+Introduction	|{name}-introduction|
+Usage		|{name}-examples|
+Interface	|{name}-interface|
+  Key Mappings	|{name}-key-mappings|
+  Commands	|{name}-commands|
+  Functions	|{name}-functions|
+  Variables	|{name}-variables|
+
+==============================================================================
+INTRODUCTION						*{name}-introduction*
+
+*{name}* is a Vim plugin to ...
+
+Requirements:
+
+- Vim 8.0 or later
+
+==============================================================================
+USAGE							*{name}-usage*
+
+...
+
+==============================================================================
+INTERFACE						*{name}-interface*
+
+------------------------------------------------------------------------------
+KEY MAPPINGS						*{name}-key-mappings*
+
+DEFAULT KEY MAPPINGS~
+
+Modes   {lhs}   {rhs}
+-----------------------------------------------
+nvo	x	|<Plug>({name}-feature)|
+
+NAMED KEY MAPPINGS~
+
+<Plug>({name}-feature)					*<Plug>({name}-feature)*
+	...
+
+------------------------------------------------------------------------------
+COMMANDS						*{name}-commands*
+
+:{Name}Feature						*:{Name}Feature*
+	...
+
+------------------------------------------------------------------------------
+FUNCTIONS						*{name}-functions*
+
+{name}#feature()					*{name}#feature()*
+	...
+
+------------------------------------------------------------------------------
+VARIABLES						*{name}-variables*
+
+g:{name}_variable					*g:{name}-variable*
+	...
+
+==============================================================================
+vim:tw=78:ts=8:ft=help

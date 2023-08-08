@@ -11,8 +11,6 @@ then
   eval `dircolors "$HOME/.colorrc"`
 fi
 
-
-
 # Options  #{{{1
 
 HISTFILE="$HOME/.zsh_history"
@@ -26,9 +24,12 @@ setopt auto_menu
 setopt auto_param_keys
 setopt auto_param_slash
 setopt auto_pushd
+unsetopt beep
 setopt brace_ccl
 setopt complete_in_word
 setopt equals
+unsetopt extended_history
+unsetopt flow_control
 setopt hist_ignore_all_dups
 setopt hist_ignore_dups
 setopt hist_ignore_space
@@ -45,12 +46,6 @@ setopt prompt_subst
 setopt pushd_ignore_dups
 setopt pushd_silent
 setopt share_history
-unsetopt beep
-unsetopt extended_history
-unsetopt flow_control
-
-
-
 
 # Prompt  #{{{1
 
@@ -93,9 +88,6 @@ $t_main"
 
 prompt_setup
 unset -f prompt_setup
-
-
-
 
 # Aliases  #{{{1
 
@@ -149,9 +141,6 @@ fi
 
 alias -s {7z,gz,rar,tar,xz,zip}='aunpack'
 
-
-
-
 # Hooks  #{{{1
 
 zshaddhistory() {
@@ -190,9 +179,6 @@ accept-line() {
 }
 zle -N accept-line
 
-
-
-
 # Autoloads  #{{{1
 
 autoload -Uz add-zsh-hook
@@ -215,9 +201,6 @@ then
   zstyle ':chpwd:*' recent-dirs-pushd true
 fi
 
-
-
-
 # compinit  #{{{2
 
 autoload -Uz compinit && compinit -u
@@ -232,9 +215,6 @@ zstyle ':completion:*:cd:*' ignore-parents parent pwd
 zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
 
-
-
-
 # select-word-style  #{{{2
 
 autoload -Uz select-word-style
@@ -243,9 +223,6 @@ select-word-style default
 
 zstyle ':zle:*' word-chars " _-./;@"
 zstyle ':zle:*' word-style unspecified
-
-
-
 
 # vcs_info  #{{{2
 
@@ -258,23 +235,14 @@ zstyle ':vcs_info:bzr:*' use-simple true
 
 add-zsh-hook precmd vcs_info
 
-
-
-
 # zargs  #{{{2
 
 autoload -Uz zargs
-
-
-
 
 # zmv  #{{{2
 
 autoload -Uz zmv
 alias zmv='noglob zmv'
-
-
-
 
 # Line Editor  #{{{1
 
@@ -336,18 +304,12 @@ then
   bindkey '^X^h' fzf-history
 fi
 
-
-
-
-# Include  #{{{1
+# Plugins  #{{{1
 
 if [ -f ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]
 then
   source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
-
-
-
 
 # __END__  #{{{1
 # vim: expandtab softtabstop=2 shiftwidth=2 textwidth=80

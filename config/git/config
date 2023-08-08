@@ -1,0 +1,77 @@
+# My gitconfig
+
+[user]
+	name = Shota Nozaki
+	email = emonkak@gmail.com
+
+[core]
+	editor = nvim
+	mergeoptions = --no-edit
+	pager = delta --color-only --paging always
+	quotepath = false
+	ignorecase = false
+
+[init]
+	defaultBranch = master
+
+[color]
+	ui = true
+
+[interactive]
+	diffFilter = delta --color-only --paging always
+
+[merge]
+	ff = false
+	tool = vimdiff
+	log = true
+
+[pull]
+	rebase = true
+
+[push]
+	default = current
+
+[rebase]
+	autostash = true
+
+[grep]
+	patternType = extended
+
+[diff]
+	renames = true
+
+[alias]
+	a = add
+	br = branch
+	ch = checkout
+	co = commit --verbose
+	cp = cherry-pick
+	d = diff --find-copies
+	dc = diff --find-copies --cached
+	ds = diff --find-copies --cached HEAD^
+	l = log --decorate --source --branches --tags --abbrev-commit
+	lg = log --graph --pretty=oneline --decorate --source --branches --tags --abbrev-commit
+	ls = ls-files
+	r = reset
+	re = restore
+	rh = reset --hard
+	rs = reset --soft
+	sh = show
+	st = status --branch
+	sw = switch
+
+	show-files = diff-tree --no-commit-id --name-only -r
+	fix = commit --amend --verbose
+	fixup = commit --amend -C HEAD
+	undo = "!sh -c 'git reset --hard $(git rev-parse --abbrev-ref HEAD)@{${1-1}}'"
+
+[credential]
+	helper = store
+
+[delta]
+	syntax-theme = ansi
+
+[include]
+	path = ./config.private
+
+# vim: filetype=gitconfig

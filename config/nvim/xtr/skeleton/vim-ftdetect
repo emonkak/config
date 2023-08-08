@@ -1,0 +1,2 @@
+autocmd BufNewFile,BufRead *.<%=expand('%:t:r')%>
+\ setlocal filetype=<%=expand('%:t:r')%>

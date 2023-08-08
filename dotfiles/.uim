@@ -19,16 +19,10 @@
 
 (define uim-color 'uim-color-white)
 
-
-
-
 ; XIM  {{{1
 
 (define uim-xim-use-xft-font? #t)
 (define uim-xim-xft-font-name "Noto Sans CJK JP")
-
-
-
 
 ; Japanese  {{{1
 
@@ -48,9 +42,6 @@
 
 (ja-rk-rule-update)
 
-
-
-
 ; SKK  {{{1
 
 (require-module "skk")
@@ -68,7 +59,5 @@
 (define skk-use-look? #t)
 (define skk-use-with-vi? #t)
 
-
-
-
+; __END__  {{{1
 ; vim: filetype=scheme foldmethod=marker

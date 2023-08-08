@@ -1,0 +1,13 @@
+[package]
+name = "<%=expand('%:p:h:t')%>"
+version = "0.0.0"
+authors = ["Shota Nozaki <emonkak@gmail.com>"]
+license = "MIT"
+description = ""
+readme = "README.md"
+homepage = "https://github.com/emonkak/<%=expand('%:p:h:t')%>"
+edition = "2021"
+
+[[bin]]
+name = "main"
+path = "src/main.rs"

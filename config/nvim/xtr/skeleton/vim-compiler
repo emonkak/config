@@ -1,0 +1,8 @@
+if exists('g:current_compiler')
+  finish
+endif
+
+CompilerSet makeprg=<%|%>
+CompilerSet errorformat=
+
+let g:current_compiler = '<%=expand('%:t:r')%>'

@@ -1,0 +1,12 @@
+<?php
+
+declare(strict_types=1);
+
+namespace <%=substitute(expand('%:h:s?^.\{-}/??'), '/', '\\', 'g')%>;
+
+<%=expand('%:t:r') =~# 'Interface$' ? 'interface' : 'class' %> <%=expand('%:t:r')%>
+{
+    public function __construct()
+    {
+    }
+}

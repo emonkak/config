@@ -1,0 +1,7 @@
+#import "<%=expand('%:t:r')%>.h"
+
+<%=expand('%:e') ==# 'm' ? '@implementation '.expand('%:t:r') : '@interface '.expand('%:t:r').' : NSObject'%>
+
+<%|%>
+
+@end

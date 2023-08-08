@@ -131,6 +131,7 @@ net-analyzer/traceroute
 net-dns/bind-tools
 net-firewall/nftables
 net-fs/samba
+net-im/skypeforlinux
 net-misc/aria2
 net-misc/bridge-utils
 net-misc/chrony
@@ -194,6 +195,7 @@ sys-process/parallel
 virtual/mysql
 virtual/rust
 virtual/wine
+www-client/brave-bin
 www-client/firefox-bin
 www-client/microsoft-edge
 www-servers/nginx

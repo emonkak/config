@@ -1,0 +1,190 @@
+[submodule "config/nvim/pack/user/start/vim-textobj-variable-segment"]
+	path = config/nvim/pack/user/start/vim-textobj-variable-segment
+	url = https://github.com/Julian/vim-textobj-variable-segment.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vimproc"]
+	path = config/nvim/pack/user/start/vimproc
+	url = https://github.com/Shougo/vimproc.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-shellutils"]
+	path = config/nvim/pack/user/start/vim-shellutils
+	url = https://github.com/b4b4r07/vim-shellutils.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-auto-programming"]
+	path = config/nvim/pack/user/start/vim-auto-programming
+	url = https://github.com/blueyed/vim-auto-programming
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-table-mode"]
+	path = config/nvim/pack/user/start/vim-table-mode
+	url = https://github.com/dhruvasagar/vim-table-mode.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-accelerate"]
+	path = config/nvim/pack/user/start/vim-accelerate
+	url = https://github.com/emonkak/vim-accelerate.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-foldsort"]
+	path = config/nvim/pack/user/start/vim-foldsort
+	url = https://github.com/emonkak/vim-foldsort.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-luis"]
+	path = config/nvim/pack/user/start/vim-luis
+	url = https://github.com/emonkak/vim-luis.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-metarw-gist"]
+	path = config/nvim/pack/user/start/vim-metarw-gist
+	url = https://github.com/emonkak/vim-metarw-gist.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-operator-comment"]
+	path = config/nvim/pack/user/start/vim-operator-comment
+	url = https://github.com/emonkak/vim-operator-comment.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-operator-sort"]
+	path = config/nvim/pack/user/start/vim-operator-sort
+	url = https://github.com/emonkak/vim-operator-sort.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-surround-obj"]
+	path = config/nvim/pack/user/start/vim-surround-obj
+	url = https://github.com/emonkak/vim-surround-obj.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-css3-syntax"]
+	path = config/nvim/pack/user/start/vim-css3-syntax
+	url = https://github.com/hail2u/vim-css3-syntax.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-easy-align"]
+	path = config/nvim/pack/user/start/vim-easy-align
+	url = https://github.com/junegunn/vim-easy-align.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-blade"]
+	path = config/nvim/pack/user/start/vim-blade
+	url = https://github.com/jwalton512/vim-blade.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-altercmd"]
+	path = config/nvim/pack/user/start/vim-altercmd
+	url = https://github.com/kana/vim-altercmd.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-altr"]
+	path = config/nvim/pack/user/start/vim-altr
+	url = https://github.com/kana/vim-altr.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-arpeggio"]
+	path = config/nvim/pack/user/start/vim-arpeggio
+	url = https://github.com/kana/vim-arpeggio.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-exjumplist"]
+	path = config/nvim/pack/user/start/vim-exjumplist
+	url = https://github.com/kana/vim-exjumplist.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-grex"]
+	path = config/nvim/pack/user/start/vim-grex
+	url = https://github.com/kana/vim-grex.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-metarw-git"]
+	path = config/nvim/pack/user/start/vim-metarw-git
+	url = https://github.com/kana/vim-metarw-git.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-metarw"]
+	path = config/nvim/pack/user/start/vim-metarw
+	url = https://github.com/kana/vim-metarw.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-niceblock"]
+	path = config/nvim/pack/user/start/vim-niceblock
+	url = https://github.com/kana/vim-niceblock.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-operator-replace"]
+	path = config/nvim/pack/user/start/vim-operator-replace
+	url = https://github.com/kana/vim-operator-replace.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-operator-user"]
+	path = config/nvim/pack/user/start/vim-operator-user
+	url = https://github.com/kana/vim-operator-user.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-scratch"]
+	path = config/nvim/pack/user/start/vim-scratch
+	url = https://github.com/kana/vim-scratch.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-skeleton"]
+	path = config/nvim/pack/user/start/vim-skeleton
+	url = https://github.com/kana/vim-skeleton.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-smartinput"]
+	path = config/nvim/pack/user/start/vim-smartinput
+	url = https://github.com/kana/vim-smartinput.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-smartword"]
+	path = config/nvim/pack/user/start/vim-smartword
+	url = https://github.com/kana/vim-smartword.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-submode"]
+	path = config/nvim/pack/user/start/vim-submode
+	url = https://github.com/kana/vim-submode.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-textobj-entire"]
+	path = config/nvim/pack/user/start/vim-textobj-entire
+	url = https://github.com/kana/vim-textobj-entire.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-textobj-fold"]
+	path = config/nvim/pack/user/start/vim-textobj-fold
+	url = https://github.com/kana/vim-textobj-fold.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-textobj-indent"]
+	path = config/nvim/pack/user/start/vim-textobj-indent
+	url = https://github.com/kana/vim-textobj-indent.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-textobj-jabraces"]
+	path = config/nvim/pack/user/start/vim-textobj-jabraces
+	url = https://github.com/kana/vim-textobj-jabraces.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-textobj-lastpat"]
+	path = config/nvim/pack/user/start/vim-textobj-lastpat
+	url = https://github.com/kana/vim-textobj-lastpat.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-textobj-line"]
+	path = config/nvim/pack/user/start/vim-textobj-line
+	url = https://github.com/kana/vim-textobj-line.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-textobj-syntax"]
+	path = config/nvim/pack/user/start/vim-textobj-syntax
+	url = https://github.com/kana/vim-textobj-syntax.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-textobj-user"]
+	path = config/nvim/pack/user/start/vim-textobj-user
+	url = https://github.com/kana/vim-textobj-user.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/suda.vim"]
+	path = config/nvim/pack/user/start/suda.vim
+	url = https://github.com/lambdalisue/suda.vim.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/webapi-vim"]
+	path = config/nvim/pack/user/start/webapi-vim
+	url = https://github.com/mattn/webapi-vim.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/rust.vim"]
+	path = config/nvim/pack/user/start/rust.vim
+	url = https://github.com/rust-lang/rust.vim.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-qfreplace"]
+	path = config/nvim/pack/user/start/vim-qfreplace
+	url = https://github.com/thinca/vim-qfreplace.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-quickrun"]
+	path = config/nvim/pack/user/start/vim-quickrun
+	url = https://github.com/thinca/vim-quickrun.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/vim-ref"]
+	path = config/nvim/pack/user/start/vim-ref
+	url = https://github.com/thinca/vim-ref.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/operator-camelize.vim"]
+	path = config/nvim/pack/user/start/operator-camelize.vim
+	url = https://github.com/tyru/operator-camelize.vim.git
+	ignore = dirty
+[submodule "config/nvim/pack/user/start/kotlin-vim"]
+	path = config/nvim/pack/user/start/kotlin-vim
+	url = https://github.com/udalov/kotlin-vim.git
+	ignore = dirty
+[submodule "dotfiles/.zsh/zsh-syntax-highlighting"]
+	path = dotfiles/.zsh/zsh-syntax-highlighting
+	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
+[submodule "dotfiles/.zsh/zaw"]
+	path = dotfiles/.zsh/zaw
+	url = https://github.com/zsh-users/zaw.git
