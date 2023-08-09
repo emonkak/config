@@ -14,4 +14,4 @@ executable xmobar
   extra-libraries:    pulse
   C-sources:          cbits/pa-volume-monitor.c
   hs-source-dirs:     lib
-  default-language:   Haskell2010
+  default-language:   GHC2021
