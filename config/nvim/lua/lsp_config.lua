@@ -1,94 +1,81 @@
-if vim.fn.executable('rust-analyzer') == 1 then
-  vim.api.nvim_create_autocmd('FileType', {
-    group = 'MyAutoCmd',
-    pattern = 'rust',
-    callback = function(args)
-      if vim.api.nvim_buf_get_name(args.buf) == '' then
-        return
-      end
-      local root_dir = vim.fs.dirname(
-        vim.fs.find({ '.git', 'Cargo.toml' }, {
-          upward = true,
-          path = vim.fn.fnamemodify(args.file, ':p:h'),
-        })[1]
-      )
-      local client = vim.lsp.start({
-        name = 'rust-analyzer',
-        cmd = { 'rust-analyzer' },
-        root_dir = root_dir,
-        config = {
-          hover = {
-            memoryLayout = {
-              niches = true,
-            },
-          },
+local function find_root_dir(filename, patterns)
+  local files = vim.fs.find(patterns, {
+    upward = true,
+    path = vim.fn.fnamemodify(filename, ':p:h'),
+  })
+  return files[1] and vim.fs.dirname(files[1])
+end
+
+local servers = {
+  rust_analyzer = {
+    cmd = { 'rust-analyzer' },
+    filetypes = { 'rust' },
+    root_dir = function(filename)
+      return find_root_dir(filename, { '.git', 'Cargo.toml' })
+    end,
+    config = {
+      hover = {
+        memoryLayout = {
+          niches = true,
         },
-      })
-      vim.lsp.buf_attach_client(0, client)
+      },
+    },
+  },
+  hls = {
+    cmd = { 'haskell-language-server-wrapper', '--lsp' },
+    filetypes = { 'haskell', 'lhaskell' },
+    root_dir = function(filename)
+      return find_root_dir(filename, { '.git', 'Setup.hs', 'stack.yml' })
     end,
-  })
-end
-
-if vim.fn.executable('haskell-language-server-wrapper') == 1 then
-  vim.api.nvim_create_autocmd('FileType', {
-    group = 'MyAutoCmd',
-    pattern = 'haskell',
-    callback = function(args)
-      if vim.api.nvim_buf_get_name(args.buf) == '' then
-        return
-      end
-      local root_dir = vim.fs.dirname(
-        vim.fs.find({ '.git', 'Setup.hs', 'stack.yml' }, {
-          upward = true,
-          path = vim.fn.fnamemodify(args.file, ':p:h'),
-        })[1]
-      )
-      local client = vim.lsp.start({
-        name = 'haskell-language-server',
-        cmd = { 'haskell-language-server-wrapper', '--lsp', '--cwd', root_dir },
-        root_dir = root_dir,
-      })
-      vim.lsp.buf_attach_client(0, client)
-    end,
-  })
-end
-
-if vim.fn.executable('typescript-language-server') == 1 then
-  vim.api.nvim_create_autocmd('FileType', {
-    group = 'MyAutoCmd',
-    pattern = {
+  },
+  tls = {
+    cmd = { 'typescript-language-server', '--stdio' },
+    filetypes = {
       'javascript',
       'javascriptreact',
       'typescript',
       'typescriptreact',
     },
-    callback = function(args)
-      if vim.api.nvim_buf_get_name(args.buf) == '' then
-        return
-      end
-      local root_dir = vim.fs.dirname(
-        vim.fs.find({ '.git', 'package.json' }, {
-          upward = true,
-          path = vim.fn.fnamemodify(args.file, ':p:h'),
-        })[1]
-      )
-      local client = vim.lsp.start({
-        name = 'typescript-language-server',
-        cmd = { 'typescript-language-server', '--stdio' },
-        root_dir = root_dir,
-        config = {
-          preferences = {
-            disableSuggestions = true,
-          },
-        },
-      })
-      vim.lsp.buf_attach_client(0, client)
+    root_dir = function(filename)
+      return find_root_dir(filename, { '.git', 'package.json' })
     end,
-  })
+    config = {
+      preferences = {
+        disableSuggestions = true,
+      },
+    },
+  },
+}
+
+local lsp_config_augroup = vim.api.nvim_create_augroup('MyLspConfig', {})
+
+for name, server in pairs(servers) do
+  if vim.fn.executable(server.cmd[1]) == 1 then
+    vim.api.nvim_create_autocmd('FileType', {
+      group = lsp_config_augroup,
+      pattern = server.filetypes,
+      callback = function(args)
+        if vim.api.nvim_buf_get_name(args.buf) == '' then
+          return
+        end
+        local root_dir = server.root_dir(args.file)
+        if root_dir == nil then
+          return
+        end
+        local client = vim.lsp.start({
+          name = name,
+          cmd = server.cmd,
+          root_dir = root_dir,
+          config = server.config or {},
+        })
+        vim.lsp.buf_attach_client(args.buf, client)
+      end,
+    })
+  end
 end
 
 vim.api.nvim_create_autocmd('LspAttach', {
-  group = 'MyAutoCmd',
+  group = lsp_config_augroup,
   callback = function(args)
     local map = function(lhs, rhs)
       vim.keymap.set('n', lhs, rhs, { buffer = args.buf })
@@ -106,9 +93,13 @@ vim.api.nvim_create_autocmd('LspAttach', {
     map('<LocalLeader>r', vim.lsp.buf.references)
     map('<LocalLeader>t', vim.lsp.buf.type_definition)
 
-    vim.cmd('setlocal signcolumn=yes')
+    vim.api.nvim_set_option_value('signcolumn', 'yes', { buf = args.buf })
 
     local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+    if client.server_capabilities.documentSymbolProvider then
+      require('lsp_fold').setup(args.buf)
+    end
 
     if client.server_capabilities.completionProvider then
       vim.bo[args.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
@@ -118,8 +109,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
       vim.bo[args.buf].tagfunc = 'v:lua.vim.lsp.tagfunc'
     end
 
-    if vim.bo.filetype == 'rust'
-      or vim.bo.filetype == 'javascript' then
+    if client.server_capabilities.documentFormattingProvider then
       vim.api.nvim_create_autocmd('BufWritePre', {
         buffer = args.buf,
         callback = function(args)
@@ -153,24 +143,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
-vim.api.nvim_create_autocmd('LspDetach', {
-  callback = function(args)
-    vim.cmd('setlocal signcolumn<')
-  end,
-})
-
-local on_ColorScheme = function()
-  vim.api.nvim_set_hl(0, '@lsp.type.property', {})
-  vim.api.nvim_set_hl(0, '@lsp.type.variable', {})
-end
-
-vim.api.nvim_create_autocmd('ColorScheme', {
-  group = 'MyAutoCmd',
-  callback = on_ColorScheme,
-})
-
-on_ColorScheme()
-
 vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
   vim.lsp.handlers.hover,
   {
@@ -188,5 +160,17 @@ vim.diagnostic.config {
     spacing = 2,
   },
 }
+
+local on_ColorScheme = function()
+  vim.api.nvim_set_hl(0, '@lsp.type.property', {})
+  vim.api.nvim_set_hl(0, '@lsp.type.variable', {})
+end
+
+vim.api.nvim_create_autocmd('ColorScheme', {
+  group = lsp_config_augroup,
+  callback = on_ColorScheme,
+})
+
+on_ColorScheme()
 
 -- vim.lsp.set_log_level('debug')
