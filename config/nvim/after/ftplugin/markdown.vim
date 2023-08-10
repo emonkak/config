@@ -10,32 +10,35 @@ setlocal softtabstop=4
 
 function! MarkdownFold(lnum) abort
   let current = getline(a:lnum)
-  if current =~ '^#\{1,6}' && s:in_syntax(a:lnum, 'markdownHeading')
+  if current =~ '^#\{1,6}' && s:check_syntax(a:lnum, 1, 'markdownHeading')
     return '>1'
-  elseif current =~ '^>' && s:in_syntax(a:lnum, 'markdownBlockquote')
+  elseif current =~ '^>' && s:check_syntax(a:lnum, 1, 'markdownBlockquote')
     let prev = getline(a:lnum - 1)
+    let next = getline(a:lnum + 1)
+    if prev == '' && next == ''
+      return '='
+    endif
     if prev == ''
       return 'a1'
     endif
-    let next = getline(a:lnum + 1)
     if next == ''
       return 's1'
     endif
   elseif current =~ '^\(`\{3,}\|\~\{3,}\)'
     let prev = getline(a:lnum - 1)
-    if prev == '' && !s:in_syntax(a:lnum - 1, 'markdownFencedCode')
+    if prev == '' && !s:check_syntax(a:lnum - 1, 1, 'markdownFencedCode')
       return 'a1'
     endif
     let next = getline(a:lnum + 1)
-    if next == '' && !s:in_syntax(a:lnum + 1, 'markdownFencedCode')
+    if next == '' && !s:check_syntax(a:lnum + 1, 1, 'markdownFencedCode')
       return 's1'
     endif
   endif
   return '='
 endfunction
 
-function! s:in_syntax(lnum, syntax_name) abort
-  for syntax in synstack(a:lnum, 1)
+function! s:check_syntax(lnum, col, syntax_name) abort
+  for syntax in synstack(a:lnum, a:col)
     let name = synIDattr(syntax, 'name')
     if name ==# a:syntax_name
       return 1

@@ -1342,7 +1342,7 @@ nnoremap [Space]k\  :<C-u>call <SID>luis_start(luis#source#history#new('expr'))<
 nnoremap [Space]ka  :<C-u>call <SID>luis_start(luis#source#arglist#new())<CR>
 nnoremap [Space]kb  :<C-u>call <SID>luis_start(luis#source#buffer#new())<CR>
 nnoremap [Space]kc  :<C-u>call <SID>luis_start_with_path(luis#source#file#new(), expand('%:h'))<CR>
-nnoremap [Space]kd  :<C-u>call <SID>luis_start(luis#source#lsp_symbol#new())<CR>
+nnoremap [Space]kd  :<C-u>call <SID>luis_start(luis#source#lsp_document_symbol#new(bufnr('%')))<CR>
 nnoremap [Space]kf  :<C-u>call <SID>luis_start(luis#source#file#new())<CR>
 nnoremap [Space]kg  :<C-u>call <SID>luis_start(luis#source#metarw#new('git'))<CR>
 nnoremap [Space]kh  :<C-u>call <SID>luis_start(luis#source#help#import())<CR>

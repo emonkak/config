@@ -1,16 +1,10 @@
 local SymbolKind = vim.lsp.protocol.SymbolKind
 
-local SymbolKindStrings = {}
-
-for key, value in pairs(SymbolKind) do
-  SymbolKindStrings[value] = key
-end
-
 local fold_states = {}
 
 local function is_foldable_symbol(symbol)
   local range = symbol.range
-  if range.start.line == range['end'].line then
+  if range.start.line >= range['end'].line then
     return false
   end
 
@@ -30,17 +24,20 @@ end
 local function calculate_folds(symbols, folds, level)
   for _, symbol in ipairs(symbols) do
     if is_foldable_symbol(symbol) then
-      local start_lnum = symbol.range.start.line + 1
-      local end_lnum = symbol.range['end'].line + 1
       local fold = {
-        name = symbol.name,
-        kind = symbol.kind,
-        start = start_lnum,
-        ['end'] = end_lnum,
+        symbol = {
+          name = symbol.name,
+          detail = symbol.detail,
+          kind = symbol.kind,
+          tags = symbol.tags,
+          deprecated = symbol.deprecated,
+          range = symbol.range,
+          selectionRange = symbol.selectionRange,
+        },
         level = level,
       }
-      folds[start_lnum] = fold
-      folds[end_lnum] = fold
+      folds[symbol.range.start.line + 1] = fold
+      folds[symbol.range['end'].line + 1] = fold
       if symbol.children ~= nil then
         calculate_folds(symbol.children, folds, level + 1)
       end
@@ -117,7 +114,7 @@ function M.foldexpr(lnum)
   local fold = fold_state.folds[lnum]
   if fold == nil then
     return '='
-  elseif fold.start == lnum then
+  elseif fold.symbol.range.start.line + 1 == lnum then
     return '>' .. fold.level
   else
     return '<' .. fold.level
@@ -137,9 +134,9 @@ function M.foldtext(fold_start, fold_end, fold_dashes)
   return string.format(
     '+%s %2d lines: %s [%s]',
     fold_dashes,
-    fold['end'] - fold.start,
-    fold.name,
-    SymbolKindStrings[fold.kind] or 'Unknown'
+    fold.symbol.range['end'].line - fold.symbol.range.start.line,
+    fold.symbol.name,
+    SymbolKind[fold.symbol.kind] or 'Unknown'
   )
 end
 

@@ -28,8 +28,8 @@ function! PHPFold(lnum) abort
   let current = getline(a:lnum)
 
   if current =~# '^\s*\('
-             \ . '\(\(final\|private\|protected\|public\|static\)\s\)*function'
-             \ . '\|\(\(abstract\|final\)\s\)*class'
+             \ . '\(\(final\|private\|protected\|public\|static\)\s\+\)*function'
+             \ . '\|\(\(abstract\|final\)\s\+\)*class'
              \ . '\|interface'
              \ . '\|namespace'
              \ . '\|trait'

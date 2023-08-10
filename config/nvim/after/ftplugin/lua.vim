@@ -7,7 +7,7 @@ setlocal softtabstop=2
 function! LuaFold(lnum) abort
   let current = getline(a:lnum)
 
-  if current =~# '^\%(local\s\+\)\?function\>' && current !~# 'end\s*$'
+  if current =~# '^\%(local\s\+\)\?function\>' && current !~# '\<end\s*$'
     return '>1'
   elseif current =~# '^end\s*$'
     return '<1'
