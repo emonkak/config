@@ -158,10 +158,6 @@
 	path = config/nvim/pack/user/start/webapi-vim
 	url = https://github.com/mattn/webapi-vim.git
 	ignore = dirty
-[submodule "config/nvim/pack/user/start/rust.vim"]
-	path = config/nvim/pack/user/start/rust.vim
-	url = https://github.com/rust-lang/rust.vim.git
-	ignore = dirty
 [submodule "config/nvim/pack/user/start/vim-qfreplace"]
 	path = config/nvim/pack/user/start/vim-qfreplace
 	url = https://github.com/thinca/vim-qfreplace.git
