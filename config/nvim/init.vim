@@ -205,10 +205,6 @@ packloadall
 call altercmd#load()
 call arpeggio#load()
 
-if has('nvim')
-  lua require('lsp_config')
-endif
-
 " Utilities  "{{{1
 function! s:complete_cdpath(arglead, cmdline, cursorpos) abort  "{{{2
   return map(globpath(substitute(&cdpath, '^,', '', ''),
