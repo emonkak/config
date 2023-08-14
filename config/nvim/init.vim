@@ -200,7 +200,8 @@ augroup END
 let g:mapleader = ','
 let g:maplocalleader = '.'
 
-packloadall
+packadd vim-altercmd
+packadd vim-arpeggio
 
 call altercmd#load()
 call arpeggio#load()
