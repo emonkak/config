@@ -110,10 +110,11 @@ syntax region markdownUrlTitle
 \ contained
 
 syntax region markdownHtmlTag
-\ start='</\?'
+\ start='</\?\s*[A-Za-z]'
 \ end='\s*>'
 \ contains=markdownHtmlTagName
 \ keepend
+\ oneline
 syntax match markdownHtmlTagName
 \ '<\s*[A-Za-z][\-0-9A-Za-z]*'hs=s+1
 \ contained
