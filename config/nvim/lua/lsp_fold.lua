@@ -4,41 +4,26 @@ local fold_states = {}
 
 local function is_foldable_symbol(symbol)
   local range = symbol.range
-  if range.start.line >= range['end'].line then
+  local line_count = range['end'].line - range.start.line
+  if line_count < vim.wo.foldminlines then
     return false
   end
-
-  local kind = symbol.kind
-  if kind == SymbolKind.Property
-    or kind == SymbolKind.Field
-    or kind == SymbolKind.Variable
-    or kind == SymbolKind.Constant
-    or kind == SymbolKind.EnumMember
-  then
-    return false
-  end
-
   return true
 end
 
 local function calculate_folds(symbols, folds, level)
+  if level > vim.wo.foldnestmax then
+    return
+  end
   for _, symbol in ipairs(symbols) do
     if is_foldable_symbol(symbol) then
       local fold = {
-        symbol = {
-          name = symbol.name,
-          detail = symbol.detail,
-          kind = symbol.kind,
-          tags = symbol.tags,
-          deprecated = symbol.deprecated,
-          range = symbol.range,
-          selectionRange = symbol.selectionRange,
-        },
+        symbol = symbol,
         level = level,
       }
       folds[symbol.range.start.line + 1] = fold
       folds[symbol.range['end'].line + 1] = fold
-      if symbol.children ~= nil then
+      if symbol.children then
         calculate_folds(symbol.children, folds, level + 1)
       end
     end
@@ -49,24 +34,28 @@ local function sync_folds(bufnr)
   vim.api.nvim_set_option_value('foldmethod', 'expr', { buf = bufnr })
 end
 
-local function update_folds(bufnr, changedtick, fold_state)
+local function update_folds(bufnr, fold_state)
   local params = {
-    textDocument = vim.lsp.util.make_text_document_params(bufnr)
+    textDocument = vim.lsp.util.make_text_document_params(bufnr),
   }
   local callback = function(responses)
-    if responses ~= nil and fold_state.changedtick < changedtick then
+    local version = vim.lsp.util.buf_versions[bufnr]
+    if responses and fold_state.request_version >= version then
       local folds = {}
-      for _, response in ipairs(responses) do
-        if response.result ~= nil then
+      for _, response in pairs(responses) do
+        if response.result then
           calculate_folds(response.result, folds, 1)
         end
       end
-      fold_state.changedtick = changedtick
+      fold_state.cancel_request = nil
       fold_state.folds = folds
       sync_folds()
     end
   end
-  vim.lsp.buf_request_all(
+  if fold_state.cancel_request then
+    fold_state.cancel_request()
+  end
+  fold_state.cancel_request = vim.lsp.buf_request_all(
     bufnr,
     'textDocument/documentSymbol',
     params,
@@ -77,15 +66,25 @@ end
 local M = {}
 
 function M.setup(bufnr)
-  local fold_state = { folds = {}, changedtick = -1 }
+  local fold_state = {
+    folds = {},
+    request_version = vim.api.nvim_buf_get_changedtick(bufnr),
+  }
   fold_states[bufnr] = fold_state
 
   vim.api.nvim_buf_attach(bufnr, false, {
     on_lines = function(event, bufnr, changedtick)
-      update_folds(bufnr, changedtick, fold_state)
+      fold_state.request_version = changedtick
+      update_folds(bufnr, fold_state)
     end,
     on_detach = function(event, bufnr)
-      fold_states[bufnr] = nil
+      local fold_state = fold_states[bufnr]
+      if fold_state then
+        if fold_state.cancel_request then
+          fold_state.cancel_request()
+        end
+        fold_states[bufnr] = nil
+      end
     end,
   })
 
@@ -101,15 +100,14 @@ function M.setup(bufnr)
     { buf = bufnr }
   )
 
-  local changedtick = vim.api.nvim_buf_get_changedtick(bufnr)
-  update_folds(bufnr, changedtick, fold_state)
+  update_folds(bufnr, fold_state)
 end
 
 function M.foldexpr(lnum)
   local bufnr = vim.api.nvim_get_current_buf()
   local fold_state = fold_states[bufnr]
   if fold_state == nil then
-    return '='
+    return -1
   end
   local fold = fold_state.folds[lnum]
   if fold == nil then
