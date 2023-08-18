@@ -5,7 +5,7 @@ endif
 syntax sync minlines=100
 
 syntax cluster markdownInline
-\ contains=markdownHtmlTag,markdownReferenceLabel,markdownFootnote,markdownInlineMath,markdownInlineCode,markdownDelete,markdownStrong,markdownEmphasis,markdownTaskListItem,markdownAmpersand,markdownEscape
+\ contains=markdownHtmlTag,markdownReference,markdownFootnote,markdownInlineMath,markdownInlineCode,markdownDelete,markdownStrong,markdownEmphasis,markdownTaskListItem,markdownAmpersand,markdownEscape
 
 syntax match markdownEscape
 \ '\\[!#$()*+\-.\[\\\]_`{}~]'
@@ -61,10 +61,12 @@ syntax region markdownFootnote
 \ skip='\\]'
 \ oneline
 
-syntax region markdownReferenceLabel
+syntax region markdownReference
+\ matchgroup=markdownReferenceParentheses
 \ start='!\?\[\S\@='
-\ end='\]'
+\ end='\S\@<=\]'
 \ skip='\\]'
+\ keepend
 \ oneline
 \ contains=@markdownInline
 \ nextgroup=markdownReferenceIdentifier,markdownReferenceUrl
@@ -73,6 +75,7 @@ syntax region markdownReferenceIdentifier
 \ start='\['
 \ end='\]'
 \ skip='\\]'
+\ keepend
 \ oneline
 \ contains=NONE
 \ contained
@@ -80,8 +83,8 @@ syntax region markdownReferenceUrl
 \ start='('
 \ end=')'
 \ skip='\\)'
-\ oneline
 \ keepend
+\ oneline
 \ contains=markdownUrl
 \ contained
 
@@ -112,9 +115,9 @@ syntax region markdownUrlTitle
 syntax region markdownHtmlTag
 \ start='</\?\s*[A-Za-z]'
 \ end='\s*>'
-\ contains=markdownHtmlTagName
 \ keepend
 \ oneline
+\ contains=markdownHtmlTagName
 syntax match markdownHtmlTagName
 \ '<\s*[A-Za-z][\-0-9A-Za-z]*'hs=s+1
 \ contained
@@ -167,6 +170,7 @@ syntax region markdownHeading
 \ matchgroup=markdownHeadingDelimiter
 \ start=' \{0,3}\z(#\{1,6}\)'
 \ end='\%(\s\+\z1\)\?\s*$'
+\ keepend
 \ oneline
 \ contains=@markdownInline
 \ contained
@@ -188,6 +192,7 @@ syntax region markdownListItem
 \ matchgroup=markdownListItemMarker
 \ start=' \{0,3}[*+-]\s\+'
 \ end='$'
+\ keepend
 \ oneline
 \ contains=@markdownInline
 \ contained
@@ -198,6 +203,7 @@ syntax region markdownListItem
 \ matchgroup=markdownListItemMarker
 \ start=' \{0,3}[0-9]\+\.\s\+'
 \ end='$'
+\ keepend
 \ oneline
 \ contains=@markdownInline
 \ contained
@@ -291,8 +297,9 @@ highlight default link markdownInlineMath String
 highlight default link markdownListItemMarker Statement
 highlight default link markdownMath Comment
 highlight default link markdownMathDelimiter Delimiter
+highlight default link markdownReference Define
 highlight default link markdownReferenceIdentifier Typedef
-highlight default link markdownReferenceLabel Define
+highlight default link markdownReferenceParentheses Define
 highlight default link markdownReferenceUrl String
 highlight default link markdownStrong markdownBold
 highlight default link markdownTaskListItem Special
