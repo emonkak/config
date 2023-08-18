@@ -22,8 +22,8 @@ syntax region markdownEmphasis
 \ skip='\\\*'
 \ oneline
 syntax region markdownEmphasis
-\ start='_\S\@='
-\ end='\S\@<=_'
+\ start='\<_\S\@='
+\ end='\S\@<=_\>'
 \ skip='\\_'
 \ oneline
 
@@ -33,8 +33,8 @@ syntax region markdownStrong
 \ skip='\\\*'
 \ oneline
 syntax region markdownStrong
-\ start='_\{2}\S\@='
-\ end='\S\@<=_\{2}'
+\ start='\<_\{2}\S\@='
+\ end='\S\@<=_\{2}\>'
 \ skip='\\_'
 \ oneline
 
