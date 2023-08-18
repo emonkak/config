@@ -300,7 +300,7 @@ highlight default link markdownMathDelimiter Delimiter
 highlight default link markdownReference Define
 highlight default link markdownReferenceIdentifier Typedef
 highlight default link markdownReferenceParentheses Define
-highlight default link markdownReferenceUrl String
+highlight default link markdownReferenceUrl Identifier
 highlight default link markdownStrong markdownBold
 highlight default link markdownTaskListItem Special
 highlight default link markdownThematicBreak Delimiter
