@@ -389,10 +389,11 @@ command! -nargs=+ -complete=command CopyCommand
 " FoldDump  {{{2
 
 command! -range=% FoldDump
-\ <line1>,<line2>global/^/echo  printf("%*d [%2s] %s",
+\ <line1>,<line2>global/^/echo
+\ printf("%*d [%2s] %s",
 \   len(line('$')),
 \   line('.'),
-\   s:sandbox_eval(substitute(&l:foldexpr, '\<v:lnum\>', line('.'), '')),
+\   eval(substitute(&l:foldexpr, '\<v:lnum\>', line('.'), '')),
 \   getline('.')
 \ ) | nohlsearch
 
