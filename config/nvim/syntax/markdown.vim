@@ -304,7 +304,7 @@ highlight default link markdownReferenceUrl String
 highlight default link markdownStrong markdownBold
 highlight default link markdownTaskListItem Special
 highlight default link markdownThematicBreak Delimiter
-highlight default link markdownUrl String
+highlight default link markdownUrl Identifier
 highlight default link markdownUrlTitle String
 
 highlight default markdownBold term=bold cterm=bold gui=bold
