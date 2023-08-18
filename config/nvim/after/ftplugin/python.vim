@@ -21,7 +21,7 @@ function! PythonFold(lnum) abort
       let next_indent = indent(next_lnum)
       if current_indent > next_indent
         let level = next_indent / shiftwidth() + 1
-          return '<' . level
+        return '<' . level
       endif
     endif
   endif

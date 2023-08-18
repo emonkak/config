@@ -4,6 +4,7 @@ endif
 
 setlocal foldmethod=expr
 setlocal foldexpr=RustFold(v:lnum)
+setlocal foldnestmax=3
 
 if !exists('b:current_compiler')
   compiler cargo
@@ -19,12 +20,12 @@ function! RustFold(lnum)
   \            . '\)'
   \  && current !~# '[;}]\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    if level <= 3
+    if level <= &l:foldnestmax
       return '>' . level
     endif
   elseif current =~# '^\s*}\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    if level <= 3
+    if level <= &l:foldnestmax
       return '<' . level
     endif
   endif
@@ -38,4 +39,4 @@ else
   let b:undo_ftplugin = ''
 endif
 
-let b:undo_ftplugin .= 'setlocal foldexpr< foldmethod<'
+let b:undo_ftplugin .= 'setlocal foldexpr< foldmethod< foldnestmax<'

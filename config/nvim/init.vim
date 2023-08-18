@@ -116,7 +116,7 @@ set list
 let &listchars = "tab:>\u2500,trail:\u2500,extends:>,precedes:<,conceal:|,nbsp:+"
 set mouse=
 set nrformats-=octal
-set pumheight=12
+set pumheight=16
 set scrolloff=5
 if exists('+shellslash')
   set shellslash
@@ -200,8 +200,11 @@ augroup END
 let g:mapleader = ','
 let g:maplocalleader = '.'
 
-packadd vim-altercmd
-packadd vim-arpeggio
+if !has('nvim')
+  " Load all packages explicitly, because Vim does not load sources from the
+  " "plugin" directory in packages.
+  packloadall
+endif
 
 call altercmd#load()
 call arpeggio#load()
@@ -236,6 +239,11 @@ function! s:readdir(dir) abort  "{{{2
     call filter(paths, 'v:val !~# "^\\.\\{1,2}$"')
     return paths
   endif
+endfunction
+
+function! s:sandbox_eval(expr) abort  "{{{2
+  sandbox let result = eval(a:expr)
+  return result
 endfunction
 
 function! s:trim(text) abort  "{{{2
@@ -384,7 +392,7 @@ command! -range=% FoldDump
 \ <line1>,<line2>global/^/echo  printf("%*d [%2s] %s",
 \   len(line('$')),
 \   line('.'),
-\   eval(substitute(&l:foldexpr, '\<v:lnum\>', line('.'), '')),
+\   s:sandbox_eval(substitute(&l:foldexpr, '\<v:lnum\>', line('.'), '')),
 \   getline('.')
 \ ) | nohlsearch
 
@@ -412,17 +420,17 @@ command! -nargs=? -range PPJson
 \   if <q-args> != ''
 \ |   echo s:pretty_print(json_decode(s:trim(<q-args>)), 0, 2, function('json_encode'))
 \ | else
-\ |   call s:prettify_selection(visualmode(), function('json_decode'), function('json_encode'))
+\ |   call s:prettify(visualmode(), function('json_decode'), function('json_encode'))
 \ | endif
 
 command! -nargs=? -range PPVim
 \   if <q-args> != ''
-\ |   echo s:pretty_print(eval(s:trim(<q-args>)), 0, 2, function('string'))
+\ |   echo s:pretty_print(s:sandbox_eval(s:trim(<q-args>)), 0, 2, function('string'))
 \ | else
-\ |   call s:prettify_selection(visualmode(), function('eval'), function('string'))
+\ |   call s:prettify(visualmode(), function('s:sandbox_eval'), function('string'))
 \ | endif
 
-function! s:prettify_selection(visual_command, Decode, Encode) abort
+function! s:prettify(visual_command, Decode, Encode) abort
   let reg_value = getreg('"')
   let reg_type = getregtype('"')
   try
@@ -486,11 +494,11 @@ command! -nargs=1 -range -complete=customlist,s:complete_server_name
 \ call system(['ssh', <q-args>, 'pbcopy'], getline(<line1>, <line2>))
 
 function! s:complete_server_name(arglead, cmdline, cursorpos) abort
-  let known_hosts_path = expand('$HOME/.ssh/known_hosts')
-  if !filereadable(known_hosts_path)
+  let path = expand('$HOME/.ssh/known_hosts')
+  if !filereadable(path)
     return []
   endif
-  let server_names = readfile(known_hosts_path, '')
+  let server_names = readfile(path, '')
   call map(server_names, { _, line -> matchstr(line, '^\S\+') })
   call sort(server_names)
   call uniq(server_names)
@@ -848,17 +856,17 @@ inoremap <C-u>  <C-g>u<C-u>
 " Do complete or indent.
 inoremap <expr> <Tab>  pumvisible()
                      \ ? "\<C-n>"
-                     \ : <SID>should_indent_rather_than_complete()
-                     \ ? "\<C-i>"
-                     \ : <SID>keys_to_complete()
+                     \ : <SID>should_complete_rather_than_indent()
+                     \ ? <SID>keys_to_complete()
+                     \ : "\<C-i>"
 inoremap <expr> <S-Tab>  pumvisible()
                        \ ? "\<C-p>"
-                       \ : <SID>should_indent_rather_than_complete()
-                       \ ? "\<C-i>"
-                       \ : <SID>keys_to_complete()
+                       \ : <SID>should_complete_rather_than_indent()
+                       \ ? <SID>keys_to_complete()
+                       \ : "\<C-i>"
 
-function! s:should_indent_rather_than_complete() abort
-  return getline('.')[col('.') - 2:] !~ '^\S'
+function! s:should_complete_rather_than_indent() abort
+  return search('\k\>\%#', 'Wbn') > 0
 endfunction
 
 function! s:keys_to_complete() abort
@@ -1074,6 +1082,29 @@ vnoremap gc  :<C-u>normal! gc<CR>
 onoremap <silent> gv  :<C-u>normal! gv<CR>
 
 " Operators  {{{2
+" operator-eval  {{{3
+
+call operator#user#define('eval',
+\                         s:SID_PREFIX . 'operator_eval')
+
+function! s:operator_eval(motion_wiseness) abort
+  let reg_value = getreg('"')
+  let reg_type = getregtype('0')
+  try
+    let visual_command =
+    \   operator#user#visual_command_from_wise_name(a:motion_wiseness)
+    execute 'normal!' ('`[' . visual_command . '`]""y')
+    sandbox let result = join(map(split(@", "\n"), "s:sandbox_eval(s:trim(v:val))"), "\n")
+    call setreg('"', result, visual_command)
+    execute 'normal!' ('`[' . visual_command . '`]""p')
+  finally
+    call setreg('"', reg_value, reg_type)
+  endtry
+endfunction
+
+map g=  <Plug>(operator-eval)
+nmap g==  <Plug>(operator-eval)<Plug>(operator-eval)
+
 " operator-increment/decrement  {{{3
 
 call operator#user#define('increment',
@@ -1095,6 +1126,26 @@ endfunction
 
 map g<C-a>  <Plug>(operator-increment)
 map g<C-x>  <Plug>(operator-decrement)
+
+" operator-multiply  {{{3
+
+call operator#user#define('multiply',
+\                         s:SID_PREFIX . 'operator_multiply')
+
+function! s:operator_multiply(motion_wiseness) abort
+  let reg_value = getreg('"')
+  let reg_type = getregtype('0')
+  try
+    let visual_command =
+    \   operator#user#visual_command_from_wise_name(a:motion_wiseness)
+    execute 'normal!' ('`[' . visual_command . '`]""yP')
+  finally
+    call setreg('"', reg_value, reg_type)
+  endtry
+endfunction
+
+map gm  <Plug>(operator-multiply)
+nmap gmm  <Plug>(operator-multiply)<Plug>(operator-multiply)
 
 " operator-search-forward/backward  {{{3
 
@@ -1354,7 +1405,7 @@ nnoremap [Space]kq  :<C-u>call <SID>luis_start(luis#source#quickfix#new())<CR>
 nnoremap [Space]kr  :<C-u>call <SID>luis_start(luis#source#register#new())<CR>
 nnoremap [Space]ks  :<C-u>call <SID>luis_start(luis#source#spell#import())<CR>
 nnoremap [Space]kt  :<C-u>call <SID>luis_start_async_tags()<CR>
-nnoremap [Space]kw  :<C-u>call <SID>luis_start(luis#source#project#new(expand('~/Sync/works')))<CR>
+nnoremap [Space]kw  :<C-u>call <SID>luis_start_project(expand('~/Sync/works'))<CR>
 nnoremap [Space]kz  :<C-u>call <SID>luis_start(luis#source#fold#new(win_getid()))<CR>
 
 function! s:luis_resume() abort  " {{{3
@@ -1441,6 +1492,12 @@ function! s:luis_start_file_in_path(path) abort  " {{{3
   call s:luis_start(source, { 'hook': hook })
 endfunction
 
+function! s:luis_start_project(path) abort  " {{{3
+  let Callback = function('s:luis_start_async_files')
+  let source = luis#source#project#new(a:path, Callback)
+  call s:luis_start(source)
+endfunction
+
 function! s:luis_start_with_path(source, path) abort  " {{{3
   let initial_pattern = a:path != '' && a:path != '.'
   \                   ? a:path . '/'
@@ -1474,8 +1531,8 @@ endfunction
 
 " operator-camelize  {{{2
 
-map <Leader>c  <Plug>(operator-camelize)
-map <Leader>C  <Plug>(operator-decamelize)
+map gc  <Plug>(operator-camelize)
+map gC  <Plug>(operator-decamelize)
 
 " operator-comment  {{{2
 
@@ -1488,15 +1545,10 @@ Arpeggio map or  <Plug>(operator-replace)
 
 " operator-sort  {{{2
 
-nmap [Space]s  <Plug>(operator-sort)
-vmap [Space]s  <Plug>(operator-sort)
-nmap [Space]S  <Plug>(operator-sort)$
-vmap [Space]S  <Plug>(operator-sort)$
-
-nmap [Space]n  <Plug>(operator-sort-numeric)
-vmap [Space]n  <Plug>(operator-sort-numeric)
-nmap [Space]N  <Plug>(operator-sort-numeric)$
-vmap [Space]N  <Plug>(operator-sort-numeric)$
+nmap gs  <Plug>(operator-sort-numeric)
+vmap gs  <Plug>(operator-sort-numeric)
+nmap gS  <Plug>(operator-sort-numeric)$
+vmap gS  <Plug>(operator-sort-numeric)$
 
 " quickrun  {{{2
 
@@ -1625,7 +1677,7 @@ let g:ref_phpmanual_path = '/usr/share/php-docs/en/php-chunked-xhtml'
 
 " scratch  {{{2
 
-nmap <Leader>s  <Plug>(scratch-open)
+nmap [Space]s  <Plug>(scratch-open)
 
 autocmd MyAutoCmd User PluginScratchInitializeAfter
 \ call s:on_User_plugin_scratch_initialize_after()

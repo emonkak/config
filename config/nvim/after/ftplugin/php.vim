@@ -6,6 +6,7 @@ setlocal commentstring=//%s
 setlocal expandtab
 setlocal foldexpr=PHPFold(v:lnum)
 setlocal foldmethod=expr
+setlocal foldnestmax=2
 setlocal iskeyword+=$
 setlocal omnifunc=
 setlocal shiftwidth=4
@@ -36,12 +37,12 @@ function! PHPFold(lnum) abort
              \ . '\)\>'
   \ && current !~# ';\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    if level <= 2
+    if level <= &l:foldnestmax
       return '>' . level
     endif
   elseif current =~# '^\s*}\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    if level <= 2
+    if level <= &l:foldnestmax
       return '<' . level
     endif
   endif
@@ -163,6 +164,7 @@ let b:undo_ftplugin .= 'setlocal'
 \                    . ' expandtab<'
 \                    . ' foldexpr<'
 \                    . ' foldmethod<'
+\                    . ' foldnestmax<'
 \                    . ' iskeyword<'
 \                    . ' shiftwidth<'
 \                    . ' softtabstop<'

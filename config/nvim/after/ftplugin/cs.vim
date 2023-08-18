@@ -6,6 +6,7 @@ setlocal commentstring=//%s
 setlocal expandtab
 setlocal foldexpr=CsFold(v:lnum)
 setlocal foldmethod=expr
+setlocal foldnestmax=3
 setlocal shiftwidth=4
 setlocal softtabstop=4
 setlocal textwidth=100
@@ -21,12 +22,14 @@ function! CsFold(lnum) abort
   \            . '\)\>'
   \ && current !~# '[;}]\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    if level <= 2
+    if level <= &l:foldnestmax
       return '>' . level
     endif
   elseif current =~# '^\s*}\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    return '<' . level
+    if level <= &l:foldnestmax
+      return '<' . level
+    endif
   endif
 
   return '='
@@ -43,6 +46,7 @@ let b:undo_ftplugin .= 'setlocal'
 \                    . ' expandtab<'
 \                    . ' foldexpr<'
 \                    . ' foldmethod<'
+\                    . ' foldnestmax<'
 \                    . ' shiftwidth<'
 \                    . ' softtabstop<'
 \                    . ' textwidth<'

@@ -5,6 +5,7 @@ endif
 setlocal expandtab
 setlocal foldexpr=GoFold(v:lnum)
 setlocal foldmethod=expr
+setlocal foldnestmax=3
 setlocal shiftwidth=4
 setlocal softtabstop=4
 
@@ -14,12 +15,12 @@ function! GoFold(lnum) abort
   if current =~# '^\s*\%(func\|type\s\+\h\w*\s\+\%(struct\|interface\)\)\>'
   \ && current !~# '\s*;\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    if level <= 2
+    if level <= &l:foldnestmax
       return '>' . level
     endif
   elseif current =~# '\s*}\s*$'
     let level = indent(a:lnum) / shiftwidth() + 1
-    if level <= 2
+    if level <= &l:foldnestmax
       return '<' . level
     endif
   endif
@@ -37,5 +38,6 @@ let b:undo_ftplugin .= 'setlocal'
 \                    . ' expandtab<'
 \                    . ' foldexpr<'
 \                    . ' foldmethod<'
+\                    . ' foldnestmax<'
 \                    . ' shiftwidth<'
 \                    . ' softtabstop<'

@@ -1,6 +1,7 @@
-function! luis#source#project#new(directory) abort
+function! luis#source#project#new(path, callback) abort
   let source = copy(s:Source)
-  let source.directory = a:directory
+  let source.path = a:path
+  let source.callback = a:callback
   let source.cached_candidates = []
   return source
 endfunction
@@ -10,11 +11,10 @@ function! s:action_open(candidate, context) abort
     return 'No project chosen'
   endif
   let path = a:candidate.user_data.project_path
+  let Callback = a:context.session.source.callback
   try
     tcd `=path`
-    let source = luis#source#file#new()
-    let session = luis#new_session(source)
-    call luis#start(session)
+    call Callback()
   catch
     return v:exception
   endtry
@@ -39,7 +39,7 @@ endfunction
 
 function! s:Source.on_source_enter(context) abort dict
   let candidates = []
-  for path in globpath(self.directory, '*/', 1, 1)
+  for path in globpath(self.path, '*/', 1, 1)
     let path = path[-1:] == '/' ? path[:-2] : path
     call add(candidates, {
     \   'word': fnamemodify(path, ':t'),
