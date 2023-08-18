@@ -162,7 +162,6 @@ vim.diagnostic.config {
 }
 
 local on_ColorScheme = function()
-  vim.api.nvim_set_hl(0, '@lsp.type.property', {})
   vim.api.nvim_set_hl(0, '@lsp.type.variable', {})
 end
 
