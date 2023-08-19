@@ -8,6 +8,15 @@ local function is_foldable_symbol(symbol)
   if line_count < vim.wo.foldminlines then
     return false
   end
+  local kind = symbol.kind
+  if kind == SymbolKind.Property
+    or kind == SymbolKind.Field
+    or kind == SymbolKind.Variable
+    or kind == SymbolKind.Constant
+    or kind == SymbolKind.EnumMember
+  then
+    return false
+  end
   return true
 end
 
@@ -17,15 +26,20 @@ local function calculate_folds(symbols, folds, level)
   end
   for _, symbol in ipairs(symbols) do
     if is_foldable_symbol(symbol) then
-      local fold = {
-        symbol = symbol,
-        level = level,
-      }
-      folds[symbol.range.start.line + 1] = fold
-      folds[symbol.range['end'].line + 1] = fold
-      if symbol.children then
-        calculate_folds(symbol.children, folds, level + 1)
+      local fold = { symbol = symbol, level = level }
+      local start_line = symbol.range.start.line + 1
+      local end_line = symbol.range['end'].line + 1
+      local next_level
+      if folds[start_line] == nil then
+        folds[start_line] = fold
+        next_level = level + 1
+      else
+        next_level = level
       end
+      if symbol.children then
+        calculate_folds(symbol.children, folds, next_level)
+      end
+      folds[end_line] = fold
     end
   end
 end
