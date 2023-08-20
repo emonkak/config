@@ -78,6 +78,11 @@ end
 
 local function sync_folds(bufnr)
   vim.api.nvim_set_option_value('foldmethod', 'expr', { buf = bufnr })
+  if vim.api.nvim_win_get_buf(0) == bufnr then
+    -- When folds are updated, a fold of the cursor position may be closed.
+    -- I will reopen it.
+    vim.cmd('foldopen!')
+  end
 end
 
 local function update_folds(bufnr, fold_state)
