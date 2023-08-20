@@ -44,6 +44,38 @@ local function calculate_folds(symbols, folds, level)
   end
 end
 
+local function set_fold_options(bufnr)
+  vim.api.nvim_set_option_value('foldmethod', 'expr', { buf = bufnr })
+  vim.api.nvim_set_option_value(
+    'foldexpr',
+    'v:lua.require("lsp_fold").foldexpr(v:lnum)',
+    { buf = bufnr }
+  )
+  vim.api.nvim_set_option_value(
+    'foldtext',
+    'v:lua.require("lsp_fold").foldtext(v:foldstart, v:foldend, v:folddashes)',
+    { buf = bufnr }
+  )
+end
+
+local function restore_fold_options(bufnr, fold_state)
+  vim.api.nvim_set_option_value(
+    'foldmethod',
+    fold_state.original_foldmethod,
+    { buf = bufnr }
+  )
+  vim.api.nvim_set_option_value(
+    'foldexpr',
+    fold_state.original_foldexpr,
+    { buf = bufnr }
+  )
+  vim.api.nvim_set_option_value(
+    'foldtext',
+    fold_state.original_foldtext,
+    { buf = bufnr }
+  )
+end
+
 local function sync_folds(bufnr)
   vim.api.nvim_set_option_value('foldmethod', 'expr', { buf = bufnr })
 end
@@ -83,6 +115,15 @@ function M.setup(bufnr)
   local fold_state = {
     folds = {},
     request_version = vim.api.nvim_buf_get_changedtick(bufnr),
+    original_foldmethod = vim.api.nvim_get_option_value('foldmethod', {
+      buf = bufnr,
+    }),
+    original_foldexpr = vim.api.nvim_get_option_value('foldexpr', {
+      buf = bufnr,
+    }),
+    original_foldtext = vim.api.nvim_get_option_value('foldtext', {
+      buf = bufnr,
+    }),
   }
   fold_states[bufnr] = fold_state
 
@@ -97,23 +138,15 @@ function M.setup(bufnr)
         if fold_state.cancel_request then
           fold_state.cancel_request()
         end
+        if vim.api.nvim_buf_is_loaded(bufnr) then
+          restore_fold_options(bufnr, fold_state)
+        end
         fold_states[bufnr] = nil
       end
     end,
   })
 
-  vim.api.nvim_set_option_value('foldmethod', 'expr', { buf = bufnr })
-  vim.api.nvim_set_option_value(
-    'foldexpr',
-    'v:lua.require("lsp_fold").foldexpr(v:lnum)',
-    { buf = bufnr }
-  )
-  vim.api.nvim_set_option_value(
-    'foldtext',
-    'v:lua.require("lsp_fold").foldtext(v:foldstart, v:foldend, v:folddashes)',
-    { buf = bufnr }
-  )
-
+  set_fold_options(bufnr)
   update_folds(bufnr, fold_state)
 end
 
