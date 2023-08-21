@@ -2,8 +2,8 @@ if expand('<sfile>:t:r') !=# &filetype
   finish
 endif
 
-setlocal foldmethod=expr
 setlocal foldexpr=RustFold(v:lnum)
+setlocal foldmethod=expr
 setlocal foldnestmax=3
 
 if !exists('b:current_compiler')
@@ -39,4 +39,7 @@ else
   let b:undo_ftplugin = ''
 endif
 
-let b:undo_ftplugin .= 'setlocal foldexpr< foldmethod< foldnestmax<'
+let b:undo_ftplugin .= 'setlocal'
+\                    . ' foldexpr<'
+\                    . ' foldmethod<'
+\                    . ' foldnestmax<'

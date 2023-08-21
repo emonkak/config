@@ -53,4 +53,10 @@ else
   let b:undo_ftplugin = ''
 endif
 
-let b:undo_ftplugin .= 'setlocal expandtab< foldexpr< foldmethod< shiftwidth< softtabstop<'
+let b:undo_ftplugin .= 'setlocal'
+\                    . ' expandtab<'
+\                    . ' foldexpr<'
+\                    . ' foldmethod<'
+\                    . ' foldnestmax<'
+\                    . ' shiftwidth<'
+\                    . ' softtabstop<'

@@ -36,4 +36,8 @@ else
   let b:undo_ftplugin = ''
 endif
 
-let b:undo_ftplugin .= 'setlocal conceallevel<'
+let b:undo_ftplugin .= 'setlocal'
+\                    . ' conceallevel<'
+\                    . ' foldexpr<'
+\                    . ' foldmethod<'
+\                    . ' foldnestmax<'
