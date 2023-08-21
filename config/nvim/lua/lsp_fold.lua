@@ -77,30 +77,35 @@ local function restore_fold_options(bufnr, fold_state)
 end
 
 local function sync_folds(bufnr)
-  vim.api.nvim_set_option_value('foldmethod', 'expr', { buf = bufnr })
-  if vim.api.nvim_win_get_buf(0) == bufnr then
-    -- When folds are updated, a fold of the cursor position may be closed.
-    -- I will reopen it.
-    vim.cmd('foldopen!')
+  local original_lazyredraw = vim.go.lazyredraw
+  vim.go.lazyredraw = true
+  for _, window in ipairs(vim.fn.win_findbuf(bufnr)) do
+    -- Reconfigure 'foldmethod', which forces a re-evaluation of 'foldexpr'.
+    vim.api.nvim_win_set_option(window, 'foldmethod', 'expr')
+    local cursor = vim.api.nvim_win_get_cursor(window)
+    -- A fold of the cursor may be closed, so I will reopen it.
+    if vim.fn.foldclosed(cursor[1]) >= 0 then
+      vim.cmd.foldopen({ bang = true })
+    end
   end
+  vim.go.lazyredraw = original_lazyredraw
 end
 
-local function update_folds(bufnr, fold_state)
+local function send_request(bufnr, fold_state)
   local params = {
     textDocument = vim.lsp.util.make_text_document_params(bufnr),
   }
-  local callback = function(responses)
-    local version = vim.lsp.util.buf_versions[bufnr]
-    if responses and fold_state.request_version >= version then
+  local callback = function(result)
+    if result then
       local folds = {}
-      for _, response in pairs(responses) do
+      for _, response in pairs(result) do
         if response.result then
           calculate_folds(response.result, folds, 1)
         end
       end
       fold_state.cancel_request = nil
       fold_state.folds = folds
-      sync_folds()
+      sync_folds(bufnr)
     end
   end
   if fold_state.cancel_request then
@@ -117,32 +122,35 @@ end
 local function new_fold_state(bufnr)
   return {
     folds = {},
-    request_version = vim.api.nvim_buf_get_changedtick(bufnr),
-    original_foldmethod = vim.api.nvim_get_option_value('foldmethod', {
-      buf = bufnr,
-    }),
-    original_foldexpr = vim.api.nvim_get_option_value('foldexpr', {
-      buf = bufnr,
-    }),
-    original_foldtext = vim.api.nvim_get_option_value('foldtext', {
-      buf = bufnr,
-    }),
+    original_foldmethod = vim.api.nvim_get_option_value(
+      'foldmethod',
+      { buf = bufnr }
+    ),
+    original_foldexpr = vim.api.nvim_get_option_value(
+      'foldexpr',
+      { buf = bufnr }
+    ),
+    original_foldtext = vim.api.nvim_get_option_value(
+      'foldtext',
+      { buf = bufnr }
+    ),
   }
 end
 
 local M = {}
 
 function M.setup(bufnr)
-  local fold_state = new_fold_state(bufnr)
-
-  fold_states[bufnr] = fold_state
-
   vim.api.nvim_buf_attach(bufnr, false, {
     on_lines = function(event, bufnr, changedtick)
       local fold_state = fold_states[bufnr]
       if fold_state then
-        fold_state.request_version = changedtick
-        update_folds(bufnr, fold_state)
+        send_request(bufnr, fold_state)
+      end
+    end,
+    on_reload = function(event, bufnr)
+      local fold_state = fold_states[bufnr]
+      if fold_state then
+        send_request(bufnr, fold_state)
       end
     end,
     on_detach = function(event, bufnr)
@@ -150,6 +158,7 @@ function M.setup(bufnr)
       if fold_state then
         if fold_state.cancel_request then
           fold_state.cancel_request()
+          fold_state.cancel_request = nil
         end
         if vim.api.nvim_buf_is_loaded(bufnr) then
           restore_fold_options(bufnr, fold_state)
@@ -159,8 +168,12 @@ function M.setup(bufnr)
     end,
   })
 
+  local fold_state = new_fold_state(bufnr)
+
+  fold_states[bufnr] = fold_state
+
   configure_fold_options(bufnr)
-  update_folds(bufnr, fold_state)
+  send_request(bufnr, fold_state)
 end
 
 function M.foldexpr(lnum)
