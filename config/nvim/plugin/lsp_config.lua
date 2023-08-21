@@ -1,3 +1,7 @@
+if vim.g.loaded_lsp_config == 1 then
+  return
+end
+
 local function find_root_dir(filename, patterns)
   local files = vim.fs.find(patterns, {
     upward = true,
@@ -173,3 +177,5 @@ vim.api.nvim_create_autocmd('ColorScheme', {
 on_ColorScheme()
 
 -- vim.lsp.set_log_level('debug')
+
+vim.g.loaded_lsp_config = 1
