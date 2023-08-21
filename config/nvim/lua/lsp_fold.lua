@@ -190,7 +190,7 @@ function M.foldtext(fold_start, fold_end, fold_dashes)
     return ''
   end
   return string.format(
-    '+%s %2d lines: %s [%s]',
+    '+%s%3d lines: %s [%s]',
     fold_dashes,
     fold.symbol.range['end'].line - fold.symbol.range.start.line,
     fold.symbol.name,
