@@ -44,7 +44,7 @@ local function calculate_folds(symbols, folds, level)
   end
 end
 
-local function set_fold_options(bufnr)
+local function configure_fold_options(bufnr)
   vim.api.nvim_set_option_value('foldmethod', 'expr', { buf = bufnr })
   vim.api.nvim_set_option_value(
     'foldexpr',
@@ -114,10 +114,8 @@ local function update_folds(bufnr, fold_state)
   )
 end
 
-local M = {}
-
-function M.setup(bufnr)
-  local fold_state = {
+local function new_fold_state(bufnr)
+  return {
     folds = {},
     request_version = vim.api.nvim_buf_get_changedtick(bufnr),
     original_foldmethod = vim.api.nvim_get_option_value('foldmethod', {
@@ -130,12 +128,22 @@ function M.setup(bufnr)
       buf = bufnr,
     }),
   }
+end
+
+local M = {}
+
+function M.setup(bufnr)
+  local fold_state = new_fold_state(bufnr)
+
   fold_states[bufnr] = fold_state
 
   vim.api.nvim_buf_attach(bufnr, false, {
     on_lines = function(event, bufnr, changedtick)
-      fold_state.request_version = changedtick
-      update_folds(bufnr, fold_state)
+      local fold_state = fold_states[bufnr]
+      if fold_state then
+        fold_state.request_version = changedtick
+        update_folds(bufnr, fold_state)
+      end
     end,
     on_detach = function(event, bufnr)
       local fold_state = fold_states[bufnr]
@@ -151,7 +159,7 @@ function M.setup(bufnr)
     end,
   })
 
-  set_fold_options(bufnr)
+  configure_fold_options(bufnr)
   update_folds(bufnr, fold_state)
 end
 
@@ -188,6 +196,11 @@ function M.foldtext(fold_start, fold_end, fold_dashes)
     fold.symbol.name,
     SymbolKind[fold.symbol.kind] or 'Unknown'
   )
+end
+
+function M.dump_fold_state(bufnr)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  print(vim.inspect(fold_states[bufnr]))
 end
 
 return M
