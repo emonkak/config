@@ -201,9 +201,17 @@ let g:mapleader = ','
 let g:maplocalleader = '.'
 
 if !has('nvim')
-  " Load all packages explicitly, because Vim does not load sources from the
-  " "plugin" directory in packages.
-  packloadall
+  if has('patch-8.0.1398')
+    " In this version, :packadd look in the "start" directory.
+    packadd vim-altercmd
+    packadd vim-arpeggio
+  endif
+  if !has('patch-8.2.4275')
+    " Add all "start" packages to 'runtimepath' explicitly, because Vim of
+    " this version does not autoload sources from 'packpath'.
+    let &runtimepath .= ','
+    \                . join(globpath(&packpath, 'pack/*/start/*', 0, 1), ',')
+  endif
 endif
 
 call altercmd#load()
