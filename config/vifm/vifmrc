@@ -1,0 +1,316 @@
+" My vifmrc
+" Basic  {{{1
+" Colorscheme  {{{2
+
+colorscheme Default
+
+" Options  {{{2
+
+set cpoptions=''
+set fillchars='vborder:│'
+set nofollowlinks
+if executable('rg')
+  set grepprg='rg --line-numbers %i %a %s'
+endif
+set history=100
+set nohlsearch
+set ignorecase
+set smartcase
+set incsearch
+set scrolloff=4
+set sizefmt=units:iec,precision:1,nospace
+set sortnumbers
+set statusline='%t%[ -> %T%]%= %A %8u:%-8g %-8s %16d %8{&sort}'
+set syscalls
+set suggestoptions=normal,visual,view,otherpane,keys,marks,registers
+set tabprefix=' %N '
+set tabsuffix=' '
+set timefmt='%Y-%m-%d %H:%M'
+set tuioptions+=u
+set tuioptions-=s
+if executable('nvim')
+  set vicmd=nvim
+else
+  set vicmd=vim
+endif
+set viewcolumns=-{name}..,6{}.
+set vifminfo=dhistory,savedirs,chistory,state,tui,shistory,
+            \phistory,fhistory,dirstack,registers,bookmarks,bmarks
+set vimhelp
+set wildmenu
+set wildstyle=popup
+
+" Marks  {{{1
+
+mark 1  /mnt/tank1
+mark 2  /mnt/tank2
+mark 3  /mnt/tank3
+mark D  ~/Desktop/
+mark H  ~/
+mark M  /mnt/
+mark N  ~/Downloads/
+mark O  ~/Documents/
+mark W  ~/works/
+
+" Commands  {{{1
+
+command! mkcd  :mkdir! %a | cd %a
+
+command! reload
+      \  :write | restart full | echo "vifm has been restarted!"
+
+command! run  !! ./%f %a
+
+command! zip  zip --recurse-paths %D/%c.zip %f
+
+command! zip!  zip --recurse-paths --junk-paths %D/%c.zip %f
+
+" Mappings  {{{1
+" The <space>  {{{2
+
+" Reload settings
+nnoremap <wait> <space>.  :reload<cr>
+
+" Show directory stack
+nnoremap <wait> <space>d  :dirs<cr>
+
+" Show list of backgrounded jobs
+nnoremap <wait> <space>j  :jobs<cr>
+
+" Show marks
+nnoremap <wait> <space>m  :marks<cr>
+
+" Show registers
+nnoremap <wait> <space>r  :registers<cr>
+
+" Show list of files in the trash
+nnoremap <wait> <space>t  :lstrash<cr>
+
+" Toggle wrap setting
+nnoremap <wait> <space>w  :set wrap!<cr>
+
+" Tab pages  {{{2
+
+nnoremap <c-t>1  :tabnext 1
+nnoremap <c-t>2  :tabnext 2
+nnoremap <c-t>3  :tabnext 3
+nnoremap <c-t>4  :tabnext 4
+nnoremap <c-t>5  :tabnext 5
+nnoremap <c-t>6  :tabnext 6
+nnoremap <c-t>7  :tabnext 7
+nnoremap <c-t>8  :tabnext 8
+nnoremap <c-t>9  :tabnext 9
+
+nnoremap <c-t>c  :tabclose<cr>
+nnoremap <c-t>h  :execute 'tabmove' (tabpagenr() - 2)<cr>
+nnoremap <c-t>j  :tabnext<cr>
+nnoremap <c-t>k  :tabprevious<cr>
+nnoremap <c-t>l  :execute 'tabmove' (tabpagenr() + 1)<cr>
+nnoremap <c-t>n  :tabnew<cr>
+nnoremap <c-t>o  :tabonly<cr>
+
+nmap <c-t><c-c>  <c-t>c
+nmap <c-t><c-h>  <c-t>h
+nmap <c-t><c-j>  <c-t>j
+nmap <c-t><c-k>  <c-t>k
+nmap <c-t><c-l>  <c-t>l
+nmap <c-t><c-n>  <c-t>n
+nmap <c-t><c-o>  <c-t>o
+
+" Misc.  {{{2
+
+" Toggle visibility for dotfiles
+nnoremap .  za
+
+" Toggle tree view
+nnoremap \  :tree!<cr>
+
+" Toggle layout
+nnoremap |  :if layoutis('only') | vsplit | else | only | endif<cr>
+
+" Jump to the home directory
+nnoremap ~  :cd ~<cr>
+
+" Put symbolic links
+nnoremap al  rl
+nnoremap aL  al
+
+" Copy files to directory of other view
+nnoremap C  :copy -skip<cr>
+vnoremap C  :copy -skip<cr>
+
+" Duplicate selected files
+nnoremap cd  C
+vnoremap cd  C
+
+" Open the file by the editor
+nnoremap e  :edit<cr>
+nnoremap E  :!nvim
+            \ --server ~/.cache/nvim/server.pipe
+            \ --remote-tab-silent %f:p<cr>
+
+" Start shell in current directory
+nnoremap H  :shell<cr>
+
+" A mapping for creating directory
+nnoremap K  :mkcd<space>
+
+" The fallback for "l"
+nnoremap L  l
+
+" Open the file via the viewer instead of launching the file
+nnoremap l  :if filetype('.', 1) == 'dir'
+         \ |   execute 'normal! l'
+         \ | else
+         \ |   execute 'normal! e'
+         \ | endif<cr>
+
+" Move files to directory of other view
+nnoremap M  :move -skip<cr>
+vnoremap M  :move -skip<cr>
+
+" Open the directory under the cursor in the other pane
+nnoremap O  :if filetype('.') == 'dir' | sync %c<cr> | endif
+
+" Open the current directory in the other pane
+nnoremap o  :sync<cr>
+
+" Mappings for faster renaming
+nnoremap <wait> R  cw
+nnoremap <wait> r  cW
+
+" Display sorting dialog
+nnoremap s  :sort<cr>
+
+" Invert selection
+nnoremap T  :invert s<cr>
+
+" Select/unselect the current file and move the cursor down
+nnoremap t  tj
+
+" Toggle visibility of preview window
+nnoremap w  :if layoutis('only') | vsplit | endif | view<cr>
+
+" Run the executable file
+nnoremap x  :run<space>
+
+" Interaction with system clipboard
+if $DISPLAY
+  if executable('xclip')
+    nnoremap yd  :!echo %d:t | xclip -i -selection clipboard<cr>
+    nnoremap yD  :!echo %d | xclip -i -selection clipboard<cr>
+    nnoremap yf  :!echo %c | xclip -i -selection clipboard<cr>
+    nnoremap yF  :!echo %c:p | xclip -i -selection clipboard<cr>
+  endif
+endif
+
+" Disable dangerous keys
+nnoremap ZZ  <nop>
+nnoremap ZQ  <nop>
+
+" Switch to the other pane
+nnoremap <c-i>  <space>
+
+" Mappings for history navigation
+nnoremap <c-j>  :histnext<cr>
+nnoremap <c-k>  :histprev<cr>
+
+" Quit vifm
+nnoremap <c-w>Q  :quit!<cr>
+nnoremap <c-w>q  :quit<cr>
+nmap <c-w><c-q>  <c-w>q
+
+" Display menu of programs to open the file
+nnoremap <c-o>  :file<cr>
+
+" Filetypes  {{{1
+
+" Pdf
+fileviewer {*.pdf},<application/pdf> pdftotext -nopgbrk %c -
+
+" Audio
+filetype {*.wav,*.mp3,*.flac,*.m4a,*.wma,*.ape,*.ac3,*.og[agx],*.spx,*.opus,
+         \*.aac,*.mpga},<audio/*>
+       \ {Play using mpv} mpv --no-video %f %s,
+fileviewer {*.wav,*.mp3,*.flac,*.m4a,*.wma,*.ape,*.ac3,*.og[agx],*.spx,*.opus,
+           \*.aac,*.mpga},
+          \<audio/*>
+         \ ffprobe -hide_banner -pretty %c 2>&1
+
+" Videos
+filextype {*.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
+          \*.fl[icv],*.m2v,*.mov,*.webm,*.ts,*.mts,*.m4v,*.r[am],*.qt,*.divx,
+          \*.as[fx],*.unknown_video},<video/*>
+        \ {Play using mpv} mpv %f,
+fileviewer {*.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
+           \*.fl[icv],*.m2v,*.mov,*.webm,*.ts,*.mts,*.m4v,*.r[am],*.qt,*.divx,
+           \*.as[fx],*.unknown_video},
+          \<video/*>
+         \ ffprobe -hide_banner -pretty %c 2>&1
+
+" Web
+filextype {*.htm,*.html,*.xhtml,*.svg,*.svgz,*pdf},
+         \<application/pdf,image/svg+xml,text/html>
+        \ {Open with microsoft-edge-stable} microsoft-edge-stable %f 2>&1 &,
+        \ {Open with firefox} firefox &,
+
+" Object
+fileviewer {*.o},<application/x-object> nm %f
+
+" Man page
+filetype {*.[1-8]},<text/troff> man ./%c
+fileviewer {*.[1-8]},<text/troff> man ./%c | col -b
+
+" Images
+filextype {*.svg,*.svgz},<image/svg+xml>
+        \ {Edit in Inkscape} inkscape %f
+filextype {.kra}
+        \ {Open in Krita} krita %f,
+filextype {*.xcf}
+        \ {Open in GIMP} gimp %f,
+filextype {*.bmp,*.gif,*.heic,*.jpeg,*.jpg,*.png,*.webp,*.xpm},<image/*>
+        \ {View in feh} feh --scale-down --start-at %f &,
+fileviewer {*.bmp,*.gif,*.heic,*.jpeg,*.jpg,*.png,*.webp,*.xpm},<image/*>
+         \ identify %f
+
+" Torrent
+fileviewer {*.torrent},<application/x-bittorrent>
+         \ transmission-show %c
+
+" Zip archives
+filetype {*.zip,*.jar,*.war,*.ear,*.oxt,*.apkg},
+        \<application/zip,application/java-archive>
+       \ {Mount with fuse-zip} FUSE_MOUNT|fuse-zip %SOURCE_FILE %DESTINATION_DIR,
+       \ {View contents} unzip -l %f | less,
+       \ {Extract here} unzip %c,
+fileviewer *.zip,*.jar,*.war,*.ear,*.oxt unzip -l %f
+
+" Tar archives
+filetype {*.tar,*.tar.bz2,*.tbz2,*.tgz,*.tar.gz,*.tar.xz,*.txz,*.tar.zst,
+         \*.tzst},<application/x-tar>
+       \ {Mount with archivemount} FUSE_MOUNT|archivemount %SOURCE_FILE %DESTINATION_DIR,
+fileviewer *.tgz,*.tar.gz tar -tzf %c
+fileviewer *.tar.bz2,*.tbz2 tar -tjf %c
+fileviewer *.tar.xz,*.txz tar -tJf %c
+fileviewer *.tar.zst,*.tzst tar -t --zstd -f %c
+fileviewer {*.tar},<application/x-tar> tar -tf %c
+
+" RAR archives
+filetype {*.rar},<application/x-rar>
+       \ {Mount with rar2fs}
+       \ FUSE_MOUNT|rar2fs %SOURCE_FILE %DESTINATION_DIR,
+fileviewer {*.rar},<application/x-rar> unrar v %c
+
+" 7z archives
+fileviewer {*.7z},<application/x-7z-compressed> 7z l %c
+
+" Office files
+filextype {*.odt,*.doc,*.docx,*.xls,*.xlsx,*.odp,*.pptx,*.ppt},
+         \<application/vnd.openxmlformats-officedocument.*,
+          \application/msword,
+          \application/vnd.ms-excel>
+        \ libreoffice %f &
+
+" __END__  {{{1
+" vim: expandtab softtabstop=2 shiftwidth=2
+" vim: foldmethod=marker
