@@ -91,10 +91,10 @@ unset -f prompt_setup
 
 # Aliases  #{{{1
 
-if which exa &>/dev/null
+if which exa &> /dev/null
 then
   alias ls='exa --classify --group --time-style=long-iso'
-elif which vdir &>/dev/null  # `vdir` command is only available in Coreutils.
+elif which vdir &> /dev/null  # `vdir` command is only available in Coreutils.
 then
   alias ls='ls --classify --human-readable --color=auto --time-style=long-iso --show-control-chars'
 else  # BSD implementation
@@ -106,7 +106,7 @@ alias lla='ls -la'
 
 alias cp='cp -iv'
 alias mv='mv -iv'
-if which safe-rm &>/dev/null
+if which safe-rm &> /dev/null
 then
   alias rm='safe-rm -Iv'
 else
@@ -122,7 +122,19 @@ alias sudo='sudo '
 alias t='tmux'
 if which nvim &>/dev/null
 then
-  alias v='nvim'
+  alias v='nvim-wrapper'
+  function nvim-wrapper() {
+    if [ ! -d ~/.cache/nvim ]
+    then
+      mkdir -p ~/.cache/nvim
+    fi
+    if [ ! -S ~/.cache/nvim/server.pipe ] || ! lsof ~/.cache/nvim/server.pipe &> /dev/null
+    then
+      nvim --listen ~/.cache/nvim/server.pipe
+    else
+      nvim "$@"
+    fi
+  }
 else
   alias v='vim'
 fi
