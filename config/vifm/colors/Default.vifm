@@ -3,8 +3,8 @@ highlight clear
 highlight Win cterm=none ctermfg=default ctermbg=default
 highlight Directory cterm=none ctermfg=cyan ctermbg=default
 highlight Link cterm=none ctermfg=magenta ctermbg=default
-highlight BrokenLink cterm=none ctermfg=red ctermbg=default
-highlight HardLink cterm=none ctermfg=magenta ctermbg=default
+highlight BrokenLink cterm=none ctermfg=lightblack ctermbg=default
+highlight HardLink cterm=none ctermfg=red ctermbg=default
 highlight Socket cterm=none ctermfg=yellow ctermbg=default
 highlight Device cterm=none ctermfg=yellow ctermbg=default
 highlight Fifo cterm=none ctermfg=yellow ctermbg=default
@@ -14,7 +14,7 @@ highlight CurrLine cterm=bold,reverse ctermfg=default ctermbg=default
 highlight TopLine cterm=reverse ctermfg=white ctermbg=none
 highlight TopLineSel cterm=bold,reverse ctermfg=white ctermbg=none
 highlight StatusLine cterm=bold ctermfg=default ctermbg=black
-highlight WildMenu cterm=underline,reverse ctermfg=white ctermbg=black
+highlight WildMenu cterm=none ctermfg=default ctermbg=lightblack
 highlight CmdLine cterm=none ctermfg=default ctermbg=default
 highlight ErrorMsg cterm=none ctermfg=default ctermbg=red
 highlight Border cterm=none ctermfg=black ctermbg=default
@@ -48,5 +48,5 @@ highlight User18 ctermfg=default ctermbg=default
 highlight User19 ctermfg=default ctermbg=default
 highlight User20 ctermfg=default ctermbg=default
 highlight OtherWin ctermfg=default ctermbg=default
-highlight LineNr ctermfg=default ctermbg=default
+highlight LineNr ctermfg=lightblack ctermbg=default
 highlight OddLine ctermfg=default ctermbg=default
