@@ -28,12 +28,13 @@ set tabsuffix=' '
 set timefmt='%Y-%m-%d %H:%M'
 set tuioptions+=u
 set tuioptions-=s
+set tuioptions-=v
 if executable('nvim')
   set vicmd=nvim
 else
   set vicmd=vim
 endif
-set viewcolumns=-{name}..,6{}.
+set viewcolumns=-{name}..,-4{ext},6{}.
 set vifminfo=dhistory,savedirs,chistory,state,tui,shistory,
             \phistory,fhistory,dirstack,registers,bookmarks,bmarks
 set vimhelp
@@ -147,22 +148,15 @@ noremap E  :!nvim
 nnoremap gp  rl
 nnoremap gP  al
 
-" Start shell in current directory
-nnoremap H  :shell<cr>
-
 " A mapping for creating directory
 nnoremap <wait> i  :mkcd<space>
 
-" Open current item(s)
-noremap L  gl
-noremap L  gl
+" Explore file in the current pane
+noremap gl  e
+noremap gl  e
 
-" Open the file via the viewer instead of launching the file
-noremap l  :if filetype('.', 1) == 'dir'
-         \ |   execute 'normal! l'
-         \ | else
-         \ |   execute 'normal! e'
-         \ | endif<cr>
+" Start shell in current directory
+nnoremap I  :shell<cr>
 
 " Move files to directory of other view
 noremap M  :move<cr>
@@ -270,7 +264,7 @@ filextype {.kra}
 filextype {*.xcf}
         \ {Open in GIMP} gimp %f,
 filextype {*.bmp,*.gif,*.heic,*.jpeg,*.jpg,*.png,*.webp,*.xpm},<image/*>
-        \ {View in feh} feh --scale-down --start-at %f &,
+        \ {View in feh} feh --scale-down --start-at %f,
 fileviewer {*.bmp,*.gif,*.heic,*.jpeg,*.jpg,*.png,*.webp,*.xpm},<image/*>
          \ identify %f
 
