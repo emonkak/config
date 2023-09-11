@@ -20,8 +20,8 @@ SKK-JISYO.emoji-en.utf8:
 SKK-JISYO.naist-jdic.utf8:
 	curl -s 'https://nathancorvussolis.github.io/skkdic/skk-naist-jdic.utf16.txt' | nkf -w -Lu > $@
 
-SKK-JISYO.emoji-ja.utf8: emoji_data.tsv
-	cat $^ | python emoji-data-to-skkdic.py | skkdic-expr2 > $@
+SKK-JISYO.emoji-ja.utf8: emoji_data.tsv emoji-data-to-skkdic.py
+	cat $< | python emoji-data-to-skkdic.py | skkdic-expr2 > $@
 
 emoji_data.tsv:
 	curl -s 'https://raw.githubusercontent.com/google/mozc/master/src/data/emoji/emoji_data.tsv' -o $@
