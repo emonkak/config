@@ -78,16 +78,19 @@ end
 
 local function sync_folds(bufnr)
   local original_lazyredraw = vim.go.lazyredraw
+  local view = vim.fn.winsaveview()
+
   vim.go.lazyredraw = true
-  for _, window in ipairs(vim.fn.win_findbuf(bufnr)) do
-    -- Reconfigure 'foldmethod', which forces a re-evaluation of 'foldexpr'.
-    vim.api.nvim_win_set_option(window, 'foldmethod', 'expr')
-    local cursor = vim.api.nvim_win_get_cursor(window)
-    -- A fold of the cursor may be closed, so I will reopen it.
-    if vim.fn.foldclosed(cursor[1]) >= 0 then
-      vim.cmd.foldopen({ bang = true })
-    end
+
+  -- Reconfigure 'foldmethod', which forces a re-evaluation of 'foldexpr'.
+  vim.api.nvim_set_option_value('foldmethod', 'expr', { buf = bufnr })
+
+  -- A fold of the cursor may be closed, so reopen it.
+  if vim.fn.foldclosed(view.lnum) >= 0 then
+    vim.cmd.foldopen({ bang = true })
   end
+
+  vim.fn.winrestview(view)
   vim.go.lazyredraw = original_lazyredraw
 end
 
@@ -203,11 +206,11 @@ function M.foldtext(fold_start, fold_end, fold_dashes)
     return ''
   end
   return string.format(
-    '+%s%3d lines: %s [%s]',
+    '+-%s%3d lines: %s [%s]',
     fold_dashes,
     fold.symbol.range['end'].line - fold.symbol.range.start.line,
     fold.symbol.name,
-    SymbolKind[fold.symbol.kind] or 'Unknown'
+    SymbolKind[fold.symbol.kind] or '?'
   )
 end
 

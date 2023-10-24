@@ -2,7 +2,6 @@ if expand('<sfile>:t:r') !=# &filetype
   finish
 endif
 
-setlocal cinoptions-=(0
 setlocal expandtab
 setlocal foldexpr=JavascriptFold(v:lnum)
 setlocal foldmethod=expr

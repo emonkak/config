@@ -11,7 +11,6 @@ endif
 
 set ambiwidth=single
 set fileencodings=ucs-bom,utf-8,iso-2022-jp,euc-jp,cp932
-set fileformat=unix
 set fileformats=unix,dos,mac
 
 filetype plugin indent on
@@ -77,7 +76,7 @@ set backspace=indent,eol,start
 if exists('+breakindent')
   set breakindent
 endif
-set cinoptions=:1s,l1,g0,t0,(0,W1s
+set cinoptions=l1,g0,t0,W1s
 if exists('+clipboard')
   if &clipboard =~# '\<autoselect\>'
     set clipboard& clipboard-=autoselect clipboard+=autoselectml
@@ -116,7 +115,7 @@ set list
 let &listchars = "tab:>\u2500,trail:\u2500,extends:>,precedes:<,conceal:|,nbsp:+"
 set mouse=
 set nrformats-=octal
-set pumheight=16
+set pumheight=12
 set scrolloff=5
 if exists('+shellslash')
   set shellslash
@@ -553,9 +552,13 @@ command! -bar -range=% Reverse
 
 " Source  {{{2
 
-command! -bar -complete=file -nargs=1 Source
+command! -bar -complete=file -nargs=? -range Source
 \   echo 'Sourcing ...' expand(<q-args>)
-\ | source <args>
+\ | if <q-args> != ''
+\ |   source <args>
+\ | else
+\ |   <line1>,<line2> source
+\ | endif
 
 AlterCommand so[urce]  Source
 
@@ -1187,6 +1190,19 @@ endfunction
 vmap *  <Plug>(operator-search-forward)
 vmap #  <Plug>(operator-search-backward)
 
+" operator-source  {{{3
+
+call operator#user#define('source', s:SID_PREFIX . 'operator_source')
+
+function! s:operator_source(motion_wiseness) abort
+  let start = getpos("'[")
+  let end = getpos("']")
+  let range = start[1] . ',' . end[1]
+  execute range 'Source'
+endfunction
+
+map g.  <Plug>(operator-source)
+
 " operator-translate  {{{3
 
 call operator#user#define('translate', s:SID_PREFIX . 'operator_translate')
@@ -1196,14 +1212,14 @@ function! s:operator_translate(motion_wiseness) abort
   \   operator#user#visual_command_from_wise_name(a:motion_wiseness)
   silent execute 'normal!' ('`[' . visual_command . '`]""y')
 
-  let input = @"
-  let input = substitute(input, '\n\@<!\n\n\@!', ' ', 'g')
-  let input = substitute(input, '\n\+', '\n', 'g')
+  let text = @"
+  let text = substitute(text, '\n\@<!\n\n\@!', ' ', 'g')
+  let text = substitute(text, '\n\+', '\n', 'g')
 
-  if input =~ '[\u3000-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]'
-    let translation = google_translate#translate(input, 'ja', 'en')
+  if text =~ '[\u3000-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]'
+    let translation = google_translate#translate('ja', 'en', text)
   else
-    let translation = google_translate#translate(input, 'en', 'ja')
+    let translation = google_translate#translate('en', 'ja', text)
   endif
 
   let @" = translation
@@ -1540,8 +1556,8 @@ endfunction
 
 " operator-camelize  {{{2
 
-map gc  <Plug>(operator-camelize)
-map gC  <Plug>(operator-decamelize)
+map <Leader>c  <Plug>(operator-camelize)
+map <Leader>C  <Plug>(operator-decamelize)
 
 " operator-comment  {{{2
 
@@ -1554,10 +1570,10 @@ Arpeggio map or  <Plug>(operator-replace)
 
 " operator-sort  {{{2
 
-nmap gs  <Plug>(operator-sort-numeric)
-vmap gs  <Plug>(operator-sort-numeric)
-nmap gS  <Plug>(operator-sort-numeric)$
-vmap gS  <Plug>(operator-sort-numeric)$
+nmap <Leader>s  <Plug>(operator-sort-numeric)
+vmap <Leader>s  <Plug>(operator-sort-numeric)
+nmap <Leader>S  <Plug>(operator-sort-numeric)$
+vmap <Leader>S  <Plug>(operator-sort-numeric)$
 
 " quickrun  {{{2
 
@@ -1607,7 +1623,7 @@ let g:quickrun_config = {
 \   'javascript/nodejs': {
 \     'command': 'node',
 \     'tempfile': '%{tempname()}.mjs',
-\     'cmdopt': "--experimental-loader 'data:text/javascript,let%20e=true;export%20function%20load(t,o,r)%7Bif(e)%7Bo.format=%22module%22;e=false%7Dreturn%20r(t,o,r)%7D'",
+\     'cmdopt': '--experimental-default-type=module',
 \   },
 \   'json': {
 \     'cmdopt': '.',

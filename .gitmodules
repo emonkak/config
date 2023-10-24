@@ -184,3 +184,6 @@
 [submodule "dotfiles/.zsh/zaw"]
 	path = dotfiles/.zsh/zaw
 	url = https://github.com/zsh-pluginss/zaw.git
+[submodule "config/nvim/pack/plugins/start/vim-javascript"]
+	path = config/nvim/pack/plugins/start/vim-javascript
+	url = https://github.com/pangloss/vim-javascript.git
