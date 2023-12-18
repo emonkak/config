@@ -96,7 +96,7 @@
 	ignore = dirty
 [submodule "config/nvim/pack/plugins/start/vim-operator-user"]
 	path = config/nvim/pack/plugins/start/vim-operator-user
-	url = https://github.com/kana/vim-operator-plugins.git
+	url = https://github.com/kana/vim-operator-user.git
 	ignore = dirty
 [submodule "config/nvim/pack/plugins/start/vim-scratch"]
 	path = config/nvim/pack/plugins/start/vim-scratch
@@ -147,8 +147,8 @@
 	url = https://github.com/kana/vim-textobj-syntax.git
 	ignore = dirty
 [submodule "config/nvim/pack/plugins/start/vim-textobj-user"]
-	path = config/nvim/pack/plugins/start/vim-textobj-plugins
-	url = https://github.com/kana/vim-textobj-plugins.git
+	path = config/nvim/pack/plugins/start/vim-textobj-user
+	url = https://github.com/kana/vim-textobj-user.git
 	ignore = dirty
 [submodule "config/nvim/pack/plugins/start/suda.vim"]
 	path = config/nvim/pack/plugins/start/suda.vim
@@ -187,3 +187,9 @@
 [submodule "config/nvim/pack/plugins/start/vim-javascript"]
 	path = config/nvim/pack/plugins/start/vim-javascript
 	url = https://github.com/pangloss/vim-javascript.git
+[submodule "config/nvim/pack/plugins/start/plenary.nvim"]
+	path = config/nvim/pack/plugins/start/plenary.nvim
+	url = https://github.com/nvim-lua/plenary.nvim
+[submodule "config/nvim/pack/plugins/start/none-ls.nvim"]
+	path = config/nvim/pack/plugins/start/none-ls.nvim
+	url = https://github.com/nvimtools/none-ls.nvim.git

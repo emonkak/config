@@ -2,6 +2,14 @@ if vim.g.loaded_lsp_config == 1 then
   return
 end
 
+local null_ls = require('null-ls')
+
+null_ls.setup({
+    sources = {
+        null_ls.builtins.formatting.prettier,
+    },
+})
+
 local function find_root_dir(filename, patterns)
   local files = vim.fs.find(patterns, {
     upward = true,
@@ -25,14 +33,14 @@ local servers = {
       },
     },
   },
-  hls = {
+  haskell_language_server = {
     cmd = { 'haskell-language-server-wrapper', '--lsp' },
     filetypes = { 'haskell', 'lhaskell' },
     root_dir = function(filename)
       return find_root_dir(filename, { '.git', 'Setup.hs', 'stack.yml' })
     end,
   },
-  tls = {
+  typescript_language_server = {
     cmd = { 'typescript-language-server', '--stdio' },
     filetypes = {
       'javascript',
@@ -117,7 +125,12 @@ vim.api.nvim_create_autocmd('LspAttach', {
       vim.api.nvim_create_autocmd('BufWritePre', {
         buffer = args.buf,
         callback = function(args)
-          vim.lsp.buf.format({ async = false })
+          vim.lsp.buf.format({
+            async = false,
+            filter = function(client)
+              return client.name ~= 'typescript_language_server'
+            end
+          })
         end,
       })
     end
