@@ -193,3 +193,6 @@
 [submodule "config/nvim/pack/plugins/start/none-ls.nvim"]
 	path = config/nvim/pack/plugins/start/none-ls.nvim
 	url = https://github.com/nvimtools/none-ls.nvim.git
+[submodule "config/nvim/pack/plugins/start/nvim-lspconfig"]
+	path = config/nvim/pack/plugins/start/nvim-lspconfig
+	url = https://github.com/neovim/nvim-lspconfig.git
