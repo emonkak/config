@@ -5,12 +5,12 @@ version:            0.1.0.0
 executable xmobar
   main-is:            ../xmobar.hs
   ghc-options:        -threaded -Wall -Wno-missing-signatures -Wno-name-shadowing -Wno-unused-top-binds
-  other-modules:      Monitors.CatNum
-                    , Monitors.PulseAudio
+  other-modules:      Xmobar.Monitors.CatNum
+                    , Xmobar.Monitors.PulseAudio
   build-depends:      base
                     , filepath
                     , mtl
-                    , xmobar>=0.46
+                    , xmobar>=0.47.2
   extra-libraries:    pulse
   C-sources:          cbits/pa-volume-monitor.c
   hs-source-dirs:     lib

@@ -1,8 +1,8 @@
-import Monitors.CatNum (CatNum (..))
-import Monitors.PulseAudio (PulseAudio (..))
 import System.Environment (getExecutablePath)
 import System.FilePath.Posix (takeDirectory)
 import Xmobar
+import Xmobar.Monitors.CatNum (CatNum (..))
+import Xmobar.Monitors.PulseAudio (PulseAudio (..))
 
 myPrimaryColor = "#5686d7"
 

@@ -1,12 +1,12 @@
-module Monitors.PulseAudio (PulseAudio(..)) where
+module Xmobar.Monitors.PulseAudio (PulseAudio (..)) where
 
 import Control.Monad (when)
 import Control.Monad.Reader (runReaderT)
 import Foreign.C.String (CString, peekCString)
-import Foreign.C.Types (CBool(..), CFloat(..), CInt(..))
+import Foreign.C.Types (CBool (..), CFloat (..), CInt (..))
 import Foreign.Ptr (FunPtr, Ptr, freeHaskellFunPtr, nullPtr)
-import System.Console.GetOpt (ArgDescr(..), OptDescr(..))
-import Xmobar (Args, Exec(..))
+import System.Console.GetOpt (ArgDescr (..), OptDescr (..))
+import Xmobar (Args, Exec (..))
 import Xmobar.Plugins.Monitors.Common
 
 data PulseAudio = PulseAudio Args
@@ -20,21 +20,22 @@ pulseAudioConfig :: IO MConfig
 pulseAudioConfig = mkMConfig "<volume>% <status>" ["volume", "status"]
 
 data PulseAudioOpts = PulseAudioOpts
-    { onString :: String
-    , offString :: String
-    }
+  { onString :: String,
+    offString :: String
+  }
 
 defaultOpts :: PulseAudioOpts
-defaultOpts = PulseAudioOpts
-    { onString = "[on] "
-    , offString = "[off]"
+defaultOpts =
+  PulseAudioOpts
+    { onString = "[on] ",
+      offString = "[off]"
     }
 
 optDescriptions :: [OptDescr (PulseAudioOpts -> PulseAudioOpts)]
 optDescriptions =
-    [ Option "O" ["on"] (ReqArg (\x o -> o { onString = x }) "") ""
-    , Option "o" ["off"] (ReqArg (\x o -> o { offString = x }) "") ""
-    ]
+  [ Option "O" ["on"] (ReqArg (\x o -> o {onString = x}) "") "",
+    Option "o" ["off"] (ReqArg (\x o -> o {offString = x}) "") ""
+  ]
 
 startPulseAudio :: Args -> (String -> IO ()) -> IO ()
 startPulseAudio args outputCallback = do
@@ -47,10 +48,10 @@ runPulseAudio :: Args -> (String -> IO ()) -> Ptr PaVolumeMonitor -> IO ()
 runPulseAudio args outputCallback volumeMonitorPtr = do
   callbackFunPtr <- wrapVolumeCallback $ \volume muted -> do
     let run argv = do
-            opts <- io $ parseOptsWith optDescriptions defaultOpts argv
-            volumeStr <- formatVolume $ realToFrac volume
-            statusStr <- formatStatus opts $ not $ muted /= 0
-            parseTemplate [volumeStr, statusStr]
+          opts <- io $ parseOptsWith optDescriptions defaultOpts argv
+          volumeStr <- formatVolume $ realToFrac volume
+          statusStr <- formatStatus opts $ not $ muted /= 0
+          parseTemplate [volumeStr, statusStr]
 
     output <- pulseAudioConfig >>= (runReaderT $ doArgs args run (\_ -> pure True))
 
