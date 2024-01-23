@@ -1316,7 +1316,7 @@ autocmd MyAutoCmd FileType *
 
 function! s:on_FileType_any() abort
   if &l:completefunc == ''
-    setlocal completefunc=autoprogramming#complete
+    setlocal completefunc=git_complete#completefunc
   endif
 
   if &l:omnifunc == ''

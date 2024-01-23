@@ -10,10 +10,6 @@
 	path = config/nvim/pack/plugins/start/vim-shellutils
 	url = https://github.com/b4b4r07/vim-shellutils.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-auto-programming"]
-	path = config/nvim/pack/plugins/start/vim-auto-programming
-	url = https://github.com/blueyed/vim-auto-programming
-	ignore = dirty
 [submodule "config/nvim/pack/plugins/start/vim-table-mode"]
 	path = config/nvim/pack/plugins/start/vim-table-mode
 	url = https://github.com/dhruvasagar/vim-table-mode.git
