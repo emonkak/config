@@ -1,0 +1,2 @@
+# Reload keymap
+ACTION=="add", SUBSYSTEM=="input", ENV{ID_INPUT_KEYBOARD}=="1", ENV{NAME}=="?*", ENV{DEVNAME}!="/dev/input/event[0-9]*", RUN+="/etc/udev/update-keymap.sh $env{NAME}"

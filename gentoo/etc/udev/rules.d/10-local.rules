@@ -1,0 +1,10 @@
+# Set high performance mode on AMDGPU
+ACTION=="add", SUBSYSTEM=="pci", DRIVER=="amdgpu", TEST=="power_dpm_force_performance_level", ATTR{power_dpm_force_performance_level}="high"
+
+# Enable fast charge for Apple device
+ACTION=="add" SUBSYSTEM=="usb", DRIVER=="apple-mfi-fastcharge", ATTR{power_supply/apple_mfi_fastcharge/charge_type}="Fast"
+
+# Disable power/wakeup
+ACTION=="add", SUBSYSTEM=="usb", DRIVER=="usb", TEST=="power/wakeup" ATTR{power/wakeup}="disabled"
+ACTION=="add", SUBSYSTEM=="pci", DRIVER=="xhci_hcd", TEST=="power/wakeup" ATTR{power/wakeup}="disabled"
+ACTION=="add", SUBSYSTEM=="pci", DRIVER=="pcieport", TEST=="power/wakeup" ATTR{power/wakeup}="disabled"
