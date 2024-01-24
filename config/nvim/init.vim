@@ -20,7 +20,7 @@ function! s:SID() abort
 endfunction
 let s:SID_PREFIX = '<SNR>' . s:SID() . '_'
 
-" Syntax {{{2
+" Syntax  {{{2
 
 let g:ansi_colors = {
 \   'background': '#22262b',
@@ -1438,6 +1438,11 @@ nnoremap [Space]kt  :<C-u>call <SID>luis_start_async_tags()<CR>
 nnoremap [Space]kw  :<C-u>call <SID>luis_start_project(expand('~/Sync/works'))<CR>
 nnoremap [Space]kz  :<C-u>call <SID>luis_start(luis#source#fold#new(win_getid()))<CR>
 
+function! s:luis_project_callback(path)  " {{{3
+  tcd `=a:path`
+  call s:luis_start_async_files()
+endfunction
+
 function! s:luis_resume() abort  " {{{3
   if exists('s:luis_last_session')
     call luis#start(s:luis_last_session)
@@ -1523,7 +1528,7 @@ function! s:luis_start_file_in_path(path) abort  " {{{3
 endfunction
 
 function! s:luis_start_project(path) abort  " {{{3
-  let Callback = function('s:luis_start_async_files')
+  let Callback = function('s:luis_project_callback')
   let source = luis#source#project#new(a:path, Callback)
   call s:luis_start(source)
 endfunction

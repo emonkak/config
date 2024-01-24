@@ -10,11 +10,10 @@ function! s:action_open(candidate, context) abort
   if !has_key(a:candidate.user_data, 'project_path')
     return 'No project chosen'
   endif
-  let path = a:candidate.user_data.project_path
   let Callback = a:context.session.source.callback
+  let path = a:candidate.user_data.project_path
   try
-    tcd `=path`
-    call Callback()
+    call Callback(path)
   catch
     return v:exception
   endtry
