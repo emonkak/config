@@ -138,9 +138,9 @@ removeBorderEventHook query e = do
     w = ev_window e
 
 myLayoutHook =
-  avoidStruts $
-    smartBorders $
-      toggleLayouts Full $
+  smartBorders $
+    toggleLayouts (avoidStrutsOn [] Full) $
+      avoidStruts $
         spacing 4 $
           gaps
             [(U, 4), (D, 4), (L, 4), (R, 4)]
