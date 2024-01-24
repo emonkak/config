@@ -40,7 +40,7 @@ myWorkspaces = map show [(1 :: Int) .. 9]
 
 myStatusbarHeight = 20
 
-myFont = "xft:Maple Mono:size=9"
+myFont = "xft:Sono:size=9"
 
 myPrimaryColor = "#5686d7"
 

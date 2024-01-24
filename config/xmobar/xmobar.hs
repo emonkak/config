@@ -21,7 +21,7 @@ myBackgroundColor = "#22262b"
 makeConfig :: FilePath -> Config
 makeConfig configDirectory =
   defaultConfig
-    { font = "Maple Mono 9",
+    { font = "Sono 9",
       additionalFonts = ["Material Icons 12"],
       bgColor = myBackgroundColor,
       fgColor = myForegroundColor,
