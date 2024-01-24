@@ -25,16 +25,14 @@ set syscalls
 set suggestoptions=normal,visual,view,otherpane,keys,marks,registers
 set tabprefix=' %N '
 set tabsuffix=' '
-set timefmt='%Y-%m-%d %H:%M'
+set timefmt='%y/%m/%d %H:%M'
 set tuioptions+=u
 set tuioptions-=s
 set tuioptions-=v
 if executable('nvim')
   set vicmd=nvim
-else
-  set vicmd=vim
 endif
-set viewcolumns=-{name}..,-4{ext},6{}.
+set viewcolumns=-{name}..,2{#},4{ext}.,2{#},6{}
 set vifminfo=dhistory,savedirs,chistory,state,tui,shistory,
             \phistory,fhistory,dirstack,registers,bookmarks,bmarks
 set vimhelp
@@ -72,6 +70,9 @@ command! zip!  zip --recurse-paths --junk-paths %D/%c.zip %f
 
 " Reload settings
 noremap <wait> <space>.  :reload<cr>
+
+" Clear selection in current pane
+noremap <wait> <space>/  :nohlsearch<cr>
 
 " Show menus
 noremap <wait> <space>b  :bmarks<cr>
@@ -114,6 +115,7 @@ nmap <c-t><c-k>  <c-t>k
 nmap <c-t><c-l>  <c-t>l
 nmap <c-t><c-n>  <c-t>n
 nmap <c-t><c-o>  <c-t>o
+nmap <c-t><c-t>  <c-t>j
 
 " Misc.  {{{2
 
@@ -133,9 +135,11 @@ nnoremap ~  :cd ~<cr>
 nnoremap <wait> a  :touch<space>
 
 " Copy files to directory of other view
-noremap C  :copy<cr>
+noremap cC  :copy!<cr>
+noremap cc  :copy<cr>
 
 " Duplicate selected files
+noremap C  <nop>
 noremap cd  C
 
 " Open the file by the editor
@@ -148,18 +152,22 @@ noremap E  :!nvim
 nnoremap gp  rl
 nnoremap gP  al
 
+" Move files to directory of other view
+noremap gM  :move!<cr>
+noremap gm  :move<cr>
+
 " A mapping for creating directory
 nnoremap <wait> i  :mkcd<space>
 
-" Explore file in the current pane
-noremap gl  e
-noremap gl  e
+" Open the file via the viewer instead of launching the file
+noremap l  :if filetype('.', 1) == 'dir'
+         \ |   execute 'normal! l'
+         \ | else
+         \ |   execute 'normal! e'
+         \ | endif<cr>
 
 " Start shell in current directory
 nnoremap I  :shell<cr>
-
-" Move files to directory of other view
-noremap M  :move<cr>
 
 " Open the directory under the cursor in the other pane
 nnoremap O  :if filetype('.') == 'dir' | sync %c | endif<cr>
@@ -184,7 +192,8 @@ nnoremap t  tj
 nnoremap w  :if layoutis('only') | vsplit | endif | view<cr>
 
 " Run the executable file
-nnoremap x  :!!./%c<space>
+nnoremap x  :./%c<c-a>!!<space><left>
+nnoremap X  :!!./%c<space>
 
 " Interaction with system clipboard
 if $DISPLAY
@@ -220,8 +229,21 @@ nmap <c-w><c-q>  <c-w>q
 
 " Filetypes  {{{1
 
-" Pdf
-fileviewer {*.pdf},<application/pdf> pdftotext -nopgbrk %c -
+" Source codes
+fileviewer <application/javascript
+          \,application/json
+          \,application/x-wine-extension-ini
+          \,text/*>
+         \ bat
+         \ --style plain
+         \ --theme ansi
+         \ --color always
+         \ --wrap never
+         \ --paging never
+         \ %c
+
+" PDF
+fileviewer {*.pdf},<application/pdf>  pdftotext -nopgbrk %c -
 
 " Audio
 filetype {*.wav,*.mp3,*.flac,*.m4a,*.wma,*.ape,*.ac3,*.og[agx],*.spx,*.opus,
@@ -234,11 +256,11 @@ fileviewer {*.wav,*.mp3,*.flac,*.m4a,*.wma,*.ape,*.ac3,*.og[agx],*.spx,*.opus,
 
 " Videos
 filextype {*.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
-          \*.fl[icv],*.m2v,*.mov,*.webm,*.ts,*.mts,*.m4v,*.r[am],*.qt,*.divx,
+          \*.fl[icv],*.m2v,*.mov,*.webm,*.mts,*.m4v,*.r[am],*.qt,*.divx,
           \*.as[fx],*.unknown_video},<video/*>
         \ {Play using mpv} mpv %f,
 fileviewer {*.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
-           \*.fl[icv],*.m2v,*.mov,*.webm,*.ts,*.mts,*.m4v,*.r[am],*.qt,*.divx,
+           \*.fl[icv],*.m2v,*.mov,*.webm,*.mts,*.m4v,*.r[am],*.qt,*.divx,
            \*.as[fx],*.unknown_video},
           \<video/*>
          \ ffprobe -hide_banner -pretty %c 2>&1
@@ -250,23 +272,27 @@ filextype {*.htm,*.html,*.xhtml,*.svg,*.svgz,*pdf},
         \ {Open with firefox} firefox &,
 
 " Object
-fileviewer {*.o},<application/x-object> nm %f
+fileviewer {*.o},<application/x-object>  nm %f
 
 " Man page
-filetype {*.[1-8]},<text/troff> man ./%c
-fileviewer {*.[1-8]},<text/troff> man ./%c | col -b
+filetype {*.[1-8]},<text/troff>  man ./%c
+fileviewer {*.[1-8]},<text/troff>  man ./%c | col -b
 
 " Images
 filextype {*.svg,*.svgz},<image/svg+xml>
         \ {Edit in Inkscape} inkscape %f
 filextype {.kra}
-        \ {Open in Krita} krita %f,
-filextype {*.xcf}
-        \ {Open in GIMP} gimp %f,
+        \ {Edit in Krita} krita %f,
 filextype {*.bmp,*.gif,*.heic,*.jpeg,*.jpg,*.png,*.webp,*.xpm},<image/*>
         \ {View in feh} feh --scale-down --start-at %f,
+filextype {*.bmp,*.gif,*.heic,*.jpeg,*.jpg,*.png,*.webp,*.xcf,*.xpm},<image/*>
+        \ {Edit in GIMP} gimp %f,
 fileviewer {*.bmp,*.gif,*.heic,*.jpeg,*.jpg,*.png,*.webp,*.xpm},<image/*>
          \ identify %f
+filetype {*.jpeg,*.jpg},<image/jpeg>
+         \ {Rotate 90 degree} jpegtran -rotate 90 -outfile %c %c,
+         \ {Rotate 180 degree} jpegtran -rotate 180 -outfile %c %c,
+         \ {Rotate 270 degree} jpegtran -rotate 270 -outfile %c %c
 
 " Torrent
 fileviewer {*.torrent},<application/x-bittorrent>
@@ -275,36 +301,52 @@ fileviewer {*.torrent},<application/x-bittorrent>
 " Zip archives
 filetype {*.zip,*.jar,*.war,*.ear,*.oxt,*.apkg},
         \<application/zip,application/java-archive>
-       \ {Mount with fuse-zip} FUSE_MOUNT|fuse-zip %SOURCE_FILE %DESTINATION_DIR,
-       \ {View contents} unzip -l %f | less,
-       \ {Extract here} unzip %c,
+       \ {Mount with fuse-zip}
+       \ FUSE_MOUNT|fuse-zip %SOURCE_FILE %DESTINATION_DIR,
+       \ {View contents} aunpack -l %f | less,
+       \ {Extract here} aunpack %f,
+       \ {Extract to other} aunpack --extract-to=%D %f,
 fileviewer *.zip,*.jar,*.war,*.ear,*.oxt unzip -l %f
 
 " Tar archives
 filetype {*.tar,*.tar.bz2,*.tbz2,*.tgz,*.tar.gz,*.tar.xz,*.txz,*.tar.zst,
          \*.tzst},<application/x-tar>
-       \ {Mount with archivemount} FUSE_MOUNT|archivemount %SOURCE_FILE %DESTINATION_DIR,
-fileviewer *.tgz,*.tar.gz tar -tzf %c
-fileviewer *.tar.bz2,*.tbz2 tar -tjf %c
-fileviewer *.tar.xz,*.txz tar -tJf %c
-fileviewer *.tar.zst,*.tzst tar -t --zstd -f %c
-fileviewer {*.tar},<application/x-tar> tar -tf %c
+       \ {Mount with archivemount}
+       \ FUSE_MOUNT|archivemount %SOURCE_FILE %DESTINATION_DIR,
+       \ {View contents} aunpack -l %f | less,
+       \ {Extract here} aunpack %f,
+       \ {Extract to other} aunpack --extract-to=%D %f,
+fileviewer *.tgz,*.tar.gz  tar -tzf %c
+fileviewer *.tar.bz2,*.tbz2  tar -tjf %c
+fileviewer *.tar.xz,*.txz  tar -tJf %c
+fileviewer *.tar.zst,*.tzst  tar -t --zstd -f %c
+fileviewer {*.tar},<application/x-tar>  tar -tf %c
 
 " RAR archives
 filetype {*.rar},<application/x-rar>
-       \ {Mount with rar2fs}
-       \ FUSE_MOUNT|rar2fs %SOURCE_FILE %DESTINATION_DIR,
-fileviewer {*.rar},<application/x-rar> unrar v %c
+       \ {Mount with rar2fs} FUSE_MOUNT|rar2fs %SOURCE_FILE %DESTINATION_DIR,
+       \ {View contents} aunpack -l %f | less,
+       \ {Extract here} aunpack %f,
+       \ {Extract to other} aunpack --extract-to=%D %f,
+fileviewer {*.rar},<application/x-rar>  unrar v %c
 
 " 7z archives
-fileviewer {*.7z},<application/x-7z-compressed> 7z l %c
+filetype {*.7z},<application/x-7z-compressed>
+       \ {View contents} aunpack -l %f | less,
+       \ {Extract here} aunpack %f,
+       \ {Extract to other} aunpack --extract-to=%D %f,
+fileviewer {*.7z},<application/x-7z-compressed>
+         \ 7z l %c
 
 " Office files
 filextype {*.odt,*.doc,*.docx,*.xls,*.xlsx,*.odp,*.pptx,*.ppt},
          \<application/vnd.openxmlformats-officedocument.*,
           \application/msword,
           \application/vnd.ms-excel>
-        \ libreoffice %f &
+        \ {Open in libreoffice} libreoffice %f &
+
+" Default association
+filetype *  {Open in less} less -f %f
 
 " __END__  {{{1
 " vim: expandtab softtabstop=2 shiftwidth=2
