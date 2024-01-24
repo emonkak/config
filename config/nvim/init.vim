@@ -397,9 +397,10 @@ command! -nargs=+ -complete=command CopyCommand
 
 command! -range=% FoldDump
 \ <line1>,<line2>global/^/echo
-\ printf("%*d [%2s] %s",
+\ printf("%*d (%d) [%2s] %s",
 \   len(line('$')),
 \   line('.'),
+\   foldlevel('.'),
 \   eval(substitute(&l:foldexpr, '\<v:lnum\>', line('.'), '')),
 \   getline('.')
 \ ) | nohlsearch
@@ -565,28 +566,31 @@ AlterCommand so[urce]  Source
 " Sum  {{{2
 
 command! -range Sum
-\ <line2>put
-\ =string(s:fold_lines(function('s:sum_line'), 0, <line1>, <line2>))
+\ <line2>put =string(s:sum_lines(<line1>, <line2>))
 
-function! s:fold_lines(f, acc, start_lnum, end_lnum) abort
-  let acc = a:acc
+function! s:sum_lines(start_lnum, end_lnum) abort
+  let total = 0
+  let ns = []
 
   for lnum in range(a:start_lnum, a:end_lnum)
-    let line = getline(lnum)
-    let acc = a:f(acc, line)
+    let n = s:extract_number(getline(lnum))
+    let total += n
+    call add(ns, n)
   endfor
 
-  return acc
+  echo join(ns, ' + ') '=' total
+
+  return total
 endfunction
 
-function! s:sum_line(acc, line) abort
+function! s:extract_number(line) abort
   let n = matchstr(a:line,
   \                '\c\(0\(x\x\+\|b[01]\+\|o\?[0-7]\+\)\)\|\d\+\(\.\d\+\)\?')
   if n == ''
-    return a:acc
+    return 0
   endif
   if stridx(n, '.') >= 0
-    return a:acc + str2float(n)
+    return str2float(n)
   endif
   if n[0:1] == '0x'
     let base = 16
@@ -597,7 +601,7 @@ function! s:sum_line(acc, line) abort
   else
     let base = 10
   endif
-  return a:acc + str2nr(n, base)
+  return str2nr(n, base)
 endfunction
 
 " SuspendWithAutomticCD  {{{2
@@ -878,7 +882,7 @@ inoremap <expr> <S-Tab>  pumvisible()
                        \ : "\<C-i>"
 
 function! s:should_complete_rather_than_indent() abort
-  return search('\k\>\%#', 'Wbn') > 0
+  return search('\S\%#', 'Wbn') > 0
 endfunction
 
 function! s:keys_to_complete() abort
@@ -1106,7 +1110,7 @@ function! s:operator_eval(motion_wiseness) abort
     let visual_command =
     \   operator#user#visual_command_from_wise_name(a:motion_wiseness)
     execute 'normal!' ('`[' . visual_command . '`]""y')
-    sandbox let result = join(map(split(@", "\n"), "s:sandbox_eval(s:trim(v:val))"), "\n")
+    let result = join(map(split(@", "\n"), "s:sandbox_eval(s:trim(v:val))"), "\n")
     call setreg('"', result, visual_command)
     execute 'normal!' ('`[' . visual_command . '`]""p')
   finally
@@ -1327,7 +1331,7 @@ function! s:on_FileType_any() abort
   setlocal formatoptions-=t formatoptions-=c
 endfunction
 
-" Optimization for the loading for large files.
+" Optimize the loading for large files.
 autocmd MyAutoCmd BufReadPre *
 \   if getfsize(expand('<afile>')) > 1024 * 1024 * 8
 \ |   set eventignore+=FileType
@@ -1345,7 +1349,7 @@ autocmd MyAutoCmd VimEnter,WinEnter *
 
 " Jump to the last known cursor position.
 autocmd MyAutoCmd BufReadPost *
-\   if line("'\"") >= 1 && line("'\"") <= line("$")
+\   if line("'\"") >= 1 && line("'\"") <= line('$')
 \ |   execute "normal! g`\""
 \ | endif
 
@@ -1373,6 +1377,7 @@ let g:is_bash = 1
 
 " Vim Script  {{{2
 
+" The indent for a continuation line
 let g:vim_indent_cont = 0
 
 " Disable Lua embedding, since this is buggy.
@@ -1729,7 +1734,7 @@ function! s:on_User_plugin_skeleton_detect() abort
   let directories = segments[:-2]
 
   if filename =~# 'LICENSE'
-    SkeletonLoad license
+    SkeletonLoad license-mit
   elseif filename =~# '\.user\.js$'
     SkeletonLoad userjs
   elseif filename =~# 'Cargo\.toml$'

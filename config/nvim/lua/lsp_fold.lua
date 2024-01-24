@@ -1,6 +1,6 @@
 local SymbolKind = vim.lsp.protocol.SymbolKind
 
-local fold_states = {}
+local global_fold_states = {}
 
 local function is_foldable_symbol(symbol)
   local range = symbol.range
@@ -137,27 +137,37 @@ local function new_fold_state(bufnr)
       'foldtext',
       { buf = bufnr }
     ),
+    detached = false,
   }
 end
 
 local M = {}
 
 function M.setup(bufnr)
+  local fold_state = global_fold_states[bufnr]
+
+  if fold_state then
+    fold_state.detached = false
+    return
+  end
+
   vim.api.nvim_buf_attach(bufnr, false, {
     on_lines = function(event, bufnr, changedtick)
-      local fold_state = fold_states[bufnr]
+      local fold_state = global_fold_states[bufnr]
       if fold_state then
         send_request(bufnr, fold_state)
+        return fold_state.detached
       end
     end,
     on_reload = function(event, bufnr)
-      local fold_state = fold_states[bufnr]
+      local fold_state = global_fold_states[bufnr]
       if fold_state then
         send_request(bufnr, fold_state)
+        return fold_state.detached
       end
     end,
     on_detach = function(event, bufnr)
-      local fold_state = fold_states[bufnr]
+      local fold_state = global_fold_states[bufnr]
       if fold_state then
         if fold_state.cancel_request then
           fold_state.cancel_request()
@@ -166,22 +176,29 @@ function M.setup(bufnr)
         if vim.api.nvim_buf_is_loaded(bufnr) then
           restore_fold_options(bufnr, fold_state)
         end
-        fold_states[bufnr] = nil
+        global_fold_states[bufnr] = nil
+        return fold_state.detached
       end
     end,
   })
 
-  local fold_state = new_fold_state(bufnr)
-
-  fold_states[bufnr] = fold_state
+  fold_state = new_fold_state(bufnr)
+  global_fold_states[bufnr] = fold_state
 
   configure_fold_options(bufnr)
   send_request(bufnr, fold_state)
 end
 
+function M.restore(bufnr)
+  local fold_state = global_fold_states[bufnr]
+  if fold_state then
+    fold_state.detached = true
+  end
+end
+
 function M.foldexpr(lnum)
   local bufnr = vim.api.nvim_get_current_buf()
-  local fold_state = fold_states[bufnr]
+  local fold_state = global_fold_states[bufnr]
   if fold_state == nil then
     return -1
   end
@@ -197,7 +214,7 @@ end
 
 function M.foldtext(fold_start, fold_end, fold_dashes)
   local bufnr = vim.api.nvim_get_current_buf()
-  local fold_state = fold_states[bufnr]
+  local fold_state = global_fold_states[bufnr]
   if fold_state == nil then
     return ''
   end
@@ -216,7 +233,7 @@ end
 
 function M.dump_fold_state(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
-  print(vim.inspect(fold_states[bufnr]))
+  print(vim.inspect(global_fold_states[bufnr]))
 end
 
 return M

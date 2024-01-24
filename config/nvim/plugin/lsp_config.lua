@@ -5,9 +5,20 @@ end
 local null_ls = require('null-ls')
 
 null_ls.setup({
-    sources = {
-        null_ls.builtins.formatting.prettier,
-    },
+  sources = {
+    null_ls.builtins.formatting.biome.with({
+      condition = function(utils)
+        return utils.root_has_file({ 'biome.json' })
+      end,
+      filetypes = {
+        'javascript',
+        'javascriptreact',
+        'typescript',
+        'typescriptreact',
+      },
+      temp_dir = '/tmp',
+    }),
+  },
 })
 
 local function find_root_dir(filename, patterns)
@@ -18,7 +29,18 @@ local function find_root_dir(filename, patterns)
   return files[1] and vim.fs.dirname(files[1])
 end
 
-local servers = {
+local function get_attached_client_count(bufnr)
+  local count = 0
+  local clients = vim.lsp.get_active_clients()
+  for _, client in ipairs(clients) do
+    if vim.lsp.buf_is_attached(bufnr, client.id) then
+      count = count + 1
+    end
+  end
+  return count
+end
+
+local SERVER_DEFINITIONS = {
   rust_analyzer = {
     cmd = { 'rust-analyzer' },
     filetypes = { 'rust' },
@@ -32,6 +54,7 @@ local servers = {
         },
       },
     },
+    formatting = true,
   },
   haskell_language_server = {
     cmd = { 'haskell-language-server-wrapper', '--lsp' },
@@ -39,6 +62,7 @@ local servers = {
     root_dir = function(filename)
       return find_root_dir(filename, { '.git', 'Setup.hs', 'stack.yml' })
     end,
+    formatting = true,
   },
   typescript_language_server = {
     cmd = { 'typescript-language-server', '--stdio' },
@@ -59,53 +83,109 @@ local servers = {
   },
 }
 
-local lsp_config_augroup = vim.api.nvim_create_augroup('MyLspConfig', {})
+local LSP_CONFIG_AUGROUP = vim.api.nvim_create_augroup('MyLspConfig', {})
 
-for name, server in pairs(servers) do
-  if vim.fn.executable(server.cmd[1]) == 1 then
+for name, definition in pairs(SERVER_DEFINITIONS) do
+  if vim.fn.executable(definition.cmd[1]) == 1 then
     vim.api.nvim_create_autocmd('FileType', {
-      group = lsp_config_augroup,
-      pattern = server.filetypes,
+      group = LSP_CONFIG_AUGROUP,
+      pattern = definition.filetypes,
       callback = function(args)
-        if vim.api.nvim_buf_get_name(args.buf) == '' then
+        if vim.api.nvim_buf_get_name(args.buf) == '' or
+          vim.api.nvim_buf_get_option(args.buf, 'buftype') ~= '' then
           return
         end
-        local root_dir = server.root_dir(args.file)
+        local root_dir = definition.root_dir(args.file)
         if root_dir == nil then
           return
         end
-        local client = vim.lsp.start({
+        local client_id = vim.lsp.start({
           name = name,
-          cmd = server.cmd,
+          cmd = definition.cmd,
           root_dir = root_dir,
-          config = server.config or {},
+          config = definition.config or {},
         })
-        vim.lsp.buf_attach_client(args.buf, client)
+        vim.lsp.buf_attach_client(args.buf, client_id)
       end,
     })
   end
 end
 
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = lsp_config_augroup,
+vim.api.nvim_create_autocmd('BufWinEnter', {
+  group = LSP_CONFIG_AUGROUP,
   callback = function(args)
-    local map = function(lhs, rhs)
-      vim.keymap.set('n', lhs, rhs, { buffer = args.buf })
+    if get_attached_client_count(args.bufnr) > 0 then
+      vim.api.nvim_set_option_value('signcolumn', 'yes', { buf = args.buf })
     end
+  end
+})
 
-    map('K', vim.lsp.buf.hover)
-    map('<LocalLeader>a', vim.lsp.buf.code_action)
-    map('<LocalLeader>d', vim.lsp.buf.definition)
-    map('<LocalLeader>D', vim.lsp.buf.declaration)
-    map('<LocalLeader>f', vim.lsp.buf.format)
-    map('<LocalLeader>i', vim.lsp.buf.implementation)
-    map('<LocalLeader>j', vim.diagnostic.goto_next)
-    map('<LocalLeader>k', vim.diagnostic.goto_prev)
-    map('<LocalLeader>n', vim.lsp.buf.rename)
-    map('<LocalLeader>r', vim.lsp.buf.references)
-    map('<LocalLeader>t', vim.lsp.buf.type_definition)
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = LSP_CONFIG_AUGROUP,
+  callback = function(args)
+    if get_attached_client_count(args.bufnr) == 1 then
+      local map = function(lhs, rhs)
+        vim.keymap.set('n', lhs, rhs, { buffer = args.buf })
+      end
 
-    vim.api.nvim_set_option_value('signcolumn', 'yes', { buf = args.buf })
+      map('K', vim.lsp.buf.hover)
+      map('<LocalLeader>a', vim.lsp.buf.code_action)
+      map('<LocalLeader>d', vim.lsp.buf.definition)
+      map('<LocalLeader>D', vim.lsp.buf.declaration)
+      map('<LocalLeader>f', vim.lsp.buf.format)
+      map('<LocalLeader>i', vim.lsp.buf.implementation)
+      map('<LocalLeader>j', vim.diagnostic.goto_next)
+      map('<LocalLeader>k', vim.diagnostic.goto_prev)
+      map('<LocalLeader>n', vim.lsp.buf.rename)
+      map('<LocalLeader>r', vim.lsp.buf.references)
+      map('<LocalLeader>t', vim.lsp.buf.type_definition)
+
+      vim.api.nvim_set_option_value('signcolumn', 'yes', { buf = args.buf })
+
+      vim.api.nvim_create_autocmd('CursorHold', {
+        group = LSP_CONFIG_AUGROUP,
+        buffer = args.buf,
+        callback = function(args)
+          for _, winid in pairs(vim.api.nvim_tabpage_list_wins(0)) do
+            if vim.api.nvim_win_get_config(winid).zindex then
+              return
+            end
+          end
+
+          vim.diagnostic.open_float(args.buf, {
+            scope = 'cursor',
+            focusable = false,
+            close_events = {
+              'CursorMoved',
+              'CursorMovedI',
+              'BufHidden',
+              'InsertCharPre',
+              'WinLeave',
+            },
+          })
+        end,
+      })
+
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        group = LSP_CONFIG_AUGROUP,
+        buffer = args.buf,
+        callback = function(args)
+          vim.lsp.buf.format({
+            async = false,
+            filter = function(client)
+              if client.name == 'null-ls' then
+                return true
+              end
+              local definition = SERVER_DEFINITIONS[client.name]
+              if definition == nil then
+                return false
+              end
+              return definition.formatting or false
+            end
+          })
+        end,
+      })
+    end
 
     local client = vim.lsp.get_client_by_id(args.data.client_id)
 
@@ -120,43 +200,47 @@ vim.api.nvim_create_autocmd('LspAttach', {
     if client.server_capabilities.definitionProvider then
       vim.bo[args.buf].tagfunc = 'v:lua.vim.lsp.tagfunc'
     end
+  end,
+})
 
-    if client.server_capabilities.documentFormattingProvider then
-      vim.api.nvim_create_autocmd('BufWritePre', {
+vim.api.nvim_create_autocmd('LspDetach', {
+  group = LSP_CONFIG_AUGROUP,
+  callback = function(args)
+    if get_attached_client_count(args.bufnr) == 1 then
+      local unmap = function(lhs)
+        vim.keymap.del('n', lhs, { buffer = args.buf })
+      end
+
+      unmap('K')
+      unmap('<LocalLeader>a')
+      unmap('<LocalLeader>d')
+      unmap('<LocalLeader>D')
+      unmap('<LocalLeader>f')
+      unmap('<LocalLeader>i')
+      unmap('<LocalLeader>j')
+      unmap('<LocalLeader>k')
+      unmap('<LocalLeader>n')
+      unmap('<LocalLeader>r')
+      unmap('<LocalLeader>t')
+
+      vim.cmd('setlocal signcolumn<')
+
+      vim.api.nvim_clear_autocmds({
+        group = LSP_CONFIG_AUGROUP,
         buffer = args.buf,
-        callback = function(args)
-          vim.lsp.buf.format({
-            async = false,
-            filter = function(client)
-              return client.name ~= 'typescript_language_server'
-            end
-          })
-        end,
       })
     end
 
-    vim.api.nvim_create_autocmd('CursorHold', {
-      buffer = args.buf,
-      callback = function(args)
-        for _, winid in pairs(vim.api.nvim_tabpage_list_wins(0)) do
-          if vim.api.nvim_win_get_config(winid).zindex then
-            return
-          end
-        end
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    local definition = SERVER_DEFINITIONS[client.name]
 
-        vim.diagnostic.open_float(args.buf, {
-          scope = 'cursor',
-          focusable = false,
-          close_events = {
-            'CursorMoved',
-            'CursorMovedI',
-            'BufHidden',
-            'InsertCharPre',
-            'WinLeave',
-          },
-        })
-      end,
-    })
+    if definition == nil then
+      return
+    end
+
+    if client.server_capabilities.documentSymbolProvider then
+      require('lsp_fold').restore(args.buf)
+    end
   end,
 })
 
@@ -183,7 +267,7 @@ local on_ColorScheme = function()
 end
 
 vim.api.nvim_create_autocmd('ColorScheme', {
-  group = lsp_config_augroup,
+  group = LSP_CONFIG_AUGROUP,
   callback = on_ColorScheme,
 })
 

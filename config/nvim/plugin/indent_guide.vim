@@ -2,7 +2,7 @@ if exists('g:loaded_indent_guide')
   finish
 endif
 
-function! s:update_listchars() abort
+function! s:update_listchars_option() abort
   let settings = filter(split(&listchars, '\\\@<!,'),
   \                     'v:val !~# "^leadmultispace:"')
   if &l:expandtab
@@ -21,12 +21,12 @@ function! s:update_listchars() abort
   endtry
 endfunction
 
-if s:update_listchars()
+if s:update_listchars_option()
   augroup plugin-indent-guide
     autocmd!
-    autocmd BufEnter *  call s:update_listchars()
+    autocmd BufEnter *  call s:update_listchars_option()
     autocmd OptionSet expandtab,listchars,shiftwidth
-    \ call s:update_listchars()
+    \ call s:update_listchars_option()
   augroup END
 endif
 

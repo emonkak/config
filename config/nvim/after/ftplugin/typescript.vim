@@ -5,6 +5,10 @@ setlocal iskeyword-=:
 setlocal shiftwidth=4
 setlocal softtabstop=4
 
+if !exists('b:current_compiler')
+  compiler tsc
+endif
+
 function! TypescriptFold(lnum) abort
   let current = getline(a:lnum)
 

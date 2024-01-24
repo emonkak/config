@@ -1,9 +1,9 @@
-if !exists('g:indent_detection#chunk_size')
-  let g:indent_detection#chunk_size = 100
+if !exists('g:indent_detect#chunk_size')
+  let g:indent_detect#chunk_size = 100
 endif
 
-function! indent_detection#configure_options() abort
-  let options = indent_detection#detect_options()
+function! indent_detect#configure_options() abort
+  let options = indent_detect#detect_options()
   let bufnr = bufnr('')
   let undo_options = []
 
@@ -18,7 +18,7 @@ function! indent_detection#configure_options() abort
   return !empty(undo_options) ? 'setlocal ' . join(undo_options, ' ') : ''
 endfunction
 
-function! indent_detection#detect_options() abort
+function! indent_detect#detect_options() abort
   " See: https://github.com/timakro/vim-yadi/blob/main/plugin/yadi.vim
   let tabbed_lines = 0
   let spaced_lines = 0
@@ -29,7 +29,7 @@ function! indent_detection#detect_options() abort
   let l = line('$')
 
   while i < l
-    for line in getline(i, i + g:indent_detection#chunk_size - 1)
+    for line in getline(i, i + g:indent_detect#chunk_size - 1)
       if line[0] == "\t"
         let tabbed_lines += 1
       else
@@ -50,7 +50,7 @@ function! indent_detection#detect_options() abort
     if tabbed_lines > 0 || spaced_lines > 0
       break
     endif
-    let i += g:indent_detection#chunk_size
+    let i += g:indent_detect#chunk_size
   endwhile
 
   let total_identions = 0

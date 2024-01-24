@@ -29,24 +29,24 @@ function! google_translate#generate_tk(text, tkk) abort
   while i < l
     let n = char2nr(a:text[i])
     if n < 128
-      let tk = s:trnasform_tk1(tk + n)
+      let tk = s:trnasform1(tk + n)
     elseif n < 2048
-      let tk = s:trnasform_tk1(tk + s:or(s:sar(n, 6), 192))
+      let tk = s:trnasform1(tk + s:or(s:sar(n, 6), 192))
     elseif s:and(n, 64512) == 55296 &&
     \      i + 1 < l && s:and(char2nr(a:text[i + 1]), 64512) == 56320
       let i += 1
       let n = 65536 + s:shl(s:and(n, 1023), 10)
       \     + s:and(char2nr(a:text[i]), 1023)
-      let tk = s:trnasform_tk1(tk + s:or(s:sar(n, 18), 240))
-      let tk = s:trnasform_tk1(tk + s:or(s:and(s:sar(n, 12), 63), 128))
+      let tk = s:trnasform1(tk + s:or(s:sar(n, 18), 240))
+      let tk = s:trnasform1(tk + s:or(s:and(s:sar(n, 12), 63), 128))
     else
-      let tk = s:trnasform_tk1(tk + s:or(s:sar(n, 12), 224))
-      let tk = s:trnasform_tk1(tk + s:or(s:and(s:sar(n, 6), 63), 128))
-      let tk = s:trnasform_tk1(tk + s:or(s:and(n, 63), 128))
+      let tk = s:trnasform1(tk + s:or(s:sar(n, 12), 224))
+      let tk = s:trnasform1(tk + s:or(s:and(s:sar(n, 6), 63), 128))
+      let tk = s:trnasform1(tk + s:or(s:and(n, 63), 128))
     endif
     let i += 1
   endwhile
-  let tk = s:trnasform_tk2(tk)
+  let tk = s:trnasform2(tk)
   let tk = s:xor(tk, a:tkk[1])
   if tk < 0
     let tk = s:and(tk, 2147483647) + 2147483648
@@ -84,7 +84,7 @@ function! s:signed(n) abort
   return and(a:n, 0x80000000) != 0
 endfunction
 
-function! s:transform_tk(tk, ops) abort
+function! s:transform(tk, ops) abort
   let tk = a:tk
   for i in range(0, strlen(a:ops) - 2, 3)
     let n = a:ops[i + 2]
@@ -95,12 +95,12 @@ function! s:transform_tk(tk, ops) abort
   return tk
 endfunction
 
-function! s:trnasform_tk1(tk) abort
-  return s:transform_tk(a:tk, '+-a^+6')
+function! s:trnasform1(tk) abort
+  return s:transform(a:tk, '+-a^+6')
 endfunction
 
-function! s:trnasform_tk2(tk) abort
-  return s:transform_tk(a:tk, '+-3^+b+-f')
+function! s:trnasform2(tk) abort
+  return s:transform(a:tk, '+-3^+b+-f')
 endfunction
 
 function! s:truncate(n) abort
