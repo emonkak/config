@@ -3,6 +3,7 @@ import Data.Map qualified as M
 import Data.Maybe (isJust)
 import Data.Monoid (All (..))
 import Sound.Pulse.Pactl (listPulseCards, switchPulseCardProfile)
+import System.Directory (XdgDirectory (..), getXdgDirectory)
 import System.Exit (exitSuccess)
 import XMonad
 import XMonad.Actions.CycleWS
