@@ -183,6 +183,7 @@ myManageHook =
       [ isWineSystemTray -?> doHideIgnore,
         isFullscreen -?> doFullFloat,
         isDialog -?> doCenterFloat,
+        role =? "bubble" -?> doIgnore, -- for Chromeium tooltip
         role =? "pop-up" -?> doFloat,
         isUnknown -?> doFloat
       ]
@@ -303,7 +304,8 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) =
     ]
 
 main = do
-  statusBar <- statusBarPipe "xmobar" myPP
+  xmobar <- getXdgDirectory XdgConfig "xmobar/xmobar"
+  statusBar <- statusBarPipe xmobar myPP
   xmonad $
     withUrgencyHook NoUrgencyHook $
       withSB statusBar $
