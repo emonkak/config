@@ -113,12 +113,12 @@ endfunction
 
 function! s:summarize_entries(entries) abort
   let candidates = []
-  let max_width = winwidth(0) / 2
+  let max_width = min([winwidth(0) / 2, 80])
   for entry in sort(a:entries, 's:compare_entries')
     if entry.score > 0
       call add(candidates, {
-      \   'abbr': entry.tail[:max_width],
-      \   'menu': entry.filepath . ' (' . entry.count . ')',
+      \   'abbr': s:truncate_text(entry.tail, '…', max_width),
+      \   'menu': pathshorten(entry.filepath) . ' (' . entry.count . ')',
       \   'word': entry.head . entry.tail,
       \ })
     endif
@@ -130,6 +130,32 @@ function! s:trim(str) abort
   return exists('*trim')
   \  ? trim(a:str)
   \  : substitute(a:str, '^\s\+\|\s\+$', '', '')
+endfunction
+
+function! s:truncate_text(str, ellipsis, max_width) abort
+  let chars = split(a:str, '.\zs')
+  let width = 0
+
+  for i in range(len(chars))
+    let width += strwidth(chars[i])
+    if width >= a:max_width
+      let chars = chars[:i]
+      break
+    endif
+  endfor
+
+  if width < a:max_width
+    return join(chars, '')
+  endif
+
+  let upper_width = a:max_width - strwidth(a:ellipsis)
+
+  while width > upper_width
+    let last_char = remove(chars, -1)
+    let width -= strwidth(last_char)
+  endwhile
+
+  return join(chars, '') . a:ellipsis
 endfunction
 
 if expand('%:p') ==# expand('<sfile>:p')
