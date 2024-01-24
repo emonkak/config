@@ -60,10 +60,11 @@
 	st = status --branch
 	sw = switch
 
-	show-files = diff-tree --no-commit-id --name-only -r
 	fix = commit --amend --verbose
 	fixup = commit --amend -C HEAD
-	undo = "!sh -c 'git reset --hard $(git rev-parse --abbrev-ref HEAD)@{${1-1}}'"
+	show-files = diff-tree --no-commit-id --name-only -r
+	status-files = "!bash -c \"git status --porcelain | grep -i '^ \\?$1' | awk '{print \\$2}'\""
+	undo = "!bash -c 'git reset --hard $(git rev-parse --abbrev-ref HEAD)@{${1-1}}'"
 
 [credential]
 	helper = store

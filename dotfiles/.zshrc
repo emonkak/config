@@ -91,9 +91,9 @@ unset -f prompt_setup
 
 # Aliases  #{{{1
 
-if which exa &> /dev/null
+if which eza &> /dev/null
 then
-  alias ls='exa --classify --group --time-style=long-iso'
+  alias ls='eza --classify --group --time-style=long-iso'
 elif which vdir &> /dev/null  # `vdir` command is only available in Coreutils.
 then
   alias ls='ls --classify --human-readable --color=auto --time-style=long-iso --show-control-chars'
@@ -122,17 +122,31 @@ alias sudo='sudo '
 alias t='tmux'
 if which nvim &>/dev/null
 then
-  alias v='nvim-wrapper'
-  function nvim-wrapper() {
+  v() {
     if [ ! -d ~/.cache/nvim ]
     then
-      mkdir -p ~/.cache/nvim
+      \mkdir -p ~/.cache/nvim
     fi
-    if [ ! -S ~/.cache/nvim/server.pipe ] || ! lsof ~/.cache/nvim/server.pipe &> /dev/null
+
+    local pipe=~/.cache/nvim/server.pipe
+
+    if [ -e "${pipe}" ] && ! lsof "${pipe}" &> /dev/null
     then
-      nvim --listen ~/.cache/nvim/server.pipe
+      \rm -f "${pipe}"
+    fi
+    if [ -S "${pipe}" ]
+    then
+      \nvim --server "${pipe}" "$@"
     else
-      nvim "$@"
+      \nvim --listen "${pipe}" "$@"
+    fi
+  }
+  vr() {
+    if [ $# -gt 0 ]
+    then
+      v --remote-silent "$(realpath "$@")"
+    else
+      v
     fi
   }
 else
@@ -165,7 +179,7 @@ zshaddhistory() {
   # Prevent saving frequently used commands to the history file.
   [[ ${args[1]} = (exit|la|ll|lla|ls|pwd) ]] && return 1
 
-  # Otherwise, save after checking the exit status later.
+  # Otherwise save after checking the exit status later.
   LAST_COMMAND=${1//\\$'\n'/}
   return 2
 }

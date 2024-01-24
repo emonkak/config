@@ -1,3 +1,14 @@
+export LANG='en_US.UTF-8'
+export LC_MESSAGES='C'
+export LC_TIME='C'
+
+export BROWSER='microsoft-edge-stable'
+export EDITOR='nvim'
+export PAGER='less'
+
+export LESS='-c -R -L'
+export MPD_CONF="$HOME/.mpd/mpd.conf"
+
 export PATH
 
 if [ -d "$HOME/.ghcup/bin" ]
@@ -18,13 +29,6 @@ fi
 if [ -d "$HOME/.cargo/bin" ]
 then
   PATH="$HOME/.cargo/bin:$PATH"
-fi
-
-if [ -d "$HOME/.nvm" ]
-then
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
 fi
 
 if [ -d "$HOME/go" ]
@@ -48,17 +52,10 @@ then
   PATH="$HOME/depot_tools:$PATH"
 fi
 
+if [ -d "$HOME/.local/share/pnpm" ]
+then
+  export PNPM_HOME="$HOME/.local/share/pnpm"
+  PATH="$PNPM_HOME:$PATH"
+fi
+
 PATH="$HOME/bin:$HOME/.local/bin:$HOME/opt/bin:$PATH"
-
-export LANG='en_US.UTF-8'
-export LC_MESSAGES='C'
-export LC_TIME='C'
-
-export BROWSER='microsoft-edge-stable'
-export EDITOR='nvim'
-export PAGER='less'
-
-export LESS='-c -R -L'
-export LV='-c -l'
-
-export MPD_CONF="$HOME/.mpd/mpd.conf"

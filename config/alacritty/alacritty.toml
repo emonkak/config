@@ -1,0 +1,58 @@
+[colors.bright]
+black = "#3f576e"
+blue = "#c5b8fb"
+cyan = "#9cc7dd"
+green = "#8dcfad"
+magenta = "#f1afc2"
+red = "#e9b5a8"
+white = "#b2c3d5"
+yellow = "#d9bd95"
+
+[colors.cursor]
+cursor = "#159598"
+text = "#22262b"
+
+[colors.normal]
+black = "#334454"
+blue = "#8075f5"
+cyan = "#3790b3"
+green = "#1c9969"
+magenta = "#d95a88"
+red = "#cf6950"
+white = "#698aa8"
+yellow = "#aa7f2c"
+
+[colors.primary]
+background = "#22262b"
+foreground = "#d1dbe7"
+
+[cursor]
+thickness = 0.25
+
+[font]
+size = 9
+
+[font.glyph_offset]
+x = 0
+y = 0
+
+[font.normal]
+family = "Sono"
+
+[font.offset]
+x = 0
+y = 1
+
+[[keyboard.bindings]]
+action = "ReceiveChar"
+key = "F"
+mods = "Control|Shift"
+
+[[keyboard.bindings]]
+action = "ReceiveChar"
+key = "B"
+mods = "Control|Shift"
+
+[window.padding]
+x = 2
+y = 2
