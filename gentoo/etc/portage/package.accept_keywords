@@ -2,6 +2,7 @@
 */*::local-repo ~amd64
 
 =dev-lang/ghc-9.2* **
+=media-gfx/mcomix-9999 **
 =media-video/rtmpdump-9999 **
 
 app-editors/gvim ~amd64
@@ -28,11 +29,16 @@ media-fonts/* ~amd64
 media-sound/mpd ~amd64
 media-tv/gtk-v4l ~amd64
 net-im/skypeforlinux ~amd64
+net-misc/gnome-connections ~amd64
 net-p2p/resilio-sync ~amd64
 net-proxy/mitmproxy ~amd64
+sys-apps/eza ~amd64
 sys-apps/ripgrep ~amd64
 sys-auth/elogind ~amd64
+sys-fs/archivemount ~amd64
 sys-fs/dmg2img ~amd64
+sys-fs/fuse-zip ~amd64
+sys-fs/rar2fs ~amd64
 virtual/rust ~amd64
 www-client/brave-bin ~amd64
 www-client/firefox-bin ~amd64

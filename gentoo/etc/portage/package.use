@@ -4,7 +4,7 @@ app-editors/gvim gtk lua luajit
 app-editors/vim LUA_SINGLE_TARGET: -* luajit
 app-editors/vim lua luajit terminal
 app-emulation/wine-vanilla fontconfig jpeg mp3 png vulkan xml
-app-eselect/eselect-php fpmmi
+app-eselect/eselect-php fpm
 app-i18n/uim -anthy gtk linguas_ja skk xft
 app-misc/mfiler3 migemo
 app-misc/tmux -vim-syntax
@@ -20,7 +20,7 @@ dev-lang/rust-bin rls rust-src rustfmt
 dev-lang/scala binary
 dev-lua/* luajit
 dev-vcs/git perl
-media-gfx/fontforge cairo pango png svg
+media-gfx/fontforge cairo gtk pango png svg woff2
 media-gfx/gimp exif jpeg pdf png python svg webp
 media-gfx/graphicsmagick png postscript truetype
 media-gfx/graphviz gtk
@@ -79,6 +79,8 @@ media-libs/flac abi_x86_32
 media-libs/fontconfig abi_x86_32
 media-libs/freetype abi_x86_32
 media-libs/graphene abi_x86_32
+media-libs/gst-plugins abi_x86_32
+media-libs/gst-plugins-bad abi_x86_32
 media-libs/gst-plugins-base abi_x86_32
 media-libs/gst-plugins-good abi_x86_32
 media-libs/gst-plugins-ugly abi_x86_32
@@ -91,6 +93,7 @@ media-libs/libpng abi_x86_32
 media-libs/libpulse abi_x86_32
 media-libs/libsdl2 abi_x86_32 haptic
 media-libs/libsndfile abi_x86_32
+media-libs/libva abi_x86_32
 media-libs/libvorbis abi_x86_32
 media-libs/mesa abi_x86_32
 media-libs/opus abi_x86_32
@@ -98,12 +101,16 @@ media-libs/vulkan-loader abi_x86_32
 media-plugins/gst-plugins-meta abi_x86_32
 media-plugins/gst-plugins-mpg123 abi_x86_32
 media-plugins/gst-plugins-pulse abi_x86_32
+media-plugins/gst-plugins-vaapi abi_x86_32
 media-sound/lame abi_x86_32
 media-sound/mpg123 abi_x86_32
+media-sound/mpg123-base abi_x86_32
 net-dns/libidn2 abi_x86_32
 net-libs/gnutls abi_x86_32
 net-libs/libasyncns abi_x86_32
+sys-apps/systemd-utils abi_x86_32
 sys-apps/util-linux abi_x86_32
+sys-devel/clang abi_x86_32
 sys-devel/llvm abi_x86_32
 sys-libs/libcap abi_x86_32
 sys-libs/libunwind abi_x86_32
@@ -112,6 +119,7 @@ sys-libs/pam abi_x86_32
 sys-libs/zlib abi_x86_32
 virtual/libiconv abi_x86_32
 virtual/libintl abi_x86_32
+virtual/libudev abi_x86_32
 x11-libs/cairo abi_x86_32
 x11-libs/libX11 abi_x86_32
 x11-libs/libXau abi_x86_32
@@ -132,6 +140,7 @@ x11-libs/libxcb abi_x86_32
 x11-libs/libxshmfence abi_x86_32
 x11-libs/pango abi_x86_32
 x11-libs/pixman abi_x86_32
+x11-libs/xcb-util-keysyms abi_x86_32
 
 # for app-editors/neovim
 app-editors/neovim LUA_SINGLE_TARGET: -* luajit
@@ -158,4 +167,3 @@ app-text/ghostscript-gpl cups
 
 # for media-sound/ncmpcpp
 dev-libs/boost icu
-

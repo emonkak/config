@@ -1,16 +1,16 @@
 diff --git a/alacritty/src/display/mod.rs b/alacritty/src/display/mod.rs
-index 4d9c1540..2989e91b 100644
+index dc37794d..85eac8e1 100644
 --- a/alacritty/src/display/mod.rs
 +++ b/alacritty/src/display/mod.rs
-@@ -21,7 +21,6 @@ use winit::event::ModifiersState;
+@@ -21,7 +21,6 @@ use winit::keyboard::ModifiersState;
  use winit::window::CursorIcon;
  
- use crossfont::{self, Rasterize, Rasterizer};
+ use crossfont::{self, Rasterize, Rasterizer, Size as FontSize};
 -use unicode_width::UnicodeWidthChar;
  
- use alacritty_terminal::ansi::{CursorShape, NamedColor};
- use alacritty_terminal::config::MAX_SCROLLBACK_LINES;
-@@ -1133,7 +1132,7 @@ impl Display {
+ use alacritty_terminal::event::{EventListener, OnResize, WindowSize};
+ use alacritty_terminal::grid::Dimensions as TermDimensions;
+@@ -1128,7 +1127,7 @@ impl Display {
                  let is_wide = preedit.text[preedit.cursor_byte_offset.unwrap_or_default()..]
                      .chars()
                      .next()
@@ -19,7 +19,7 @@ index 4d9c1540..2989e91b 100644
                      .unwrap_or_default();
  
                  let cursor_column = Column(
-@@ -1496,7 +1495,7 @@ impl Preedit {
+@@ -1430,7 +1429,7 @@ impl Preedit {
          let cursor_end_offset = if let Some(byte_offset) = cursor_byte_offset {
              // Convert byte offset into char offset.
              let cursor_end_offset =
@@ -28,7 +28,7 @@ index 4d9c1540..2989e91b 100644
  
              Some(cursor_end_offset)
          } else {
-@@ -1640,3 +1639,19 @@ fn window_size(
+@@ -1574,3 +1573,19 @@ fn window_size(
  
      PhysicalSize::new(width as u32, height as u32)
  }
@@ -49,12 +49,12 @@ index 4d9c1540..2989e91b 100644
 +    c.width()
 +}
 diff --git a/alacritty/src/main.rs b/alacritty/src/main.rs
-index d9d26022..4a0e92e4 100644
+index 91d99cbe..b37648b5 100644
 --- a/alacritty/src/main.rs
 +++ b/alacritty/src/main.rs
-@@ -149,6 +149,10 @@ fn alacritty(options: Options) -> Result<(), Box<dyn Error>> {
-     // Set environment variables.
-     tty::setup_env(&config.terminal_config);
+@@ -153,6 +153,10 @@ fn alacritty(mut options: Options) -> Result<(), Box<dyn Error>> {
+         env::set_var(key, value);
+     }
  
 +    // Set linux locale.
 +    #[cfg(target_os = "linux")]
@@ -62,7 +62,7 @@ index d9d26022..4a0e92e4 100644
 +
      // Switch to home directory.
      #[cfg(target_os = "macos")]
-     env::set_current_dir(dirs::home_dir().unwrap()).unwrap();
+     env::set_current_dir(home::home_dir().unwrap()).unwrap();
 diff --git a/alacritty/src/message_bar.rs b/alacritty/src/message_bar.rs
 index 267f8322..2bc09a11 100644
 --- a/alacritty/src/message_bar.rs
@@ -108,7 +108,7 @@ index 267f8322..2bc09a11 100644
  mod tests {
      use super::*;
 diff --git a/alacritty/src/string.rs b/alacritty/src/string.rs
-index a111166d..e8c14811 100644
+index e41b0785..877ffc08 100644
 --- a/alacritty/src/string.rs
 +++ b/alacritty/src/string.rs
 @@ -2,8 +2,6 @@ use std::cmp::Ordering;
@@ -137,7 +137,7 @@ index a111166d..e8c14811 100644
 +                let ch_width = char_width(ch).unwrap_or(1);
  
                  // Advance width.
-                 self.accumulted_len += ch_width;
+                 self.accumulated_len += ch_width;
 @@ -160,6 +158,22 @@ impl<'a> Iterator for StrShortener<'a> {
      }
  }
@@ -162,18 +162,18 @@ index a111166d..e8c14811 100644
  mod tests {
      use super::*;
 diff --git a/alacritty_terminal/src/term/mod.rs b/alacritty_terminal/src/term/mod.rs
-index 3513aa0e..862b094d 100644
+index ec79886c..83f31ccd 100644
 --- a/alacritty_terminal/src/term/mod.rs
 +++ b/alacritty_terminal/src/term/mod.rs
-@@ -6,7 +6,6 @@ use std::{cmp, mem, ptr, slice, str};
- 
+@@ -11,7 +11,6 @@ use base64::engine::general_purpose::STANDARD as Base64;
+ use base64::Engine;
  use bitflags::bitflags;
  use log::{debug, trace};
 -use unicode_width::UnicodeWidthChar;
  
- use crate::ansi::{
-     self, Attr, CharsetIndex, Color, CursorShape, CursorStyle, Handler, NamedColor, StandardCharset,
-@@ -975,8 +974,7 @@ impl<T: EventListener> Handler for Term<T> {
+ use crate::event::{Event, EventListener};
+ use crate::grid::{Dimensions, Grid, GridIterator, Scroll};
+@@ -1055,8 +1054,7 @@ impl<T: EventListener> Handler for Term<T> {
      /// A character to be displayed.
      #[inline(never)]
      fn input(&mut self, c: char) {
@@ -183,7 +183,7 @@ index 3513aa0e..862b094d 100644
              Some(width) => width,
              None => return,
          };
-@@ -2079,6 +2077,22 @@ impl<'a> RenderableContent<'a> {
+@@ -2383,6 +2381,22 @@ impl<'a> RenderableContent<'a> {
      }
  }
  

@@ -22,7 +22,6 @@ app-editors/vscodium
 app-emulation/virtualbox
 app-emulation/virtualbox-modules
 app-emulation/wine-vanilla
-app-emulation/wine-vanilla:8.12
 app-emulation/winetricks
 app-eselect/eselect-repository
 app-i18n/nkf
@@ -33,10 +32,6 @@ app-misc/colordiff
 app-misc/delta
 app-misc/evtest
 app-misc/jq
-app-misc/mfiler3
-app-misc/neofetch
-app-misc/nnn
-app-misc/ranger
 app-misc/ticker
 app-misc/tmux
 app-misc/trash-cli
@@ -58,13 +53,14 @@ app-text/convmv
 app-text/grip
 app-text/tree
 dev-db/mysql
+dev-debug/gdb
+dev-debug/strace
 dev-lang/php
 dev-lang/ruby
 dev-php/pecl-apcu
 dev-php/pecl-memcached
 dev-php/pecl-redis
 dev-php/php-ast
-dev-php/xdebug
 dev-python/fonttools
 dev-python/pip
 dev-ruby/rake
@@ -73,8 +69,6 @@ dev-tcltk/expect
 dev-util/ccache
 dev-util/cloc
 dev-util/ctags
-dev-util/rust-analyzer
-dev-util/strace
 dev-vcs/git
 dev-vcs/tig
 gnome-extra/gucharmap
@@ -135,10 +129,12 @@ net-im/skypeforlinux
 net-misc/aria2
 net-misc/bridge-utils
 net-misc/chrony
+net-misc/gnome-connections
 net-misc/rdesktop
 net-misc/rpiplay
 net-misc/sping
 net-misc/telnet-bsd
+net-misc/uxplay
 net-misc/wakeonlan
 net-misc/whois
 net-p2p/resilio-sync
@@ -150,7 +146,7 @@ sys-apps/dmidecode
 sys-apps/dstat
 sys-apps/edid-decode
 sys-apps/ethtool
-sys-apps/exa
+sys-apps/eza
 sys-apps/fclones
 sys-apps/fd
 sys-apps/flashrom
@@ -159,7 +155,6 @@ sys-apps/hdparm
 sys-apps/i2c-tools
 sys-apps/inxi
 sys-apps/lm-sensors
-sys-apps/massren
 sys-apps/miscfiles
 sys-apps/nvme-cli
 sys-apps/pciutils
@@ -175,10 +170,11 @@ sys-boot/grub:2
 sys-boot/os-prober
 sys-boot/unetbootin
 sys-devel/clang
-sys-devel/gdb
-sys-fs/dmg2img
+sys-fs/archivemount
 sys-fs/dosfstools
 sys-fs/exfat-utils
+sys-fs/fuse-zip
+sys-fs/ntfs3g
 sys-kernel/gentoo-sources
 sys-kernel/linux-firmware
 sys-kernel/pt3
@@ -195,7 +191,6 @@ sys-process/parallel
 virtual/mysql
 virtual/rust
 virtual/wine
-www-client/brave-bin
 www-client/firefox-bin
 www-client/microsoft-edge
 www-servers/nginx

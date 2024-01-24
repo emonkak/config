@@ -20,11 +20,6 @@ UUID="3360591B0DC5DCBC"				/mnt/tank2		ntfs3	noatime,force,uid=1000,gid=1000,fma
 UUID="10176331301CD5B5"				/mnt/tank3		ntfs3	noatime,force,uid=1000,gid=1000,fmask=0113,dmask=0022 0 0
 UUID="E0344FBA344F9308"				/mnt/windows		ntfs3	noatime,force,uid=1000,gid=1000,fmask=0113,dmask=0022 0 0
 
-# UUID="016A613E6864FAED"				/mnt/tank1		ntfs-3g	noatime,uid=1000,gid=1000,fmask=0113,dmask=0022,windows_names 0 0
-# UUID="3360591B0DC5DCBC"				/mnt/tank2		ntfs-3g	noatime,uid=1000,gid=1000,fmask=0113,dmask=0022,windows_names 0 0
-# UUID="10176331301CD5B5"				/mnt/tank3		ntfs-3g	noatime,uid=1000,gid=1000,fmask=0113,dmask=0022,windows_names 0 0
-# UUID="E0344FBA344F9308"				/mnt/windows		ntfs-3g	noatime,uid=1000,gid=1000,fmask=0113,dmask=0022,windows_names 0 0
-
-#/dev/cdrom					/mnt/cdrom		auto	noauto,user 0 0
-#tmpfs						/var/tmp/portage	tmpfs	noatime,size=8g 0 0
-#tmpfs						/tmp			tmpfs	noatime,nosuid,size=1g 0 0
+# /dev/cdrom					/mnt/cdrom		auto	noauto,user 0 0
+# tmpfs						/var/tmp/portage	tmpfs	noatime,size=8g 0 0
+# tmpfs						/tmp			tmpfs	noatime,nosuid,size=1g 0 0
