@@ -231,9 +231,9 @@ function M.foldtext(fold_start, fold_end, fold_dashes)
   )
 end
 
-function M.dump_fold_state(bufnr)
+function M.get_fold_state(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
-  print(vim.inspect(global_fold_states[bufnr]))
+  return global_fold_states[bufnr]
 end
 
 return M
