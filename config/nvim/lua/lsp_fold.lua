@@ -24,7 +24,7 @@ local function calculate_folds(symbols, folds, level)
   if level > vim.wo.foldnestmax then
     return
   end
-  for _, symbol in ipairs(symbols) do
+  for _, symbol in pairs(symbols) do
     if is_foldable_symbol(symbol) then
       local fold = { symbol = symbol, level = level }
       local start_line = symbol.range.start.line + 1
@@ -98,10 +98,10 @@ local function send_request(bufnr, fold_state)
   local params = {
     textDocument = vim.lsp.util.make_text_document_params(bufnr),
   }
-  local callback = function(result)
-    if result then
+  local callback = function(responses)
+    if responses then
       local folds = {}
-      for _, response in pairs(result) do
+      for _, response in pairs(responses) do
         if response.result then
           calculate_folds(response.result, folds, 1)
         end
