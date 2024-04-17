@@ -167,6 +167,10 @@ fi
 
 alias -s {7z,gz,rar,tar,xz,zip}='aunpack'
 
+alias aria2c='noglob aria2c'
+alias curl='noglob curl'
+alias wget='noglob wget'
+
 # Hooks  #{{{1
 
 zshaddhistory() {
