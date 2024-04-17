@@ -53,9 +53,11 @@ local SERVER_DEFINITIONS = {
     root_dir = root_files({ '.git', 'Cargo.toml' }),
     override_config = {
       settings = {
-        hover = {
-          memoryLayout = {
-            niches = true,
+        ['rust-analyzer'] = {
+          hover = {
+            memoryLayout = {
+              niches = true,
+            },
           },
         },
       },
