@@ -2,12 +2,15 @@ export LANG='en_US.UTF-8'
 export LC_MESSAGES='C'
 export LC_TIME='C'
 
-export BROWSER='microsoft-edge-stable'
 export EDITOR='nvim'
+export LESS='-c -R -L'
 export PAGER='less'
 
-export LESS='-c -R -L'
-export MPD_CONF="$HOME/.mpd/mpd.conf"
+if which microsoft-edge-stable >/dev/null
+then
+  export BROWSER='microsoft-edge-stable'
+  export CHROME_PATH=$(which microsoft-edge-stable)
+fi
 
 export PATH
 
@@ -43,7 +46,8 @@ then
   PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH:"
 fi
 
-if which ruby >/dev/null && which gem >/dev/null; then
+if which ruby >/dev/null && which gem >/dev/null
+then
   PATH="$(ruby -r rubygems -e 'puts Gem.user_dir')/bin:$PATH"
 fi
 
@@ -56,6 +60,13 @@ if [ -d "$HOME/.local/share/pnpm" ]
 then
   export PNPM_HOME="$HOME/.local/share/pnpm"
   PATH="$PNPM_HOME:$PATH"
+fi
+
+if which brew >/dev/null
+then
+  GNU_BINS="$(printf "%s:" $(brew --prefix)/opt/*/libexec/gnubin))"
+  GNU_BINS="${GNU_BINS%:}"
+  PATH="$GNU_BINS:$PATH"
 fi
 
 PATH="$HOME/bin:$HOME/.local/bin:$HOME/opt/bin:$PATH"
