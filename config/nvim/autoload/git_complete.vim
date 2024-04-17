@@ -23,8 +23,9 @@ function! s:Handler.new(tokens, col) abort
 endfunction
 
 function! s:Handler.on_next(job, line) abort dict
-  let [filepath; rest] = split(a:line, ':')
-  let content = s:trim(join(rest, ''))
+  let separator_position = stridx(a:line, ':')
+  let filepath = separator_position > 0 ? a:line[:separator_position - 1] : 0
+  let content = a:line[separator_position + 1:]
 
   if has_key(self._entries, content)
     let entry = self._entries[content]
