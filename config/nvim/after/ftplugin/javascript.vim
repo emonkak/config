@@ -6,8 +6,8 @@ setlocal expandtab
 setlocal foldexpr=JavascriptFold(v:lnum)
 setlocal foldmethod=expr
 setlocal iskeyword+=$ iskeyword-=:
-setlocal shiftwidth=4
-setlocal softtabstop=4
+setlocal shiftwidth=2
+setlocal softtabstop=2
 
 function! JavascriptFold(lnum) abort
   let current = getline(a:lnum)

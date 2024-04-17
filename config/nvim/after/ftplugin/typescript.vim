@@ -2,8 +2,8 @@ setlocal expandtab
 setlocal foldexpr=TypescriptFold(v:lnum)
 setlocal foldmethod=expr
 setlocal iskeyword-=:
-setlocal shiftwidth=4
-setlocal softtabstop=4
+setlocal shiftwidth=2
+setlocal softtabstop=2
 
 if !exists('b:current_compiler')
   compiler tsc
