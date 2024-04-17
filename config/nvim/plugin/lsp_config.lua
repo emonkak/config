@@ -282,6 +282,7 @@ vim.api.nvim_create_user_command('LspRestartAll', function(info)
   if #detached_clients > 0 then
     local timer = vim.loop.new_timer()
     local cursor = 1
+    local attempts = 0
     timer:start(
       500,
       100,
@@ -289,7 +290,7 @@ vim.api.nvim_create_user_command('LspRestartAll', function(info)
         while cursor <= #detached_clients do
           local client, attached_buffers = unpack(detached_clients[cursor])
           if not client.is_stopped() then
-            return
+            break
           end
 
           local client_id = vim.lsp.start(client.config)
@@ -304,8 +305,12 @@ vim.api.nvim_create_user_command('LspRestartAll', function(info)
           cursor = cursor + 1
         end
 
-        if not timer:is_closing() then
-          timer:close()
+        attempts = attempts + 1
+
+        if cursor > #detached_clients or attempts >= 5 then
+          if not timer:is_closing() then
+            timer:close()
+          end
         end
       end)
     )
