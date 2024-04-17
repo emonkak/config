@@ -305,7 +305,7 @@ filetype {*.zip,*.jar,*.war,*.ear,*.oxt,*.apkg},
        \ FUSE_MOUNT|fuse-zip %SOURCE_FILE %DESTINATION_DIR,
        \ {View contents} aunpack -l %f | less,
        \ {Extract here} aunpack %f,
-       \ {Extract to other} aunpack --extract-to=%D %f,
+       \ {Extract at other} aunpack --extract-to=%D %f,
 fileviewer *.zip,*.jar,*.war,*.ear,*.oxt unzip -l %f
 
 " Tar archives
@@ -315,7 +315,7 @@ filetype {*.tar,*.tar.bz2,*.tbz2,*.tgz,*.tar.gz,*.tar.xz,*.txz,*.tar.zst,
        \ FUSE_MOUNT|archivemount %SOURCE_FILE %DESTINATION_DIR,
        \ {View contents} aunpack -l %f | less,
        \ {Extract here} aunpack %f,
-       \ {Extract to other} aunpack --extract-to=%D %f,
+       \ {Extract at other} aunpack --extract-to=%D %f,
 fileviewer *.tgz,*.tar.gz  tar -tzf %c
 fileviewer *.tar.bz2,*.tbz2  tar -tjf %c
 fileviewer *.tar.xz,*.txz  tar -tJf %c
@@ -327,14 +327,14 @@ filetype {*.rar},<application/x-rar>
        \ {Mount with rar2fs} FUSE_MOUNT|rar2fs %SOURCE_FILE %DESTINATION_DIR,
        \ {View contents} aunpack -l %f | less,
        \ {Extract here} aunpack %f,
-       \ {Extract to other} aunpack --extract-to=%D %f,
+       \ {Extract at other} aunpack --extract-to=%D %f,
 fileviewer {*.rar},<application/x-rar>  unrar v %c
 
 " 7z archives
 filetype {*.7z},<application/x-7z-compressed>
        \ {View contents} aunpack -l %f | less,
        \ {Extract here} aunpack %f,
-       \ {Extract to other} aunpack --extract-to=%D %f,
+       \ {Extract at other} aunpack --extract-to=%D %f,
 fileviewer {*.7z},<application/x-7z-compressed>
          \ 7z l %c
 
