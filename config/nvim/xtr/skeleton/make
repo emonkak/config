@@ -1,17 +1,17 @@
 CC ?= gcc
 CFLAGS ?= -O2 -march=native -pipe -std=c99 -Wall
 
-PACKAGES =
+PACKAGES :=
 CFLAGS += $(shell pkg-config --cflags $(PACKAGES))
 LDFLAGS += $(shell pkg-config --libs $(PACKAGES))
 
-C_TARGET = main
-C_SOURCES = main.c
-C_OBJECTS = $(C_SOURCES:.c=.o)
+TARGET := main
+SOURCES := main.c
+OBJECTS := $(SOURCES:.c=.o)
 
-all: $(C_TARGET)
+all: $(TARGET)
 
-$(C_TARGET): $(C_OBJECTS)
+$(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $? -o $@
 
 %.o: %.c
