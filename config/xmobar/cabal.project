@@ -1,3 +1,0 @@
-packages: *.cabal
-allow-newer: libmpd:text
-constraints: xmobar +with_mpd

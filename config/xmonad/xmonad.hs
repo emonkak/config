@@ -3,7 +3,6 @@ import Data.Map qualified as M
 import Data.Maybe (isJust)
 import Data.Monoid (All (..))
 import Sound.Pulse.Pactl (listPulseCards, switchPulseCardProfile)
-import System.Directory (XdgDirectory (..), getXdgDirectory)
 import System.Exit (exitSuccess)
 import XMonad
 import XMonad.Actions.CycleWS
@@ -40,7 +39,7 @@ myWorkspaces = map show [(1 :: Int) .. 9]
 
 myStatusbarHeight = 20
 
-myFont = "xft:Sono:size=9"
+myFont = "xft:Native:size=9"
 
 myPrimaryColor = "#5686d7"
 
@@ -228,7 +227,6 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
       ((modMask, xK_l), sendMessage Expand),
       ((modMask .|. shiftMask, xK_h), sendMessage ShrinkRow),
       ((modMask .|. shiftMask, xK_l), sendMessage ExpandRow),
-      ((modMask, xK_b), sendMessage ToggleStruts),
       ((modMask, xK_f), sendMessage ToggleLayout),
       ((modMask, xK_m), windows W.focusMaster),
       ((modMask, xK_t), withFocused $ windows . W.sink),
@@ -303,12 +301,18 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) =
       )
     ]
 
+myStatusBar :: StatusBarConfig
+myStatusBar =
+  def
+    { sbLogHook = return (),
+      sbStartupHook = spawnStatusBar "polybar",
+      sbCleanupHook = killStatusBar "polybar"
+    }
+
 main = do
-  xmobar <- getXdgDirectory XdgConfig "xmobar/xmobar"
-  statusBar <- statusBarPipe xmobar myPP
   xmonad $
     withUrgencyHook NoUrgencyHook $
-      withSB statusBar $
+      withSB myStatusBar $
         ewmh $
           docks $
             def
