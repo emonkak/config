@@ -1,0 +1,13 @@
+diff --git a/src/adapters/net.cpp b/src/adapters/net.cpp
+index 19e1c6ae..54819149 100644
+--- a/src/adapters/net.cpp
++++ b/src/adapters/net.cpp
+@@ -358,7 +358,7 @@ namespace net {
+     }
+ 
+     return sstream() << std::setw(minwidth) << std::setfill(' ') << std::setprecision(precision) << std::fixed
+-                     << speedrate << " " << suffix << unit;
++                     << speedrate << suffix << unit;
+   }
+ 
+   // }}}

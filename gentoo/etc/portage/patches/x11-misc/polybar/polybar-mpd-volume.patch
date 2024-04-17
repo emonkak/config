@@ -1,0 +1,126 @@
+diff --git a/include/adapters/mpd.hpp b/include/adapters/mpd.hpp
+index d6f1b26e..a69881b5 100644
+--- a/include/adapters/mpd.hpp
++++ b/include/adapters/mpd.hpp
+@@ -154,6 +154,7 @@ namespace mpd {
+     unsigned get_total_time() const;
+     unsigned get_elapsed_time() const;
+     unsigned get_elapsed_percentage();
++    int get_volume() const;
+     string get_formatted_elapsed();
+     string get_formatted_total();
+     int get_seek_position(int percentage);
+@@ -174,6 +175,8 @@ namespace mpd {
+     unsigned long m_total_time{0UL};
+     unsigned long m_elapsed_time{0UL};
+     unsigned long m_elapsed_time_ms{0UL};
++
++    int m_volume{0};
+   };
+ 
+   // }}}
+diff --git a/include/modules/mpd.hpp b/include/modules/mpd.hpp
+index 8f381b9b..10ee5f8f 100644
+--- a/include/modules/mpd.hpp
++++ b/include/modules/mpd.hpp
+@@ -60,6 +60,7 @@ namespace modules {
+     static constexpr const char* TAG_TOGGLE_STOP{"<toggle-stop>"};
+     static constexpr const char* TAG_LABEL_SONG{"<label-song>"};
+     static constexpr const char* TAG_LABEL_TIME{"<label-time>"};
++    static constexpr const char* TAG_LABEL_VOLUME{"<label-volume>"};
+     static constexpr const char* TAG_ICON_RANDOM{"<icon-random>"};
+     static constexpr const char* TAG_ICON_REPEAT{"<icon-repeat>"};
+     /*
+@@ -110,6 +111,7 @@ namespace modules {
+     iconset_t m_icons;
+     label_t m_label_song;
+     label_t m_label_time;
++    label_t m_label_volume;
+     label_t m_label_offline;
+ 
+     rgba m_toggle_on_color;
+diff --git a/src/adapters/mpd.cpp b/src/adapters/mpd.cpp
+index ac600f93..bd057330 100644
+--- a/src/adapters/mpd.cpp
++++ b/src/adapters/mpd.cpp
+@@ -390,6 +390,7 @@ namespace mpd {
+     m_consume = mpd_status_get_consume(m_status.get());
+     m_elapsed_time = mpd_status_get_elapsed_time(m_status.get());
+     m_total_time = mpd_status_get_total_time(m_status.get());
++    m_volume = mpd_status_get_volume(m_status.get());
+   }
+ 
+   void mpdstatus::update(int event, mpdconnection* connection) {
+@@ -465,6 +466,10 @@ namespace mpd {
+     return static_cast<int>(float(m_elapsed_time) / float(m_total_time) * 100.0 + 0.5f);
+   }
+ 
++  int mpdstatus::get_volume() const {
++    return m_volume;
++  }
++
+   string mpdstatus::get_formatted_elapsed() {
+     char buffer[32];
+     snprintf(buffer, sizeof(buffer), "%lu:%02lu", m_elapsed_time / 60, m_elapsed_time % 60);
+diff --git a/src/modules/mpd.cpp b/src/modules/mpd.cpp
+index 2baa9942..fea8220c 100644
+--- a/src/modules/mpd.cpp
++++ b/src/modules/mpd.cpp
+@@ -34,9 +34,9 @@ namespace modules {
+     auto format_online = m_conf.get<string>(name(), FORMAT_ONLINE, TAG_LABEL_SONG);
+     for (auto&& format : {FORMAT_PLAYING, FORMAT_PAUSED, FORMAT_STOPPED}) {
+       m_formatter->add(format, format_online,
+-          {TAG_BAR_PROGRESS, TAG_TOGGLE, TAG_TOGGLE_STOP, TAG_LABEL_SONG, TAG_LABEL_TIME, TAG_ICON_RANDOM,
+-              TAG_ICON_REPEAT, TAG_ICON_REPEAT_ONE, TAG_ICON_SINGLE, TAG_ICON_PREV, TAG_ICON_STOP, TAG_ICON_PLAY,
+-              TAG_ICON_PAUSE, TAG_ICON_NEXT, TAG_ICON_SEEKB, TAG_ICON_SEEKF, TAG_ICON_CONSUME});
++          {TAG_BAR_PROGRESS, TAG_TOGGLE, TAG_TOGGLE_STOP, TAG_LABEL_SONG, TAG_LABEL_TIME, TAG_LABEL_VOLUME,
++              TAG_ICON_RANDOM, TAG_ICON_REPEAT, TAG_ICON_REPEAT_ONE, TAG_ICON_SINGLE, TAG_ICON_PREV, TAG_ICON_STOP,
++              TAG_ICON_PLAY, TAG_ICON_PAUSE, TAG_ICON_NEXT, TAG_ICON_SEEKB, TAG_ICON_SEEKF, TAG_ICON_CONSUME});
+ 
+       auto mod_format = m_formatter->get(format);
+ 
+@@ -115,6 +115,9 @@ namespace modules {
+     if (m_formatter->has(TAG_LABEL_TIME)) {
+       m_label_time = load_optional_label(m_conf, name(), TAG_LABEL_TIME, "%elapsed% / %total%");
+     }
++    if (m_formatter->has(TAG_LABEL_VOLUME)) {
++      m_label_volume = load_optional_label(m_conf, name(), TAG_LABEL_VOLUME, "%volume%%");
++    }
+     if (m_formatter->has(TAG_ICON_RANDOM) || m_formatter->has(TAG_ICON_REPEAT) ||
+         m_formatter->has(TAG_ICON_REPEAT_ONE) || m_formatter->has(TAG_ICON_SINGLE) ||
+         m_formatter->has(TAG_ICON_CONSUME)) {
+@@ -244,11 +247,13 @@ namespace modules {
+     string date;
+     string elapsed_str;
+     string total_str;
++    string volume_str;
+ 
+     try {
+       if (m_status) {
+         elapsed_str = m_status->get_formatted_elapsed();
+         total_str = m_status->get_formatted_total();
++        volume_str = to_string(m_status->get_volume());
+       }
+ 
+       if (m_mpd) {
+@@ -282,6 +287,11 @@ namespace modules {
+       m_label_time->replace_token("%total%", total_str);
+     }
+ 
++    if (m_label_volume) {
++      m_label_volume->reset_tokens();
++      m_label_volume->replace_token("%volume%", volume_str);
++    }
++
+     if (m_icons->has("random")) {
+       m_icons->get("random")->m_foreground = m_status && m_status->random() ? m_toggle_on_color : m_toggle_off_color;
+     }
+@@ -328,6 +338,8 @@ namespace modules {
+       builder->node(m_label_song);
+     } else if (tag == TAG_LABEL_TIME && !is_stopped) {
+       builder->node(m_label_time);
++    } else if (tag == TAG_LABEL_VOLUME && !is_stopped) {
++      builder->node(m_label_volume);
+     } else if (tag == TAG_BAR_PROGRESS && !is_stopped) {
+       builder->node(m_bar_progress->output(!m_status ? 0 : m_status->get_elapsed_percentage()));
+     } else if (tag == TAG_LABEL_OFFLINE) {

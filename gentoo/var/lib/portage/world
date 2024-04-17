@@ -31,6 +31,7 @@ app-i18n/uim
 app-misc/colordiff
 app-misc/delta
 app-misc/evtest
+app-misc/hyfetch
 app-misc/jq
 app-misc/ticker
 app-misc/tmux
@@ -67,7 +68,6 @@ dev-ruby/rake
 dev-ruby/rubygems
 dev-tcltk/expect
 dev-util/ccache
-dev-util/cloc
 dev-util/ctags
 dev-vcs/git
 dev-vcs/tig
@@ -87,7 +87,6 @@ media-gfx/graphicsmagick
 media-gfx/graphviz
 media-gfx/imagemagick
 media-gfx/inkscape
-media-gfx/krita
 media-gfx/mcomix
 media-gfx/optipng
 media-gfx/pngquant
@@ -175,7 +174,9 @@ sys-fs/dosfstools
 sys-fs/exfat-utils
 sys-fs/fuse-zip
 sys-fs/ntfs3g
+sys-fs/rar2fs
 sys-kernel/gentoo-sources
+sys-kernel/installkernel
 sys-kernel/linux-firmware
 sys-kernel/pt3
 sys-libs/libcxx
@@ -185,9 +186,10 @@ sys-power/hibernate-script
 sys-process/at
 sys-process/cronie
 sys-process/htop
-sys-process/iotop
+sys-process/iotop-c
 sys-process/lsof
 sys-process/parallel
+sys-process/procs
 virtual/mysql
 virtual/rust
 virtual/wine
@@ -195,6 +197,7 @@ www-client/firefox-bin
 www-client/microsoft-edge
 www-servers/nginx
 x11-apps/igt-gpu-tools
+x11-apps/mesa-progs
 x11-apps/setxkbmap
 x11-apps/xdpyinfo
 x11-apps/xev
@@ -214,6 +217,7 @@ x11-libs/libnotify
 x11-misc/dunst
 x11-misc/hsetroot
 x11-misc/picom
+x11-misc/polybar
 x11-misc/slim
 x11-misc/x11vnc
 x11-misc/xcape

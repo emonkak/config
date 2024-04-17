@@ -1,0 +1,2 @@
+media-libs/mesa -zink
+media-sound/pulseaudio-daemon -system-wide

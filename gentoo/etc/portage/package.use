@@ -29,7 +29,7 @@ media-libs/freetype cleartype_hinting harfbuzz png utils
 media-libs/gd fontconfig jpeg png truetype
 media-libs/imlib2 gif jpeg png
 media-libs/libpng apng
-media-libs/mesa vulkan
+media-libs/mesa vulkan zink
 media-plugins/gst-plugins-meta mp3
 media-sound/mpd aac inotify lame ogg sqlite vorbis
 media-sound/ncmpcpp clock taglib
@@ -53,14 +53,17 @@ sys-kernel/gentoo-sources symlink
 www-client/google-chrome linguas_ja
 www-client/w3m linguas_ja
 www-servers/nginx nginx_modules_http_headers_more
+x11-drivers/xf86-video-intel dri
 x11-libs/cairo opengl svg xcb
 x11-misc/picom opengl
+x11-misc/polybar mpd network
 x11-misc/xmobar -with_weather mpd xft xpm
 x11-terms/rxvt-unicode -vanilla 256-color perl truetype xft unicode3
 x11-terms/xterm truetype
 
 # for Wine
 app-arch/bzip2 abi_x86_32
+app-arch/xz-utils abi_x86_32
 app-arch/zstd abi_x86_32
 dev-lang/orc abi_x86_32
 dev-libs/expat abi_x86_32
@@ -142,28 +145,31 @@ x11-libs/pango abi_x86_32
 x11-libs/pixman abi_x86_32
 x11-libs/xcb-util-keysyms abi_x86_32
 
-# for app-editors/neovim
+# required by app-editors/neovim
 app-editors/neovim LUA_SINGLE_TARGET: -* luajit
 dev-lua/mpack lua_targets_luajit
 
-# for x11-misc/xdg-utils
+# required by x11-misc/xdg-utils
 app-text/xmlto text
 
-# for media-video/vlc
+# required by media-video/vlc
 sys-libs/zlib minizip
 
-# for media-gfx/imagemagick[heif]
+# required by media-gfx/imagemagick[heif]
 media-libs/libheif x265
 
-# for www-servers/nginx
+# required by www-servers/nginx
 app-misc/mime-types nginx
 
-# for media-gfx/krita
+# required by media-gfx/krita
 dev-python/PyQt5 widgets declarative gui network
 dev-qt/qtcore icu
 
-# for app-editors/vscodium
+# required by app-editors/vscodium
 app-text/ghostscript-gpl cups
 
-# for media-sound/ncmpcpp
+# required by media-sound/ncmpcpp
 dev-libs/boost icu
+
+# required by media-gfx/inkscape
+dev-python/pillow tiff

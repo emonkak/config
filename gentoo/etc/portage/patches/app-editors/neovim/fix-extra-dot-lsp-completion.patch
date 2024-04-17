@@ -1,0 +1,13 @@
+diff --git a/runtime/lua/vim/lsp.lua b/runtime/lua/vim/lsp.lua
+index 0c4290d067b23a..2a16bafbfc94ec 100644
+--- a/runtime/lua/vim/lsp.lua
++++ b/runtime/lua/vim/lsp.lua
+@@ -2262,7 +2262,7 @@ end
+ local function adjust_start_col(lnum, line, items, encoding)
+   local min_start_char = nil
+   for _, item in pairs(items) do
+-    if item.filterText == nil and item.textEdit and item.textEdit.range.start.line == lnum - 1 then
++    if item.textEdit and item.textEdit.range.start.line == lnum - 1 then
+       if min_start_char and min_start_char ~= item.textEdit.range.start.character then
+         return nil
+       end

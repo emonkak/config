@@ -1,11 +1,11 @@
 diff --git a/alacritty/src/display/mod.rs b/alacritty/src/display/mod.rs
-index dc37794d..85eac8e1 100644
+index 4dafa80f..d9e87196 100644
 --- a/alacritty/src/display/mod.rs
 +++ b/alacritty/src/display/mod.rs
 @@ -21,7 +21,6 @@ use winit::keyboard::ModifiersState;
  use winit::window::CursorIcon;
  
- use crossfont::{self, Rasterize, Rasterizer, Size as FontSize};
+ use crossfont::{Rasterize, Rasterizer, Size as FontSize};
 -use unicode_width::UnicodeWidthChar;
  
  use alacritty_terminal::event::{EventListener, OnResize, WindowSize};
@@ -49,7 +49,7 @@ index dc37794d..85eac8e1 100644
 +    c.width()
 +}
 diff --git a/alacritty/src/main.rs b/alacritty/src/main.rs
-index 91d99cbe..b37648b5 100644
+index 2a60961a..daf74262 100644
 --- a/alacritty/src/main.rs
 +++ b/alacritty/src/main.rs
 @@ -153,6 +153,10 @@ fn alacritty(mut options: Options) -> Result<(), Box<dyn Error>> {
@@ -162,7 +162,7 @@ index e41b0785..877ffc08 100644
  mod tests {
      use super::*;
 diff --git a/alacritty_terminal/src/term/mod.rs b/alacritty_terminal/src/term/mod.rs
-index ec79886c..83f31ccd 100644
+index f17f7462..059a55b3 100644
 --- a/alacritty_terminal/src/term/mod.rs
 +++ b/alacritty_terminal/src/term/mod.rs
 @@ -11,7 +11,6 @@ use base64::engine::general_purpose::STANDARD as Base64;
@@ -206,3 +206,21 @@ index ec79886c..83f31ccd 100644
  /// Terminal test helpers.
  pub mod test {
      use super::*;
+@@ -2441,7 +2455,7 @@ pub mod test {
+         let lines: Vec<&str> = content.split('\n').collect();
+         let num_cols = lines
+             .iter()
+-            .map(|line| line.chars().filter(|c| *c != '\r').map(|c| c.width().unwrap()).sum())
++            .map(|line| line.chars().filter(|c| *c != '\r').map(|c| char_width(c).unwrap()).sum())
+             .max()
+             .unwrap_or(0);
+ 
+@@ -2461,7 +2475,7 @@ pub mod test {
+                 term.grid[line][Column(index)].c = c;
+ 
+                 // Handle fullwidth characters.
+-                let width = c.width().unwrap();
++                let width = char_width(c).unwrap();
+                 if width == 2 {
+                     term.grid[line][Column(index)].flags.insert(Flags::WIDE_CHAR);
+                     term.grid[line][Column(index + 1)].flags.insert(Flags::WIDE_CHAR_SPACER);

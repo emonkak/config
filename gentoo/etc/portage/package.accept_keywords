@@ -1,3 +1,4 @@
+*/*::dilfridge ~amd64
 */*::haskell ~amd64
 */*::local-repo ~amd64
 
@@ -29,7 +30,6 @@ media-fonts/* ~amd64
 media-sound/mpd ~amd64
 media-tv/gtk-v4l ~amd64
 net-im/skypeforlinux ~amd64
-net-misc/gnome-connections ~amd64
 net-p2p/resilio-sync ~amd64
 net-proxy/mitmproxy ~amd64
 sys-apps/eza ~amd64
@@ -39,12 +39,15 @@ sys-fs/archivemount ~amd64
 sys-fs/dmg2img ~amd64
 sys-fs/fuse-zip ~amd64
 sys-fs/rar2fs ~amd64
+sys-process/procs ~amd64
 virtual/rust ~amd64
 www-client/brave-bin ~amd64
 www-client/firefox-bin ~amd64
 www-client/google-chrome ~amd64
 www-client/jd ~amd64
 x11-apps/igt-gpu-tools ~amd64
+x11-misc/picom ~amd64
+x11-misc/polybar ~amd64
 x11-misc/xcape ~amd64
 x11-misc/xmobar ~amd64
 x11-terms/alacritty ~amd64
@@ -52,11 +55,15 @@ x11-themes/* ~amd64
 x11-wm/xmonad ~amd64
 x11-wm/xmonad-contrib ~amd64
 
-# for Geeqie (HEIC Support)
+# gnome-connections
+net-misc/freerdp ~amd64
+net-misc/gnome-connections ~amd64
+
+# geeqie (HEIC Support)
 media-gfx/geeqie ~amd64
 media-libs/imlib2 ~amd64
 
-# for NeoVim
+# neovim
 app-editors/neovim ~amd64
 dev-libs/libvterm ~amd64
 dev-libs/tree-sitter ~amd64
