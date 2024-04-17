@@ -57,8 +57,8 @@ if has('gui_running')
     set guifont=Monospace\ 10
     set linespace=0
   elseif has('gui_macvim')
-    set guifont=Menlo:h12
-    set linespace=4
+    set guifont=Monaco:h12
+    set linespace=1
     set macmeta
     set visualbell
   elseif has('gui_win32')
@@ -347,55 +347,56 @@ endfunction
 AlterCommand mak[e]  Make
 AlterCommand lmak[e]  Lmake
 
-" BufferSweap  {{{2
+" BufSweap  {{{2
 
-command! -bang -nargs=0 BufferSweap  call s:cmd_BufferSweap(<bang>0)
+command! -bang -bar -nargs=0 BufSweap  call s:cmd_BufSweap(<bang>0)
 
-function! s:cmd_BufferSweap(is_banged) abort
+function! s:cmd_BufSweap(banged) abort
   let bufnrs = range(1, bufnr('$'))
   call filter(bufnrs, 'bufexists(v:val)
   \                 && buflisted(v:val)
   \                 && (bufname(v:val) == "" || !filereadable(bufname(v:val)))
-  \                 && (a:is_banged || !getbufvar(v:val, "&modified"))')
+  \                 && (a:banged || !getbufvar(v:val, "&modified"))')
   for bufnr in bufnrs
-    silent execute bufnr 'bdelete' . (a:is_banged ? '!' : '')
+    silent execute bufnr 'bdelete' . (a:banged ? '!' : '')
   endfor
-  if len(bufnrs) <= 1
-    echo len(bufnrs) 'buffer is deleted'
-  else
-    echo len(bufnrs) 'buffers are deleted'
-  endif
+  echo len(bufnrs) 'buffer(s) are deleted'
 endfunction
 
 " CD  {{{2
 
-command! -nargs=* -complete=customlist,s:complete_cdpath CD
-\ call s:cmd_CD(<q-args>)
+command! -bang -bar -nargs=* -complete=customlist,s:complete_cdpath CD
+\ call s:cmd_CD(exists(':tcd') ? 'tcd' : 'lcd', <q-args>)
 
-function! s:cmd_CD(path) abort
+function! s:cmd_CD(cd_command, path) abort
   if a:path != ''
-    tcd `=a:path`
+    execute a:cd_command fnameescape(a:path)
   else
     let buffer_dir = expand('%:p:h')
-    let git_dir = finddir('.git', buffer_dir . ';')
-    let new_current_dir = git_dir != ''
-    \                   ? fnamemodify(git_dir, ':p:h:h')
-    \                   : buffer_dir
-    tcd `=new_current_dir`
+    if isdirectory(buffer_dir)
+      let git_dir = finddir('.git', buffer_dir . ';')
+      let new_cwd = git_dir != ''
+      \ ? fnamemodify(git_dir, ':p:h:h')
+      \ : buffer_dir
+      execute a:cd_command fnameescape(new_cwd)
+    endif
   endif
-  pwd
+  let t:cwd = getcwd(-1)
+  verbose pwd
 endfunction
 
 AlterCommand cd  CD
 
-" CopyCommand  {{{2
-
-command! -nargs=+ -complete=command CopyCommand
-\ call setreg('"', s:trim(execute(<q-args>)), 'l')
+if exists(':tcd')
+  autocmd MyAutoCmd BufEnter ?*
+  \   if !exists('t:cwd') && getbufvar('%', '&buftype') == ''
+  \ |   silent CD
+  \ | endif
+endif
 
 " FoldDump  {{{2
 
-command! -range=% FoldDump
+command! -bar -range=% FoldDump
 \ <line1>,<line2>global/^/echo
 \ printf("%*d (%d) [%2s] %s",
 \   len(line('$')),
@@ -413,38 +414,21 @@ command! -bar -nargs=1 SpaceIndent
 command! -bar -nargs=1 TabIndent
 \ setlocal noexpandtab shiftwidth< softtabstop< tabstop=<args>
 
-" Note  {{{2
+" Jsonify  {{{2
 
-command! -bar -nargs=? Note
-\ execute printf(
-\   'edit %s/Sync/Documents/Notes/%s%s.md',
-\   $HOME,
-\   strftime('%Y-%m-%d'),
-\   <q-args> != '' ? '_' . <q-args> : ''
-\ )
-
-" PP (Pretty-printing)  {{{2
-
-command! -nargs=? -range PPJson
+command! -nargs=? -range Jsonify
 \   if <q-args> != ''
 \ |   echo s:pretty_print(json_decode(s:trim(<q-args>)), 0, 2, function('json_encode'))
 \ | else
-\ |   call s:prettify(visualmode(), function('json_decode'), function('json_encode'))
+\ |   call s:prettify(visualmode(), 2, function('json_decode'), function('json_encode'))
 \ | endif
 
-command! -nargs=? -range PPVim
-\   if <q-args> != ''
-\ |   echo s:pretty_print(s:sandbox_eval(s:trim(<q-args>)), 0, 2, function('string'))
-\ | else
-\ |   call s:prettify(visualmode(), function('s:sandbox_eval'), function('string'))
-\ | endif
-
-function! s:prettify(visual_command, Decode, Encode) abort
+function! s:prettify(visual_command, indent_width, Decode, Encode) abort
   let reg_value = getreg('"')
   let reg_type = getregtype('"')
   try
     execute 'normal!' ('`<' . a:visual_command . '`>""y')
-    let @" = s:pretty_print(a:Decode(s:trim(@")), 0, 2, a:Encode)
+    let @" = s:pretty_print(a:Decode(s:trim(@")), 0, a:indent_width, a:Encode)
     execute 'normal!' ('`<' . a:visual_command . '`>""p')
   finally
     call setreg('"', reg_value, reg_type)
@@ -462,8 +446,8 @@ function! s:pretty_print(value, depth, indent_width, Encode) abort
     let len = len(a:value)
     let values = map(
     \   a:value,
-    \   { i, val ->
-    \     next_indent . s:pretty_print(val, a:depth + 1, a:indent_width, a:Encode)
+    \   { i, value -> next_indent
+    \                 . s:pretty_print(value, a:depth + 1, a:indent_width, a:Encode)
     \                 . (i + 1 == len ? '' : ',')
     \   }
     \ )
@@ -493,21 +477,32 @@ function! s:pretty_print(value, depth, indent_width, Encode) abort
   endif
 endfunction
 
+" Note  {{{2
+
+command! -bar -nargs=? Note
+\ execute printf(
+\   'edit %s/Sync/Documents/Notes/%s%s.md',
+\   $HOME,
+\   strftime('%Y-%m-%d'),
+\   <q-args> != '' ? '_' . <q-args> : ''
+\ )
+
 " Remote commands  {{{2
 
-command! -nargs=1 -complete=customlist,s:complete_server_name
+command! -bar -nargs=1 -complete=customlist,s:complete_server_name
 \ RemotePut read! ssh <args> pbpaste
 
-command! -nargs=1 -range -complete=customlist,s:complete_server_name
+command! -bar -nargs=1 -range -complete=customlist,s:complete_server_name
 \ RemoteYank
 \ call system(['ssh', <q-args>, 'pbcopy'], getline(<line1>, <line2>))
 
 function! s:complete_server_name(arglead, cmdline, cursorpos) abort
   let path = expand('$HOME/.ssh/known_hosts')
-  if !filereadable(path)
+  try
+    let server_names = readfile(path, '')
+  catch /\<E484:/
     return []
-  endif
-  let server_names = readfile(path, '')
+  endtry
   call map(server_names, { _, line -> matchstr(line, '^\S\+') })
   call sort(server_names)
   call uniq(server_names)
@@ -517,17 +512,17 @@ endfunction
 
 " Rename  {{{2
 
-command! -complete=file -nargs=1 Rename  call s:cmd_Rename(<q-args>)
+command! -bar -complete=file -nargs=1 Rename  call s:cmd_Rename(<q-args>)
 
 function! s:cmd_Rename(new_path) abort
   let old_path = expand('%')
   if &l:readonly || (filereadable(old_path) && !filewritable(old_path))
     echohl ErrorMsg
-    echo 'The current buffer is read-only'
+    echo 'This buffer is read-only'
     echohl None
   elseif filereadable(a:new_path)
     echohl ErrorMsg
-    echo 'A file already exists at the destination' string(new_path)
+    echo 'A file already exists at the destination' string(a:new_path)
     echohl None
   else
     let new_dir = fnamemodify(a:new_path, ':p:h')
@@ -565,7 +560,7 @@ AlterCommand so[urce]  Source
 
 " Sum  {{{2
 
-command! -range Sum
+command! -bar -range Sum
 \ <line2>put =string(s:sum_lines(<line1>, <line2>))
 
 function! s:sum_lines(start_lnum, end_lnum) abort
@@ -1351,6 +1346,7 @@ autocmd MyAutoCmd VimEnter,WinEnter *
 autocmd MyAutoCmd BufReadPost *
 \   if line("'\"") >= 1 && line("'\"") <= line('$')
 \ |   execute "normal! g`\""
+\ |   silent! foldopen!
 \ | endif
 
 " Avoid to set `filetype` twice.
@@ -1412,31 +1408,33 @@ vmap gd  <Plug>(operator-grex-delete)
 " Mappings  {{{3
 
 nnoremap [Space]k  <Nop>
-nnoremap [Space]k/  :<C-u>call <SID>luis_start(luis#source#history#new('search'))<CR>
-nnoremap [Space]k:  :<C-u>call <SID>luis_start(luis#source#history#new('cmd'))<CR>
-nnoremap [Space]kM  :<C-u>call <SID>luis_start(luis#source#mark#new())<CR>
-nnoremap [Space]kT  :<C-u>call <SID>luis_start(luis#source#tagstack#new(win_getid()))<CR>
-nnoremap [Space]k\  :<C-u>call <SID>luis_start(luis#source#history#new('expr'))<CR>
-nnoremap [Space]ka  :<C-u>call <SID>luis_start(luis#source#arglist#new())<CR>
-nnoremap [Space]kb  :<C-u>call <SID>luis_start(luis#source#buffer#new())<CR>
-nnoremap [Space]kc  :<C-u>call <SID>luis_start_with_path(luis#source#file#new(), expand('%:h'))<CR>
-nnoremap [Space]kd  :<C-u>call <SID>luis_start(luis#source#lsp_document_symbol#new(bufnr('%')))<CR>
-nnoremap [Space]kf  :<C-u>call <SID>luis_start(luis#source#file#new())<CR>
-nnoremap [Space]kg  :<C-u>call <SID>luis_start(luis#source#metarw#new('git'))<CR>
-nnoremap [Space]kh  :<C-u>call <SID>luis_start(luis#source#help#import())<CR>
-nnoremap [Space]ki  :<C-u>call <SID>luis_start(luis#source#history#new('input'))<CR>
-nnoremap [Space]kj  :<C-u>call <SID>luis_start(luis#source#jumplist#new(win_getid()))<CR>
-nnoremap [Space]kk  :<C-u>call <SID>luis_resume()<CR>
-nnoremap [Space]kl  :<C-u>call <SID>luis_start_async_files()<CR>
-nnoremap [Space]km  :<C-u>call <SID>luis_start(luis#source#local_mark#new(bufnr('%')))<CR>
-nnoremap [Space]kn  :<C-u>call <SID>luis_start_file_in_path(expand("~/Sync/Documents/Notes"))<CR>
-nnoremap [Space]ko  :<C-u>call <SID>luis_start(luis#source#oldfiles#new())<CR>
-nnoremap [Space]kq  :<C-u>call <SID>luis_start(luis#source#quickfix#new())<CR>
-nnoremap [Space]kr  :<C-u>call <SID>luis_start(luis#source#register#new())<CR>
-nnoremap [Space]ks  :<C-u>call <SID>luis_start(luis#source#spell#import())<CR>
-nnoremap [Space]kt  :<C-u>call <SID>luis_start_async_tags()<CR>
-nnoremap [Space]kw  :<C-u>call <SID>luis_start_project(expand('~/Sync/works'))<CR>
-nnoremap [Space]kz  :<C-u>call <SID>luis_start(luis#source#fold#new(win_getid()))<CR>
+nnoremap <silent> [Space]k/  :<C-u>call <SID>luis_start(luis#source#history#new('search'))<CR>
+nnoremap <silent> [Space]k:  :<C-u>call <SID>luis_start(luis#source#history#new('cmd'))<CR>
+nnoremap <silent> [Space]kM  :<C-u>call <SID>luis_start(luis#source#mark#new())<CR>
+nnoremap <silent> [Space]kT  :<C-u>call <SID>luis_start(luis#source#tagstack#new(win_getid()))<CR>
+nnoremap <silent> [Space]k\  :<C-u>call <SID>luis_start(luis#source#history#new('expr'))<CR>
+nnoremap <silent> [Space]ka  :<C-u>call <SID>luis_start(luis#source#arglist#new())<CR>
+nnoremap <silent> [Space]kb  :<C-u>call <SID>luis_start(luis#source#buffer#new())<CR>
+nnoremap <silent> [Space]kc  :<C-u>call <SID>luis_start_with_path(luis#source#file#new(), expand('%:h'))<CR>
+nnoremap <silent> [Space]kd  :<C-u>call <SID>luis_start(luis#source#lsp_document_symbol#new(bufnr('%')))<CR>
+nnoremap <silent> [Space]kf  :<C-u>call <SID>luis_start(luis#source#file#new())<CR>
+nnoremap <silent> [Space]kg  :<C-u>call <SID>luis_start(luis#source#metarw#new('git'))<CR>
+nnoremap <silent> [Space]kh  :<C-u>call <SID>luis_start(luis#source#help#import())<CR>
+nnoremap <silent> [Space]ki  :<C-u>call <SID>luis_start(luis#source#history#new('input'))<CR>
+nnoremap <silent> [Space]kj  :<C-u>call <SID>luis_start(luis#source#jumplist#new(win_getid()))<CR>
+nnoremap <silent> [Space]kk  :<C-u>call <SID>luis_resume()<CR>
+nnoremap <silent> [Space]kl  :<C-u>call <SID>luis_start_async_files()<CR>
+nnoremap <silent> [Space]km  :<C-u>call <SID>luis_start(luis#source#local_mark#new(bufnr('%')))<CR>
+nnoremap <silent> [Space]kn  :<C-u>call <SID>luis_start_file_in_path(expand("~/Sync/Documents/Notes"))<CR>
+nnoremap <silent> [Space]ko  :<C-u>call <SID>luis_start(luis#source#oldfiles#new())<CR>
+nnoremap <silent> [Space]kq  :<C-u>call <SID>luis_start(luis#source#quickfix#new())<CR>
+nnoremap <silent> [Space]kr  :<C-u>call <SID>luis_start(luis#source#register#new())<CR>
+nnoremap <silent> [Space]ks  :<C-u>call <SID>luis_start(luis#source#spell#import())<CR>
+nnoremap <silent> [Space]kt  :<C-u>call <SID>luis_start_async_tags()<CR>
+nnoremap <silent> [Space]kw  :<C-u>call <SID>luis_start_project(expand('~/Sync/works'))<CR>
+nnoremap <silent> [Space]kz  :<C-u>call <SID>luis_start(luis#source#fold#new(win_getid()))<CR>
+
+let s:luis_last_session = 0
 
 function! s:luis_project_callback(path)  " {{{3
   tcd `=a:path`
@@ -1444,7 +1442,7 @@ function! s:luis_project_callback(path)  " {{{3
 endfunction
 
 function! s:luis_resume() abort  " {{{3
-  if exists('s:luis_last_session')
+  if s:luis_last_session isnot 0
     call luis#start(s:luis_last_session)
   endif
 endfunction
@@ -1587,7 +1585,7 @@ vmap <Leader>S  <Plug>(operator-sort-numeric)$
 
 " quickrun  {{{2
 
-command! -complete=command -nargs=+ Capture  QuickRun vim -src <q-args>
+command! -complete=command -nargs=+ Capture  QuickRun vim/source -src <q-args>
 
 let g:quickrun_config = {
 \   '_': {
@@ -1596,21 +1594,15 @@ let g:quickrun_config = {
 \   'c': {
 \     'type': 'c/clang',
 \   },
-\   'go': {
-\     'command': 'go',
-\     'exec': '%c run %s:p %a',
-\     'tempfile': '%{tempname()}.go',
-\     'hook/output_encode/encoding': 'utf-8',
-\   },
 \   'objc': {
 \     'type': 'objc/clang',
 \   },
 \   'objc/clang': {
-\     'command': 'clang',
 \     'cmdopt': '-framework Foundation -framework AppKit',
+\     'command': 'clang',
 \     'exec': ['%c %o -o %s:p:r %s', '%s:p:r %a'],
-\     'tempfile': '%{fnamemodify(tempname(), ":r")}.m',
 \     'hook/sweep/files': '%S:p:r',
+\     'tempfile': '%{fnamemodify(tempname(), ":r")}.m',
 \   },
 \   'cpp': {
 \     'type': 'cpp/g++',
@@ -1623,28 +1615,41 @@ let g:quickrun_config = {
 \     'type': 'haskell/runghc',
 \   },
 \   'haskell/runghc': {
-\     'command': 'runghc',
-\     'tempfile': '%{tempname()}.hs',
 \     'cmdopt': '--ghc-arg=-Wall -Wno-unused-top-binds',
+\     'command': 'runghc',
+\     'hook/eval/template': 'main = print \$ %s',
+\     'tempfile': '%{tempname()}.hs',
 \   },
 \   'javascript': {
 \     'type': 'javascript/nodejs',
 \   },
 \   'javascript/nodejs': {
-\     'command': 'node',
-\     'tempfile': '%{tempname()}.mjs',
 \     'cmdopt': '--experimental-default-type=module',
+\     'command': 'node',
+\     'hook/eval/template': 'console.log(%s)',
+\     'tempfile': '%{tempname()}.mjs',
+\   },
+\   'javascript/browserjs': {
+\     'command': 'browserjs',
+\     'hook/eval/template': 'console.log(%s)',
 \   },
 \   'json': {
 \     'cmdopt': '.',
 \     'command': 'jq',
 \   },
 \   'lua': {
-\     'type': 'lua/vim',
+\     'type': executable('nvim') ? 'lua/neovim' : 'lua/vim',
+\   },
+\   'lua/neovim': {
+\     'cmdopt': '-u NONE -i NONE -N -n -E',
+\     'command': 'nvim',
+\     'exec': ['%c %o -l %s'],
+\     'hook/eval/template': 'print(vim.inspect(%s))',
+\     'tempfile': '%{tempname()}.lua',
 \   },
 \   'rust': {
 \     'command': 'rustc',
-\     'cmdopt': '-A dead_code --edition 2021',
+\     'cmdopt': '-A dead_code --edition 2024',
 \     'exec': ['%c %o %s -o %s:p:r', 'RUST_BACKTRACE=1 %s:p:r %a'],
 \     'tempfile': '%{fnamemodify(tempname(), ":r")}.rs',
 \     'hook/shebang/enable': 0,
@@ -1658,24 +1663,36 @@ let g:quickrun_config = {
 \     'exec': ['%c --host 127.0.0.1 --user root %a < %s'],
 \   },
 \   'typescript': {
-\     'type': 'typescript/ts-node',
+\     'type': executable('tsx') ? 'typescript/tsx' : 'typescript/ts-node',
 \   },
 \   'typescript/ts-node': {
-\     'command': 'ts-node',
-\     'cmdopt': '-O "{\"strict\": true, \"target\": \"ES2021\"}"',
+\     'command': 'tsm',
+\     'cmdopt': '--esm',
+\     'exec': ['TS_NODE_TRANSPILE_ONLY=true %c %o %s %a'],
+\   },
+\   'typescript/tsx': {
+\     'command': 'tsx',
 \     'exec': ['%c %o %s %a'],
 \   },
 \   'vim': {
-\     'cmdopt': '-u NONE -i NONE -N -n -E',
+\     'type': 'vim/sandbox',
+\   },
+\   'vim/sandbox': {
+\     'cmdopt': '-u NONE -i NONE -N -n -E -s',
 \     'command': v:progpath,
-\     'exec': ['%c %o --cmd "try | verbose source %S | catch | verbose echo v:throwpoint | verbose echo v:exception | finally | qall! | endtry"'],
+\     'exec': ['%c %o --cmd "verbose source %S" --cmd "qall!"'],
 \     'hook/eval/template': 'echo %s',
-\     'runner': 'system',
 \     'tempfile': '%{tempname()}.vim',
 \   },
+\   'vim/source': {
+\     'command': ':source',
+\     'exec': '%C %S',
+\     'hook/eval/template': 'echo %s',
+\     'runner': 'vimscript',
+\   },
 \   'xdefaults': {
-\     'command': 'mysql',
-\     'exec': ['xrdb -remove', 'xrdb -merge %s', 'xrdb -query'],
+\     'command': 'xrdb',
+\     'exec': ['%c -remove', '%c -merge %s', '%c -query'],
 \   },
 \ }
 
@@ -1941,7 +1958,7 @@ let g:surround_obj_config = {
 
 " table-mode  {{{2
 
-nnoremap <silent> [Space]t  :<C-u>TableModeToggle<CR>
+nnoremap <silent> [Space]ot  :<C-u>TableModeToggle<CR>
 
 " Fin.  {{{1
 
