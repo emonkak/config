@@ -45,13 +45,11 @@ mark 1  /mnt/tank1/
 mark 2  /mnt/tank2/
 mark 3  /mnt/tank3/
 mark D  ~/Desktop/
-mark H  ~/
-mark L  /mnt/tank1/Downloads/
 mark M  /mnt/
 mark N  ~/Downloads/
 mark O  ~/Documents/
 mark P  ~/Pictures/
-mark V  /mnt/tank1/Videos/
+mark T  ~/.local/share/vifm/Trash/
 mark W  ~/works/
 
 " Commands  {{{1
