@@ -55,32 +55,6 @@ myForegroundColor = "#d1dbe7"
 
 myBackgroundColor = "#22262b"
 
-myPP = do
-  floated <- withWindowSet isFloat
-  pure $
-    def
-      { ppCurrent = xmobarColor myBackgroundColor myPrimaryColor . wrapSpaces,
-        ppHidden = wrapSpaces,
-        ppHiddenNoWindows = xmobarColor myLightGrayColor "" . wrapSpaces,
-        ppUrgent = wrap "*" " ",
-        ppSep = xmobarColor myLightGrayColor "" $ wrap " " " " $ xmobarIcon "separator.xbm",
-        ppWsSep = "",
-        ppTitle = if floated then ("<fn=1>\xe069</fn> " ++) else id,
-        ppTitleSanitize = xmobarRaw,
-        ppLayout = xmobarColor myPrimaryColor "" . layoutIcon
-      }
-  where
-    layoutIcon name = case name of
-      "Spacing Tall" -> xmobarIcon "layout-tall.xbm"
-      "Spacing ThreeCol" -> xmobarIcon "layout-threecol.xbm"
-      "Full" -> xmobarIcon "layout-full.xbm"
-      _ -> xmobarRaw name
-    xmobarIcon = wrap "<icon=" "/>"
-    wrapSpaces = wrap " " " "
-    isFloat ws = return $ case W.peek ws of
-      Nothing -> False
-      Just w -> M.member w $ W.floating ws
-
 myXPConfig ref =
   (def :: XPConfig)
     { font = myFont,
