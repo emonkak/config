@@ -81,9 +81,10 @@ local SERVER_DEFINITIONS = {
     root_dir = root_files({ '.git', 'package.json' }),
     override_config = {
       on_attach = function(client, bufnr)
+        vim.bo[bufnr].formatexpr = nil
         client.server_capabilities.documentFormattingProvider = false
       end,
-      settings = {
+      init_options = {
         preferences = {
           disableSuggestions = true,
         },
