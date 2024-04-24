@@ -145,6 +145,10 @@ local function new_fold_state(bufnr)
   }
 end
 
+local function trim(text)
+  return text:gsub('^%s+', ''):gsub('%s+$', '')
+end
+
 local M = {}
 
 function M.setup(bufnr)
@@ -233,12 +237,18 @@ function M.foldtext(fold_start, fold_end, fold_dashes)
   if fold == nil then
     return ''
   end
+  local symbol = fold.symbol
+  local line = vim.api.nvim_buf_get_lines(
+    bufnr,
+    symbol.selectionRange.start.line,
+    symbol.selectionRange.start.line + 1,
+    false
+  )[1] or ''
   return string.format(
-    '+-%s%3d lines: %s [%s]',
+    '+-%s%3d lines: %s',
     fold_dashes,
-    fold.symbol.range['end'].line - fold.symbol.range.start.line,
-    fold.symbol.name,
-    SymbolKind[fold.symbol.kind] or '?'
+    symbol.range['end'].line - symbol.range.start.line,
+    trim(line)
   )
 end
 
