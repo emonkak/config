@@ -130,7 +130,7 @@ nnoremap |  :if layoutis('only') | vsplit | else | only | endif<cr>
 nnoremap ~  :cd ~<cr>
 
 " Create a new file
-nnoremap <wait> a  :touch<space>
+nnoremap <wait> a  :touch<space>""<left>
 
 " Copy files to directory of other view
 noremap cC  :copy!<cr>
@@ -155,7 +155,7 @@ noremap gM  :move!<cr>
 noremap gm  :move<cr>
 
 " A mapping for creating directory
-nnoremap <wait> i  :mkcd<space>
+nnoremap <wait> i  :mkcd<space>""<left>
 
 " Open the file via the viewer instead of launching the file
 noremap l  :if filetype('.', 1) == 'dir'
