@@ -85,9 +85,9 @@ local function sync_folds(bufnr)
   -- Reconfigure 'foldmethod', which forces a re-evaluation of 'foldexpr'.
   vim.api.nvim_set_option_value('foldmethod', 'expr', { buf = bufnr })
 
-  -- A fold of the cursor may be closed, so reopen it.
+  -- The fold under the cursor may be closed, so reopen it.
   if vim.fn.foldclosed(view.lnum) >= 0 then
-    vim.cmd.foldopen({ bang = true })
+    vim.cmd.foldopen({ bang = true, range = { view.lnum, view.lnum } })
   end
 
   vim.fn.winrestview(view)
@@ -108,7 +108,13 @@ local function send_request(bufnr, fold_state)
       end
       fold_state.cancel_request = nil
       fold_state.folds = folds
-      sync_folds(bufnr)
+      if fold_state.timer == nil or fold_state.timer:is_closing() then
+        local timer = vim.loop.new_timer()
+        timer:start(100, 0, vim.schedule_wrap(function()
+          sync_folds(bufnr)
+        end))
+        fold_state.timer = timer
+      end
     end
   end
   if fold_state.cancel_request then
@@ -173,11 +179,16 @@ function M.setup(bufnr)
           fold_state.cancel_request()
           fold_state.cancel_request = nil
         end
+        if fold_state.timer then
+          local timer = fold_state.timer
+          if not timer:is_closing() then
+            timer:close()
+          end
+        end
         if vim.api.nvim_buf_is_loaded(bufnr) then
           restore_fold_options(bufnr, fold_state)
         end
         global_fold_states[bufnr] = nil
-        return fold_state.detached
       end
     end,
   })
@@ -192,6 +203,8 @@ end
 function M.restore(bufnr)
   local fold_state = global_fold_states[bufnr]
   if fold_state then
+    -- vim.api.nvim_buf_detach() is only available with RPC. Instead, detach
+    -- from callbacks.
     fold_state.detached = true
   end
 end
