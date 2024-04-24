@@ -1,85 +1,110 @@
-if exists('g:main_syntax')
-  finish
-endif
+" More strict Ecmascript import/export syntax
+syntax clear typescriptImport
+syntax clear typescriptImportType
+syntax clear typescriptExport
+syntax clear typescriptExportType
 
-function! s:include_html_syntax()
-  let original_current_syntax = b:current_syntax
-
-  unlet b:current_syntax
-  let g:main_syntax = 'java'
-  let g:java_css = 1
-
-  syntax include @typescriptHTMLSyntax syntax/html.vim
-
-  unlet g:java_css
-  unlet g:main_syntax
-  let b:current_syntax = original_current_syntax
-endfunction
-
-function! s:include_svg_syntax()
-  let original_current_syntax = b:current_syntax
-
-  unlet b:current_syntax
-
-  syntax include @typescriptSVGSyntax syntax/svg.vim
-
-  let b:current_syntax = original_current_syntax
-endfunction
-
-call s:include_html_syntax()
-call s:include_svg_syntax()
-
-syntax region typescriptHTMLTemplate
-\ matchgroup=String
-\ start='\%(\K\k*\.\|\<\)html\s*`'hs=e
-\ skip='\\`'
-\ end='`'
-\ contains=@typescriptHTMLSyntax,typescriptHTMLTemplateHole
-
-syntax region typescriptHTMLTemplateAttribute
-\ keepend
-\ start='=\s*\${'
-\ end='}'
-\ contains=typescriptHTMLTemplateHole
+syntax keyword typescriptImport import
+\ nextgroup=typescriptImportType,@typescriptImportClause,typescriptString
+\ skipwhite
+\ skipempty
+syntax keyword typescriptImportType type
 \ contained
-\ containedin=@typescriptHTMLDecorations,htmlTag
-
-syntax region typescriptHTMLTemplateHole
-\ matchgroup=Special
-\ start='\${'
-\ end='}'
-\ contains=@typescriptValue
+\ nextgroup=@typescriptImportClause
+\ skipwhite
+\ skipempty
+syntax match typescriptImportDefaultBinding /\K\k*\%(\s*,\)\?/
+\ contains=@typescriptBinding
 \ contained
-\ containedin=@typescriptHTMLDecorations,htmlString,htmlComment,htmlTag
-
-syntax cluster typescriptHTMLDecorations
-\ contains=htmlBold,htmlBoldItalic,htmlBoldItalicUnderline,htmlBoldUnderline,htmlBoldUnderlineItalic,htmlH1,htmlH2,htmlH3,htmlH4,htmlH5,htmlH6,htmlHead,htmlItalic,htmlItalicBold,htmlItalicBoldUnderline,htmlItalicUnderline,htmlItalicUnderlineBold,htmlLink,htmlStrike,htmlTitle,htmlUnderline,htmlUnderlineBold,htmlUnderlineBoldItalic,htmlUnderlineItalic,htmlUnderlineItalicBold,htmlStrike
-
-syntax region typescriptSVGTemplate
-\ matchgroup=String
-\ start='\%(\K\k*\.\|\<\)svg\s*`'hs=e
-\ skip='\\`'
-\ end='`'
-\ contains=@typescriptSVGSyntax,typescriptSVGTemplateHole
-
-syntax region typescriptSVGTemplateAttribute
-\ keepend
-\ start='=\s*\${'
-\ end='}'
-\ contains=typescriptSVGTemplateHole
+\ nextgroup=typescriptImportNamespace,typescriptImportNamedImports,typescriptFromClause
+\ skipwhite
+\ skipempty
+syntax match typescriptImportNamespace /\*\s\+as\s\+\K\k*/he=s+1
+\ contains=typescriptBindingAlias
 \ contained
-\ containedin=xmlTag
-
-syntax region typescriptSVGTemplateHole
-\ matchgroup=Special
-\ start='\${'
-\ end='}'
-\ contains=@typescriptValue
+\ nextgroup=typescriptFromClause
+\ skipwhite
+\ skipempty
+syntax region typescriptImportNamedImports
+\ matchgroup=typescriptBraces
+\ start=/{/
+\ end=/}/
+\ contains=typescriptComment,typescriptString,typescriptBindingAlias,@typescriptBinding
 \ contained
-\ containedin=xmlComment,xmlString,xmlTag
+\ nextgroup=typescriptFromClause
+\ skipwhite
+\ skipempty
+syntax cluster typescriptImportClause
+\ contains=typescriptImportDefaultBinding,typescriptImportNamespace,typescriptImportNamedImports
 
-syntax cluster typescriptTopExpression
-\ add=typescriptHTMLTemplate,typescriptSVGTemplate
+syntax keyword typescriptExport export
+\ nextgroup=typescriptExportType,typescriptExportNamespace,typescriptExportNamedExports
+\ skipwhite
+\ skipempty
+syntax keyword typescriptExportType type
+\ contained
+\ nextgroup=typescriptExportNamespace,typescriptExportNamedExports
+\ skipwhite
+\ skipempty
+syntax match typescriptExportNamespace /\*\%(\s\+as\s\+\K\k*\)\?/he=s+1
+\ contains=typescriptBindingAlias
+\ contained
+\ nextgroup=typescriptFromClause
+\ skipwhite
+\ skipempty
+syntax region typescriptExportNamedExports
+\ matchgroup=typescriptBraces
+\ start=/{/
+\ end=/}/
+\ contains=typescriptComment,typescriptString,typescriptBindingAlias,@typescriptBinding
+\ contained
+\ nextgroup=typescriptFromClause
+\ skipwhite
+\ skipempty
+
+syntax keyword typescriptFromClause from
+\ contained
+\ nextgroup=typescriptString
+\ skipwhite
+\ skipempty
+
+syntax cluster typescriptBinding
+\ contains=typescriptBindingValue,typescriptBindingType
+syntax match typescriptBindingValue /\K\k*/
+\ contained
+syntax keyword typescriptBindingType type
+\ contained
+\ nextgroup=typescriptBindingValue
+\ skipwhite
+\ skipempty
+syntax keyword typescriptBindingAlias as
+\ contained
+\ nextgroup=typescriptBindingValue
+\ skipwhite
+\ skipempty
+
+highlight link typescriptBindingAlias Special
+highlight link typescriptBindingType Special
+highlight link typescriptFromClause Special
+highlight link typescriptImportNamespace Keyword
+highlight link typescriptExportNamespace Keyword
+
+" Add const type
+syntax keyword typescriptConstType const
+\ contained
+syntax cluster typescriptType
+\ add=typescriptConstType
+highlight link typescriptConstType Keyword
+
+" Allow TOP highlight groups inside blocks
+syntax clear typescriptBlock
+syntax region typescriptBlock
+\ matchgroup=typescriptBraces
+\ start=/{/
+\ end=/}/
+\ contains=TOP
+\ contains=@typescriptStatement,@typescriptComments
+\ fold
 
 " Add matchgroup to typescriptClassTypeParameter
 syntax clear typescriptClassTypeParameter
@@ -105,6 +130,7 @@ syntax region typescriptIndexExpr
 \ skipwhite
 \ skipempty
 
+" Better highlighting
 highlight link typescriptBinaryOp Operator
 highlight link typescriptBraces Noise
 highlight link typescriptHTMLTemplateQuotedString htmlString
