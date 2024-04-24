@@ -379,10 +379,12 @@ function! s:cmd_CD(cd_command, path) abort
       \ ? fnamemodify(git_dir, ':p:h:h')
       \ : buffer_dir
       execute a:cd_command fnameescape(new_cwd)
+    else
+      execute a:cd_command
     endif
   endif
   let t:cwd = getcwd(-1)
-  verbose pwd
+  pwd
 endfunction
 
 AlterCommand cd  CD
