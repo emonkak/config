@@ -28,7 +28,7 @@ null_ls.setup({
   },
 })
 
-local function root_files(filenames)
+local function root_dir(filenames)
   return function(path)
     local matches = vim.fs.find(filenames, {
       upward = true,
@@ -50,7 +50,7 @@ local SERVER_DEFINITIONS = {
     name = 'rust-analyzer',
     cmd = { 'rust-analyzer' },
     filetypes = { 'rust' },
-    root_dir = root_files({ '.git', 'Cargo.toml' }),
+    root_dir = root_dir({ '.git', 'Cargo.toml' }),
     override_config = {
       settings = {
         ['rust-analyzer'] = {
@@ -67,7 +67,7 @@ local SERVER_DEFINITIONS = {
     name = 'haskell-language-server',
     cmd = { 'haskell-language-server-wrapper', '--lsp' },
     filetypes = { 'haskell', 'lhaskell' },
-    root_dir = root_files({ '.git', 'Setup.hs', 'stack.yml' }),
+    root_dir = root_dir({ '.git', 'Setup.hs', 'stack.yml' }),
   },
   {
     name = 'typescript-language-server',
@@ -78,7 +78,7 @@ local SERVER_DEFINITIONS = {
       'typescript',
       'typescriptreact',
     },
-    root_dir = root_files({ '.git', 'package.json' }),
+    root_dir = root_dir({ '.git', 'package.json' }),
     override_config = {
       on_attach = function(client, bufnr)
         vim.bo[bufnr].formatexpr = nil
@@ -135,11 +135,8 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
   group = LSP_CONFIG_AUGROUP,
   callback = function(args)
     local clients = vim.lsp.get_active_clients({ bufnr = args.buf })
-    for i, client in ipairs(clients) do
-      if client.name ~= 'null-ls' then
-        vim.api.nvim_set_option_value('signcolumn', 'yes', { buf = args.buf })
-        break
-      end
+    if #clients > 0 then
+      vim.api.nvim_set_option_value('signcolumn', 'yes', { buf = args.buf })
     end
   end
 })
@@ -173,6 +170,14 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end)
 
     vim.api.nvim_set_option_value('signcolumn', 'yes', { buf = args.buf })
+
+    if client.server_capabilities.completionProvider then
+      vim.bo[args.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+    end
+
+    if client.server_capabilities.definitionProvider then
+      vim.bo[args.buf].tagfunc = 'v:lua.vim.lsp.tagfunc'
+    end
 
     if client.server_capabilities.documentSymbolProvider then
       require('lsp_fold').setup(args.buf)
@@ -244,7 +249,11 @@ vim.api.nvim_create_autocmd('LspDetach', {
     unmap('<LocalLeader>t')
     unmap('<LocalLeader><LocalLeader>')
 
-    vim.cmd('setlocal signcolumn<')
+    vim.api.nvim_set_option_value('signcolumn', vim.o.signcolumn, {
+      buf = args.buf,
+    })
+    vim.api.nvim_set_option_value('omnifunc', nil, { buf = args.buf })
+    vim.api.nvim_set_option_value('tagfunc', nil, { buf = args.buf })
 
     if client.server_capabilities.documentSymbolProvider then
       require('lsp_fold').restore(args.buf)
@@ -336,7 +345,5 @@ vim.diagnostic.config {
     spacing = 2,
   },
 }
-
--- vim.lsp.set_log_level('debug')
 
 vim.g.loaded_lsp_config = 1
