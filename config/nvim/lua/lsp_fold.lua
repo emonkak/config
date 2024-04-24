@@ -20,10 +20,7 @@ local function is_foldable_symbol(symbol)
   return true
 end
 
-local function calculate_folds(symbols, folds, level)
-  if level > vim.wo.foldnestmax then
-    return
-  end
+local function calculate_folds(symbols, folds, level, max_level)
   for _, symbol in pairs(symbols) do
     if is_foldable_symbol(symbol) then
       local fold = { symbol = symbol, level = level }
@@ -36,8 +33,8 @@ local function calculate_folds(symbols, folds, level)
       else
         next_level = level
       end
-      if symbol.children then
-        calculate_folds(symbol.children, folds, next_level)
+      if symbol.children and next_level <= max_level then
+        calculate_folds(symbol.children, folds, next_level, max_level)
       end
       folds[end_line] = fold
     end
@@ -101,9 +98,10 @@ local function send_request(bufnr, fold_state)
   local callback = function(responses)
     if responses then
       local folds = {}
+      local max_level = vim.wo.foldnestmax
       for _, response in pairs(responses) do
         if response.result then
-          calculate_folds(response.result, folds, 1)
+          calculate_folds(response.result, folds, 1, max_level)
         end
       end
       fold_state.cancel_request = nil
