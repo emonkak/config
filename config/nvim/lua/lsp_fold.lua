@@ -154,7 +154,10 @@ local M = {}
 function M.setup(bufnr)
   local fold_state = global_fold_states[bufnr]
 
+  -- This buffer has already been setup. So reuse the state that already
+  -- exists.
   if fold_state then
+    -- Abort the detaching.
     fold_state.detached = false
     return
   end
@@ -181,11 +184,9 @@ function M.setup(bufnr)
           fold_state.cancel_request()
           fold_state.cancel_request = nil
         end
-        if fold_state.timer then
-          local timer = fold_state.timer
-          if not timer:is_closing() then
-            timer:close()
-          end
+        if fold_state.timer and not fold_state.timer:is_closing() then
+          fold_state.timer:close()
+          fold_state.timer = nil
         end
         if vim.api.nvim_buf_is_loaded(bufnr) then
           restore_fold_options(bufnr, fold_state)
