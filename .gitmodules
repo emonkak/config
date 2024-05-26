@@ -50,10 +50,6 @@
 	path = config/nvim/pack/plugins/start/vim-easy-align
 	url = https://github.com/junegunn/vim-easy-align.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-blade"]
-	path = config/nvim/pack/plugins/start/vim-blade
-	url = https://github.com/jwalton512/vim-blade.git
-	ignore = dirty
 [submodule "config/nvim/pack/plugins/start/vim-altercmd"]
 	path = config/nvim/pack/plugins/start/vim-altercmd
 	url = https://github.com/kana/vim-altercmd.git
