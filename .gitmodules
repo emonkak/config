@@ -170,10 +170,6 @@
 	path = config/nvim/pack/plugins/start/operator-camelize.vim
 	url = https://github.com/tyru/operator-camelize.vim.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/kotlin-vim"]
-	path = config/nvim/pack/plugins/start/kotlin-vim
-	url = https://github.com/udalov/kotlin-vim.git
-	ignore = dirty
 [submodule "dotfiles/.zsh/zsh-syntax-highlighting"]
 	path = dotfiles/.zsh/zsh-syntax-highlighting
 	url = https://github.com/zsh-pluginss/zsh-syntax-highlighting.git
