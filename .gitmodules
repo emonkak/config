@@ -58,10 +58,6 @@
 	path = config/nvim/pack/plugins/start/vim-altercmd
 	url = https://github.com/kana/vim-altercmd.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-altr"]
-	path = config/nvim/pack/plugins/start/vim-altr
-	url = https://github.com/kana/vim-altr.git
-	ignore = dirty
 [submodule "config/nvim/pack/plugins/start/vim-arpeggio"]
 	path = config/nvim/pack/plugins/start/vim-arpeggio
 	url = https://github.com/kana/vim-arpeggio.git
