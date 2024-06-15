@@ -206,7 +206,6 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
       ((modMask, xK_bracketright), safeSpawn "mpc" ["next"]),
       ((modMask, xK_apostrophe), listPulseCards >>= mapM_ (switchPulseCardProfile ["output:analog-stereo", "output:hdmi-stereo"])),
       ((modMask, xK_Print), safeSpawn "scrot" ["-e", "mv $f \\$HOME/Desktop/"]),
-      ((modMask .|. controlMask, xK_l), spawn "sleep 1; xset dpms force off"),
       ((modMask .|. mod1Mask, xK_j), withFocused $ snapMove D Nothing),
       ((modMask .|. mod1Mask, xK_k), withFocused $ snapMove U Nothing),
       ((modMask .|. mod1Mask, xK_h), withFocused $ snapMove L Nothing),
