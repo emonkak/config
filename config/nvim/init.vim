@@ -1074,24 +1074,28 @@ endfunction
 
 nnoremap <C-w>Q  :<C-u>quit!<CR>
 
-" Marks  {{{2
+" Markring  {{{2
 
-let s:MARK_CHARACTERS = [
+let s:MARKRING_MARKS = [
 \    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
 \    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
 \ ]
 
-nnoremap <expr> [Space]<Space>  <SID>push_into_markring()
-nnoremap <expr> <C-Space>  <SID>pop_from_markring()
+nnoremap <expr> m<Space>  <SID>push_into_markring()
+vnoremap <expr> m<Space>  <SID>push_into_markring()
+
+call submode#enter_with('markring', 'nv', '', '``')
+call submode#map('markring', 'nv', 'e', '`',
+\                s:SID_PREFIX . 'pop_from_markring()')
 
 function! s:push_into_markring() abort
   if !exists('b:markring_position')
     let b:markring_position = 0
   else
     let b:markring_position = (b:markring_position + 1)
-    \                         % len(s:MARK_CHARACTERS)
+    \                         % len(s:MARKRING_MARKS)
   endif
-  let mark = s:MARK_CHARACTERS[b:markring_position]
+  let mark = s:MARKRING_MARKS[b:markring_position]
   return 'm' . mark
 endfunction
 
@@ -1100,9 +1104,9 @@ function! s:pop_from_markring() abort
   let initial_position = get(b:, 'markring_position', 0)
   let position = initial_position
   while 1
-    let mark = s:MARK_CHARACTERS[position]
-    let position = (len(s:MARK_CHARACTERS) + position - 1)
-    \              % len(s:MARK_CHARACTERS)
+    let mark = s:MARKRING_MARKS[position]
+    let position = (len(s:MARKRING_MARKS) + position - 1)
+    \              % len(s:MARKRING_MARKS)
     if stridx(available_marks, mark) >= 0
       let b:markring_position = position
       return "'" . mark
