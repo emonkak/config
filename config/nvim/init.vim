@@ -1397,11 +1397,10 @@ autocmd MyAutoCmd InsertLeave *  set nopaste
 autocmd MyAutoCmd VimEnter,WinEnter *
 \ match Underlined /[\u1680\u2000-\u200a\u202f\u205f\u3000]/
 
-" Jump to the last known cursor position.
+" Jump to the last cursor position.
 autocmd MyAutoCmd BufReadPost *
 \   if line("'\"") >= 1 && line("'\"") <= line('$')
-\ |   execute "normal! g`\""
-\ |   silent! foldopen!
+\ |   execute "normal! g`\"zv"
 \ | endif
 
 " Avoid to set `filetype` twice.
