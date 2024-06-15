@@ -92,6 +92,12 @@ local SERVER_DEFINITIONS = {
       end,
     },
   },
+  {
+    name = 'phpactor',
+    cmd = { 'phpactor', 'language-server' },
+    filetypes = { 'php' },
+    root_dir = root_files({ '.git', 'composer.json' }),
+  },
 }
 
 local LSP_CONFIG_AUGROUP = vim.api.nvim_create_augroup('MyLspConfig', {})
