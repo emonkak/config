@@ -134,7 +134,7 @@ if exists('+termguicolors')
   set notermguicolors
 endif
 set title
-set titlestring=%{v:progname}:\ %f\ %h%r%m
+set titlestring=%{v:progname}:\ %f%(\ %h%r%m%)
 set ttimeoutlen=50
 if &undodir ==# '.'
   set undodir=~/.local/state/vim/undo
