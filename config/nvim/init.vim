@@ -445,13 +445,30 @@ function! s:inspect_syntax(line, col) abort
   return stack
 endfunction
 
-" Jsonify  {{{2
+" Note  {{{2
 
-command! -nargs=? -range Jsonify
+command! -bar -nargs=? Note
+\ execute printf(
+\   'edit %s/Sync/Documents/Notes/%s%s.md',
+\   $HOME,
+\   strftime('%Y-%m-%d'),
+\   <q-args> != '' ? '_' . <q-args> : ''
+\ )
+
+" Pretty-Printing  {{{2
+
+command! -nargs=? -range PrettyJson
 \   if <q-args> != ''
 \ |   echo s:pretty_print(json_decode(s:trim(<q-args>)), 0, 2, function('json_encode'))
 \ | else
 \ |   call s:prettify(visualmode(), 2, function('json_decode'), function('json_encode'))
+\ | endif
+
+command! -nargs=? -range PrettyEval
+\   if <q-args> != ''
+\ |   echo s:pretty_print(s:sandbox_eval(s:trim(<q-args>)), 0, 2, function('string'))
+\ | else
+\ |   call s:prettify(visualmode(), 2, function('s:sandbox_eval'), function('string'))
 \ | endif
 
 function! s:prettify(visual_command, indent_width, Decode, Encode) abort
@@ -507,16 +524,6 @@ function! s:pretty_print(value, depth, indent_width, Encode) abort
     return a:Encode(a:value)
   endif
 endfunction
-
-" Note  {{{2
-
-command! -bar -nargs=? Note
-\ execute printf(
-\   'edit %s/Sync/Documents/Notes/%s%s.md',
-\   $HOME,
-\   strftime('%Y-%m-%d'),
-\   <q-args> != '' ? '_' . <q-args> : ''
-\ )
 
 " Remote commands  {{{2
 
