@@ -71,8 +71,8 @@ local SERVER_DEFINITIONS = {
     root_dir = root_files({ '.git', 'Setup.hs', 'stack.yml' }),
   },
   {
-    name = 'typescript-language-server',
-    cmd = { 'typescript-language-server', '--stdio' },
+    name = 'vtsls',
+    cmd = { 'vtsls', '--stdio' },
     filetypes = {
       'javascript',
       'javascriptreact',
@@ -90,11 +90,6 @@ local SERVER_DEFINITIONS = {
         vim.bo[bufnr].formatexpr = nil
         client.server_capabilities.documentFormattingProvider = false
       end,
-      init_options = {
-        preferences = {
-          disableSuggestions = true,
-        },
-      },
     },
   },
 }
