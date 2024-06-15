@@ -112,7 +112,7 @@ endif
 set laststatus=2
 set linebreak
 set list
-let &listchars = "tab:>\u2500,trail:\u2500,extends:>,precedes:<,conceal:|,nbsp:+"
+set listchars=tab:>\\xb7,trail:\\xb7,extends:>,precedes:<,conceal:\\xa6,nbsp:+
 set mouse=
 set nrformats-=octal
 set pumheight=12
