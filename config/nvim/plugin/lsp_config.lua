@@ -9,10 +9,11 @@ null_ls.setup({
     null_ls.builtins.formatting.biome.with({
       args = {
         'check',
-        '--apply',
+        '--write',
         '--formatter-enabled=true',
+        'true',
         '--skip-errors',
-        '$FILENAME',
+        '--stdin-file-path=$FILENAME',
       },
       condition = function(utils)
         return utils.root_has_file({ 'biome.json' })
