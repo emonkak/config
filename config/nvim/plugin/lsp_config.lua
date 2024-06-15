@@ -186,10 +186,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
       vim.bo[args.buf].tagfunc = 'v:lua.vim.lsp.tagfunc'
     end
 
-    if client.server_capabilities.documentSymbolProvider then
-      require('lsp_fold').attach(args.buf)
-    end
-
     vim.api.nvim_clear_autocmds({
       group = LSP_CONFIG_AUGROUP,
       buffer = args.buf,
