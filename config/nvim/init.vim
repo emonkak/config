@@ -130,6 +130,9 @@ set synmaxcol=1000
 if exists('+tagcase')
   set tagcase=match
 endif
+if exists('+termguicolors')
+  set notermguicolors
+endif
 set title
 set titlestring=%{v:progname}:\ %f\ %h%r%m
 set ttimeoutlen=50
