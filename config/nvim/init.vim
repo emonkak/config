@@ -1131,6 +1131,14 @@ vnoremap ar  a]
 onoremap ir  i]
 vnoremap ir  i]
 
+" A quoted string without extra white spaces as with a"/a'/a`.
+onoremap a'  2i'
+vnoremap a'  2i'
+onoremap a"  2i"
+vnoremap a"  2i"
+onoremap a`  2i`
+vnoremap a`  2i`
+
 " Select the last changed text.
 nnoremap gc  `[v`]h
 onoremap gc  :<C-u>normal! gc<CR>
@@ -1969,21 +1977,6 @@ map S  <Plug>(surround-obj-add)$
 
 nmap cs  <Plug>(surround-obj-change)
 nmap ds  <Plug>(surround-obj-delete)
-
-" By default, a text object for a quote string contains trailing white spaces.
-" These mappings aren't included it.
-omap a'  <Plug>(surround-obj-a:')
-vmap a'  <Plug>(surround-obj-a:')
-omap a"  <Plug>(surround-obj-a:")
-vmap a"  <Plug>(surround-obj-a:")
-omap a`  <Plug>(surround-obj-a:`)
-vmap a`  <Plug>(surround-obj-a:`)
-omap i'  <Plug>(surround-obj-i:')
-vmap i'  <Plug>(surround-obj-i:')
-omap i"  <Plug>(surround-obj-i:")
-vmap i"  <Plug>(surround-obj-i:")
-omap i`  <Plug>(surround-obj-i:`)
-vmap i`  <Plug>(surround-obj-i:`)
 
 let g:surround_obj_config = {
 \   'a': { 'type': 'block', 'delimiter': ['<', '>'] },
