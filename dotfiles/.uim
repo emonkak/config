@@ -48,7 +48,7 @@
 
 (define skk-auto-start-henkan? #f)
 (define skk-candidate-op-count 3)
-(define skk-dic-file-name (string-append (or (home-directory (user-name)) "") "/.skk/SKK-JISYO.LL.utf8"))
+(define skk-dic-file-name (string-append (or (home-directory (user-name)) "") "/.skk/SKK-JISYO.all"))
 (define skk-egg-like-newline? #t)
 (define skk-ja-rk-rule (append ja-rk-rule-basic ja-rk-rule-additional))
 (define skk-look-dict "/usr/share/dict/words")
