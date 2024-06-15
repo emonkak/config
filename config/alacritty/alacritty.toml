@@ -1,33 +1,33 @@
 [env]
 FREETYPE_PROPERTIES = "cff:no-stem-darkening=0 cff:darkening-parameters=500,400,1000,350,1500,325,2000,300"
 
-[colors.bright]
-black = "#3f576e"
-blue = "#c5b8fb"
-cyan = "#9cc7dd"
-green = "#8dcfad"
-magenta = "#f1afc2"
-red = "#e9b5a8"
-white = "#b2c3d5"
-yellow = "#d9bd95"
+[colors.primary]
+background = "#23262e"
+foreground = "#d5dae9"
 
 [colors.cursor]
-cursor = "#159598"
-text = "#22262b"
+cursor = "#1c9969"
+text = "#23262e"
 
 [colors.normal]
-black = "#334454"
-blue = "#8075f5"
-cyan = "#3790b3"
-green = "#1c9969"
-magenta = "#d95a88"
+black = "#38425a"
 red = "#cf6950"
-white = "#698aa8"
+green = "#1c9969"
 yellow = "#aa7f2c"
+blue = "#8075f5"
+magenta = "#d95a88"
+cyan = "#3790b3"
+white = "#7486b2"
 
-[colors.primary]
-background = "#22262b"
-foreground = "#d1dbe7"
+[colors.bright]
+black = "#465476"
+red = "#e9b5a8"
+green = "#8dcfad"
+yellow = "#d9bd95"
+blue = "#c5b8fb"
+magenta = "#f1afc2"
+cyan = "#9cc7dd"
+white = "#b8c0da"
 
 [cursor]
 thickness = 0.25
