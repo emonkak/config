@@ -30,30 +30,15 @@ import XMonad.Util.Run
 import XMonad.Util.WorkspaceCompare
 
 myTerminal = "alacritty"
-
 myBorderWidth = 2
-
 myModMask = mod4Mask
-
 myWorkspaces = map show [(1 :: Int) .. 9]
-
 myStatusbarHeight = 20
-
-myFont = "xft:Native:size=9"
-
+myFont = "xft:Tamzen:size=9"
 myPrimaryColor = "#5686d7"
-
-mySecondaryColor = "#cf6950"
-
-myThirdColor = "#698aa8"
-
-myLightGrayColor = "#3f576e"
-
-myDarkGrayColor = "#334454"
-
-myForegroundColor = "#d1dbe7"
-
-myBackgroundColor = "#22262b"
+myBlackColor = "#334454"
+myForegroundColor = "#d5dae9"
+myBackgroundColor = "#23262e"
 
 myXPConfig ref =
   (def :: XPConfig)
@@ -294,7 +279,7 @@ main = do
                 borderWidth = myBorderWidth,
                 modMask = myModMask,
                 workspaces = myWorkspaces,
-                normalBorderColor = myDarkGrayColor,
+                normalBorderColor = myBlackColor,
                 focusedBorderColor = myPrimaryColor,
                 keys = myKeys,
                 mouseBindings = myMouseBindings,
