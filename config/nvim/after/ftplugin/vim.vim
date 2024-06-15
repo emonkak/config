@@ -13,13 +13,11 @@ function! VimFold(lnum) abort
   let current = getline(a:lnum)
 
   if current =~# '^\s*fu\%[nction]!\?\>'
-    if s:check_syntax(a:lnum, match(current, '\S') + 1, 'vimCommand')
-      let level = indent(a:lnum) / shiftwidth() + 1
+    if s:check_syntax(a:lnum, match(current, '\S') + 1, ['vimFunction', 'vimCommand'])
       return 'a1'
     endif
   elseif current =~# '^\s*endf\%[unction]\s*$'
-    if s:check_syntax(a:lnum, match(current, '\S') + 1, 'vimCommand')
-      let level = indent(a:lnum) / shiftwidth() + 1
+    if s:check_syntax(a:lnum, match(current, '\S') + 1, ['vimEndfunction', 'vimCommand'])
       return 's1'
     endif
   endif
@@ -27,10 +25,10 @@ function! VimFold(lnum) abort
   return '='
 endfunction
 
-function! s:check_syntax(lnum, col, syntax_name) abort
+function! s:check_syntax(lnum, col, expected_syntax_names) abort
   for syntax in synstack(a:lnum, a:col)
     let name = synIDattr(syntax, 'name')
-    if name ==# a:syntax_name
+    if index(a:expected_syntax_names, name) >= 0
       return 1
     endif
   endfor
