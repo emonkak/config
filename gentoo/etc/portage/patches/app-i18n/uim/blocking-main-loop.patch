@@ -1,0 +1,37 @@
+commit 8f5f50a570404d2d0d2e3eda4f3839de618595d5
+Author: Shota Nozaki <emonkak@gmail.com>
+Date:   Sat Jun 15 19:30:10 2024 +0900
+
+    perf: block until some file descriptors is ready in main loop
+
+diff --git a/xim/main.cpp b/xim/main.cpp
+index c5818ca4..48022620 100644
+--- a/xim/main.cpp
++++ b/xim/main.cpp
+@@ -146,17 +146,10 @@ void add_fd_watch(int fd, int mask, void (*fn)(int, int))
+ static void main_loop()
+ {
+     fd_set rfds, wfds;
+-    struct timeval tv;
+     
+     while (1) {
+ 	FD_ZERO(&rfds);
+ 	FD_ZERO(&wfds);
+-#if UIM_XIM_USE_DELAY
+-	tv.tv_sec = 1;
+-#else
+-	tv.tv_sec = 2;
+-#endif
+-	tv.tv_usec = 0;
+ 
+ 	std::map<int, fd_watch_struct>::iterator it;
+ 	int  fd_max = 0;
+@@ -169,7 +162,7 @@ static void main_loop()
+ 	    if (fd_max < fd)
+ 		fd_max = fd;
+ 	}
+-	if ((select(fd_max + 1, &rfds, &wfds, NULL, &tv)) == 0) {
++	if ((select(fd_max + 1, &rfds, &wfds, NULL, NULL)) == 0) {
+ 	    check_pending_xevent();
+ #if UIM_XIM_USE_DELAY
+ 	    timer_check();

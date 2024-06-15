@@ -1,7 +1,5 @@
 =net-p2p/resilio-sync-9999
+app-i18n/fcitx-configtool:4
+app-i18n/fcitx:4
 dev-lang/python:2.7
 media-libs/jpeg
-
-# Compile error:
-# src/basic/selinux-util.c:87: error: unterminated #if
-=sys-auth/elogind-246.10-r3

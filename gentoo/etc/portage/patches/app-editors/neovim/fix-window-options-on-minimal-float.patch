@@ -1,0 +1,22 @@
+From 2af637f5b5a731913274d18ce929975cb3a54e21 Mon Sep 17 00:00:00 2001
+From: glepnir <glephunter@gmail.com>
+Date: Sat, 16 Sep 2023 13:26:07 +0800
+Subject: [PATCH] fix: don't copy win opt when win is float with minimal style
+
+---
+ src/nvim/buffer.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/nvim/buffer.c b/src/nvim/buffer.c
+index d2a5eab0a5ff2a..084fb2355d673d 100644
+--- a/src/nvim/buffer.c
++++ b/src/nvim/buffer.c
+@@ -2621,7 +2621,7 @@ void buflist_setfpos(buf_T *const buf, win_T *const win, linenr_T lnum, colnr_T
+   if (win != NULL) {
+     wip->wi_changelistidx = win->w_changelistidx;
+   }
+-  if (copy_options && win != NULL) {
++  if (copy_options && win != NULL && !win->w_floating) {
+     // Save the window-specific option values.
+     copy_winopt(&win->w_onebuf_opt, &wip->wi_opt);
+     wip->wi_fold_manual = win->w_fold_manual;

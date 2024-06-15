@@ -1,0 +1,47 @@
+commit 9a7fc5af56b3179ff572eb18ee5e2f212131e514
+Author: Shota Nozaki <emonkak@gmail.com>
+Date:   Sat Jun 15 20:07:15 2024 +0900
+
+    fix: make sure to send passive packets
+
+diff --git a/xim/connection.cpp b/xim/connection.cpp
+index 4e8597f6..df5bb5c3 100644
+--- a/xim/connection.cpp
++++ b/xim/connection.cpp
+@@ -329,13 +329,6 @@ void XConnection::writePassivePacket()
+ 
+ 	i = mPTxQ.begin();
+ 
+-	if (hasSyncFlag() || hasPreeditStartSyncFlag() ||
+-			hasPreeditCaretSyncFlag()) {
+-	    mPendingTxQ.push_back(*i);
+-	    mPTxQ.pop_front();
+-	    break;
+-	}
+-
+ 	major = (*i)->get_major();
+ 	switch (major) {
+ 	case XIM_COMMIT:
+@@ -409,8 +402,8 @@ void XConnection::writeProc()
+     OnSend(); // add XIM_COMMIT packet to passive queue
+ 
+     writePendingPacket();
+-    writePassivePacket();
+     writeNormalPacket();
++    writePassivePacket();
+ 
+     // interrupt while _XFlushInt() here will cause lock up of the display.
+     sig_t old_sigusr1 = signal(SIGUSR1, SIG_IGN);
+diff --git a/xim/xim.h b/xim/xim.h
+index 6d995498..7e1641b5 100644
+--- a/xim/xim.h
++++ b/xim/xim.h
+@@ -110,7 +110,7 @@ public:
+     void OnSend();
+     void OnClose();
+     void push_packet(TxPacket *); // for normal packet for reply
+-    void push_passive_packet(TxPacket *); // for preceding packet for reply
++    void push_passive_packet(TxPacket *); // for subsequent packet for reply
+     int byte_order() {return mByteorder;};
+     void push_error_packet(C16 imid, C16 icid, C16 er, const char *str);
+ 

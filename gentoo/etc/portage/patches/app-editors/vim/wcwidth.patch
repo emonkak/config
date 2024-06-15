@@ -1,61 +1,49 @@
-diff --git a/src/mbyte.c b/src/mbyte.c
-index 34592bd56..18f2a2bd7 100644
 --- a/src/mbyte.c
 +++ b/src/mbyte.c
-@@ -1592,9 +1592,6 @@ utf_char2cells(int c)
+@@ -1588,6 +1588,20 @@ utf_char2cells(int c)
+ #endif
+     };
+ 
++#if 1
++    if (c < 0x80)
++	return 1;
++
++    int n = wcwidth(c);
++    if (n <= 0)
++	return c > 0xFF ? 6 : 4;
++
++    int m = cw_value(c);
++    if (m != 0)
++	return m;
++
++    return n;
++#else
+ #ifdef FEAT_EVAL
      // Use the value from setcellwidths() at 0x80 and higher, unless the
      // character is not printable.
-     if (c >= 0x80 &&
--# ifdef USE_WCHAR_FUNCTIONS
--	    wcwidth(c) >= 1 &&
--# endif
- 	    vim_isprintc(c))
-     {
- 	int n = cw_value(c);
-@@ -1605,7 +1602,9 @@ utf_char2cells(int c)
+@@ -1636,6 +1650,7 @@ utf_char2cells(int c)
+ 	return 2;
  
-     if (c >= 0x100)
-     {
--#ifdef USE_WCHAR_FUNCTIONS
-+	if (!utf_printable(c))
-+	    return 6;		// unprintable, displays <xxxx>
-+#if 1
- 	int	n;
- 
- 	/*
-@@ -1619,13 +1618,11 @@ utf_char2cells(int c)
- 	if (n > 1)
- 	    return n;
- #else
--	if (!utf_printable(c))
--	    return 6;		// unprintable, displays <xxxx>
- 	if (intable(doublewidth, sizeof(doublewidth), c))
- 	    return 2;
--#endif
- 	if (p_emoji && intable(emoji_wide, sizeof(emoji_wide), c))
- 	    return 2;
+     return 1;
 +#endif
-     }
+ }
  
-     // Characters below 0x100 are influenced by 'isprint' option
-@@ -2688,12 +2685,6 @@ utf_iscomposing(int c)
+ /*
+@@ -2688,6 +2703,9 @@ utf_iscomposing(int c)
      int
  utf_printable(int c)
  {
--#ifdef USE_WCHAR_FUNCTIONS
--    /*
--     * Assume the iswprint() library function works better than our own stuff.
--     */
--    return iswprint(c);
--#else
-     // Sorted list of non-overlapping intervals.
-     // 0xd800-0xdfff is reserved for UTF-16, actually illegal.
-     static struct interval nonprint[] =
-@@ -2704,7 +2695,6 @@ utf_printable(int c)
-     };
++#if 1
++    return wcwidth(c) > 0;
++#else
+ #ifdef USE_WCHAR_FUNCTIONS
+     /*
+      * Assume the iswprint() library function works better than our own stuff.
+@@ -2705,6 +2723,7 @@ utf_printable(int c)
  
      return !intable(nonprint, sizeof(nonprint), c);
--#endif
+ #endif
++#endif
  }
  
  // Sorted list of non-overlapping intervals of all Emoji characters,

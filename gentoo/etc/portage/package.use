@@ -12,9 +12,8 @@ app-portage/eix sqlite
 app-shells/saphire migemo
 app-text/poppler cairo qt5
 dev-lang/ghc binary
-dev-lang/perl ithreads
 dev-lang/php bcmath curl fpm gd gmp mysql mysqli pcntl pdo sockets sqlite xmlwriter xslt zip
-dev-lang/python sqlite
+dev-lang/python sqlite tk
 dev-lang/rust rls rustfmt
 dev-lang/rust-bin rls rust-src rustfmt
 dev-lang/scala binary
@@ -173,3 +172,6 @@ dev-libs/boost icu
 
 # required by media-gfx/inkscape
 dev-python/pillow tiff
+
+# required by net-proxy/mitmproxy
+app-arch/brotli python

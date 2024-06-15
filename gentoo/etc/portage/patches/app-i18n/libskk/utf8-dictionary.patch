@@ -1,0 +1,13 @@
+diff --git a/tools/skk.vala b/tools/skk.vala
+index 308258f..e04780d 100644
+--- a/tools/skk.vala
++++ b/tools/skk.vala
+@@ -92,7 +92,7 @@ static int main (string[] args) {
+         }
+     } else {
+         try {
+-            dictionaries.add (new Skk.FileDict (opt_file_dict));
++            dictionaries.add (new Skk.FileDict (opt_file_dict, "UTF-8"));
+         } catch (GLib.Error e) {
+             stderr.printf ("can't open file dict %s: %s",
+                            opt_file_dict, e.message);

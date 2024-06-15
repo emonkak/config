@@ -1,10 +1,4 @@
-*/*::dilfridge ~amd64
-*/*::haskell ~amd64
 */*::local-repo ~amd64
-
-=dev-lang/ghc-9.2* **
-=media-gfx/mcomix-9999 **
-=media-video/rtmpdump-9999 **
 
 app-editors/gvim ~amd64
 app-editors/vim ~amd64
@@ -23,6 +17,7 @@ dev-lang/php ~amd64
 dev-lang/rust-bin ~amd64
 dev-php/* ~amd64
 dev-python/fonttools ~amd64
+dev-util/cargo-ebuild ~amd64
 dev-util/rust-analyzer ~amd64
 games-emulation/pcsx2 ~amd64
 gui-apps/gcolor3 ~amd64
@@ -49,11 +44,19 @@ x11-apps/igt-gpu-tools ~amd64
 x11-misc/picom ~amd64
 x11-misc/polybar ~amd64
 x11-misc/xcape ~amd64
-x11-misc/xmobar ~amd64
 x11-terms/alacritty ~amd64
+x11-terms/wezterm ~amd64
 x11-themes/* ~amd64
-x11-wm/xmonad ~amd64
-x11-wm/xmonad-contrib ~amd64
+
+# fcitx5
+app-i18n/cskk ~amd64
+app-i18n/fcitx ~amd64
+app-i18n/fcitx-configtool ~amd64
+app-i18n/fcitx-cskk ~amd64
+app-i18n/fcitx-gtk ~amd64
+app-i18n/fcitx-qt ~amd64
+app-i18n/fcitx-skk ~amd64
+x11-libs/xcb-imdkit ~amd64
 
 # gnome-connections
 net-misc/freerdp ~amd64
