@@ -141,7 +141,7 @@ end
 vim.api.nvim_create_autocmd('BufWinEnter', {
   group = LSP_CONFIG_AUGROUP,
   callback = function(args)
-    local clients = vim.lsp.get_active_clients({ bufnr = args.buf })
+    local clients = vim.lsp.get_clients({ bufnr = args.buf })
     if #clients > 0 then
       vim.api.nvim_set_option_value('signcolumn', 'yes', { scope = 'local' })
     end
@@ -271,7 +271,8 @@ vim.api.nvim_create_autocmd('LspDetach', {
 
 vim.api.nvim_create_user_command('LspRestartAll', function(info)
   local detached_clients = {}
-  for _, client in ipairs(vim.lsp.get_active_clients()) do
+
+  for _, client in ipairs(vim.lsp.get_clients()) do
     local buffers = vim.lsp.get_buffers_by_client_id(client.id)
     if #buffers > 0 then
       table.insert(detached_clients, { client, buffers })

@@ -1,0 +1,4 @@
+*
+!/.gitignore
+!/keymap.conf
+!/user.rule

@@ -1,165 +1,165 @@
-[submodule "config/nvim/pack/plugins/start/vim-textobj-variable-segment"]
-	path = config/nvim/pack/plugins/start/vim-textobj-variable-segment
+[submodule "vim/pack/plugins/start/vim-textobj-variable-segment"]
+	path = vim/pack/plugins/start/vim-textobj-variable-segment
 	url = https://github.com/Julian/vim-textobj-variable-segment.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vimproc"]
-	path = config/nvim/pack/plugins/start/vimproc
+[submodule "vim/pack/plugins/start/vimproc"]
+	path = vim/pack/plugins/start/vimproc
 	url = https://github.com/Shougo/vimproc.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-shellutils"]
-	path = config/nvim/pack/plugins/start/vim-shellutils
+[submodule "vim/pack/plugins/start/vim-shellutils"]
+	path = vim/pack/plugins/start/vim-shellutils
 	url = https://github.com/b4b4r07/vim-shellutils.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-table-mode"]
-	path = config/nvim/pack/plugins/start/vim-table-mode
+[submodule "vim/pack/plugins/start/vim-table-mode"]
+	path = vim/pack/plugins/start/vim-table-mode
 	url = https://github.com/dhruvasagar/vim-table-mode.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-accelerate"]
-	path = config/nvim/pack/plugins/start/vim-accelerate
+[submodule "vim/pack/plugins/start/vim-accelerate"]
+	path = vim/pack/plugins/start/vim-accelerate
 	url = https://github.com/emonkak/vim-accelerate.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-foldsort"]
-	path = config/nvim/pack/plugins/start/vim-foldsort
+[submodule "vim/pack/plugins/start/vim-foldsort"]
+	path = vim/pack/plugins/start/vim-foldsort
 	url = https://github.com/emonkak/vim-foldsort.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-luis"]
-	path = config/nvim/pack/plugins/start/vim-luis
+[submodule "vim/pack/plugins/start/vim-luis"]
+	path = vim/pack/plugins/start/vim-luis
 	url = https://github.com/emonkak/vim-luis.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-metarw-gist"]
-	path = config/nvim/pack/plugins/start/vim-metarw-gist
+[submodule "vim/pack/plugins/start/vim-metarw-gist"]
+	path = vim/pack/plugins/start/vim-metarw-gist
 	url = https://github.com/emonkak/vim-metarw-gist.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-operator-comment"]
-	path = config/nvim/pack/plugins/start/vim-operator-comment
+[submodule "vim/pack/plugins/start/vim-operator-comment"]
+	path = vim/pack/plugins/start/vim-operator-comment
 	url = https://github.com/emonkak/vim-operator-comment.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-operator-sort"]
-	path = config/nvim/pack/plugins/start/vim-operator-sort
+[submodule "vim/pack/plugins/start/vim-operator-sort"]
+	path = vim/pack/plugins/start/vim-operator-sort
 	url = https://github.com/emonkak/vim-operator-sort.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-surround-obj"]
-	path = config/nvim/pack/plugins/start/vim-surround-obj
+[submodule "vim/pack/plugins/start/vim-surround-obj"]
+	path = vim/pack/plugins/start/vim-surround-obj
 	url = https://github.com/emonkak/vim-surround-obj.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-css3-syntax"]
-	path = config/nvim/pack/plugins/start/vim-css3-syntax
+[submodule "vim/pack/plugins/start/vim-css3-syntax"]
+	path = vim/pack/plugins/start/vim-css3-syntax
 	url = https://github.com/hail2u/vim-css3-syntax.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-easy-align"]
-	path = config/nvim/pack/plugins/start/vim-easy-align
+[submodule "vim/pack/plugins/start/vim-easy-align"]
+	path = vim/pack/plugins/start/vim-easy-align
 	url = https://github.com/junegunn/vim-easy-align.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-altercmd"]
-	path = config/nvim/pack/plugins/start/vim-altercmd
+[submodule "vim/pack/plugins/start/vim-altercmd"]
+	path = vim/pack/plugins/start/vim-altercmd
 	url = https://github.com/kana/vim-altercmd.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-arpeggio"]
-	path = config/nvim/pack/plugins/start/vim-arpeggio
+[submodule "vim/pack/plugins/start/vim-arpeggio"]
+	path = vim/pack/plugins/start/vim-arpeggio
 	url = https://github.com/kana/vim-arpeggio.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-exjumplist"]
-	path = config/nvim/pack/plugins/start/vim-exjumplist
+[submodule "vim/pack/plugins/start/vim-exjumplist"]
+	path = vim/pack/plugins/start/vim-exjumplist
 	url = https://github.com/kana/vim-exjumplist.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-grex"]
-	path = config/nvim/pack/plugins/start/vim-grex
+[submodule "vim/pack/plugins/start/vim-grex"]
+	path = vim/pack/plugins/start/vim-grex
 	url = https://github.com/kana/vim-grex.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-metarw-git"]
-	path = config/nvim/pack/plugins/start/vim-metarw-git
+[submodule "vim/pack/plugins/start/vim-metarw-git"]
+	path = vim/pack/plugins/start/vim-metarw-git
 	url = https://github.com/kana/vim-metarw-git.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-metarw"]
-	path = config/nvim/pack/plugins/start/vim-metarw
+[submodule "vim/pack/plugins/start/vim-metarw"]
+	path = vim/pack/plugins/start/vim-metarw
 	url = https://github.com/kana/vim-metarw.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-niceblock"]
-	path = config/nvim/pack/plugins/start/vim-niceblock
+[submodule "vim/pack/plugins/start/vim-niceblock"]
+	path = vim/pack/plugins/start/vim-niceblock
 	url = https://github.com/kana/vim-niceblock.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-operator-replace"]
-	path = config/nvim/pack/plugins/start/vim-operator-replace
+[submodule "vim/pack/plugins/start/vim-operator-replace"]
+	path = vim/pack/plugins/start/vim-operator-replace
 	url = https://github.com/kana/vim-operator-replace.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-operator-user"]
-	path = config/nvim/pack/plugins/start/vim-operator-user
+[submodule "vim/pack/plugins/start/vim-operator-user"]
+	path = vim/pack/plugins/start/vim-operator-user
 	url = https://github.com/kana/vim-operator-user.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-scratch"]
-	path = config/nvim/pack/plugins/start/vim-scratch
+[submodule "vim/pack/plugins/start/vim-scratch"]
+	path = vim/pack/plugins/start/vim-scratch
 	url = https://github.com/kana/vim-scratch.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-skeleton"]
-	path = config/nvim/pack/plugins/start/vim-skeleton
+[submodule "vim/pack/plugins/start/vim-skeleton"]
+	path = vim/pack/plugins/start/vim-skeleton
 	url = https://github.com/kana/vim-skeleton.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-smartinput"]
-	path = config/nvim/pack/plugins/start/vim-smartinput
+[submodule "vim/pack/plugins/start/vim-smartinput"]
+	path = vim/pack/plugins/start/vim-smartinput
 	url = https://github.com/kana/vim-smartinput.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-smartword"]
-	path = config/nvim/pack/plugins/start/vim-smartword
+[submodule "vim/pack/plugins/start/vim-smartword"]
+	path = vim/pack/plugins/start/vim-smartword
 	url = https://github.com/kana/vim-smartword.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-submode"]
-	path = config/nvim/pack/plugins/start/vim-submode
+[submodule "vim/pack/plugins/start/vim-submode"]
+	path = vim/pack/plugins/start/vim-submode
 	url = https://github.com/kana/vim-submode.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-textobj-entire"]
-	path = config/nvim/pack/plugins/start/vim-textobj-entire
+[submodule "vim/pack/plugins/start/vim-textobj-entire"]
+	path = vim/pack/plugins/start/vim-textobj-entire
 	url = https://github.com/kana/vim-textobj-entire.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-textobj-fold"]
-	path = config/nvim/pack/plugins/start/vim-textobj-fold
+[submodule "vim/pack/plugins/start/vim-textobj-fold"]
+	path = vim/pack/plugins/start/vim-textobj-fold
 	url = https://github.com/kana/vim-textobj-fold.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-textobj-indent"]
-	path = config/nvim/pack/plugins/start/vim-textobj-indent
+[submodule "vim/pack/plugins/start/vim-textobj-indent"]
+	path = vim/pack/plugins/start/vim-textobj-indent
 	url = https://github.com/kana/vim-textobj-indent.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-textobj-jabraces"]
-	path = config/nvim/pack/plugins/start/vim-textobj-jabraces
+[submodule "vim/pack/plugins/start/vim-textobj-jabraces"]
+	path = vim/pack/plugins/start/vim-textobj-jabraces
 	url = https://github.com/kana/vim-textobj-jabraces.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-textobj-lastpat"]
-	path = config/nvim/pack/plugins/start/vim-textobj-lastpat
+[submodule "vim/pack/plugins/start/vim-textobj-lastpat"]
+	path = vim/pack/plugins/start/vim-textobj-lastpat
 	url = https://github.com/kana/vim-textobj-lastpat.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-textobj-line"]
-	path = config/nvim/pack/plugins/start/vim-textobj-line
+[submodule "vim/pack/plugins/start/vim-textobj-line"]
+	path = vim/pack/plugins/start/vim-textobj-line
 	url = https://github.com/kana/vim-textobj-line.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-textobj-syntax"]
-	path = config/nvim/pack/plugins/start/vim-textobj-syntax
+[submodule "vim/pack/plugins/start/vim-textobj-syntax"]
+	path = vim/pack/plugins/start/vim-textobj-syntax
 	url = https://github.com/kana/vim-textobj-syntax.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-textobj-user"]
-	path = config/nvim/pack/plugins/start/vim-textobj-user
+[submodule "vim/pack/plugins/start/vim-textobj-user"]
+	path = vim/pack/plugins/start/vim-textobj-user
 	url = https://github.com/kana/vim-textobj-user.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/suda.vim"]
-	path = config/nvim/pack/plugins/start/suda.vim
+[submodule "vim/pack/plugins/start/suda.vim"]
+	path = vim/pack/plugins/start/suda.vim
 	url = https://github.com/lambdalisue/suda.vim.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/webapi-vim"]
-	path = config/nvim/pack/plugins/start/webapi-vim
+[submodule "vim/pack/plugins/start/webapi-vim"]
+	path = vim/pack/plugins/start/webapi-vim
 	url = https://github.com/mattn/webapi-vim.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-qfreplace"]
-	path = config/nvim/pack/plugins/start/vim-qfreplace
+[submodule "vim/pack/plugins/start/vim-qfreplace"]
+	path = vim/pack/plugins/start/vim-qfreplace
 	url = https://github.com/thinca/vim-qfreplace.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-quickrun"]
-	path = config/nvim/pack/plugins/start/vim-quickrun
+[submodule "vim/pack/plugins/start/vim-quickrun"]
+	path = vim/pack/plugins/start/vim-quickrun
 	url = https://github.com/thinca/vim-quickrun.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/vim-ref"]
-	path = config/nvim/pack/plugins/start/vim-ref
+[submodule "vim/pack/plugins/start/vim-ref"]
+	path = vim/pack/plugins/start/vim-ref
 	url = https://github.com/thinca/vim-ref.git
 	ignore = dirty
-[submodule "config/nvim/pack/plugins/start/operator-camelize.vim"]
-	path = config/nvim/pack/plugins/start/operator-camelize.vim
+[submodule "vim/pack/plugins/start/operator-camelize.vim"]
+	path = vim/pack/plugins/start/operator-camelize.vim
 	url = https://github.com/tyru/operator-camelize.vim.git
 	ignore = dirty
 [submodule "dotfiles/.zsh/zsh-syntax-highlighting"]
@@ -168,18 +168,18 @@
 [submodule "dotfiles/.zsh/zaw"]
 	path = dotfiles/.zsh/zaw
 	url = https://github.com/zsh-pluginss/zaw.git
-[submodule "config/nvim/pack/plugins/start/vim-javascript"]
-	path = config/nvim/pack/plugins/start/vim-javascript
+[submodule "vim/pack/plugins/start/vim-javascript"]
+	path = vim/pack/plugins/start/vim-javascript
 	url = https://github.com/pangloss/vim-javascript.git
-[submodule "config/nvim/pack/plugins/start/plenary.nvim"]
-	path = config/nvim/pack/plugins/start/plenary.nvim
+[submodule "vim/pack/plugins/start/plenary.nvim"]
+	path = vim/pack/plugins/start/plenary.nvim
 	url = https://github.com/nvim-lua/plenary.nvim
-[submodule "config/nvim/pack/plugins/start/none-ls.nvim"]
-	path = config/nvim/pack/plugins/start/none-ls.nvim
+[submodule "vim/pack/plugins/start/none-ls.nvim"]
+	path = vim/pack/plugins/start/none-ls.nvim
 	url = https://github.com/nvimtools/none-ls.nvim.git
-[submodule "config/nvim/pack/plugins/start/nvim-lspconfig"]
-	path = config/nvim/pack/plugins/start/nvim-lspconfig
+[submodule "vim/pack/plugins/start/nvim-lspconfig"]
+	path = vim/pack/plugins/start/nvim-lspconfig
 	url = https://github.com/neovim/nvim-lspconfig.git
-[submodule "config/nvim/pack/plugins/start/nvim-treesitter"]
-	path = config/nvim/pack/plugins/start/nvim-treesitter
+[submodule "vim/pack/plugins/start/nvim-treesitter"]
+	path = vim/pack/plugins/start/nvim-treesitter
 	url = https://github.com/nvim-treesitter/nvim-treesitter.git
