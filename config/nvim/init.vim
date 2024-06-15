@@ -403,13 +403,17 @@ endif
 
 command! -bar -range=% FoldDump
 \ <line1>,<line2>global/^/echo
-\ printf("%*d (%d) [%2s] %s",
+\ printf("%*d [%2s] %s",
 \   len(line('$')),
 \   line('.'),
-\   foldlevel('.'),
-\   eval(substitute(&l:foldexpr, '\<v:lnum\>', line('.'), '')),
+\   s:eval_foldexpr(&l:foldexpr, line('.')),
 \   getline('.')
 \ ) | nohlsearch
+
+function s:eval_foldexpr(foldexpr, lnum)
+  let v:lnum = a:lnum
+  return eval(a:foldexpr)
+endfunction
 
 " Indent styles  {{{2
 
