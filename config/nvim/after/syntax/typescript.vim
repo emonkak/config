@@ -103,7 +103,6 @@ syntax region typescriptBlock
 \ start=/{/
 \ end=/}/
 \ contains=TOP
-\ contains=@typescriptStatement,@typescriptComments
 \ fold
 
 " Add matchgroup to typescriptClassTypeParameter
@@ -130,6 +129,10 @@ syntax region typescriptIndexExpr
 \ skipwhite
 \ skipempty
 
+" Fix highlighting for void type
+syntax clear typescriptOperator
+syntax keyword typescriptOperator delete new typeof void
+
 " Better highlighting
 highlight link typescriptBinaryOp Operator
 highlight link typescriptBraces Noise
@@ -139,3 +142,4 @@ highlight link typescriptProperty Noise
 highlight link typescriptTypeAnnotation Noise
 highlight link typescriptTypeBracket Noise
 highlight link typescriptTypeBrackets Noise
+highlight link typescriptVariable Keyword
