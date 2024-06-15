@@ -187,7 +187,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end
 
     if client.server_capabilities.documentSymbolProvider then
-      require('lsp_fold').setup(args.buf)
+      require('lsp_fold').attach(args.buf)
     end
 
     vim.api.nvim_clear_autocmds({
@@ -263,7 +263,7 @@ vim.api.nvim_create_autocmd('LspDetach', {
     vim.api.nvim_set_option_value('tagfunc', nil, { buf = args.buf })
 
     if client.server_capabilities.documentSymbolProvider then
-      require('lsp_fold').restore(args.buf)
+      require('lsp_fold').detach(args.buf)
     end
 
     vim.api.nvim_clear_autocmds({
