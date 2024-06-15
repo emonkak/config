@@ -273,19 +273,6 @@ vim.api.nvim_create_autocmd('LspDetach', {
   end,
 })
 
-local on_ColorScheme = function()
-  vim.api.nvim_set_hl(0, '@lsp.type.variable', {})
-end
-
-vim.api.nvim_create_autocmd('ColorScheme', {
-  group = LSP_CONFIG_AUGROUP,
-  callback = on_ColorScheme,
-})
-
-if vim.fn.exists('g:colors_name') then
-  on_ColorScheme()
-end
-
 vim.api.nvim_create_user_command('LspRestartAll', function(info)
   local detached_clients = {}
   for _, client in ipairs(vim.lsp.get_active_clients()) do
