@@ -1464,6 +1464,7 @@ vmap gd  <Plug>(operator-grex-delete)
 nnoremap [Space]k  <Nop>
 nnoremap <silent> [Space]k/  :<C-u>call <SID>luis_start(luis#source#history#new('search'))<CR>
 nnoremap <silent> [Space]k:  :<C-u>call <SID>luis_start(luis#source#history#new('cmd'))<CR>
+nnoremap <silent> [Space]k;  :<C-u>call <SID>luis_start(luis#source#changelist#new(bufnr('%')))<CR>
 nnoremap <silent> [Space]kM  :<C-u>call <SID>luis_start(luis#source#mark#new())<CR>
 nnoremap <silent> [Space]kT  :<C-u>call <SID>luis_start(luis#source#tagstack#new(win_getid()))<CR>
 nnoremap <silent> [Space]k\  :<C-u>call <SID>luis_start(luis#source#history#new('expr'))<CR>
@@ -1558,7 +1559,7 @@ function! s:luis_start_async_tags() abort  " {{{3
   \ ]
   call extend(command, tagfiles())
   let options = {
-  \   'to_candidate': function('s:make_tag_candidate'),
+  \   'to_candidate': function('s:to_tag_candidate'),
   \ }
   let source = luis#source#async#new(name, kind, command, options)
   return s:luis_start(source)
@@ -1607,7 +1608,7 @@ function! s:to_git_file_candidate(line) abort  " {{{3
   \ }
 endfunction
 
-function! s:make_tag_candidate(line) abort  " {{{3
+function! s:to_tag_candidate(line) abort  " {{{3
   let components = split(a:line, '\t')
   return {
   \   'word': get(components, 0, a:line),
@@ -1973,15 +1974,14 @@ let g:submode_timeout = 0
 
 map s  <Plug>(surround-obj-add)
 map S  <Plug>(surround-obj-add)$
-
 nmap cs  <Plug>(surround-obj-change)
 nmap ds  <Plug>(surround-obj-delete)
 
-let g:surround_obj_config = {
+let g:surround_obj_objects = {
+\   'E': { 'type': 'inline', 'delimiter': '**' },
 \   'a': { 'type': 'block', 'delimiter': ['<', '>'] },
 \   'e': { 'type': 'inline', 'delimiter': '_' },
 \   'r': { 'type': 'block', 'delimiter': ['[', ']'] },
-\   's': { 'type': 'inline', 'delimiter': '**' },
 \   'jA': {'type': 'block', 'delimiter': ['≪', '≫']},
 \   'ja': {'type': 'block', 'delimiter': ['＜', '＞']},
 \   'jb': {'type': 'block', 'delimiter': ['（', '）']},
