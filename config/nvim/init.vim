@@ -423,6 +423,28 @@ command! -bar -nargs=1 SpaceIndent
 command! -bar -nargs=1 TabIndent
 \ setlocal noexpandtab shiftwidth< softtabstop< tabstop=<args>
 
+" InspectSyntax {{{2
+
+command! -bar -nargs=0 InspectSyntax
+\ echo join(<SID>inspect_syntax(line('.'), col('.')), '/')
+
+function! s:inspect_syntax(line, col) abort
+  let stack = []
+
+  for syn_id in synstack(a:line, a:col)
+    let syntax_name = synIDattr(syn_id, 'name')
+    let syn_trans_id = synIDtrans(syn_id)
+
+    if syn_id != syn_trans_id
+      let syntax_name .= '<' . synIDattr(syn_trans_id, 'name') . '>'
+    endif
+
+    call add(stack, syntax_name)
+  endfor
+
+  return stack
+endfunction
+
 " Jsonify  {{{2
 
 command! -nargs=? -range Jsonify
@@ -636,28 +658,6 @@ function! s:cmd_SuspendWithAutomticCD() abort
   else
     suspend
   endif
-endfunction
-
-" SyntaxStack {{{2
-
-command! -bar -nargs=0 SyntaxStack
-\ echo join(<SID>syntax_stack(line('.'), col('.')), '/')
-
-function! s:syntax_stack(line, col) abort
-  let stack = []
-
-  for syn_id in synstack(a:line, a:col)
-    let name = synIDattr(syn_id, 'name')
-    let syn_trans_id = synIDtrans(syn_id)
-
-    if syn_id != syn_trans_id
-      let name .= '<' . synIDattr(syn_trans_id, 'name') . '>'
-    endif
-
-    call add(stack, name)
-  endfor
-
-  return stack
 endfunction
 
 " TabpageTitle  {{{2
