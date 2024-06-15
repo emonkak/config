@@ -6,7 +6,8 @@ cabal build
 
 bin="$(cabal list-bin xmonad)"
 
-if [ -f "${bin}" ]
+if [ -n "${1-}" ] && [ -f "${bin}" ]
 then
+  echo "Install Binary into $1"
   install "${bin}" "$1"
 fi
