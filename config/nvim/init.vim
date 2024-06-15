@@ -690,6 +690,40 @@ AlterCommand sp[lit]  Split
 AlterCommand h[elp]  Help
 AlterCommand new  New
 
+" YankAllMatches  "{{{2
+
+command! -bar -range=% -register YankAllMatches
+\ <line1>,<line2>call s:cmd_YankAllMatches(<q-reg>)
+
+function! s:cmd_YankAllMatches(register) abort range
+  let matches = []
+  let pattern = @/
+  for lnum in range(a:firstline, a:lastline)
+    let line = getline(lnum)
+    call extend(matches, s:match_all(line, pattern))
+  endfor
+  call setreg(a:register, join(matches, "\n"), 'l')
+endfunction
+
+function! s:match_all(text, pattern) abort
+  let matches = []
+  let cursor = 0
+  while 1
+    let start = match(a:text, a:pattern, cursor)
+    if start < 0
+      break
+    endif
+    let end = matchend(a:text, a:pattern, cursor)
+    if end > start
+      call add(matches, a:text[start:end - 1])
+      let cursor = end
+    else
+      let cursor = end + 1
+    endif
+  endwhile
+  return matches
+endfunction
+
 " Mappings  {{{1
 " QuickFix  {{{2
 
