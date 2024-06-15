@@ -23,24 +23,24 @@ let s:SID_PREFIX = '<SNR>' . s:SID() . '_'
 " Syntax  {{{2
 
 let g:ansi_colors = {
-\   'background': '#22262b',
-\   'foreground': '#d1dbe7',
-\   'black': '#334454',
+\   'background': '#23262e',
+\   'foreground': '#d5dae9',
+\   'black': '#38425a',
 \   'red': '#cf6950',
-\   'green': '#159598',
+\   'green': '#1c9969',
 \   'yellow': '#aa7f2c',
-\   'blue': '#5686d7',
+\   'blue': '#8075f5',
 \   'magenta': '#d95a88',
 \   'cyan': '#3790b3',
-\   'white': '#698aa8',
-\   'bright-black': '#3f576e',
+\   'white': '#7486b2',
+\   'bright-black': '#465476',
 \   'bright-red': '#e9b5a8',
-\   'bright-green': '#8ccccd',
+\   'bright-green': '#8dcfad',
 \   'bright-yellow': '#d9bd95',
-\   'bright-blue': '#afc0f0',
+\   'bright-blue': '#c5b8fb',
 \   'bright-magenta': '#f1afc2',
 \   'bright-cyan': '#9cc7dd',
-\   'bright-white': '#b2c3d5',
+\   'bright-white': '#b8c0da',
 \ }
 
 if (1 < &t_Co || has('gui')) && has('syntax') && !exists('g:syntax_on')
