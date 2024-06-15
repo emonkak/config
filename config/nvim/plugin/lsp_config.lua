@@ -29,7 +29,7 @@ null_ls.setup({
   },
 })
 
-local function root_dir(filenames)
+local function root_files(filenames)
   return function(path)
     local matches = vim.fs.find(filenames, {
       upward = true,
@@ -51,7 +51,7 @@ local SERVER_DEFINITIONS = {
     name = 'rust-analyzer',
     cmd = { 'rust-analyzer' },
     filetypes = { 'rust' },
-    root_dir = root_dir({ '.git', 'Cargo.toml' }),
+    root_dir = root_files({ '.git', 'Cargo.toml' }),
     override_config = {
       settings = {
         ['rust-analyzer'] = {
@@ -68,7 +68,7 @@ local SERVER_DEFINITIONS = {
     name = 'haskell-language-server',
     cmd = { 'haskell-language-server-wrapper', '--lsp' },
     filetypes = { 'haskell', 'lhaskell' },
-    root_dir = root_dir({ '.git', 'Setup.hs', 'stack.yml' }),
+    root_dir = root_files({ '.git', 'Setup.hs', 'stack.yml' }),
   },
   {
     name = 'typescript-language-server',
@@ -79,7 +79,12 @@ local SERVER_DEFINITIONS = {
       'typescript',
       'typescriptreact',
     },
-    root_dir = root_dir({ '.git', 'package.json' }),
+    root_dir = function(path)
+      if root_files({ '.flowconfig' })(path) then
+        return nil
+      end
+      return root_files({ '.git', 'package.json' })(path)
+    end,
     override_config = {
       on_attach = function(client, bufnr)
         vim.bo[bufnr].formatexpr = nil
