@@ -9,7 +9,9 @@ export INFINALITY_FT="ultimate5"
 export XDG_CACHE_HOME="/tmp/.${USER}/cache"
 [ ! -d "${XDG_CACHE_HOME}" ] && install -dm0700 "${XDG_CACHE_HOME}"
 
-eval `ssh-agent`
+eval "$(ssh-agent)"
+
+eval "$(dbus-launch --sh-syntax --exit-with-session)"
 
 [ -f "${HOME}/.Xresources" ] && xrdb -merge "${HOME}/.Xresources"
 
@@ -36,9 +38,9 @@ session="${1##*/}"
 
 case "${session}" in
   Xsession|'')
-    exec dbus-launch --exit-with-session "${HOME}/.local/bin/xmonad"
+    exec "${HOME}/.local/bin/xmonad"
     ;;
   *)
-    exec dbus-launch --exit-with-session "${session}"
+    exec "${session}"
     ;;
 esac
