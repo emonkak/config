@@ -34,6 +34,9 @@ dunst &
 
 hsetroot -solid '#3f576e'
 
+# Remap ALT_L -> Super_L, ALT_R -> Super_R
+x0vncserver -PasswordFile ~/.config/tigervnc/passwd -RemapKeys '0xffe9->0xffeb,0xffea->0xffec' &
+
 session="${1##*/}"
 
 case "${session}" in
