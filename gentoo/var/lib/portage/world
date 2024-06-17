@@ -24,10 +24,6 @@ app-emulation/virtualbox-modules
 app-emulation/wine-vanilla
 app-emulation/winetricks
 app-eselect/eselect-repository
-app-i18n/fcitx-configtool
-app-i18n/fcitx-gtk
-app-i18n/fcitx-skk
-app-i18n/fcitx:5
 app-i18n/libskk
 app-i18n/nkf
 app-i18n/skk-jisyo
@@ -139,6 +135,7 @@ net-misc/rdesktop
 net-misc/rpiplay
 net-misc/sping
 net-misc/telnet-bsd
+net-misc/tigervnc
 net-misc/uxplay
 net-misc/wakeonlan
 net-misc/whois
@@ -227,7 +224,6 @@ x11-misc/hsetroot
 x11-misc/picom
 x11-misc/polybar
 x11-misc/slim
-x11-misc/x11vnc
 x11-misc/xcape
 x11-misc/xclip
 x11-misc/xdotool
