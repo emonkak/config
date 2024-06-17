@@ -36,7 +36,7 @@ session="${1##*/}"
 
 case "${session}" in
   Xsession|'')
-    exec dbus-launch --exit-with-session "${HOME}/.cabal/bin/xmonad"
+    exec dbus-launch --exit-with-session "${HOME}/.local/bin/xmonad"
     ;;
   *)
     exec dbus-launch --exit-with-session "${session}"
