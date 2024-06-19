@@ -1,0 +1,11 @@
+{
+    "include": [
+        "default/default"
+    ],
+    "define": {
+        "keymap": {
+            "C-[": "abort-to-latin-unhandled",
+            "Escape": "abort-to-latin-unhandled"
+        }
+    }
+}

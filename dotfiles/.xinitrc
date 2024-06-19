@@ -21,10 +21,11 @@ xcape -e '#133=Escape;#134=Zenkaku_Hankaku'
 
 xinput --set-ptr-feedback "ThinkPS/2 Kensington ThinkingMouse" 4 2 1
 
-export GTK_IM_MODULE='uim'
-export QT_IM_MODULE='uim'
-export XMODIFIERS='@im=uim'
-uim-xim &
+export GTK_IM_MODULE='fcitx5'
+export QT_IM_MODULE='fcitx5'
+export XMODIFIERS='@im=fcitx5'
+
+fcitx5 -d
 
 picom &
 

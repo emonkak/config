@@ -1,0 +1,14 @@
+diff --git a/libskk/state.vala b/libskk/state.vala
+index 3beb9c4..fea858f 100644
+--- a/libskk/state.vala
++++ b/libskk/state.vala
+@@ -950,9 +950,6 @@ namespace Skk {
+                     }
+                     state.rom_kana_converter.output_nn_if_any ();
+                     state.okuri = true;
+-                    // when okuri-kana is "N [AIUEO]", flush "nn" first
+-                    if (is_upper)
+-                        state.okuri_rom_kana_converter.output_nn_if_any ();
+                     state.okuri_rom_kana_converter.append (lower_code);
+                     if (state.okuri_rom_kana_converter.preedit.length == 0) {
+                         state.handler_type = typeof (SelectStateHandler);

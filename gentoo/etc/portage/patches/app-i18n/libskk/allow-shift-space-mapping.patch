@@ -1,16 +1,21 @@
 diff --git a/libskk/key-event-filter.vala b/libskk/key-event-filter.vala
-index 8c3d6ce..8052da5 100644
+index 8c3d6ce..e1b9ddc 100644
 --- a/libskk/key-event-filter.vala
 +++ b/libskk/key-event-filter.vala
-@@ -60,8 +60,6 @@ namespace Skk {
-             // ignore key release event
+@@ -61,8 +61,10 @@ namespace Skk {
              if ((key.modifiers & ModifierType.RELEASE_MASK) != 0)
                  return null;
--            // clear shift mask
+             // clear shift mask
 -            key.modifiers &= ~ModifierType.SHIFT_MASK;
++            if (0x20 < key.code && key.code < 0x7F) {
++                key.modifiers &= ~ModifierType.SHIFT_MASK;
++            }
              return key;
          }
      }
+-}
+\ No newline at end of file
++}
 diff --git a/libskk/key-event.vala b/libskk/key-event.vala
 index 195941a..72d4050 100644
 --- a/libskk/key-event.vala

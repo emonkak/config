@@ -24,6 +24,11 @@ app-emulation/virtualbox-modules
 app-emulation/wine-vanilla
 app-emulation/winetricks
 app-eselect/eselect-repository
+app-i18n/fcitx
+app-i18n/fcitx-configtool
+app-i18n/fcitx-gtk
+app-i18n/fcitx-qt
+app-i18n/fcitx-skk
 app-i18n/libskk
 app-i18n/nkf
 app-i18n/skk-jisyo
@@ -198,6 +203,7 @@ sys-process/procs
 virtual/mysql
 virtual/rust
 virtual/wine
+www-client/brave-bin
 www-client/firefox-bin
 www-client/microsoft-edge
 www-servers/nginx
@@ -228,7 +234,6 @@ x11-misc/xcape
 x11-misc/xclip
 x11-misc/xdotool
 x11-terms/alacritty
-x11-terms/rxvt-unicode
 x11-terms/wezterm
 x11-themes/adwaita-icon-theme
 x11-themes/adwaita-qt

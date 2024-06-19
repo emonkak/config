@@ -49,10 +49,8 @@ x11-terms/wezterm ~amd64
 x11-themes/* ~amd64
 
 # fcitx5
-app-i18n/cskk ~amd64
 app-i18n/fcitx ~amd64
 app-i18n/fcitx-configtool ~amd64
-app-i18n/fcitx-cskk ~amd64
 app-i18n/fcitx-gtk ~amd64
 app-i18n/fcitx-qt ~amd64
 app-i18n/fcitx-skk ~amd64

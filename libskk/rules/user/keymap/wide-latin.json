@@ -1,0 +1,14 @@
+{
+    "include": [
+        "default",
+        "default/wide-latin"
+    ],
+    "define": {
+        "keymap": {
+            "C-j": null,
+            "Henkan_Mode": "set-input-mode-hiragana",
+            "S-space": "set-input-mode-hiragana",
+            "Zenkaku_Hankaku": "set-input-mode-hiragana"
+        }
+    }
+}
