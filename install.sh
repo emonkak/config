@@ -8,10 +8,11 @@ then
 fi
 
 mklink() {
-  ln -Tfvs $(realpath "${1}") "${2}"
+  mkdir --parents "${2%/*}"
+  ln --force --symbolic --no-target-directory --verbose $(realpath "${1}") "${2}"
 }
 
-mkdir -p ~/.config ~/.local/share
+mkdir --parents ~/.config ~/.local/share
 
 mklink "vim" "${HOME}/.config/nvim"
 
@@ -24,5 +25,5 @@ done
 
 for path in dotfiles/.[^.]*
 do
-  mklink "${path}" "${HOME}/${path##*/}"
+  mklink "${path}" "${HOME}/${path#*/}"
 done

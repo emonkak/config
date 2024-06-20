@@ -3,11 +3,8 @@
 set -euo pipefail
 
 mklink() {
-  if [ -h "${2}" ]
-  then
-    return
-  fi
-  ln -Tfvs $(realpath "${1}") "${2}"
+  mkdir --parents "${2%/*}"
+  ln --force --symbolic --no-target-directory --verbose $(realpath "${1}") "${2}"
 }
 
 install-brew() {
