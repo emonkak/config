@@ -1,0 +1,99 @@
+diff --git a/runtime/lua/vim/treesitter/query.lua b/runtime/lua/vim/treesitter/query.lua
+index ef5c2143a..a7cd6a402 100644
+--- a/runtime/lua/vim/treesitter/query.lua
++++ b/runtime/lua/vim/treesitter/query.lua
+@@ -74,14 +74,14 @@ local function safe_read(filename, read_quantifier)
+   return content
+ end
+ 
+---- Adds {ilang} to {base_langs}, only if {ilang} is different than {lang}
++--- Adds {ilang} to {included_langs}, only if {ilang} is different than {lang}
+ ---
+ ---@return boolean true If lang == ilang
+-local function add_included_lang(base_langs, lang, ilang)
++local function add_included_lang(included_langs, lang, ilang)
+   if lang == ilang then
+     return true
+   end
+-  table.insert(base_langs, ilang)
++  table.insert(included_langs, ilang)
+   return false
+ end
+ 
+@@ -99,17 +99,15 @@ function M.get_files(lang, query_name, is_included)
+     return {}
+   end
+ 
+-  local base_query = nil ---@type string?
+-  local extensions = {}
+-
+-  local base_langs = {} ---@type string[]
++  local base_files = {} ---@type string[]
++  local included_langs = {} ---@type string[]
+ 
+   -- Now get the base languages by looking at the first line of every file
+   -- The syntax is the following :
+   -- ;+ inherits: ({language},)*{language}
+   --
+   -- {language} ::= {lang} | ({lang})
+-  local MODELINE_FORMAT = '^;+%s*inherits%s*:?%s*([a-z_,()]+)%s*$'
++  local INHERITS_FORMAT = '^;+%s*inherits%s*:?%s*([a-z_,()]+)%s*$'
+   local EXTENDS_FORMAT = '^;+%s*extends%s*$'
+ 
+   for _, filename in ipairs(lang_files) do
+@@ -130,7 +128,7 @@ function M.get_files(lang, query_name, is_included)
+         break
+       end
+ 
+-      local langlist = modeline:match(MODELINE_FORMAT)
++      local langlist = modeline:match(INHERITS_FORMAT)
+       if langlist then
+         ---@diagnostic disable-next-line:param-type-mismatch
+         for _, incllang in ipairs(vim.split(langlist, ',', true)) do
+@@ -138,12 +136,12 @@ function M.get_files(lang, query_name, is_included)
+ 
+           if is_optional then
+             if not is_included then
+-              if add_included_lang(base_langs, lang, incllang:sub(2, #incllang - 1)) then
++              if add_included_lang(included_langs, lang, incllang:sub(2, #incllang - 1)) then
+                 extension = true
+               end
+             end
+           else
+-            if add_included_lang(base_langs, lang, incllang) then
++            if add_included_lang(included_langs, lang, incllang) then
+               extension = true
+             end
+           end
+@@ -153,21 +151,21 @@ function M.get_files(lang, query_name, is_included)
+       end
+     end
+ 
+-    if extension then
+-      table.insert(extensions, filename)
+-    elseif base_query == nil then
+-      base_query = filename
+-    end
++    table.insert(base_files, filename)
++
+     io.close(file)
++
++    if not extension then
++      break
++    end
+   end
+ 
+   local query_files = {}
+-  for _, base_lang in ipairs(base_langs) do
+-    local base_files = M.get_files(base_lang, query_name, true)
+-    vim.list_extend(query_files, base_files)
++  for _, included_lang in ipairs(included_langs) do
++    local included_files = M.get_files(included_lang, query_name, true)
++    vim.list_extend(query_files, included_files)
+   end
+-  vim.list_extend(query_files, { base_query })
+-  vim.list_extend(query_files, extensions)
++  vim.list_extend(query_files, base_files)
+ 
+   return query_files
+ end
