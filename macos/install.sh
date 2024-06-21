@@ -118,8 +118,8 @@ install-launch-agents() {
   launchctl load ~/Library/LaunchAgents/setup-locale.plist
 }
 
-setup-user-defaults() {
-  echo Setup user defaults...
+configure-user-defaults() {
+  echo Configure user defaults...
 
   defaults write -g ApplePressAndHoldEnabled -bool false
   defaults write -g AppleShowAllExtensions -bool true
@@ -162,4 +162,4 @@ install-brew-casks
 install-terminfos
 install-launch-agents
 install-configs
-setup-user-defaults
+configure-user-defaults
