@@ -135,6 +135,9 @@ configure-user-defaults() {
   defaults write com.apple.finder _FXSortFoldersFirst -bool true
   defaults write com.apple.screencapture disable-shadow -boolean true
 
+  # Enable subpixel rendering
+  defaults write -g CGFontRenderingFontSmoothingDisabled -bool NO
+
   # Keyboard
   defaults write -g InitialKeyRepeat -int 15
   defaults write -g KeyRepeat -int 2
