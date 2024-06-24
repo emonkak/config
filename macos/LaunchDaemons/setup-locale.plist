@@ -7,7 +7,7 @@
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>${HOME}/Library/LaunchAgents/setup-locale.sh</string>
+        <string>/Library/LaunchDaemons/setup-locale.sh</string>
     </array>
     <key>RunAtLoad</key>
     <true/>

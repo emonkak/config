@@ -109,13 +109,14 @@ xterm-256color|xterm with 256 colors and italic,
 EOF
 }
 
-install-launch-agents() {
-  echo Install launch agents...
+install-launch-daemons() {
+  echo Install launch daemons...
 
-  cat LaunchAgents/setup-locale.plist | sed -e "s|\${HOME}|${HOME}|" > "${HOME}/Library/LaunchAgents/setup-locale.plist"
-  install -m755 LaunchAgents/setup-locale.sh "${HOME}/Library/LaunchAgents/setup-locale.sh"
+  sudo install -m644 LaunchDaemons/setup-locale.plist /Library/LaunchDaemons/setup-locale.plist
+  sudo install -m755 LaunchDaemons/setup-locale.sh /Library/LaunchDaemons/setup-locale.sh
 
-  launchctl load ~/Library/LaunchAgents/setup-locale.plist
+  sudo launchctl bootout system /Library/LaunchDaemons/setup-locale.plist &> /dev/null || true
+  sudo launchctl bootstrap system /Library/LaunchDaemons/setup-locale.plist || true
 }
 
 configure-user-defaults() {
@@ -163,6 +164,6 @@ install-brew
 install-brew-formulas
 install-brew-casks
 install-terminfos
-install-launch-agents
+install-launch-daemons
 install-configs
 configure-user-defaults
