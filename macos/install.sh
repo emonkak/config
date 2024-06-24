@@ -93,19 +93,19 @@ install-terminfos() {
 
   tic /dev/stdin << EOF
 tmux-256color|tmux with 256 colors and italic,
-        ritm=\E[23m,
-        rmso=\E[27m,
-        sgr=\E[0%?%p6%t;1%;%?%p1%t;7%;%?%p2%t;4%;%?%p3%t;7%;%?%p4%t;5%;m%?%p9%t\016%e\017%;,
-        sitm=\E[3m,
-        smso=\E[7m,
-        use=screen-256color,
+	ritm=\E[23m,
+	rmso=\E[27m,
+	sgr=\E[0%?%p6%t;1%;%?%p1%t;7%;%?%p2%t;4%;%?%p3%t;7%;%?%p4%t;5%;m%?%p9%t\016%e\017%;,
+	sitm=\E[3m,
+	smso=\E[7m,
+	use=screen-256color,
 EOF
 
   tic /dev/stdin << EOF
 xterm-256color|xterm with 256 colors and italic,
-        sitm=\E[3m, 
-        ritm=\E[23m,
-        use=xterm-256color,
+	sitm=\E[3m,
+	ritm=\E[23m,
+	use=xterm-256color,
 EOF
 }
 
