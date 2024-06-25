@@ -67,7 +67,7 @@ switchPulseCardProfile :: (MonadIO m) => [String] -> [Card] -> m ()
 switchPulseCardProfile profiles cards = do
   case find condition cards of
     (Just (Card {name, active_profile})) ->
-      let nextProfile = swtich profiles active_profile
+      let nextProfile = rotate profiles active_profile
        in mapM_ (\profile -> safeSpawn "pactl" ["set-card-profile", name, profile]) nextProfile
     _ -> return ()
   where
@@ -75,9 +75,9 @@ switchPulseCardProfile profiles cards = do
       all (`M.member` availableProfiles) profiles
     condition _ = False
 
-swtich :: Eq a => [a] -> a -> Maybe a
-swtich [] _ = Nothing
-swtich candidates active =
+rotate :: Eq a => [a] -> a -> Maybe a
+rotate [] _ = Nothing
+rotate candidates active =
   let i = maybe (l - 1) fst $ find ((== active) . snd) $ zip [0 ..] candidates
       j = (i + 1) `mod` length candidates
    in Just (candidates !! j)
