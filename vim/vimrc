@@ -1859,10 +1859,11 @@ endif
 
 " Common {{{3
 
+" Insert a multi-line comment.
 call smartinput#define_rule({
 \   'at': '/\*\*\%#',
 \   'char': '<CR>',
-\   'input': '<CR><CR>/<Up><Space>',
+\   'input': '*/<Left><Left><CR><CR><BS><BS><Up><Right><Space>',
 \ })
 
 " for Vim  {{{3
