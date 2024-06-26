@@ -19,6 +19,9 @@ require('nvim-treesitter.configs').setup({
     enable = true,
     disable = { 'markdown' },
   },
+  indent = {
+    enable = true,
+  },
 })
 
 vim.api.nvim_create_autocmd('Filetype', {
