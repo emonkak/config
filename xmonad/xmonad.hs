@@ -272,7 +272,7 @@ main = do
   xmonad $
     withUrgencyHook NoUrgencyHook $
       withSB myStatusBar $
-        ewmh $
+        ewmh $ ewmhFullscreen $
           docks $
             def
               { terminal = myTerminal,
