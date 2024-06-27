@@ -1,4 +1,5 @@
 [
+  (abstract_class_declaration)
   (arrow_function)
   (class_declaration)
   (enum_declaration)
