@@ -141,6 +141,7 @@ myManageHook =
       [ isWineSystemTray -?> doHideIgnore,
         isFullscreen -?> doFullFloat,
         isDialog -?> doCenterFloat,
+        role =? "browser" -?> ewmhDesktopsManageHook,
         role =? "bubble" -?> doIgnore, -- for Chromeium tooltip
         role =? "pop-up" -?> doFloat,
         isUnknown -?> doFloat
