@@ -252,8 +252,7 @@ function! s:readdir(dir) abort  "{{{2
 endfunction
 
 function! s:sandbox_eval(expr) abort  "{{{2
-  sandbox let result = eval(a:expr)
-  return result
+  sandbox return eval(a:expr)
 endfunction
 
 function! s:trim(text) abort  "{{{2
