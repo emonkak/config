@@ -342,6 +342,10 @@ filextype {*.odt,*.doc,*.docx,*.xls,*.xlsx,*.odp,*.pptx,*.ppt},
           \application/msword,
           \application/vnd.ms-excel>
         \ {Open in libreoffice} libreoffice %f &
+fileviewer {*.docx}
+         \ docx2txt %c -
+fileviewer {*.xlsx}
+         \ xlsx2csv --delimiter tab %c
 
 " Default association
 filetype *  {Open in less} less -f %f
