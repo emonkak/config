@@ -258,10 +258,6 @@ vim.api.nvim_create_autocmd('LspDetach', {
     vim.api.nvim_set_option_value('omnifunc', nil, { buf = args.buf })
     vim.api.nvim_set_option_value('tagfunc', nil, { buf = args.buf })
 
-    if client.server_capabilities.documentSymbolProvider then
-      require('lsp_fold').detach(args.buf)
-    end
-
     vim.api.nvim_clear_autocmds({
       group = LSP_CONFIG_AUGROUP,
       buffer = args.buf,
