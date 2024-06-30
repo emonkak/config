@@ -17,7 +17,7 @@ while [[ ${retry_count} -lt ${MAX_RETRIES} ]]
 do
   if launchctl print "gui/$TARGET_UID" > /dev/null
   then
-    user_name="$(id --name --user ${TARGET_UID})"
+    user_name="$(id -n -u ${TARGET_UID})"
     launchctl asuser ${TARGET_UID} launchctl setenv PATH_LOCALE "/Users/${user_name}/.locale"
     break
   fi
