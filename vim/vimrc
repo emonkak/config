@@ -1730,10 +1730,12 @@ let g:quickrun_config = {
 \     'command': 'tsm',
 \     'cmdopt': '--esm',
 \     'exec': ['TS_NODE_TRANSPILE_ONLY=true %c %o %s %a'],
+\     'tempfile': '%{fnamemodify(tempname(), ":r")}.ts',
 \   },
 \   'typescript/tsx': {
 \     'command': 'tsx',
 \     'exec': ['%c %o %s %a'],
+\     'tempfile': '%{fnamemodify(tempname(), ":r")}.ts',
 \   },
 \   'vim': {
 \     'type': 'vim/sandbox',
