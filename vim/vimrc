@@ -105,6 +105,9 @@ set hidden
 set history=1000
 set ignorecase
 set incsearch
+if exists('+inccommand')
+  set inccommand=split
+endif
 set keywordprg=:help
 if exists('+langremap')
   set nolangremap
