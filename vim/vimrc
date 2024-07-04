@@ -1627,6 +1627,12 @@ function! s:to_tag_candidate(line) abort  " {{{3
   \ }
 endfunction
 
+" netrw  {{{2
+
+let g:netrw_banner = 0
+let g:netrw_browse_split = 4
+let g:netrw_liststyle = 3
+
 " operator-camelize  {{{2
 
 map <Leader>c  <Plug>(operator-camelize)
