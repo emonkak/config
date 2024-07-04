@@ -57,8 +57,10 @@ app-shells/gentoo-zsh-completions
 app-shells/zsh
 app-shells/zsh-completions
 app-text/convmv
+app-text/docx2txt
 app-text/grip
 app-text/tree
+app-text/xlsx2csv
 dev-db/mysql
 dev-debug/gdb
 dev-debug/strace

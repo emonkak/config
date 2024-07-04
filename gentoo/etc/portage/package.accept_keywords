@@ -13,6 +13,7 @@ app-misc/vifm ~amd64
 app-misc/yq ~amd64
 app-portage/hackport ~amd64
 app-shells/fzf ~amd64
+app-text/xlsx2csv ~amd64
 dev-lang/php ~amd64
 dev-lang/rust-bin ~amd64
 dev-php/* ~amd64
