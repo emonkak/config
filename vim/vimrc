@@ -196,6 +196,24 @@ endfunction
 set showtabline=1
 let &tabline = '%!' . s:SID_PREFIX . 'my_tabline()'
 
+" Packages  {{{2
+
+if has('nvim')
+  packadd nvim-treesitter
+  packadd nvim-treesitter-textobjects
+  packadd nvim-lspconfig
+else
+  if !has('patch-8.2.4275')
+    " Add all "start" packages to 'runtimepath' explicitly, because Vim without
+    " this patch does not autoload sources from 'packpath'.
+    let &runtimepath .= ','
+    \                . join(globpath(&packpath, 'pack/*/start/*', 0, 1), ',')
+  endif
+
+  packadd vim-altercmd
+  packadd vim-arpeggio
+endif
+
 " Misc.  {{{2
 
 augroup MyAutoCmd
@@ -204,20 +222,6 @@ augroup END
 
 let g:mapleader = ','
 let g:maplocalleader = '.'
-
-if !has('nvim')
-  if has('patch-8.0.1398')
-    " In this version, :packadd look in the "start" directory.
-    packadd vim-altercmd
-    packadd vim-arpeggio
-  endif
-  if !has('patch-8.2.4275')
-    " Add all "start" packages to 'runtimepath' explicitly, because Vim of
-    " this version does not autoload sources from 'packpath'.
-    let &runtimepath .= ','
-    \                . join(globpath(&packpath, 'pack/*/start/*', 0, 1), ',')
-  endif
-endif
 
 call altercmd#load()
 call arpeggio#load()

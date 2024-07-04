@@ -177,12 +177,12 @@
 [submodule "vim/pack/plugins/start/none-ls.nvim"]
 	path = vim/pack/plugins/start/none-ls.nvim
 	url = https://github.com/nvimtools/none-ls.nvim.git
-[submodule "vim/pack/plugins/start/nvim-lspconfig"]
-	path = vim/pack/plugins/start/nvim-lspconfig
+[submodule "vim/pack/plugins/opt/nvim-lspconfig"]
+	path = vim/pack/plugins/opt/nvim-lspconfig
 	url = https://github.com/neovim/nvim-lspconfig.git
-[submodule "vim/pack/plugins/start/nvim-treesitter"]
-	path = vim/pack/plugins/start/nvim-treesitter
+[submodule "vim/pack/plugins/opt/nvim-treesitter"]
+	path = vim/pack/plugins/opt/nvim-treesitter
 	url = https://github.com/nvim-treesitter/nvim-treesitter.git
-[submodule "vim/pack/plugins/start/nvim-treesitter-textobjects"]
-	path = vim/pack/plugins/start/nvim-treesitter-textobjects
+[submodule "vim/pack/plugins/opt/nvim-treesitter-textobjects"]
+	path = vim/pack/plugins/opt/nvim-treesitter-textobjects
 	url = https://github.com/nvim-treesitter/nvim-treesitter-textobjects.git
