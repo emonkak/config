@@ -2,18 +2,18 @@
 
 set -o errexit -o nounset
 
-if [[ "${TRACE-0}" == "1" ]]
+if [[ "${TRACE:-0}" -ne 0 ]]
 then
   set -o xtrace
 fi
 
 TARGET_UID=501
 RETRY_INTERVAL=1
-MAX_RETRIES=10
+TIMEOUT=60
 
-retry_count=0
+retry_seconds=0
 
-while [[ ${retry_count} -lt ${MAX_RETRIES} ]]
+while [[ ${retry_seconds} -lt ${TIMEOUT} ]]
 do
   if launchctl print "gui/$TARGET_UID" > /dev/null
   then
@@ -22,5 +22,5 @@ do
     break
   fi
   sleep ${RETRY_INTERVAL}
-  retry_count=$(( ${retry_count} + 1 ))
+  retry_seconds=$(( ${retry_seconds} + ${RETRY_INTERVAL} ))
 done
