@@ -9,6 +9,7 @@ import XMonad.Actions.CycleWS
 import XMonad.Actions.FloatSnap
 import XMonad.Actions.Promote
 import XMonad.Actions.Submap
+import XMonad.Actions.ToggleFullFloat
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
@@ -272,7 +273,7 @@ main = do
   xmonad $
     withUrgencyHook NoUrgencyHook $
       withSB myStatusBar $
-        ewmh $ ewmhFullscreen $
+        toggleFullFloatEwmhFullscreen $ ewmhFullscreen $ ewmh $
           docks $
             def
               { terminal = myTerminal,
