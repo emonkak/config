@@ -538,7 +538,7 @@ command! -bar -nargs=1 -complete=customlist,s:complete_server_name
 
 command! -bar -nargs=1 -range -complete=customlist,s:complete_server_name
 \ RemoteYank
-\ call system(['ssh', <q-args>, 'pbcopy'], getline(<line1>, <line2>))
+\ call system('ssh ' . shellescape(<q-args>) . ' pbcopy', getline(<line1>, <line2>))
 
 function! s:complete_server_name(arglead, cmdline, cursorpos) abort
   let path = expand('$HOME/.ssh/known_hosts')
