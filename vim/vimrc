@@ -201,7 +201,6 @@ let &tabline = '%!' . s:SID_PREFIX . 'my_tabline()'
 if has('nvim')
   packadd nvim-treesitter
   packadd nvim-treesitter-textobjects
-  packadd nvim-lspconfig
 else
   if !has('patch-8.2.4275')
     " Add all "start" packages to 'runtimepath' explicitly, because Vim without
