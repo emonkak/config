@@ -29,16 +29,6 @@ null_ls.setup({
   },
 })
 
-local function root_files(filenames)
-  return function(path)
-    local matches = vim.fs.find(filenames, {
-      upward = true,
-      path = path,
-    })
-    return matches[1] and vim.fs.dirname(matches[1])
-  end
-end
-
 local function run_command_without_errors(command)
   local ok, error = pcall(vim.api.nvim_command, command)
   if not ok then
@@ -46,13 +36,15 @@ local function run_command_without_errors(command)
   end
 end
 
-local SERVER_DEFINITIONS = {
+local SERVER_CONFIGS = {
   {
     name = 'rust-analyzer',
     cmd = { 'rust-analyzer' },
     filetypes = { 'rust' },
-    root_dir = root_files({ '.git', 'Cargo.toml' }),
-    override_config = {
+    root_dir = function(path)
+      return vim.fs.root(path, { '.git', 'Cargo.toml' })
+    end,
+    default_config = {
       settings = {
         ['rust-analyzer'] = {
           hover = {
@@ -68,7 +60,9 @@ local SERVER_DEFINITIONS = {
     name = 'haskell-language-server',
     cmd = { 'haskell-language-server-wrapper', '--lsp' },
     filetypes = { 'haskell', 'lhaskell' },
-    root_dir = root_files({ '.git', 'Setup.hs', 'stack.yml' }),
+    root_dir = function(path)
+      return vim.fs.root(path, { '.git', 'Setup.hs', 'stack.yml' })
+    end,
   },
   {
     name = 'vtsls',
@@ -80,12 +74,12 @@ local SERVER_DEFINITIONS = {
       'typescriptreact',
     },
     root_dir = function(path)
-      if root_files({ '.flowconfig' })(path) then
+      if #vim.fs.find('.flowconfig', { upward = true, path = path }) > 0 then
         return nil
       end
-      return root_files({ '.git', 'package.json' })(path)
+      return vim.fs.root(path, { '.git', 'package.json' })
     end,
-    override_config = {
+    default_config = {
       on_attach = function(client, bufnr)
         vim.bo[bufnr].formatexpr = nil
         client.server_capabilities.documentFormattingProvider = false
@@ -96,36 +90,38 @@ local SERVER_DEFINITIONS = {
     name = 'phpactor',
     cmd = { 'phpactor', 'language-server' },
     filetypes = { 'php' },
-    root_dir = root_files({ '.git', 'composer.json' }),
+    root_dir = function(path)
+      return vim.fs.root(path, { '.git', 'composer.json' })
+    end,
   },
 }
 
 local LSP_CONFIG_AUGROUP = vim.api.nvim_create_augroup('MyLspConfig', {})
 
-for i, server_definition in ipairs(SERVER_DEFINITIONS) do
-  if vim.fn.executable(server_definition.cmd[1]) == 0 then
+for i, server_config in ipairs(SERVER_CONFIGS) do
+  if vim.fn.executable(server_config.cmd[1]) == 0 then
     goto continue
   end
   vim.api.nvim_create_autocmd('FileType', {
     group = LSP_CONFIG_AUGROUP,
-    pattern = server_definition.filetypes,
+    pattern = server_config.filetypes,
     callback = function(args)
       if vim.api.nvim_buf_get_name(args.buf) == ''
         or vim.api.nvim_buf_get_option(args.buf, 'buftype') ~= '' then
         return
       end
       local config = {
-        name = server_definition.name,
-        cmd = server_definition.cmd,
-        root_dir = server_definition.root_dir(
+        name = server_config.name,
+        cmd = server_config.cmd,
+        root_dir = server_config.root_dir(
           vim.fn.fnamemodify(args.file, ':p:h')
         ),
       }
-      if server_definition.override_config then
+      if server_config.default_config then
         config = vim.tbl_extend(
-          'force',
+          'keep',
           config,
-          server_definition.override_config
+          server_config.default_config
         )
       end
       if not config.root_dir then
