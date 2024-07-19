@@ -261,60 +261,6 @@ vim.api.nvim_create_autocmd('LspDetach', {
   end,
 })
 
-vim.api.nvim_create_user_command('LspRestartAll', function(info)
-  local detached_clients = {}
-
-  for _, client in ipairs(vim.lsp.get_clients()) do
-    local buffers = vim.lsp.get_buffers_by_client_id(client.id)
-    if #buffers > 0 then
-      table.insert(detached_clients, { client, buffers })
-    end
-    client.stop(true)
-  end
-  if #detached_clients == 0 then
-    return
-  end
-
-  local MAX_ATTEMPTS = 5
-  local timer = vim.loop.new_timer()
-  local cursor = 1
-  local attempts = 0
-
-  timer:start(
-    500,
-    100,
-    vim.schedule_wrap(function()
-      while cursor <= #detached_clients do
-        local client, attached_buffers = unpack(detached_clients[cursor])
-        if not client.is_stopped() then
-          break
-        end
-
-        local client_id = vim.lsp.start(client.config)
-
-        for i, bufnr in ipairs(attached_buffers) do
-          if vim.api.nvim_buf_is_valid(bufnr) then
-            vim.lsp.buf_attach_client(bufnr, client_id)
-          end
-        end
-
-        detached_clients[cursor] = nil
-        cursor = cursor + 1
-      end
-
-      attempts = attempts + 1
-
-      if cursor > #detached_clients or attempts >= MAX_ATTEMPTS then
-        if not timer:is_closing() then
-          timer:close()
-        end
-      end
-    end)
-  )
-end, {
-  desc = 'Restart all LSP client(s) and reattach them to buffer(s)',
-})
-
 vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
   vim.lsp.handlers.hover,
   {
