@@ -355,6 +355,32 @@ endfunction
 AlterCommand mak[e]  Make
 AlterCommand lmak[e]  Lmake
 
+" BufExecute  {{{2
+
+command! -nargs=+ -complete=file BufExecute  call s:cmd_BufExecute(<f-args>)
+
+function! s:cmd_BufExecute(...) abort
+  if a:0 > 1
+    let pattern = glob2regpat(a:1)
+    let command = join(a:000[1:], ' ')
+    let includes_root = a:1[0] ==# '/'
+  else
+    let pattern = ''
+    let command = join(a:000, ' ')
+    let includes_root = 0
+  endif
+  let execute_count = 0
+  for buffer in getbufinfo({ 'buflisted': 1 })
+    let relative_name = fnamemodify(buffer.name, ':.')
+    if (includes_root || buffer.name !=# relative_name)
+    \  && relative_name =~# pattern
+      execute buffer.bufnr 'bufdo' command
+      let execute_count += 1
+    endif
+  endfor
+  echo 'Execute ":' . command . '" in ' . execute_count . ' buffer(s)'
+endfunction
+
 " BufSweap  {{{2
 
 command! -bang -bar -nargs=0 BufSweap  call s:cmd_BufSweap(<bang>0)
