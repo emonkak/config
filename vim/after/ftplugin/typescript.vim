@@ -2,6 +2,7 @@ setlocal expandtab
 setlocal foldexpr=TypescriptFold(v:lnum)
 setlocal foldmethod=expr
 setlocal iskeyword-=:
+setlocal iskeyword+=$
 setlocal shiftwidth=2
 setlocal softtabstop=2
 
