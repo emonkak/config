@@ -299,14 +299,14 @@ command! -bang -bar -complete=file -nargs=? Mac
 " :grep wrappers  {{{2
 
 command! -complete=customlist,s:complete_file -nargs=+ Grep
-\ call s:grep('grep', 'cwindow', [<f-args>])
+\ call s:grep('grep', 'cwindow', <f-args>)
 command! -complete=customlist,s:complete_file -nargs=+ Lgrep
-\ call s:grep('lgrep', 'lwindow', [<f-args>])
+\ call s:grep('lgrep', 'lwindow', <f-args>)
 
-function! s:grep(command, window_command, args) abort
-  let pattern = escape(shellescape(a:args[-1]), '#%|')
-  let target = len(a:args) > 1
-  \          ? escape(shellescape(join(a:args[:-2], ' ')), '|')
+function! s:grep(command, window_command, ...) abort
+  let pattern = escape(shellescape(a:000[-1]), '#%|')
+  let target = a:0 > 1
+  \          ? escape(shellescape(join(a:000[:-2], ' ')), '|')
   \          : ''
   execute (a:command . '!') pattern target
   execute a:window_command
