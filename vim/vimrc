@@ -369,16 +369,16 @@ function! s:cmd_BufExecute(...) abort
     let command = join(a:000, ' ')
     let includes_root = 0
   endif
-  let execute_count = 0
+  let buffer_count = 0
   for buffer in getbufinfo({ 'buflisted': 1 })
     let relative_name = fnamemodify(buffer.name, ':.')
     if (includes_root || buffer.name !=# relative_name)
     \  && relative_name =~# pattern
       execute buffer.bufnr 'bufdo' command
-      let execute_count += 1
+      let buffer_count += 1
     endif
   endfor
-  echo 'Execute ":' . command . '" in ' . execute_count . ' buffer(s)'
+  echo 'Execute ":' . command . '" in ' . buffer_count . ' buffer(s)'
 endfunction
 
 " BufSweap  {{{2
