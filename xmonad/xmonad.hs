@@ -35,7 +35,7 @@ myBorderWidth = 2
 myModMask = mod4Mask
 myWorkspaces = map show [(1 :: Int) .. 9]
 myStatusbarHeight = 20
-myFont = "xft:Tamzen:size=9"
+myFont = "xft:Bakemono Mono:size=9"
 myPrimaryColor = "#5686d7"
 myBlackColor = "#334454"
 myForegroundColor = "#d5dae9"

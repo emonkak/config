@@ -36,15 +36,15 @@ thickness = 0.25
 size = 9
 
 [font.normal]
-family = "The Future Mono"
+family = "Bakemono Mono"
 
 [font.offset]
 x = 0
-y = 0
+y = 3
 
 [font.glyph_offset]
 x = 0
-y = 2
+y = 1
 
 [[keyboard.bindings]]
 action = "ReceiveChar"
