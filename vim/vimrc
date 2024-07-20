@@ -1905,6 +1905,11 @@ call smartinput#define_rule({
 \   'char': '<CR>',
 \   'input': '*/<Left><Left><CR><CR><BS><BS><Up><Right><Space>',
 \ })
+call smartinput#define_rule({
+\   'at': '/\*\*\%#',
+\   'char': '<Space>',
+\   'input': '<Space><Space>*/<Left><Left><Left>',
+\ })
 
 " for Vim  {{{3
 
