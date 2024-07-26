@@ -91,19 +91,8 @@ unset -f prompt_setup
 
 # Aliases  #{{{1
 
-if which eza &> /dev/null
-then
-  alias ls='eza --classify --group --time-style=long-iso'
-elif which vdir &> /dev/null  # `vdir` command is only available in Coreutils.
-then
-  alias ls='ls --classify --human-readable --color=auto --time-style=long-iso --show-control-chars'
-else  # BSD implementation
-  alias ls='ls -FGh'
-fi
-alias la='ls -a'
-alias ll='ls -l'
-alias lla='ls -la'
-
+# Aliases for coreutils
+alias cdw='cd "${PWD}"'
 alias cp='cp -iv'
 alias mv='mv -iv'
 if which safe-rm &> /dev/null
@@ -112,14 +101,42 @@ then
 else
   alias rm='rm -Iv'
 fi
+if which eza &> /dev/null
+then
+  alias ls='eza --classify --group --time-style=long-iso'
+elif which vdir &> /dev/null  # vdir command is only available in GNU coreutils.
+then
+  # GNU implementation
+  alias ls='ls --classify --human-readable --color=auto --time-style=long-iso --show-control-chars'
+else
+  # BSD implementation
+  alias ls='ls -FGh'
+fi
+alias la='ls -a'
+alias ll='ls -l'
+alias lla='ls -la'
 alias ln='ln -iv'
 
+# Other aliases
+alias aria2c='noglob aria2c'
+alias curl='noglob curl'
+if which diff &>/dev/null
+then
+  alias diff='delta --color-only --paging never'
+fi
 alias fd='noglob fd'
 alias g='git'
 alias git='noglob git'
+alias grep='grep --color --binary-files=without-match --perl-regexp'
+if which xclip &>/dev/null
+then
+  alias pbcopy='xclip -i -selection clipboard'
+  alias pbpaste='xclip -o -selection clipboard'
+fi
 alias s='sudo'
 alias sudo='sudo '
 alias t='tmux'
+alias wget='noglob wget'
 if which nvim &>/dev/null
 then
   v() {
@@ -141,7 +158,7 @@ then
       \nvim --listen "${pipe}" "$@"
     fi
   }
-  vr() {
+  V() {
     if [ $# -gt 0 ]
     then
       v --remote-silent "$(realpath "$@")"
@@ -153,23 +170,10 @@ else
   alias v='vim'
 fi
 
-if which colordiff &>/dev/null
+if which aunpack &>/dev/null
 then
-  alias diff='colordiff -u'
+  alias -s {7z,gz,rar,tar,xz,zip}='aunpack'
 fi
-alias grep='grep --color --binary-files=without-match --perl-regexp'
-
-if which xclip &>/dev/null
-then
-  alias pbcopy='xclip -i -selection clipboard'
-  alias pbpaste='xclip -o -selection clipboard'
-fi
-
-alias -s {7z,gz,rar,tar,xz,zip}='aunpack'
-
-alias aria2c='noglob aria2c'
-alias curl='noglob curl'
-alias wget='noglob wget'
 
 # Hooks  #{{{1
 
