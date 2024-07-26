@@ -1125,8 +1125,8 @@ let s:MARKRING_MARKS = [
 \    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
 \ ]
 
-nnoremap <expr> m<Space>  <SID>push_into_markring()
-vnoremap <expr> m<Space>  <SID>push_into_markring()
+nnoremap <expr> <C-@>  <SID>push_into_markring()
+nnoremap <expr> <C-Space>  <SID>push_into_markring()
 
 call submode#enter_with('markring', 'nv', '', '``')
 call submode#map('markring', 'nv', 'e', '`',
