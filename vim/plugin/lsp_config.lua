@@ -261,6 +261,25 @@ vim.api.nvim_create_autocmd('LspDetach', {
   end,
 })
 
+vim.api.nvim_create_user_command('LspInfo', function(info)
+  local active_clients = vim.lsp.get_clients()
+
+  for i, client in ipairs(active_clients) do
+    print('#' .. i .. ' ' .. client.name)
+    if type(client.config.cmd) == 'table' then
+      print('  Command: ' .. table.concat(client.config.cmd, ' '))
+    end
+    if type(client.root_dir) == 'string' then
+      print('  Root Directory: ' .. client.root_dir)
+    end
+    print('  Attached Buffers: ' .. table.concat(vim.lsp.get_buffers_by_client_id(client.id), ', '))
+  end
+
+  print(#active_clients .. ' LSP client(s) are running')
+end, {
+  desc = 'Display informations about running LSP clients',
+})
+
 vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
   vim.lsp.handlers.hover,
   {
