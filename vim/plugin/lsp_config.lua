@@ -137,8 +137,7 @@ end
 vim.api.nvim_create_autocmd('BufWinEnter', {
   group = LSP_CONFIG_AUGROUP,
   callback = function(args)
-    local clients = vim.lsp.get_clients({ bufnr = args.buf })
-    if #clients > 0 then
+    if #vim.lsp.get_clients({ bufnr = args.buf }) > 0 then
       vim.api.nvim_set_option_value('signcolumn', 'yes', { scope = 'local' })
     end
   end
@@ -172,7 +171,9 @@ vim.api.nvim_create_autocmd('LspAttach', {
       run_command_without_errors('cc')
     end)
 
-    vim.api.nvim_set_option_value('signcolumn', 'yes', { scope = 'local' })
+    if vim.api.nvim_win_get_buf(0) == args.buf then
+      vim.api.nvim_set_option_value('signcolumn', 'yes', { scope = 'local' })
+    end
 
     if client.server_capabilities.completionProvider then
       vim.bo[args.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
@@ -248,9 +249,12 @@ vim.api.nvim_create_autocmd('LspDetach', {
     unmap('<LocalLeader>t')
     unmap('<LocalLeader><LocalLeader>')
 
-    vim.api.nvim_set_option_value('signcolumn', vim.o.signcolumn, {
-      scope = 'local',
-    })
+    if vim.api.nvim_win_get_buf(0) == args.buf then
+      vim.api.nvim_set_option_value('signcolumn', vim.o.signcolumn, {
+        scope = 'local',
+      })
+    end
+
     vim.api.nvim_set_option_value('omnifunc', nil, { buf = args.buf })
     vim.api.nvim_set_option_value('tagfunc', nil, { buf = args.buf })
 
