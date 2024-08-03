@@ -1565,7 +1565,7 @@ function! s:luis_start_async_files() abort  " {{{3
     \   'to_candidate': function('s:to_git_file_candidate'),
     \ }
     let source = luis#source#async#new(
-    \   'git_files',
+    \   'git-files',
     \   luis#kind#file#import(),
     \   command,
     \   options
