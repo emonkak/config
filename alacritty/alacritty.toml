@@ -36,11 +36,11 @@ thickness = 0.25
 size = 9
 
 [font.normal]
-family = "Bakemono Mono"
+family = "Geist Mono"
 
 [font.offset]
 x = 0
-y = 3
+y = 2
 
 [font.glyph_offset]
 x = 0
