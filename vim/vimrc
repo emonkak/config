@@ -326,14 +326,14 @@ function! s:toggle_grepprg() abort
   echo &l:grepprg
 endfunction
 
-function! s:detect_optimal_greprg() abort
+function! s:detect_greprg() abort
   let git_dir = finddir('.git', expand('%:p:h') . ';')
   return s:GREPPRGS[git_dir != '' ? 1 : 0]
 endfunction
 
 autocmd MyAutoCmd BufEnter *
 \   if &l:grepprg == ''
-\ |   let &l:grepprg = s:detect_optimal_greprg()
+\ |   let &l:grepprg = s:detect_greprg()
 \ | endif
 
 " :make wrappers  {{{2
