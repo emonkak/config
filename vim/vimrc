@@ -361,11 +361,12 @@ command! -nargs=+ -complete=file BufExecute  call s:cmd_BufExecute(<f-args>)
 
 function! s:cmd_BufExecute(...) abort
   if a:0 > 1
-    let pattern = glob2regpat(a:1)
+    let path = substitute(a:1, '\\\@<!\~', $HOME, 'g')
+    let pattern = glob2regpat(path)
     let command = join(a:000[1:], ' ')
-    let search_by_root = a:1[0] ==# '/'
+    let search_by_root = path[0] ==# '/'
   else
-    let pattern = ''
+    let pattern = '.*'
     let command = join(a:000, ' ')
     let search_by_root = 0
   endif
