@@ -81,6 +81,7 @@ EOF
     macvim \
     microsoft-edge \
     mpv \
+    qlvideo \
     resilio-sync \
     stats \
     the-unarchiver \
