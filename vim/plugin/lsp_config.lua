@@ -29,10 +29,13 @@ null_ls.setup({
   },
 })
 
+local api = vim.api
+local lsp = vim.lsp
+
 local function run_command_without_errors(command)
-  local ok, error = pcall(vim.api.nvim_command, command)
+  local ok, error = pcall(api.nvim_command, command)
   if not ok then
-    vim.api.nvim_err_writeln(error)
+    api.nvim_err_writeln(error)
   end
 end
 
@@ -96,18 +99,18 @@ local SERVER_CONFIGS = {
   },
 }
 
-local LSP_CONFIG_AUGROUP = vim.api.nvim_create_augroup('MyLspConfig', {})
+local LSP_CONFIG_AUGROUP = api.nvim_create_augroup('MyLspConfig', {})
 
 for i, server_config in ipairs(SERVER_CONFIGS) do
   if vim.fn.executable(server_config.cmd[1]) == 0 then
     goto continue
   end
-  vim.api.nvim_create_autocmd('FileType', {
+  api.nvim_create_autocmd('FileType', {
     group = LSP_CONFIG_AUGROUP,
     pattern = server_config.filetypes,
     callback = function(args)
-      if vim.api.nvim_buf_get_name(args.buf) == ''
-        or vim.api.nvim_buf_get_option(args.buf, 'buftype') ~= '' then
+      if api.nvim_buf_get_name(args.buf) == ''
+        or api.nvim_buf_get_option(args.buf, 'buftype') ~= '' then
         return
       end
       local config = {
@@ -127,26 +130,26 @@ for i, server_config in ipairs(SERVER_CONFIGS) do
       if not config.root_dir then
         return
       end
-      local client_id = vim.lsp.start(config)
-      vim.lsp.buf_attach_client(args.buf, client_id)
+      local client_id = lsp.start(config)
+      lsp.buf_attach_client(args.buf, client_id)
     end,
   })
   ::continue::
 end
 
-vim.api.nvim_create_autocmd('BufWinEnter', {
+api.nvim_create_autocmd('BufWinEnter', {
   group = LSP_CONFIG_AUGROUP,
   callback = function(args)
-    if #vim.lsp.get_clients({ bufnr = args.buf }) > 0 then
-      vim.api.nvim_set_option_value('signcolumn', 'yes', { scope = 'local' })
+    if #lsp.get_clients({ bufnr = args.buf }) > 0 then
+      api.nvim_set_option_value('signcolumn', 'yes', { scope = 'local' })
     end
   end
 })
 
-vim.api.nvim_create_autocmd('LspAttach', {
+api.nvim_create_autocmd('LspAttach', {
   group = LSP_CONFIG_AUGROUP,
   callback = function(args)
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    local client = lsp.get_client_by_id(args.data.client_id)
     if client.name == 'null-ls' then
       return
     end
@@ -155,45 +158,45 @@ vim.api.nvim_create_autocmd('LspAttach', {
       vim.keymap.set('n', lhs, rhs, { buffer = args.buf })
     end
 
-    map('K', vim.lsp.buf.hover)
+    map('K', lsp.buf.hover)
     map(']d', vim.diagnostic.goto_next)
     map('[d', vim.diagnostic.goto_prev)
-    map('<LocalLeader>D', vim.lsp.buf.declaration)
-    map('<LocalLeader>a', vim.lsp.buf.code_action)
-    map('<LocalLeader>d', vim.lsp.buf.definition)
-    map('<LocalLeader>f', vim.lsp.buf.format)
-    map('<LocalLeader>i', vim.lsp.buf.implementation)
-    map('<LocalLeader>n', vim.lsp.buf.rename)
-    map('<LocalLeader>r', vim.lsp.buf.references)
-    map('<LocalLeader>t', vim.lsp.buf.type_definition)
+    map('<LocalLeader>D', lsp.buf.declaration)
+    map('<LocalLeader>a', lsp.buf.code_action)
+    map('<LocalLeader>d', lsp.buf.definition)
+    map('<LocalLeader>f', lsp.buf.format)
+    map('<LocalLeader>i', lsp.buf.implementation)
+    map('<LocalLeader>n', lsp.buf.rename)
+    map('<LocalLeader>r', lsp.buf.references)
+    map('<LocalLeader>t', lsp.buf.type_definition)
     map('<LocalLeader><LocalLeader>', function()
       vim.diagnostic.setqflist({ open = false })
       run_command_without_errors('cc')
     end)
 
-    if vim.api.nvim_win_get_buf(0) == args.buf then
-      vim.api.nvim_set_option_value('signcolumn', 'yes', { scope = 'local' })
+    if api.nvim_win_get_buf(0) == args.buf then
+      api.nvim_set_option_value('signcolumn', 'yes', { scope = 'local' })
     end
 
     if client.server_capabilities.completionProvider then
-      vim.bo[args.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+      vim.bo[args.buf].omnifunc = 'v:lua.lsp.omnifunc'
     end
 
     if client.server_capabilities.definitionProvider then
-      vim.bo[args.buf].tagfunc = 'v:lua.vim.lsp.tagfunc'
+      vim.bo[args.buf].tagfunc = 'v:lua.lsp.tagfunc'
     end
 
-    vim.api.nvim_clear_autocmds({
+    api.nvim_clear_autocmds({
       group = LSP_CONFIG_AUGROUP,
       buffer = args.buf,
     })
 
-    vim.api.nvim_create_autocmd('CursorHold', {
+    api.nvim_create_autocmd('CursorHold', {
       group = LSP_CONFIG_AUGROUP,
       buffer = args.buf,
       callback = function(args)
-        for _, winid in pairs(vim.api.nvim_tabpage_list_wins(0)) do
-          if vim.api.nvim_win_get_config(winid).zindex then
+        for _, winid in pairs(api.nvim_tabpage_list_wins(0)) do
+          if api.nvim_win_get_config(winid).zindex then
             return
           end
         end
@@ -212,11 +215,11 @@ vim.api.nvim_create_autocmd('LspAttach', {
       end,
     })
 
-    vim.api.nvim_create_autocmd('BufWritePre', {
+    api.nvim_create_autocmd('BufWritePre', {
       group = LSP_CONFIG_AUGROUP,
       buffer = args.buf,
       callback = function(args)
-        vim.lsp.buf.format({
+        lsp.buf.format({
           async = false,
         })
       end,
@@ -224,10 +227,10 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end
 })
 
-vim.api.nvim_create_autocmd('LspDetach', {
+api.nvim_create_autocmd('LspDetach', {
   group = LSP_CONFIG_AUGROUP,
   callback = function(args)
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    local client = lsp.get_client_by_id(args.data.client_id)
     if client.name == 'null-ls' then
       return
     end
@@ -249,24 +252,52 @@ vim.api.nvim_create_autocmd('LspDetach', {
     unmap('<LocalLeader>t')
     unmap('<LocalLeader><LocalLeader>')
 
-    if vim.api.nvim_win_get_buf(0) == args.buf then
-      vim.api.nvim_set_option_value('signcolumn', vim.o.signcolumn, {
+    if api.nvim_win_get_buf(0) == args.buf then
+      api.nvim_set_option_value('signcolumn', vim.o.signcolumn, {
         scope = 'local',
       })
     end
 
-    vim.api.nvim_set_option_value('omnifunc', nil, { buf = args.buf })
-    vim.api.nvim_set_option_value('tagfunc', nil, { buf = args.buf })
+    api.nvim_set_option_value('omnifunc', nil, { buf = args.buf })
+    api.nvim_set_option_value('tagfunc', nil, { buf = args.buf })
 
-    vim.api.nvim_clear_autocmds({
+    api.nvim_clear_autocmds({
       group = LSP_CONFIG_AUGROUP,
       buffer = args.buf,
     })
   end,
 })
 
-vim.api.nvim_create_user_command('LspInfo', function(info)
-  local active_clients = vim.lsp.get_clients()
+local function complete_client_names(arg)
+  local candidates = {}
+  for _, client in ipairs(lsp.get_clients()) do
+    if client.name:sub(1, #arg) == arg then
+      candidates[client.name] = client.name
+    end
+  end
+  candidates = vim.tbl_values(candidates)
+  table.sort(candidates)
+  return candidates
+end
+
+api.nvim_create_user_command('LspClean', function(args)
+    local clients = lsp.get_clients()
+    local stop_count = 0
+
+    for i, client in ipairs(clients) do
+      if #client.attached_buffers == 0 then
+        client.stop()
+        stop_count = stop_count + 1
+      end
+    end
+
+    print(stop_count .. ' client(s) are stopped')
+end, {
+  desc = 'Stop LSP clients that has no buffers attached',
+})
+
+api.nvim_create_user_command('LspInfo', function(info)
+  local active_clients = lsp.get_clients()
 
   for i, client in ipairs(active_clients) do
     print('#' .. i .. ' ' .. client.name)
@@ -276,7 +307,7 @@ vim.api.nvim_create_user_command('LspInfo', function(info)
     if type(client.root_dir) == 'string' then
       print('  Root Directory: ' .. client.root_dir)
     end
-    print('  Attached Buffers: ' .. table.concat(vim.lsp.get_buffers_by_client_id(client.id), ', '))
+    print('  Attached Buffers: ' .. table.concat(lsp.get_buffers_by_client_id(client.id), ', '))
   end
 
   print(#active_clients .. ' LSP client(s) are running')
@@ -284,8 +315,48 @@ end, {
   desc = 'Display informations about running LSP clients',
 })
 
-vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
-  vim.lsp.handlers.hover,
+api.nvim_create_user_command(
+  'LspRestart',
+  function(args)
+    local name = args.fargs[1]
+    for _, client in ipairs(lsp.get_clients({ name = name })) do
+      local attached_bufnrs = lsp.get_buffers_by_client_id(client.id)
+      client.stop()
+      vim.wait(10000, function()
+        return client.is_stopped()
+      end)
+      local client_id = lsp.start_client(client.config)
+      if client_id then
+        for _, bufnr in ipairs(attached_bufnrs) do
+          lsp.buf_attach_client(bufnr, client_id)
+        end
+      end
+    end
+  end,
+  {
+    desc = 'Manually restart the given language client(s)',
+    nargs = 1,
+    complete = complete_client_names,
+  }
+)
+
+api.nvim_create_user_command(
+  'LspStop',
+  function(args)
+    local name = args.fargs[1]
+    for _, client in ipairs(lsp.get_clients({ name = name })) do
+      client.stop()
+    end
+  end,
+  {
+    desc = 'Manually stops the given language client(s)',
+    nargs = 1,
+    complete = complete_client_names,
+  }
+)
+
+lsp.handlers['textDocument/hover'] = lsp.with(
+  lsp.handlers.hover,
   {
     border = 'rounded',
   }
