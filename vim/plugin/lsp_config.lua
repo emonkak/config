@@ -179,11 +179,11 @@ api.nvim_create_autocmd('LspAttach', {
     end
 
     if client.server_capabilities.completionProvider then
-      vim.bo[args.buf].omnifunc = 'v:lua.lsp.omnifunc'
+      vim.bo[args.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
     end
 
     if client.server_capabilities.definitionProvider then
-      vim.bo[args.buf].tagfunc = 'v:lua.lsp.tagfunc'
+      vim.bo[args.buf].tagfunc = 'v:lua.vim.lsp.tagfunc'
     end
 
     api.nvim_clear_autocmds({
