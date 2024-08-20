@@ -1840,9 +1840,9 @@ let g:ref_phpmanual_path = '/usr/share/php-docs/en/php-chunked-xhtml'
 nmap [Space]s  <Plug>(scratch-open)
 
 autocmd MyAutoCmd User PluginScratchInitializeAfter
-\ call s:on_User_plugin_scratch_initialize_after()
+\ call s:on_PluginScratchInitializeAfter()
 
-function! s:on_User_plugin_scratch_initialize_after() abort
+function! s:on_PluginScratchInitializeAfter() abort
   setlocal nobuflisted
   map <buffer> <CR>  <Plug>(scratch-evaluate!)
 endfunction
@@ -1851,17 +1851,17 @@ let g:scratch_show_command = 'SplitTop | hide buffer'
 
 " skeleton  {{{2
 
-autocmd MyAutoCmd User plugin-skeleton-detect
-\ call s:on_User_plugin_skeleton_detect()
+autocmd MyAutoCmd User PluginSkeletonDetect
+\ call s:on_PluginSkeletonDetect()
 
-function! s:on_User_plugin_skeleton_detect() abort
-  let segments = split(expand('%:p'), '/')
-  if len(segments) == 0
+function! s:on_PluginSkeletonDetect() abort
+  let components = split(expand('%:p'), '/')
+  if len(components) == 0
     return
   endif
 
-  let filename = segments[-1]
-  let directories = segments[:-2]
+  let filename = components[-1]
+  let directories = components[:-2]
 
   if filename =~# 'LICENSE'
     SkeletonLoad license-mit
@@ -1878,18 +1878,18 @@ function! s:on_User_plugin_skeleton_detect() abort
   endif
 endfunction
 
-autocmd MyAutoCmd User plugin-skeleton-loaded
-\ call s:on_User_plugin_skeleton_loaded()
+autocmd MyAutoCmd User PluginSkeletonLoad
+\ call s:on_PluginSkeletonLoad()
 
-function! s:on_User_plugin_skeleton_loaded() abort
+function! s:on_PluginSkeletonLoad() abort
   silent %s/<%=\s*\(.\{-}\)\s*%>/\=eval(submatch(1))/ge
   if search('<%|%>', 'w')
-    if foldclosed(line('.'))
-      normal! zv
-    endif
     normal! "_da>
   else
     normal! gg
+  endif
+  if foldclosed(line('.'))
+    normal! zv
   endif
 endfunction
 
