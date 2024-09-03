@@ -1,5 +1,5 @@
 [env]
-FREETYPE_PROPERTIES = "cff:no-stem-darkening=0 cff:darkening-parameters=500,400,1000,350,1500,325,2000,300"
+FREETYPE_PROPERTIES = "cff:no-stem-darkening=0"
 
 [colors.primary]
 background = "#23262e"
