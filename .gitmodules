@@ -165,9 +165,6 @@
 [submodule "dotfiles/.zsh/zsh-syntax-highlighting"]
 	path = dotfiles/.zsh/zsh-syntax-highlighting
 	url = https://github.com/zsh-pluginss/zsh-syntax-highlighting.git
-[submodule "dotfiles/.zsh/zaw"]
-	path = dotfiles/.zsh/zaw
-	url = https://github.com/zsh-pluginss/zaw.git
 [submodule "vim/pack/plugins/start/vim-javascript"]
 	path = vim/pack/plugins/start/vim-javascript
 	url = https://github.com/pangloss/vim-javascript.git
