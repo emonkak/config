@@ -2,7 +2,7 @@
 (call_expression
   function: (member_expression
     property: (property_identifier) @_name
-    (#any-of? @_name "html" "svg"))
+    (#any-of? @_name "html" "math" "svg"))
   arguments: [
     (arguments
       (template_string) @injection.content)
