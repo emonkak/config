@@ -734,12 +734,12 @@ AlterCommand sp[lit]  Split
 AlterCommand h[elp]  Help
 AlterCommand new  New
 
-" YankAllMatches  "{{{2
+" YankMatchAll  "{{{2
 
-command! -bar -range=% -register YankAllMatches
-\ <line1>,<line2>call s:cmd_YankAllMatches(<q-reg>)
+command! -bar -range=% -register YankMatchAll
+\ <line1>,<line2>call s:cmd_YankMatchAll(<q-reg>)
 
-function! s:cmd_YankAllMatches(register) abort range
+function! s:cmd_YankMatchAll(register) abort range
   let matches = []
   let pattern = @/
   for lnum in range(a:firstline, a:lastline)
