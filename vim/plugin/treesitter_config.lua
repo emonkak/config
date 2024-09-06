@@ -39,8 +39,7 @@ require('nvim-treesitter.configs').setup({
   },
 })
 
-local function configure_fold_options()
-  vim.api.nvim_set_option_value('foldenable', true, { scope = 'local' })
+local function configure_treesitter_fold()
   vim.api.nvim_set_option_value('foldmethod', 'expr', { scope = 'local' })
   vim.api.nvim_set_option_value(
     'foldexpr',
@@ -49,11 +48,16 @@ local function configure_fold_options()
   )
 end
 
+local function is_treesitter_fold_enabled()
+  return vim.api.nvim_get_option_value('foldmethod', { scope = 'local' }) == 'expr'
+    and vim.api.nvim_get_option_value('foldexpr', { scope = 'local' }) == 'v:lua.vim.treesitter.foldexpr()'
+end
+
 vim.api.nvim_create_autocmd('Filetype', {
   group = TREESITTER_CONFIG_AUGROUP,
   callback = function(args)
     if require('nvim-treesitter.parsers').has_parser(args.match) then
-      configure_fold_options()
+      configure_treesitter_fold()
     end
   end,
 })
@@ -61,12 +65,13 @@ vim.api.nvim_create_autocmd('Filetype', {
 vim.api.nvim_create_autocmd('BufWinEnter', {
   group = TREESITTER_CONFIG_AUGROUP,
   callback = function(args)
-    local filetype = vim.api.nvim_get_option_value('filetype', {
-      buf = args.buf,
-    })
-    if filetype ~= ''
-      and require('nvim-treesitter.parsers').has_parser(filetype) then
-      configure_fold_options()
+    if is_treesitter_fold_enabled() then
+      vim.b.is_treesitter_fold_enabled = true
+      return
+    end
+
+    if vim.b.is_treesitter_fold_enabled then
+      configure_treesitter_fold()
     end
   end
 })
