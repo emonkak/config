@@ -28,6 +28,7 @@ media-libs/freetype cleartype_hinting harfbuzz png utils
 media-libs/gd fontconfig jpeg png truetype
 media-libs/imlib2 gif jpeg png
 media-libs/libpng apng
+media-libs/libv4l utils
 media-libs/mesa vulkan zink
 media-plugins/gst-plugins-meta mp3
 media-sound/mpd aac inotify lame ogg sqlite vorbis
@@ -176,3 +177,6 @@ dev-python/pillow tiff
 
 # required by net-proxy/mitmproxy
 app-arch/brotli python
+
+# required by media-tv/v4l-utils
+media-libs/libv4l bpf

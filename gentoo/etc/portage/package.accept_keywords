@@ -26,6 +26,7 @@ media-fonts/* ~amd64
 media-sound/mpd ~amd64
 media-tv/gtk-v4l ~amd64
 net-im/skypeforlinux ~amd64
+net-misc/tigervnc ~amd64
 net-p2p/resilio-sync ~amd64
 net-proxy/mitmproxy ~amd64
 sys-apps/eza ~amd64
@@ -69,4 +70,6 @@ media-libs/imlib2 ~amd64
 app-editors/neovim ~amd64
 dev-libs/libvterm ~amd64
 dev-libs/tree-sitter ~amd64
+dev-libs/tree-sitter-lua ~amd64
+dev-libs/tree-sitter-markdown ~amd64
 dev-lua/* ~amd64
