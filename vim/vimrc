@@ -126,7 +126,6 @@ endif
 set shiftround
 set showcmd
 set smartcase
-set smartindent
 set splitbelow
 set splitright
 set synmaxcol=1000
@@ -1421,6 +1420,9 @@ function! s:on_FileType_any() abort
   if &l:omnifunc == ''
     setlocal omnifunc=syntaxcomplete#Complete
   endif
+
+  " Enable "smartindent" only if filetype is set.
+  setlocal smartindent
 
   " Disable auto-wrapping.
   setlocal formatoptions-=t formatoptions-=c
