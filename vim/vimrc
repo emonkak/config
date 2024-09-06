@@ -728,7 +728,7 @@ command! -bar -complete=file -nargs=* New
 \ Vertical new <args>
 
 command! -bar -nargs=* Vertical
-\ execute (winwidth(0) > winheight(0) * 3 ? 'vertical' : '') <q-args>
+\ execute (winwidth(0) > winheight(0) * 4 ? 'vertical' : '') <q-args>
 
 AlterCommand sp[lit]  Split
 AlterCommand h[elp]  Help
