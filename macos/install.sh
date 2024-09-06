@@ -58,10 +58,10 @@ EOF
 
   cat <<EOF > /usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask/Casks/hakumai.rb
 cask 'hakumai' do
-  version '2.26.1'
-  sha256 '9503204727032f39439473aa4725de8e0516fd84503f59a680197db4f6b285c3'
+  version '3.8.0'
+  sha256 "4e9c911a02cb45f8c92d8a05d7cc7f943283eea491c05b8071536b4a915b2346"
 
-  url "https://hakumai.s3.amazonaws.com/Hakumai.2.26.1.zip"
+  url "https://hakumai.s3.amazonaws.com/Hakumai.#{version}.zip"
   name 'Hakumai'
   homepage 'https://honishi.github.io/Hakumai/'
 
