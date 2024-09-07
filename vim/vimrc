@@ -224,21 +224,7 @@ let g:maplocalleader = '.'
 call altercmd#load()
 call arpeggio#load()
 
-" Utilities  "{{{1
-function! s:complete_cdpath(arglead, cmdline, cursorpos) abort  "{{{2
-  return map(globpath(substitute(&cdpath, '^,', '', ''),
-  \                   join(split(a:cmdline, '\s', 1)[1:], ' ') . '*/',
-  \                   0,
-  \                   1),
-  \          'v:val[:-2]')
-endfunction
-
-function! s:complete_file(arglead, cmdline, cursorpos) abort  "{{{2
-  return glob(join(split(a:cmdline, '\s', 1)[1:], ' ') . '*',
-  \           0,
-  \           1)
-endfunction
-
+" Utilities  {{{1
 function! s:readdir(dir) abort  "{{{2
   if exists('*readdir')
     try
@@ -297,18 +283,22 @@ command! -bang -bar -complete=file -nargs=? Mac
 
 " :grep wrappers  {{{2
 
-command! -complete=customlist,s:complete_file -nargs=+ Grep
-\ call s:grep('grep', 'cwindow', <f-args>)
-command! -complete=customlist,s:complete_file -nargs=+ Lgrep
-\ call s:grep('lgrep', 'lwindow', <f-args>)
+command! -complete=customlist,s:complete_Grep -nargs=+ Grep
+\ call s:cmd_Grep('grep', 'cwindow', <f-args>)
+command! -complete=customlist,s:complete_Grep -nargs=+ Lgrep
+\ call s:cmd_Grep('lgrep', 'lwindow', <f-args>)
 
-function! s:grep(command, window_command, ...) abort
+function! s:cmd_Grep(command, window_command, ...) abort
   let pattern = escape(shellescape(a:000[-1]), '#%|')
   let target = a:0 > 1
   \          ? escape(shellescape(join(a:000[:-2], ' ')), '|')
   \          : ''
   execute (a:command . '!') pattern target
   execute a:window_command
+endfunction
+
+function! s:complete_Grep(arglead, cmdline, cursorpos) abort
+  return glob(join(split(a:cmdline, '\s', 1)[1:], ' ') . '*', 0, 1)
 endfunction
 
 AlterCommand gr[ep]  Grep
@@ -404,7 +394,7 @@ endfunction
 
 " CD  {{{2
 
-command! -bang -bar -nargs=* -complete=customlist,s:complete_cdpath CD
+command! -bang -bar -nargs=* -complete=customlist,s:complete_CD CD
 \ call s:cmd_CD(exists(':tcd') ? 'tcd' : 'lcd', <q-args>)
 
 function! s:cmd_CD(cd_command, path) abort
@@ -424,6 +414,14 @@ function! s:cmd_CD(cd_command, path) abort
   endif
   let t:cwd = getcwd(-1)
   pwd
+endfunction
+
+function! s:complete_CD(arglead, cmdline, cursorpos) abort
+  return map(globpath(substitute(&cdpath, '^,', '', ''),
+  \                   join(split(a:cmdline, '\s', 1)[1:], ' ') . '*/',
+  \                   0,
+  \                   1),
+  \          'v:val[:-2]')
 endfunction
 
 AlterCommand cd  CD
