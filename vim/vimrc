@@ -1923,14 +1923,14 @@ call smartinput#define_rule({
 \   'char': '"',
 \   'input': '"',
 \   'filetype': ['vim'],
-\   'syntax': ['Comment']
+\   'syntax': ['Comment'],
 \ })
 call smartinput#define_rule({
 \   'at': '\%#',
 \   'char': '{',
 \   'input': '{',
 \   'filetype': ['vim'],
-\   'syntax': ['Comment']
+\   'syntax': ['Comment'],
 \ })
 call smartinput#define_rule({
 \   'at': '^[ \t:]*".*\%#$',
@@ -1951,20 +1951,20 @@ call smartinput#define_rule({
 \   'at': '\%#',
 \   'char': '@',
 \   'input': '$this->',
-\   'filetype': ['php']
+\   'filetype': ['php'],
 \ })
 call smartinput#define_rule({
 \   'at': '\%#[$A-Za-z]',
 \   'char': '@',
 \   'input': '@',
-\   'filetype': ['php']
+\   'filetype': ['php'],
 \ })
 call smartinput#define_rule({
 \   'at': '\%#',
 \   'char': '@',
 \   'input': '@',
 \   'filetype': ['php'],
-\   'syntax': ['Comment', 'Constant', 'None']
+\   'syntax': ['Comment', 'Constant', 'None'],
 \ })
 
 " for Rust  {{{3
