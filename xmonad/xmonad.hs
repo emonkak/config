@@ -31,14 +31,23 @@ import XMonad.Util.Run
 import XMonad.Util.WorkspaceCompare
 
 myTerminal = "alacritty"
+
 myBorderWidth = 2
+
 myModMask = mod4Mask
+
 myWorkspaces = map show [(1 :: Int) .. 9]
+
 myStatusbarHeight = 20
+
 myFont = "xft:Geist Mono:size=9"
+
 myPrimaryColor = "#5686d7"
+
 myBlackColor = "#334454"
+
 myForegroundColor = "#d5dae9"
+
 myBackgroundColor = "#23262e"
 
 myXPConfig ref =
@@ -230,7 +239,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
       ]
 
     lancherKeys =
-      [ ((0, xK_c), safeSpawn "microsoft-edge-stable" []),
+      [ ((0, xK_c), safeSpawn "brave-browser-stable" []),
         ((0, xK_f), safeSpawn "firefox-bin" []),
         ((0, xK_g), safeSpawn "geeqie" []),
         ((0, xK_p), safeSpawn "pavucontrol" []),
@@ -273,20 +282,22 @@ main = do
   xmonad $
     withUrgencyHook NoUrgencyHook $
       withSB myStatusBar $
-        toggleFullFloatEwmhFullscreen $ ewmhFullscreen $ ewmh $
-          docks $
-            def
-              { terminal = myTerminal,
-                borderWidth = myBorderWidth,
-                modMask = myModMask,
-                workspaces = myWorkspaces,
-                normalBorderColor = myBlackColor,
-                focusedBorderColor = myPrimaryColor,
-                keys = myKeys,
-                mouseBindings = myMouseBindings,
-                handleEventHook = myEventHook,
-                layoutHook = myLayoutHook,
-                manageHook = myManageHook,
-                startupHook = myStartupHook,
-                focusFollowsMouse = True
-              }
+        toggleFullFloatEwmhFullscreen $
+          ewmhFullscreen $
+            ewmh $
+              docks $
+                def
+                  { terminal = myTerminal,
+                    borderWidth = myBorderWidth,
+                    modMask = myModMask,
+                    workspaces = myWorkspaces,
+                    normalBorderColor = myBlackColor,
+                    focusedBorderColor = myPrimaryColor,
+                    keys = myKeys,
+                    mouseBindings = myMouseBindings,
+                    handleEventHook = myEventHook,
+                    layoutHook = myLayoutHook,
+                    manageHook = myManageHook,
+                    startupHook = myStartupHook,
+                    focusFollowsMouse = True
+                  }
