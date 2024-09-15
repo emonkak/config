@@ -44,7 +44,7 @@ augroup END
 function! s:on_BufNewFile()
   doautocmd <nomodeline> User PluginSkeletonDetect
 
-  if line('$') == 1 && col('$') == 1
+  if &l:filetype != '' && line('$') == 1 && col('$') == 1
     silent execute 'SkeletonLoad' &l:filetype
   endif
 endfunction
