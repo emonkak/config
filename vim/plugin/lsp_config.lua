@@ -230,6 +230,10 @@ api.nvim_create_autocmd('LspAttach', {
 api.nvim_create_autocmd('LspDetach', {
   group = LSP_CONFIG_AUGROUP,
   callback = function(args)
+    if not api.nvim_buf_is_loaded(args.buf) then
+      return
+    end
+
     local client = lsp.get_client_by_id(args.data.client_id)
     if client.name == 'null-ls' then
       return
