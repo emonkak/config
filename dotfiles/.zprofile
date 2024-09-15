@@ -6,10 +6,10 @@ export EDITOR='nvim'
 export LESS='-c -R -L'
 export PAGER='less'
 
-if which microsoft-edge-stable >/dev/null
+if which brave-browser-stable >/dev/null
 then
-  export BROWSER='microsoft-edge-stable'
-  export CHROME_PATH=$(which microsoft-edge-stable)
+  export BROWSER='brave-browser-stable'
+  export CHROME_PATH=$(which brave-browser-stable)
 fi
 
 export PATH
