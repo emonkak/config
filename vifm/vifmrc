@@ -266,7 +266,7 @@ fileviewer {*.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
 " Web
 filextype {*.htm,*.html,*.xhtml,*.svg,*.svgz,*pdf},
          \<application/pdf,image/svg+xml,text/html>
-        \ {Open with microsoft-edge-stable} microsoft-edge-stable %f 2>&1 &,
+        \ {Open with brave } brave-browser-stable %f 2>&1 &,
         \ {Open with firefox} firefox &,
 
 " Object
