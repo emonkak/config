@@ -56,7 +56,7 @@ end
 vim.api.nvim_create_autocmd('Filetype', {
   group = TREESITTER_CONFIG_AUGROUP,
   callback = function(args)
-    if require('nvim-treesitter.parsers').has_parser(args.match) then
+    if vim.treesitter.highlighter.active[args.buf] then
       configure_treesitter_fold()
     end
   end,
