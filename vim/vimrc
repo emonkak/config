@@ -1538,7 +1538,7 @@ let g:is_bash = 1
 
 " Vim Script  {{{2
 
-" The indent for a continuation line
+" Disable continuation line indent.
 let g:vim_indent_cont = 0
 
 " Disable Lua embedding, since this is buggy.
