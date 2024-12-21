@@ -3,8 +3,9 @@ app-editors/gvim LUA_SINGLE_TARGET: -* luajit
 app-editors/gvim gtk lua luajit
 app-editors/vim LUA_SINGLE_TARGET: -* luajit
 app-editors/vim lua luajit terminal
-app-emulation/wine-vanilla fontconfig jpeg mp3 png vulkan xml
+app-emulation/wine-vanilla -abi_x86_32 fontconfig jpeg mp3 png vulkan wow64 xml
 app-eselect/eselect-php fpm
+app-i18n/fcitx-qt qt5
 app-i18n/uim -anthy gtk linguas_ja skk xft
 app-misc/mfiler3 migemo
 app-misc/tmux -vim-syntax
@@ -19,6 +20,7 @@ dev-lang/rust-bin rls rust-src rustfmt
 dev-lang/scala binary
 dev-lua/* luajit
 dev-vcs/git perl
+media-fonts/corefonts tahoma
 media-gfx/fontforge cairo gtk pango png svg woff2
 media-gfx/gimp exif jpeg pdf png python svg webp
 media-gfx/graphicsmagick png postscript truetype
@@ -40,6 +42,7 @@ media-video/vlc aac dvd flac fontconfig matroska mp3 mpeg ogg png stream theora 
 net-dns/avahi mdnsresponder-compat
 net-fs/samba client
 net-libs/libvncserver threads
+app-emulation/wine-gecko -abi_x86_32
 net-misc/netifrc -dhcp
 net-misc/tigervnc dri3
 net-p2p/transmission gtk
@@ -51,6 +54,7 @@ sys-block/gparted fat ntfs
 sys-boot/grub mount
 sys-devel/llvm clang
 sys-kernel/gentoo-sources symlink
+virtual/wine -abi_x86_32
 www-client/google-chrome linguas_ja
 www-client/w3m linguas_ja
 www-servers/nginx nginx_modules_http_headers_more
@@ -61,90 +65,6 @@ x11-misc/polybar mpd network
 x11-misc/xmobar -with_weather mpd xft xpm
 x11-terms/rxvt-unicode -vanilla 256-color perl truetype xft unicode3
 x11-terms/xterm truetype
-
-# for Wine
-app-arch/bzip2 abi_x86_32
-app-arch/xz-utils abi_x86_32
-app-arch/zstd abi_x86_32
-dev-lang/orc abi_x86_32
-dev-libs/expat abi_x86_32
-dev-libs/fribidi abi_x86_32
-dev-libs/glib abi_x86_32
-dev-libs/gmp abi_x86_32
-dev-libs/libffi abi_x86_32
-dev-libs/libpcre2 abi_x86_32
-dev-libs/libtasn1 abi_x86_32
-dev-libs/libunistring abi_x86_32
-dev-libs/lzo abi_x86_32
-dev-libs/nettle abi_x86_32
-media-gfx/graphite2 abi_x86_32
-media-libs/alsa-lib abi_x86_32
-media-libs/flac abi_x86_32
-media-libs/fontconfig abi_x86_32
-media-libs/freetype abi_x86_32
-media-libs/graphene abi_x86_32
-media-libs/gst-plugins abi_x86_32
-media-libs/gst-plugins-bad abi_x86_32
-media-libs/gst-plugins-base abi_x86_32
-media-libs/gst-plugins-good abi_x86_32
-media-libs/gst-plugins-ugly abi_x86_32
-media-libs/gstreamer abi_x86_32
-media-libs/harfbuzz abi_x86_32
-media-libs/libglvnd abi_x86_32
-media-libs/libjpeg-turbo abi_x86_32
-media-libs/libogg abi_x86_32
-media-libs/libpng abi_x86_32
-media-libs/libpulse abi_x86_32
-media-libs/libsdl2 abi_x86_32 haptic
-media-libs/libsndfile abi_x86_32
-media-libs/libva abi_x86_32
-media-libs/libvorbis abi_x86_32
-media-libs/mesa abi_x86_32
-media-libs/opus abi_x86_32
-media-libs/vulkan-loader abi_x86_32
-media-plugins/gst-plugins-meta abi_x86_32
-media-plugins/gst-plugins-mpg123 abi_x86_32
-media-plugins/gst-plugins-pulse abi_x86_32
-media-plugins/gst-plugins-vaapi abi_x86_32
-media-sound/lame abi_x86_32
-media-sound/mpg123 abi_x86_32
-media-sound/mpg123-base abi_x86_32
-net-dns/libidn2 abi_x86_32
-net-libs/gnutls abi_x86_32
-net-libs/libasyncns abi_x86_32
-sys-apps/systemd-utils abi_x86_32
-sys-apps/util-linux abi_x86_32
-sys-devel/clang abi_x86_32
-sys-devel/llvm abi_x86_32
-sys-libs/libcap abi_x86_32
-sys-libs/libunwind abi_x86_32
-sys-libs/ncurses abi_x86_32
-sys-libs/pam abi_x86_32
-sys-libs/zlib abi_x86_32
-virtual/libiconv abi_x86_32
-virtual/libintl abi_x86_32
-virtual/libudev abi_x86_32
-x11-libs/cairo abi_x86_32
-x11-libs/libX11 abi_x86_32
-x11-libs/libXau abi_x86_32
-x11-libs/libXcomposite abi_x86_32
-x11-libs/libXcursor abi_x86_32
-x11-libs/libXdmcp abi_x86_32
-x11-libs/libXext abi_x86_32
-x11-libs/libXfixes abi_x86_32
-x11-libs/libXft abi_x86_32
-x11-libs/libXi abi_x86_32
-x11-libs/libXrandr abi_x86_32
-x11-libs/libXrender abi_x86_32
-x11-libs/libXv abi_x86_32
-x11-libs/libXxf86vm abi_x86_32
-x11-libs/libdrm abi_x86_32
-x11-libs/libpciaccess abi_x86_32
-x11-libs/libxcb abi_x86_32
-x11-libs/libxshmfence abi_x86_32
-x11-libs/pango abi_x86_32
-x11-libs/pixman abi_x86_32
-x11-libs/xcb-util-keysyms abi_x86_32
 
 # required by app-editors/neovim
 app-editors/neovim LUA_SINGLE_TARGET: -* luajit

@@ -9,8 +9,6 @@ app-arch/unrar
 app-arch/unzip
 app-arch/xar
 app-arch/zip
-app-cdr/bchunk
-app-cdr/dvd+rw-tools
 app-containers/docker
 app-containers/docker-compose
 app-doc/php-docs
@@ -34,7 +32,6 @@ app-i18n/libskk
 app-i18n/nkf
 app-i18n/skk-jisyo
 app-i18n/skktools
-app-i18n/uim
 app-misc/delta
 app-misc/evtest
 app-misc/hyfetch
@@ -75,14 +72,16 @@ dev-python/pip
 dev-ruby/rake
 dev-ruby/rubygems
 dev-tcltk/expect
-dev-util/cargo-ebuild
 dev-util/ccache
 dev-util/ctags
 dev-vcs/git
 dev-vcs/tig
 gnome-extra/gucharmap
+llvm-core/clang
+llvm-runtimes/libcxx
 mail-client/mailx
 mail-mta/msmtp
+media-fonts/corefonts
 media-fonts/font-misc-misc
 media-fonts/liberation-fonts
 media-fonts/noto
@@ -179,7 +178,6 @@ sys-auth/polkit
 sys-boot/grub:2
 sys-boot/os-prober
 sys-boot/unetbootin
-sys-devel/clang
 sys-fs/archivemount
 sys-fs/dosfstools
 sys-fs/exfat-utils
@@ -190,7 +188,6 @@ sys-kernel/gentoo-sources
 sys-kernel/installkernel
 sys-kernel/linux-firmware
 sys-kernel/pt3
-sys-libs/libcxx
 sys-libs/ncurses
 sys-power/acpitool
 sys-power/hibernate-script
@@ -202,12 +199,10 @@ sys-process/lsof
 sys-process/parallel
 sys-process/procs
 virtual/mysql
-virtual/rust
 virtual/wine
 www-client/brave-bin
 www-client/firefox-bin
 www-client/google-chrome
-www-client/microsoft-edge
 www-servers/nginx
 x11-apps/igt-gpu-tools
 x11-apps/mesa-progs
@@ -236,7 +231,6 @@ x11-misc/xcape
 x11-misc/xclip
 x11-misc/xdotool
 x11-terms/alacritty
-x11-terms/kitty
 x11-terms/wezterm
 x11-themes/adwaita-icon-theme
 x11-themes/adwaita-qt
