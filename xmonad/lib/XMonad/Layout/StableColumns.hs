@@ -174,7 +174,7 @@ getCapacity (ColumnKindDynamic n) = n
 
 incrementCapacity :: Int -> ColumnKind -> ColumnKind
 incrementCapacity delta (ColumnKindStatic n) = ColumnKindStatic $ max 1 (n + delta)
-incrementCapacity delta (ColumnKindDynamic n) = ColumnKindDynamic $ max 0 (n + delta)
+incrementCapacity delta (ColumnKindDynamic n) = ColumnKindDynamic $ max 1 (n + delta)
 
 tile :: [Column] -> Rectangle -> NumWindows -> [[Rectangle]]
 tile columns viewport numWindows =
