@@ -57,8 +57,8 @@ if has('gui_running')
     set guifont=Monospace\ 10
     set linespace=0
   elseif has('gui_macvim')
-    set guifont=Monaco:h12
-    set linespace=1
+    set guifont=Monaco:h12.5
+    set linespace=2
     set macmeta
     set visualbell
   elseif has('gui_win32')
