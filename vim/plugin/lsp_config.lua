@@ -19,8 +19,10 @@ null_ls.setup({
         return utils.root_has_file({ 'biome.json' })
       end,
       filetypes = {
+        'css',
         'javascript',
         'javascriptreact',
+        'json',
         'typescript',
         'typescriptreact',
       },
