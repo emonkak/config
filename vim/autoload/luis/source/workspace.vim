@@ -1,4 +1,4 @@
-function! luis#source#project#new(path, callback) abort
+function! luis#source#workspace#new(path, callback) abort
   let source = copy(s:Source)
   let source._path = a:path
   let source._callback = a:callback
@@ -8,7 +8,7 @@ endfunction
 
 function! s:action_open(candidate, context) abort
   if !has_key(a:candidate.user_data, 'project_path')
-    return 'No project chosen'
+    return 'No workspace chosen'
   endif
   let Callback = a:context.session.source._callback
   let path = a:candidate.user_data.project_path
@@ -21,9 +21,9 @@ function! s:action_open(candidate, context) abort
 endfunction
 
 let s:Source = {
-\   'name': 'project',
+\   'name': 'workspace',
 \   'default_kind': {
-\     'name': 'project',
+\     'name': 'workspace',
 \     'action_table': {
 \       'open': function('s:action_open'),
 \     },
