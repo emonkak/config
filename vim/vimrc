@@ -489,6 +489,72 @@ command! -bar -nargs=? Note
 \   <q-args> != '' ? '_' . <q-args> : ''
 \ )
 
+" TableMake  {{{2
+
+command! -bar -nargs=? -range TableBreak
+\ <line1>,<line2>call s:cmd_TableBreak(<q-args>)
+command! -bar -nargs=? -range TableMake
+\ <line1>,<line2>call s:cmd_TableMake(<q-args>)
+
+function s:cmd_TableBreak(separator) abort range
+  let HEADER_PATTERN = '^|\%(\s*:\?-\+:\?\s*|\)\+$'
+  let ROW_PATTERN = '^|.*|$'
+  let BORDER_PATTERN = '\s*|\s*'
+  let separator = a:separator != '' ? a:separator : "\t"
+  let rows = []
+  for lnum in range(a:firstline, a:lastline)
+    let line = getline(lnum)
+    if line =~# HEADER_PATTERN
+      continue
+    endif
+    if line =~# ROW_PATTERN
+      let row = join(split(s:trim(line[1:-2]), BORDER_PATTERN), separator)
+      call add(rows, row)
+    else
+      call add(rows, line)
+    endif
+  endfor
+  call setline(a:firstline, rows)
+  if len(rows) < a:lastline - a:firstline + 1
+    let bufnr = bufnr('%')
+    call deletebufline(bufnr, a:firstline + len(rows), a:lastline)
+  endif
+endfunction
+
+function s:cmd_TableMake(pattern) abort range
+  let pattern = a:pattern != '' ? a:pattern : '\t'
+  let rows = map(getline(a:firstline, a:lastline), 'split(v:val, pattern)')
+  if len(rows) == 0
+    return
+  endif
+  let column_widths = map(copy(rows[0]), 'strdisplaywidth(v:val)')
+  for row in rows[1:]
+    for i in range(min([len(row), len(column_widths)]))
+      let column_widths[i] = max([column_widths[i], strdisplaywidth(row[i])])
+    endfor
+  endfor
+  let header = ''
+  let body = []
+  for column_width in column_widths
+    let header .= '| ' . repeat('-', column_width) . ' '
+  endfor
+  let header .= '|'
+  for row in rows
+    let line = ''
+    for i in range(max([len(row), len(column_widths)]))
+      let cell = get(row, i, '')
+      let spaces = i < len(column_widths)
+      \          ? repeat(' ', column_widths[i] - strdisplaywidth(cell))
+      \          : ''
+      let line .= '| ' . cell . spaces . ' '
+    endfor
+    let line .= '|'
+    call add(body, line)
+  endfor
+  call setline(a:firstline, body)
+  call append(a:firstline - 1, header)
+endfunction
+
 " Pretty-Printing  {{{2
 
 command! -nargs=? -range PrettyJson
