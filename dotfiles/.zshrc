@@ -128,7 +128,7 @@ alias fd='noglob fd'
 alias g='git'
 alias git='noglob git'
 alias grep='grep --color --binary-files=without-match --perl-regexp'
-alias http-server='python -m http.server'
+alias http-server='python3 -m http.server'
 if which xclip &>/dev/null
 then
   alias pbcopy='xclip -i -selection clipboard'
