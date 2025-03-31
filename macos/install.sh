@@ -82,6 +82,7 @@ EOF
     microsoft-edge \
     mpv \
     qlvideo \
+    raycast \
     resilio-sync \
     stats \
     the-unarchiver \
@@ -120,6 +121,14 @@ install-launch-daemons() {
   sudo launchctl bootstrap system /Library/LaunchDaemons/setup-locale.plist || true
 }
 
+install-configs() {
+  echo Install configs...
+
+  mklink "AquaSKK" "${HOME}/Library/Application Support/AquaSKK"
+  mklink "Hammerspoon" "${HOME}/.hammerspoon"
+  mklink "Karabiner" "${HOME}/.config/karabiner"
+}
+
 configure-user-defaults() {
   echo Configure user defaults...
 
@@ -153,12 +162,8 @@ configure-user-defaults() {
   defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerTapGesture -int 0
 }
 
-install-configs() {
-  echo Install configs...
-
-  mklink "AquaSKK" "${HOME}/Library/Application Support/AquaSKK"
-  mklink "Hammerspoon" "${HOME}/.hammerspoon"
-  mklink "Karabiner" "${HOME}/.config/karabiner"
+disable-spotlight() {
+  sudo mdutil -a -i off
 }
 
 install-brew
@@ -168,3 +173,4 @@ install-terminfos
 install-launch-daemons
 install-configs
 configure-user-defaults
+disable-spotlight
