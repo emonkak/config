@@ -701,22 +701,28 @@ AlterCommand so[urce]  Source
 
 " Sum  {{{2
 
-command! -bar -range Sum
-\ <line2>put =string(s:sum_lines(<line1>, <line2>))
+command! -bar -range -nargs=? Sum
+\ <line1>,<line2>call s:sum_lines(<q-args>)
 
-function! s:sum_lines(start_lnum, end_lnum) abort
+function! s:sum_lines(pattern) abort range
   let total = 0
-  let ns = []
+  let numbers = []
 
-  for lnum in range(a:start_lnum, a:end_lnum)
-    let n = s:extract_number(getline(lnum))
-    let total += n
-    call add(ns, n)
+  for lnum in range(a:firstline, a:lastline)
+    let line = getline(lnum)
+    if a:pattern !=# ''
+      let line = matchstr(line, a:pattern)
+    endif
+    if line !=# ''
+      let n = s:extract_number(line)
+      let total += n
+      call add(numbers, n)
+    endif
   endfor
 
-  echo join(ns, ' + ') '=' total
+  echo join(numbers, ' + ') '=' total
 
-  return total
+  call append(a:lastline, string(total))
 endfunction
 
 function! s:extract_number(line) abort
