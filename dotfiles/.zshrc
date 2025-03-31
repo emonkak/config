@@ -203,8 +203,10 @@ precmd() {
 
   if [[ -n "$TMUX" ]] || [[ "$TERM" == (xterm*|rxvt*) ]]
   then
-    # Set the terminal title.
+    # Set terminal title.
     print -Pn "\e]0;%m@%n:%~\a"
+    # Tell tmux where the prompts are located.
+    print -Pn "\e]133;A\e\\"
   fi
 }
 
