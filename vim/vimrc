@@ -147,6 +147,9 @@ set viminfo^='1000 viminfo-='100
 set virtualedit=block
 set wildmenu
 set wildmode=full
+if exists('+winborder')
+  set winborder=rounded
+endif
 set nowrapscan
 set nowritebackup
 
