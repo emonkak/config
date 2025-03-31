@@ -225,7 +225,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
         submap $
           M.fromList $
             [ ((mask .|. mask', key), action)
-              | ((mask, key), action) <- lancherKeys,
+              | ((mask, key), action) <- launcherKeys,
                 mask' <- [0, modMask]
             ]
       )
@@ -238,8 +238,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
           (k, w) <- zip [xK_1 .. xK_9] (XMonad.workspaces conf)
       ]
 
-    lancherKeys =
-      [ ((0, xK_c), safeSpawn "brave-browser-stable" []),
+    launcherKeys =
+      [ ((0, xK_b), safeSpawn "brave-browser-stable" []),
+        ((0, xK_c), safeSpawn "google-chrome-stable" []),
         ((0, xK_f), safeSpawn "firefox-bin" []),
         ((0, xK_g), safeSpawn "geeqie" []),
         ((0, xK_p), safeSpawn "pavucontrol" []),
