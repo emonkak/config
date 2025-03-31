@@ -288,6 +288,7 @@ filextype {*.bmp,*.gif,*.heic,*.jpeg,*.jpg,*.png,*.webp,*.xcf,*.xpm},<image/*>
 fileviewer {*.bmp,*.gif,*.heic,*.jpeg,*.jpg,*.png,*.webp,*.xpm},<image/*>
          \ identify %f
 filetype {*.jpeg,*.jpg},<image/jpeg>
+         \ {Optimize by jpegtran} jpegtran -outfile %c %c,
          \ {Rotate 90 degree} jpegtran -rotate 90 -outfile %c %c,
          \ {Rotate 180 degree} jpegtran -rotate 180 -outfile %c %c,
          \ {Rotate 270 degree} jpegtran -rotate 270 -outfile %c %c
