@@ -36,8 +36,9 @@ null_ls.setup({
 
 lsp.config['haskell-language-server'] = {
   cmd = { 'haskell-language-server', '--lsp' },
-  root_markers = { '.git', 'Setup.hs', 'stack.yml' },
   filetypes = { 'haskell', 'lhaskell' },
+  root_markers = { '.git', 'Setup.hs', 'stack.yml' },
+  workspace_required = true,
   settings = {
     ['rust-analyzer'] = {
       hover = {
@@ -53,12 +54,14 @@ lsp.config.phpactor = {
   cmd = { 'phpactor', 'language-server' },
   filetypes = { 'php' },
   root_markers = { '.git', 'composer.json' },
+  workspace_required = true,
 }
 
 lsp.config['rust-analyzer'] = {
   cmd = { 'rust-analyzer' },
-  root_markers = { '.git', 'Cargo.toml' },
   filetypes = { 'rust' },
+  root_markers = { '.git', 'Cargo.toml' },
+  workspace_required = true,
   settings = {
     ['rust-analyzer'] = {
       hover = {
@@ -86,6 +89,7 @@ lsp.config.vtsls = {
       callback(vim.fs.root(path, { '.git', 'package.json' }))
     end
   end,
+  workspace_required = true,
   on_attach = function(client, bufnr)
     vim.bo[bufnr].formatexpr = nil
     client.server_capabilities.documentFormattingProvider = false
