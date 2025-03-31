@@ -27,6 +27,8 @@ export XMODIFIERS='@im=fcitx5'
 
 fcitx5 -d
 
+pulseaudio -D
+
 picom &
 
 geektray &
