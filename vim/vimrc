@@ -1828,7 +1828,7 @@ let g:quickrun_config = {
 \   },
 \   'rust': {
 \     'command': 'rustc',
-\     'cmdopt': '-A dead_code --edition 2021',
+\     'cmdopt': '-A dead_code --edition 2024',
 \     'exec': ['%c %o %s -o %s:p:r', 'RUST_BACKTRACE=1 %s:p:r %a'],
 \     'tempfile': '%{fnamemodify(tempname(), ":r")}.rs',
 \     'hook/shebang/enable': 0,
