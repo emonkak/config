@@ -1,45 +1,5 @@
 # My gitconfig
 
-[user]
-	name = Shota Nozaki
-	email = emonkak@gmail.com
-
-[core]
-	editor = nvim
-	mergeoptions = --no-edit
-	pager = delta --color-only --paging always
-	quotepath = false
-	ignorecase = false
-
-[init]
-	defaultBranch = master
-
-[color]
-	ui = true
-
-[interactive]
-	diffFilter = delta --color-only --paging always
-
-[merge]
-	ff = false
-	tool = vimdiff
-	log = true
-
-[pull]
-	rebase = true
-
-[push]
-	default = current
-
-[rebase]
-	autostash = true
-
-[grep]
-	patternType = extended
-
-[diff]
-	renames = true
-
 [alias]
 	a = add
 	br = branch
@@ -66,11 +26,54 @@
 	status-files = "!bash -c \"git status --porcelain | grep -i '^ \\?$1' | awk '{print \\$2}'\""
 	undo = "!bash -c 'git reset --hard $(git rev-parse --abbrev-ref HEAD)@{${1-1}}'"
 
+[color]
+	ui = true
+
+[core]
+	editor = nvim
+	mergeoptions = --no-edit
+	pager = delta --color-only --paging always
+	quotepath = false
+	ignorecase = false
+
 [credential]
 	helper = store
 
 [delta]
 	syntax-theme = ansi
+
+[diff]
+	renames = true
+
+[grep]
+	patternType = extended
+
+[init]
+	defaultBranch = master
+
+[interactive]
+	diffFilter = delta --color-only --paging always
+
+[merge]
+	ff = false
+	log = true
+	tool = vimdiff
+
+[pager]
+	branch = false
+
+[pull]
+	rebase = true
+
+[push]
+	default = current
+
+[rebase]
+	autostash = true
+
+[user]
+	name = Shota Nozaki
+	email = emonkak@gmail.com
 
 [include]
 	path = ./config.private
