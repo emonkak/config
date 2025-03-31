@@ -139,12 +139,12 @@ myManageHook =
         className =? "Geeqie" -?> doShiftEmptyAndGo,
         className =? "Gimp" -?> doShiftEmptyAndGo,
         className =? "Inkscape" -?> doShiftEmptyAndGo,
-        className =? "Pavucontrol" -?> doCenterFloat,
         className =? "XFontSel" -?> doCenterFloat,
         className =? "Xmessage" -?> doCenterFloat,
         className =? "feh" -?> doCenterFloat,
         className =? "fontforge" -?> doShiftEmptyAndGo <+> doFloat,
         className =? "libreoffice-startcenter" -?> doShiftEmptyAndGo,
+        className =? "pavucontrol" -?> doCenterFloat,
         className =? "mpv" -?> doCenterFloat
       ]
     <+> composeOne
