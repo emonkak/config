@@ -326,13 +326,6 @@ api.nvim_create_user_command(
   }
 )
 
-lsp.handlers['textDocument/hover'] = lsp.with(
-  lsp.handlers.hover,
-  {
-    border = 'rounded',
-  }
-)
-
 vim.diagnostic.config({
   float = {
     border = 'rounded',
