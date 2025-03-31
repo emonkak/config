@@ -1,5 +1,5 @@
 diff --git a/alacritty/src/config/ui_config.rs b/alacritty/src/config/ui_config.rs
-index 69716dee..aed6b3b5 100644
+index b44bda0d..2b23199c 100644
 --- a/alacritty/src/config/ui_config.rs
 +++ b/alacritty/src/config/ui_config.rs
 @@ -6,12 +6,11 @@ use std::path::PathBuf;
@@ -26,7 +26,7 @@ index 69716dee..aed6b3b5 100644
              }
              character_count += 1;
 diff --git a/alacritty/src/display/mod.rs b/alacritty/src/display/mod.rs
-index d0044f8b..571ec3db 100644
+index 6c685a2a..0dcca783 100644
 --- a/alacritty/src/display/mod.rs
 +++ b/alacritty/src/display/mod.rs
 @@ -21,7 +21,6 @@ use winit::raw_window_handle::RawWindowHandle;
@@ -46,7 +46,7 @@ index d0044f8b..571ec3db 100644
  };
  use alacritty_terminal::vte::ansi::{CursorShape, NamedColor};
  
-@@ -1454,9 +1453,9 @@ impl Preedit {
+@@ -1478,9 +1477,9 @@ impl Preedit {
          let cursor_end_offset = if let Some(byte_offset) = cursor_byte_offset {
              // Convert byte offset into char offset.
              let start_to_end_offset =
@@ -59,7 +59,7 @@ index d0044f8b..571ec3db 100644
              Some((start_to_end_offset, end_to_end_offset))
          } else {
 diff --git a/alacritty/src/main.rs b/alacritty/src/main.rs
-index 6bbf8dfd..29d81445 100644
+index 5382e475..bea30cc2 100644
 --- a/alacritty/src/main.rs
 +++ b/alacritty/src/main.rs
 @@ -16,6 +16,7 @@ use std::error::Error;
@@ -70,7 +70,7 @@ index 6bbf8dfd..29d81445 100644
  use std::{env, fs};
  
  use log::info;
-@@ -164,6 +165,12 @@ fn alacritty(mut options: Options) -> Result<(), Box<dyn Error>> {
+@@ -172,6 +173,12 @@ fn alacritty(mut options: Options) -> Result<(), Box<dyn Error>> {
          env::set_var(key, value);
      }
  
@@ -106,8 +106,55 @@ index 267f8322..b8b3f0d4 100644
              if width == 2 {
                  line.push(' ');
              }
+@@ -264,10 +263,10 @@ mod tests {
+ 
+         let lines = message_buffer.message().unwrap().text(&size);
+ 
+-        assert_eq!(lines, vec![
+-            String::from("hahahahahahahahaha [X]"),
+-            String::from("[MESSAGE TRUNCATED]   ")
+-        ]);
++        assert_eq!(
++            lines,
++            vec![String::from("hahahahahahahahaha [X]"), String::from("[MESSAGE TRUNCATED]   ")]
++        );
+     }
+ 
+     #[test]
+@@ -353,11 +352,10 @@ mod tests {
+ 
+         let lines = message_buffer.message().unwrap().text(&size);
+ 
+-        assert_eq!(lines, vec![
+-            String::from("a [X]"),
+-            String::from("bc   "),
+-            String::from("defg ")
+-        ]);
++        assert_eq!(
++            lines,
++            vec![String::from("a [X]"), String::from("bc   "), String::from("defg ")]
++        );
+     }
+ 
+     #[test]
+@@ -369,11 +367,10 @@ mod tests {
+ 
+         let lines = message_buffer.message().unwrap().text(&size);
+ 
+-        assert_eq!(lines, vec![
+-            String::from("ab  [X]"),
+-            String::from("c 👩 d  "),
+-            String::from("fgh    ")
+-        ]);
++        assert_eq!(
++            lines,
++            vec![String::from("ab  [X]"), String::from("c 👩 d  "), String::from("fgh    ")]
++        );
+     }
+ 
+     #[test]
 diff --git a/alacritty/src/renderer/mod.rs b/alacritty/src/renderer/mod.rs
-index 16885b31..0175f52e 100644
+index 3362db42..13033405 100644
 --- a/alacritty/src/renderer/mod.rs
 +++ b/alacritty/src/renderer/mod.rs
 @@ -10,10 +10,10 @@ use crossfont::Metrics;
@@ -125,7 +172,7 @@ index 16885b31..0175f52e 100644
 @@ -210,7 +210,7 @@ impl Renderer {
              let flags = if wide_char_spacer {
                  wide_char_spacer = false;
-                 Flags::WIDE_CHAR_SPACER
+                 return None;
 -            } else if character.width() == Some(2) {
 +            } else if char_width(character) == Some(2) {
                  // The spacer is always following the wide char.
@@ -155,7 +202,7 @@ index 6acc3189..90ec9e9f 100644
          }
  
 diff --git a/alacritty/src/string.rs b/alacritty/src/string.rs
-index a7af4394..1c5e62a3 100644
+index b8c47d3b..a5b1f7cf 100644
 --- a/alacritty/src/string.rs
 +++ b/alacritty/src/string.rs
 @@ -2,7 +2,7 @@ use std::cmp::Ordering;
@@ -176,7 +223,7 @@ index a7af4394..1c5e62a3 100644
              current_len += ch_width;
  
              match current_len.cmp(&max_width) {
-@@ -132,7 +132,7 @@ impl<'a> Iterator for StrShortener<'a> {
+@@ -132,7 +132,7 @@ impl Iterator for StrShortener<'_> {
              },
              TextAction::Char => {
                  let ch = self.chars.next()?;
@@ -186,7 +233,7 @@ index a7af4394..1c5e62a3 100644
                  // Advance width.
                  self.accumulated_len += ch_width;
 diff --git a/alacritty_terminal/src/term/mod.rs b/alacritty_terminal/src/term/mod.rs
-index 8a0410dc..31eb4673 100644
+index 84945f52..f57ef004 100644
 --- a/alacritty_terminal/src/term/mod.rs
 +++ b/alacritty_terminal/src/term/mod.rs
 @@ -11,7 +11,6 @@ use base64::engine::general_purpose::STANDARD as Base64;
@@ -197,7 +244,7 @@ index 8a0410dc..31eb4673 100644
  
  use crate::event::{Event, EventListener};
  use crate::grid::{Dimensions, Grid, GridIterator, Scroll};
-@@ -1055,8 +1054,7 @@ impl<T: EventListener> Handler for Term<T> {
+@@ -1060,8 +1059,7 @@ impl<T: EventListener> Handler for Term<T> {
      /// A character to be displayed.
      #[inline(never)]
      fn input(&mut self, c: char) {
@@ -207,7 +254,7 @@ index 8a0410dc..31eb4673 100644
              Some(width) => width,
              None => return,
          };
-@@ -2383,6 +2381,22 @@ impl<'a> RenderableContent<'a> {
+@@ -2414,6 +2412,22 @@ impl<'a> RenderableContent<'a> {
      }
  }
  
@@ -230,7 +277,7 @@ index 8a0410dc..31eb4673 100644
  /// Terminal test helpers.
  pub mod test {
      use super::*;
-@@ -2441,7 +2455,7 @@ pub mod test {
+@@ -2472,7 +2486,7 @@ pub mod test {
          let lines: Vec<&str> = content.split('\n').collect();
          let num_cols = lines
              .iter()
@@ -239,7 +286,7 @@ index 8a0410dc..31eb4673 100644
              .max()
              .unwrap_or(0);
  
-@@ -2461,7 +2475,7 @@ pub mod test {
+@@ -2492,7 +2506,7 @@ pub mod test {
                  term.grid[line][Column(index)].c = c;
  
                  // Handle fullwidth characters.

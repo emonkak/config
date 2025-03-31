@@ -129,6 +129,7 @@ net-analyzer/nmap
 net-analyzer/tcpdump
 net-analyzer/traceroute
 net-dns/bind-tools
+net-dns/dog
 net-firewall/nftables
 net-fs/samba
 net-im/skypeforlinux
@@ -192,6 +193,7 @@ sys-libs/ncurses
 sys-power/acpitool
 sys-power/hibernate-script
 sys-process/at
+sys-process/btop
 sys-process/cronie
 sys-process/htop
 sys-process/iotop-c

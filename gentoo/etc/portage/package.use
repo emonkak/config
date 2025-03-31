@@ -3,6 +3,7 @@ app-editors/gvim LUA_SINGLE_TARGET: -* luajit
 app-editors/gvim gtk lua luajit
 app-editors/vim LUA_SINGLE_TARGET: -* luajit
 app-editors/vim lua luajit terminal
+app-emulation/wine-gecko -abi_x86_32
 app-emulation/wine-vanilla -abi_x86_32 fontconfig jpeg mp3 png vulkan wow64 xml
 app-eselect/eselect-php fpm
 app-i18n/fcitx-qt qt5
@@ -20,6 +21,7 @@ dev-lang/rust-bin rls rust-src rustfmt
 dev-lang/scala binary
 dev-lua/* luajit
 dev-vcs/git perl
+llvm-core/llvm clang
 media-fonts/corefonts tahoma
 media-gfx/fontforge cairo gtk pango png svg woff2
 media-gfx/gimp exif jpeg pdf png python svg webp
@@ -35,14 +37,12 @@ media-libs/mesa vulkan zink
 media-plugins/gst-plugins-meta mp3
 media-sound/mpd aac inotify lame ogg sqlite vorbis
 media-sound/ncmpcpp clock taglib
-media-sound/pulseaudio-daemon -X system-wide
 media-sound/shntool flac
 media-video/ffmpeg faac mp3 network openssl rtmp theora v4l vorbis x264 xvid
 media-video/vlc aac dvd flac fontconfig matroska mp3 mpeg ogg png stream theora truetype v4l vorbis x264 xv
 net-dns/avahi mdnsresponder-compat
 net-fs/samba client
 net-libs/libvncserver threads
-app-emulation/wine-gecko -abi_x86_32
 net-misc/netifrc -dhcp
 net-misc/tigervnc dri3
 net-p2p/transmission gtk
@@ -52,7 +52,6 @@ sys-apps/smartmontools -minimal
 sys-auth/polkit consolekit
 sys-block/gparted fat ntfs
 sys-boot/grub mount
-sys-devel/llvm clang
 sys-kernel/gentoo-sources symlink
 virtual/wine -abi_x86_32
 www-client/google-chrome linguas_ja

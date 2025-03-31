@@ -1,9 +1,8 @@
-
 diff --git a/dlls/winex11.drv/window.c b/dlls/winex11.drv/window.c
-index a9d6dbf..91fc4d3 100644
+index 32c3800..27d207e 100644
 --- a/dlls/winex11.drv/window.c
 +++ b/dlls/winex11.drv/window.c
-@@ -112,6 +112,28 @@ static const WCHAR clip_window_prop[] =
+@@ -111,6 +111,28 @@ static const WCHAR clip_window_prop[] =
  
  static pthread_mutex_t win_data_mutex = PTHREAD_MUTEX_INITIALIZER;
  
@@ -29,40 +28,31 @@ index a9d6dbf..91fc4d3 100644
 +    UINT           version;         /* notify icon api version */
 +};
 +
- 
- /***********************************************************************
-  * http://standards.freedesktop.org/startup-notification-spec
-@@ -2324,6 +2346,7 @@ BOOL X11DRV_SystrayDockInsert( HWND hwnd, UINT cx, UINT cy, void *icon )
-     XEvent ev;
-     XVisualInfo visual;
-     struct x11drv_win_data *data;
-+    UNICODE_STRING window_title;
- 
-     if (!(systray_window = get_systray_selection_owner( display ))) return FALSE;
- 
-@@ -2335,6 +2358,9 @@ BOOL X11DRV_SystrayDockInsert( HWND hwnd, UINT cx, UINT cy, void *icon )
+ static void host_window_add_ref( struct host_window *win )
+ {
+     int ref = ++win->refcount;
+@@ -2645,6 +2667,8 @@ BOOL X11DRV_SystrayDockInsert( HWND hwnd, UINT cx, UINT cy, void *icon )
      window = data->whole_window;
      release_win_data( data );
  
-+    RtlInitUnicodeString( &window_title, ((struct icon *) icon)->tiptext );
-+    sync_window_text( data->display, data->whole_window, &window_title );
++    sync_window_text( data->display, data->whole_window, ((struct icon *) icon)->tiptext );
 +
+     NtUserSetWindowPos( hwnd, NULL, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOZORDER );
      NtUserShowWindow( hwnd, SW_SHOWNA );
  
-     TRACE_(systray)( "icon window %p/%lx\n", hwnd, window );
 diff --git a/programs/explorer/systray.c b/programs/explorer/systray.c
-index b012d3f..d7883f2 100644
+index fcbceb6..27b3c57 100644
 --- a/programs/explorer/systray.c
 +++ b/programs/explorer/systray.c
-@@ -567,6 +567,7 @@ static void systray_add_icon( struct icon *icon )
-     SetParent( icon->window, tray_window );
+@@ -599,6 +599,7 @@ static void systray_add_icon( struct icon *icon )
+     icon->display = nb_displayed++;
      pos = get_icon_pos( icon );
      SetWindowPos( icon->window, 0, pos.x, pos.y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW );
 +    SetWindowTextW( icon->window, icon->tiptext );
  
      if (nb_displayed == 1 && show_systray) do_show_systray();
      TRACE( "added %u now %d icons\n", icon->id, nb_displayed );
-@@ -680,6 +681,7 @@ static BOOL modify_icon( struct icon *icon, NOTIFYICONDATAW *nid )
+@@ -724,6 +725,7 @@ static BOOL modify_icon( struct icon *icon, NOTIFYICONDATAW *nid )
      {
          lstrcpynW( icon->tiptext, nid->szTip, ARRAY_SIZE( icon->tiptext ));
          update_tooltip_text( icon );

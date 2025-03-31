@@ -1,0 +1,37 @@
+diff --git a/runtime/lua/vim/treesitter/query.lua b/runtime/lua/vim/treesitter/query.lua
+index c0106c2da7..6df5a67e64 100644
+--- a/runtime/lua/vim/treesitter/query.lua
++++ b/runtime/lua/vim/treesitter/query.lua
+@@ -162,7 +162,6 @@ function M.get_files(lang, query_name, is_included)
+     return {}
+   end
+ 
+-  local base_query = nil ---@type string?
+   local extensions = {}
+ 
+   local base_langs = {} ---@type string[]
+@@ -213,12 +212,11 @@ function M.get_files(lang, query_name, is_included)
+       end
+     end
+ 
+-    if extension then
+-      table.insert(extensions, filename)
+-    elseif base_query == nil then
+-      base_query = filename
+-    end
++    table.insert(extensions, filename)
+     io.close(file)
++    if not extension then
++      break
++    end
+   end
+ 
+   local query_files = {}
+@@ -226,7 +224,6 @@ function M.get_files(lang, query_name, is_included)
+     local base_files = M.get_files(base_lang, query_name, true)
+     vim.list_extend(query_files, base_files)
+   end
+-  vim.list_extend(query_files, { base_query })
+   vim.list_extend(query_files, extensions)
+ 
+   return query_files
