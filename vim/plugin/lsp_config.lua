@@ -34,74 +34,76 @@ null_ls.setup({
   },
 })
 
-lsp.config['haskell-language-server'] = {
-  cmd = { 'haskell-language-server', '--lsp' },
-  filetypes = { 'haskell', 'lhaskell' },
-  root_markers = { '.git', 'Setup.hs', 'stack.yml' },
-  workspace_required = true,
-  settings = {
-    ['rust-analyzer'] = {
-      hover = {
-        memoryLayout = {
-          niches = true,
+if lsp.config then
+  lsp.config['haskell-language-server'] = {
+    cmd = { 'haskell-language-server', '--lsp' },
+    filetypes = { 'haskell', 'lhaskell' },
+    root_markers = { '.git', 'Setup.hs', 'stack.yml' },
+    workspace_required = true,
+    settings = {
+      ['rust-analyzer'] = {
+        hover = {
+          memoryLayout = {
+            niches = true,
+          },
         },
       },
     },
-  },
-}
+  }
 
-lsp.config.phpactor = {
-  cmd = { 'phpactor', 'language-server' },
-  filetypes = { 'php' },
-  root_markers = { '.git', 'composer.json' },
-  workspace_required = true,
-}
+  lsp.config.phpactor = {
+    cmd = { 'phpactor', 'language-server' },
+    filetypes = { 'php' },
+    root_markers = { '.git', 'composer.json' },
+    workspace_required = true,
+  }
 
-lsp.config['rust-analyzer'] = {
-  cmd = { 'rust-analyzer' },
-  filetypes = { 'rust' },
-  root_markers = { '.git', 'Cargo.toml' },
-  workspace_required = true,
-  settings = {
-    ['rust-analyzer'] = {
-      hover = {
-        memoryLayout = {
-          niches = true,
+  lsp.config['rust-analyzer'] = {
+    cmd = { 'rust-analyzer' },
+    filetypes = { 'rust' },
+    root_markers = { '.git', 'Cargo.toml' },
+    workspace_required = true,
+    settings = {
+      ['rust-analyzer'] = {
+        hover = {
+          memoryLayout = {
+            niches = true,
+          },
         },
       },
     },
-  },
-}
+  }
 
-lsp.config.vtsls = {
-  cmd = { 'vtsls', '--stdio' },
-  filetypes = {
-      'javascript',
-      'javascriptreact',
-      'typescript',
-      'typescriptreact',
-    },
-  root_dir = function(bufnr, callback)
-    local path = api.nvim_buf_get_name(bufnr)
-    if #vim.fs.find('.flowconfig', { upward = true, path = path }) > 0 then
-      callback(nil)
-    else
-      callback(vim.fs.root(path, { '.git', 'package.json' }))
-    end
-  end,
-  workspace_required = true,
-  on_attach = function(client, bufnr)
-    vim.bo[bufnr].formatexpr = nil
-    client.server_capabilities.documentFormattingProvider = false
-  end,
-}
+  lsp.config.vtsls = {
+    cmd = { 'vtsls', '--stdio' },
+    filetypes = {
+        'javascript',
+        'javascriptreact',
+        'typescript',
+        'typescriptreact',
+      },
+    root_dir = function(bufnr, callback)
+      local path = api.nvim_buf_get_name(bufnr)
+      if #vim.fs.find('.flowconfig', { upward = true, path = path }) > 0 then
+        callback(nil)
+      else
+        callback(vim.fs.root(path, { '.git', 'package.json' }))
+      end
+    end,
+    workspace_required = true,
+    on_attach = function(client, bufnr)
+      vim.bo[bufnr].formatexpr = nil
+      client.server_capabilities.documentFormattingProvider = false
+    end,
+  }
 
-lsp.enable({
-  'haskell-language-server',
-  'phpactor',
-  'rust-analyzer',
-  'vtsls',
-})
+  lsp.enable({
+    'haskell-language-server',
+    'phpactor',
+    'rust-analyzer',
+    'vtsls',
+  })
+end
 
 local LSP_CONFIG_AUGROUP = api.nvim_create_augroup('MyLspConfig', {})
 
