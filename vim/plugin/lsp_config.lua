@@ -4,6 +4,9 @@ end
 
 local null_ls = require('null-ls')
 
+local api = vim.api
+local lsp = vim.lsp
+
 null_ls.setup({
   sources = {
     null_ls.builtins.formatting.biome.with({
@@ -31,113 +34,72 @@ null_ls.setup({
   },
 })
 
-local api = vim.api
-local lsp = vim.lsp
-
-local function run_command_without_errors(command)
-  local ok, error = pcall(api.nvim_command, command)
-  if not ok then
-    api.nvim_err_writeln(error)
-  end
-end
-
-local SERVER_CONFIGS = {
-  {
-    name = 'rust-analyzer',
-    cmd = { 'rust-analyzer' },
-    filetypes = { 'rust' },
-    root_dir = function(path)
-      return vim.fs.root(path, { '.git', 'Cargo.toml' })
-    end,
-    default_config = {
-      settings = {
-        ['rust-analyzer'] = {
-          hover = {
-            memoryLayout = {
-              niches = true,
-            },
-          },
+lsp.config['haskell-language-server'] = {
+  cmd = { 'haskell-language-server', '--lsp' },
+  root_markers = { '.git', 'Setup.hs', 'stack.yml' },
+  filetypes = { 'haskell', 'lhaskell' },
+  settings = {
+    ['rust-analyzer'] = {
+      hover = {
+        memoryLayout = {
+          niches = true,
         },
       },
     },
   },
-  {
-    name = 'haskell-language-server',
-    cmd = { 'haskell-language-server-wrapper', '--lsp' },
-    filetypes = { 'haskell', 'lhaskell' },
-    root_dir = function(path)
-      return vim.fs.root(path, { '.git', 'Setup.hs', 'stack.yml' })
-    end,
+}
+
+lsp.config.phpactor = {
+  cmd = { 'phpactor', 'language-server' },
+  filetypes = { 'php' },
+  root_markers = { '.git', 'composer.json' },
+}
+
+lsp.config['rust-analyzer'] = {
+  cmd = { 'rust-analyzer' },
+  root_markers = { '.git', 'Cargo.toml' },
+  filetypes = { 'rust' },
+  settings = {
+    ['rust-analyzer'] = {
+      hover = {
+        memoryLayout = {
+          niches = true,
+        },
+      },
+    },
   },
-  {
-    name = 'vtsls',
-    cmd = { 'vtsls', '--stdio' },
-    filetypes = {
+}
+
+lsp.config.vtsls = {
+  cmd = { 'vtsls', '--stdio' },
+  filetypes = {
       'javascript',
       'javascriptreact',
       'typescript',
       'typescriptreact',
     },
-    root_dir = function(path)
-      if #vim.fs.find('.flowconfig', { upward = true, path = path }) > 0 then
-        return nil
-      end
-      return vim.fs.root(path, { '.git', 'package.json' })
-    end,
-    default_config = {
-      on_attach = function(client, bufnr)
-        vim.bo[bufnr].formatexpr = nil
-        client.server_capabilities.documentFormattingProvider = false
-      end,
-    },
-  },
-  {
-    name = 'phpactor',
-    cmd = { 'phpactor', 'language-server' },
-    filetypes = { 'php' },
-    root_dir = function(path)
-      return vim.fs.root(path, { '.git', 'composer.json' })
-    end,
-  },
+  root_dir = function(bufnr, callback)
+    local path = api.nvim_buf_get_name(bufnr)
+    if #vim.fs.find('.flowconfig', { upward = true, path = path }) > 0 then
+      callback(nil)
+    else
+      callback(vim.fs.root(path, { '.git', 'package.json' }))
+    end
+  end,
+  on_attach = function(client, bufnr)
+    vim.bo[bufnr].formatexpr = nil
+    client.server_capabilities.documentFormattingProvider = false
+  end,
 }
 
-local LSP_CONFIG_AUGROUP = api.nvim_create_augroup('MyLspConfig', {})
+lsp.enable({
+  'haskell-language-server',
+  'phpactor',
+  'rust-analyzer',
+  'vtsls',
+})
 
-for i, server_config in ipairs(SERVER_CONFIGS) do
-  if vim.fn.executable(server_config.cmd[1]) == 0 then
-    goto continue
-  end
-  api.nvim_create_autocmd('FileType', {
-    group = LSP_CONFIG_AUGROUP,
-    pattern = server_config.filetypes,
-    callback = function(args)
-      if api.nvim_buf_get_name(args.buf) == ''
-        or api.nvim_buf_get_option(args.buf, 'buftype') ~= '' then
-        return
-      end
-      local config = {
-        name = server_config.name,
-        cmd = server_config.cmd,
-        root_dir = server_config.root_dir(
-          vim.fn.fnamemodify(args.file, ':p:h')
-        ),
-      }
-      if server_config.default_config then
-        config = vim.tbl_extend(
-          'keep',
-          config,
-          server_config.default_config
-        )
-      end
-      if not config.root_dir then
-        return
-      end
-      local client_id = lsp.start(config)
-      lsp.buf_attach_client(args.buf, client_id)
-    end,
-  })
-  ::continue::
-end
+local LSP_CONFIG_AUGROUP = api.nvim_create_augroup('MyLspConfig', {})
 
 api.nvim_create_autocmd('BufWinEnter', {
   group = LSP_CONFIG_AUGROUP,
@@ -173,7 +135,10 @@ api.nvim_create_autocmd('LspAttach', {
     map('<LocalLeader>t', lsp.buf.type_definition)
     map('<LocalLeader><LocalLeader>', function()
       vim.diagnostic.setqflist({ open = false })
-      run_command_without_errors('cc')
+      local ok, error = pcall(api.nvim_command, 'cc')
+      if not ok then
+        api.nvim_err_writeln(error)
+      end
     end)
 
     if api.nvim_win_get_buf(0) == args.buf then
@@ -368,7 +333,7 @@ lsp.handlers['textDocument/hover'] = lsp.with(
   }
 )
 
-vim.diagnostic.config {
+vim.diagnostic.config({
   float = {
     border = 'rounded',
   },
@@ -377,6 +342,6 @@ vim.diagnostic.config {
     prefix = '*',
     spacing = 2,
   },
-}
+})
 
 vim.g.loaded_lsp_config = 1
