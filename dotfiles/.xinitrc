@@ -37,8 +37,16 @@ dunst &
 
 hsetroot -solid '#3f576e'
 
+if [ ! -d "${HOME}/.local/state/tigervnc" ]
+then
+  mkdir "${HOME}/.local/state/tigervnc"
+fi
+
 # Remap ALT_L -> Super_L, ALT_R -> Super_R
-x0vncserver -PasswordFile ~/.config/tigervnc/passwd -RemapKeys '0xffe9->0xffeb,0xffea->0xffec' &
+x0vncserver \
+  -PasswordFile ~/.config/tigervnc/passwd \
+  -RemapKeys '0xffe9->0xffeb,0xffea->0xffec' \
+  >> "${HOME}/.local/state/tigervnc/server.log" &
 
 session="${1##*/}"
 
