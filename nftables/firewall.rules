@@ -1,6 +1,7 @@
 #!/sbin/nft -f
 
-flush ruleset
+table inet firewall
+delete table inet firewall
 
 table inet firewall {
 	chain input {
@@ -11,8 +12,7 @@ table inet firewall {
 		iif != lo ip6 daddr ::1/128 counter drop comment "drop connections to loopback not coming from loopback"
 		udp dport 5353 ip daddr 224.0.0.251 ip saddr { 127.0.0.1, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 } counter accept comment "accept multicast DNS"
 		udp dport 5353 ip6 daddr ff02::FB ip6 saddr { ::1/128, fe80::/10 } counter accept comment "accept multicast DNS"
-		ip daddr 255.255.255.255 counter drop
-		ip daddr 224.0.0.0/4 counter drop
+		ip daddr { 255.255.255.255, 224.0.0.0/4 } counter drop
 		ip6 daddr FF00::/8 counter drop
 		iif lo accept
 		ip daddr 192.168.0.0/16 counter accept
@@ -26,8 +26,7 @@ table inet firewall {
 
 	chain forward {
 		type filter hook forward priority 0; policy drop;
-		iifname "docker0" oifname "eth0" accept
-		iifname "eth0" oifname "docker0" ct state related,established accept
+		iifname { "docker0", "eth0" } counter accept
 		log prefix "nft: dropped forward: " counter
 	}
 

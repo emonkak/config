@@ -1,0 +1,11 @@
+#!/sbin/nft -f
+
+table inet mitmproxy
+delete table inet mitmproxy
+
+table inet mitmproxy {
+	chain output {
+		type nat hook output priority 100; policy accept;
+		skuid != mitmproxy tcp dport { 80, 443 } counter redirect to :8080
+	}
+}
