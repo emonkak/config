@@ -180,7 +180,6 @@ myManageHook =
         isJust <$> (io $ getWindowProperty8 d a w)
 
 myStartupHook = do
-  setWMName "LG3D"
   setDefaultCursor xC_left_ptr
   return ()
 
