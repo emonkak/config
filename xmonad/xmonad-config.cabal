@@ -12,6 +12,7 @@ executable xmonad
                     , bytestring
                     , containers
                     , directory
+                    , X11
                     , xmonad
                     , xmonad-contrib
   hs-source-dirs:     lib

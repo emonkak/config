@@ -2,6 +2,8 @@ import Control.Monad (filterM)
 import Data.Map qualified as M
 import Data.Maybe (isJust)
 import Data.Monoid (All (..))
+import Graphics.X11.Xlib.Atom (internAtom)
+import Graphics.X11.Xlib.Extras (getWindowProperty8, getWindowProperty32)
 import Sound.Pulse.Pactl (listPulseCards, switchPulseCardProfile)
 import System.Exit (exitSuccess)
 import XMonad
@@ -154,7 +156,7 @@ myManageHook =
         role =? "browser" -?> ewmhDesktopsManageHook,
         role =? "bubble" -?> doIgnore, -- for Chromeium tooltip
         role =? "pop-up" -?> doFloat,
-        isUnknown -?> doFloat
+        isAnonymousWindow -?> doFloat
       ]
   where
     doShiftAndGo ws = doF (W.greedyView ws) <+> doShift ws
@@ -169,12 +171,13 @@ myManageHook =
             Nothing -> doShiftAndGo $ W.tag workspace
             _ -> doShiftAndGo =<< liftX (findWorkspace getSortByIndex Next emptyWS 1)
         _ -> idHook
-    isUnknown = (not <$> hasProperty "WM_CLASS") <&&> (not <$> hasProperty "WM_WINDOW_ROLE")
-    isWineSystemTray = className =? "explorer.exe" <&&> title =? "Wine System Tray"
-    hasProperty p =
-      ask >>= \w -> liftX $ withDisplay $ \d ->
-        isJust <$> getStringProperty d w p
     role = stringProperty "WM_WINDOW_ROLE"
+    isAnonymousWindow = (not <$> hasStringProperty "WM_CLASS") <&&> (not <$> hasStringProperty "WM_WINDOW_ROLE")
+    isWineSystemTray = className =? "explorer.exe" <&&> title =? "Wine System Tray"
+    hasStringProperty p =
+      ask >>= \w -> liftX $ withDisplay $ \d -> do
+        a <- io $ internAtom d p False
+        isJust <$> (io $ getWindowProperty8 d a w)
 
 myStartupHook = do
   setWMName "LG3D"
