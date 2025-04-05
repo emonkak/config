@@ -337,9 +337,6 @@ vim.diagnostic.config({
     border = 'rounded',
   },
   severity_sort = true,
-  virtual_lines = {
-   current_line = true,
-  },
   virtual_text = {
     prefix = '*',
     spacing = 2,
