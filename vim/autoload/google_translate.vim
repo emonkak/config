@@ -1,3 +1,5 @@
+let g:google_translate#tkk = [0, 0]
+
 function! google_translate#translate(from, to, text) abort
   let url = 'https://translate.google.com/translate_a/single'
   let query = {
@@ -5,7 +7,7 @@ function! google_translate#translate(from, to, text) abort
   \   'dt': 't',
   \   'q': a:text,
   \   'sl': a:from,
-  \   'tk': join(google_translate#generate_tk(a:text, [0, 0]), '.'),
+  \   'tk': join(google_translate#generate_tk(a:text, g:google_translate#tkk), '.'),
   \   'tl': a:to,
   \ }
   let response = webapi#http#get(url, query)
