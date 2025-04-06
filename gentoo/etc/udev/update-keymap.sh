@@ -5,7 +5,7 @@ export HOME=/home/emonkak
 export XAUTHORITY=$HOME/.Xauthority
 
 match_line() {
-  expected_line="$1"
+  local expected_line="$1"
 
   while read -r line
   do
@@ -19,10 +19,10 @@ match_line() {
 }
 
 update_keymap() {
-  name="$1"
-  attempts=0
+  local name="$1"
+  local attempts=0
 
-  while [ $attempts -lt 3 ]
+  while [ $attempts -lt 10 ]
   do
     if xinput list --name-only | match_line "${name}"
     then
@@ -30,9 +30,7 @@ update_keymap() {
       notify-send -i dialog-information "Keyboard '$name' is plugged in and ready for use now."
       break
     fi
-
     sleep 1
-
     attempts=$(( $attempts + 1 ))
   done
 }
