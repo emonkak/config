@@ -83,13 +83,9 @@ app-misc/mime-types nginx
 
 # required by media-gfx/krita
 dev-python/PyQt5 widgets declarative gui network
-dev-qt/qtcore icu
 
 # required by app-editors/vscodium
 app-text/ghostscript-gpl cups
-
-# required by media-sound/ncmpcpp
-dev-libs/boost icu
 
 # required by media-gfx/inkscape
 dev-python/pillow tiff
@@ -99,3 +95,6 @@ app-arch/brotli python
 
 # required by media-tv/v4l-utils
 media-libs/libv4l bpf
+
+# required by net-libs/webkit-gtk
+media-libs/gst-plugins-base opengl

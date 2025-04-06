@@ -13,4 +13,13 @@ then
   exit 1
 fi
 
-rsync --archive --verbose --recursive --delete --files-from=./syncfiles / .
+rsync --archive --verbose --recursive --delete --files-from=<(cat <<EOF
+/etc/X11/xorg.conf
+/etc/default/grub
+/etc/fstab
+/etc/portage/
+/etc/udev/rules.d/
+/etc/udev/update-keymap.sh
+/usr/src/linux/.config
+/var/lib/portage/world
+EOF) / .
