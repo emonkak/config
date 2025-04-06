@@ -1,13 +1,13 @@
-let s:last_job = 0
+let s:last_command = 0
 
 function! git_complete#completefunc(findstart, base) abort
   if a:findstart
     return len(matchstr(getline('.'), '^\s*'))
   endif
-  if s:last_job isnot 0
-    call s:last_job.abort()
+  if s:last_command isnot 0
+    call s:last_command.abort()
   endif
-  let s:last_job = s:start_completion(a:base, col('.'))
+  let s:last_command = s:start_completion(a:base, col('.'))
   " Collects candidates asynchronously, so returns a dummy empty list.
   return []
 endfunction
@@ -22,7 +22,7 @@ function! s:Handler.new(tokens, col) abort
   return handler
 endfunction
 
-function! s:Handler.on_next(job, line) abort dict
+function! s:Handler.on_next(command, line) abort dict
   let separator_position = stridx(a:line, ':')
   let filepath = separator_position > 0 ? a:line[:separator_position - 1] : 0
   let content = a:line[separator_position + 1:]
@@ -43,8 +43,8 @@ function! s:Handler.on_next(job, line) abort dict
   endif
 endfunction
 
-function! s:Handler.on_complete(job, status) abort dict
-  if a:job isnot s:last_job
+function! s:Handler.on_complete(command, status) abort dict
+  if a:command isnot s:last_command
     return
   endif
   if a:status == 0
@@ -53,7 +53,7 @@ function! s:Handler.on_complete(job, status) abort dict
       call complete(self._col, candidates)
     endif
   endif
-  let s:last_job = 0
+  let s:last_command = 0
 endfunction
 
 function! s:compare_entries(first, second) abort
@@ -109,7 +109,7 @@ function! s:start_completion(query, col) abort
 
   let handler = s:Handler.new(tokens, col('.'))
 
-  return async_job#new(command, handler)
+  return async_command#new(command, handler)
 endfunction
 
 function! s:summarize_entries(entries) abort
