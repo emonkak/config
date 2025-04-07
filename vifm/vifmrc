@@ -193,16 +193,6 @@ nnoremap w  :if layoutis('only') | vsplit | endif | view<cr>
 nnoremap x  :./%c<c-a>!!<space><left>
 nnoremap X  :!!./%c<space>
 
-" Interaction with system clipboard
-if $DISPLAY
-  if executable('xclip')
-    nnoremap yd  :!echo %d:t | xclip -i -selection clipboard<cr>
-    nnoremap yD  :!echo %d | xclip -i -selection clipboard<cr>
-    nnoremap yf  :!echo %c | xclip -i -selection clipboard<cr>
-    nnoremap yF  :!echo %c:p | xclip -i -selection clipboard<cr>
-  endif
-endif
-
 " Disable dangerous keys
 nnoremap ZZ  <nop>
 nnoremap ZQ  <nop>
@@ -351,7 +341,10 @@ fileviewer {*.xlsx}
          \ xlsx2csv --delimiter tab %c
 
 " Default association
-filetype *  {Open in less} less -f %f
+filetype *
+       \ {Open in less} less -f %f,
+       \ {Copy filename} echo %c | xclip -i -selection clipboard,
+       \ {Copy fullpath} echo %c:p | xclip -i -selection clipboard,
 
 " __END__  {{{1
 " vim: expandtab softtabstop=2 shiftwidth=2
