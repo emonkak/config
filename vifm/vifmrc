@@ -234,8 +234,8 @@ fileviewer <application/javascript
 fileviewer {*.pdf},<application/pdf>  pdftotext -nopgbrk %c -
 
 " Audio
-filetype {*.wav,*.mp3,*.flac,*.m4a,*.wma,*.ape,*.ac3,*.og[agx],*.spx,*.opus,
-         \*.aac,*.mpga},<audio/*>
+filetype {*.aac,*.ac3,*.ape,*.flac,*.m4a,*.mp3,*.mpga,*.og[agx],*.opus,*.spx,
+         \*.wav,*.wma},<audio/*>
        \ {Play using mpv} mpv --no-video %f %s,
 fileviewer {*.wav,*.mp3,*.flac,*.m4a,*.wma,*.ape,*.ac3,*.og[agx],*.spx,*.opus,
            \*.aac,*.mpga},
@@ -243,20 +243,21 @@ fileviewer {*.wav,*.mp3,*.flac,*.m4a,*.wma,*.ape,*.ac3,*.og[agx],*.spx,*.opus,
          \ ffprobe -hide_banner -pretty %c 2>&1
 
 " Videos
-filextype {*.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
-          \*.fl[icv],*.m2v,*.mov,*.webm,*.mts,*.m4v,*.r[am],*.qt,*.divx,
-          \*.as[fx],*.unknown_video},<video/*>
+filextype {*.3gp,*.as[fx],*.avi,*.dat,*.divx,*.fl[icv],*.m2v,*.m4v,*.mkv,
+          \*.mov,*.mp4,*.mpeg,*.mpg,*.mts,*.ogv,*.qt,*.r[am],*.ts,*.vob,
+          \*.webm,*.wmv},<video/*>
         \ {Play using mpv} mpv %f,
-fileviewer {*.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
-           \*.fl[icv],*.m2v,*.mov,*.webm,*.mts,*.m4v,*.r[am],*.qt,*.divx,
-           \*.as[fx],*.unknown_video},
-          \<video/*>
+        \ {Resample audio using ffmpeg}
+        \ ffmpeg -hide_banner -i %c -vn -af aresample=async=1 %c:r.wav,
+fileviewer {*.3gp,*.as[fx],*.avi,*.dat,*.divx,*.fl[icv],*.m2v,*.m4v,*.mkv,
+           \*.mov,*.mp4,*.mpeg,*.mpg,*.mts,*.ogv,*.qt,*.r[am],*.vob,*.webm,
+           \*.wmv},<video/*>
          \ ffprobe -hide_banner -pretty %c 2>&1
 
 " Web
 filextype {*.htm,*.html,*.xhtml,*.svg,*.svgz,*pdf},
          \<application/pdf,image/svg+xml,text/html>
-        \ {Open with brave } brave-browser-stable %f 2>&1 &,
+        \ {Open with brave} brave-browser-stable %f 2>&1 &,
         \ {Open with firefox} firefox &,
 
 " Object
@@ -268,7 +269,7 @@ fileviewer {*.[1-8]},<text/troff>  man ./%c | col -b
 
 " Images
 filextype {*.svg,*.svgz},<image/svg+xml>
-        \ {Edit in Inkscape} inkscape %f
+        \ {Edit in Inkscape} inkscape %f,
 filextype {.kra}
         \ {Edit in Krita} krita %f,
 filextype {*.bmp,*.gif,*.heic,*.jpeg,*.jpg,*.png,*.webp,*.xpm},<image/*>
@@ -281,18 +282,18 @@ filetype {*.jpeg,*.jpg},<image/jpeg>
          \ {Optimize by jpegtran} jpegtran -outfile %c %c,
          \ {Rotate 90 degree} jpegtran -rotate 90 -outfile %c %c,
          \ {Rotate 180 degree} jpegtran -rotate 180 -outfile %c %c,
-         \ {Rotate 270 degree} jpegtran -rotate 270 -outfile %c %c
+         \ {Rotate 270 degree} jpegtran -rotate 270 -outfile %c %c,
 
 " Torrent
 fileviewer {*.torrent},<application/x-bittorrent>
-         \ transmission-show %c
+         \ transmission-show %c,
 
 " Zip archives
 filetype {*.zip,*.jar,*.war,*.ear,*.oxt,*.apkg},
         \<application/zip,application/java-archive>
-       \ {Mount with fuse-zip}
+       \ {Mount with fuse-zip},
        \ FUSE_MOUNT|fuse-zip %SOURCE_FILE %DESTINATION_DIR,
-       \ {Mount with fuse-zip (CP932)}
+       \ {Mount with fuse-zip (CP932)},
        \ FUSE_MOUNT|fuse-zip -o modules=iconv,,from_code=cp932,,to_code=utf-8 %SOURCE_FILE %DESTINATION_DIR,
        \ {View contents} aunpack -l %f | less,
        \ {Extract here} aunpack %f,
@@ -334,7 +335,7 @@ filextype {*.odt,*.doc,*.docx,*.xls,*.xlsx,*.odp,*.pptx,*.ppt},
          \<application/vnd.openxmlformats-officedocument.*,
           \application/msword,
           \application/vnd.ms-excel>
-        \ {Open in libreoffice} libreoffice %f &
+        \ {Open in libreoffice} libreoffice %f &,
 fileviewer {*.docx}
          \ docx2txt %c -
 fileviewer {*.xlsx}
