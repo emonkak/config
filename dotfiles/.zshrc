@@ -125,6 +125,8 @@ then
   alias diff='delta --color-only --paging never'
 fi
 alias fd='noglob fd'
+alias ffmpeg='ffmpeg -hide_banner'
+alias ffprobe='ffprobe -hide_banner'
 alias g='git'
 alias git='noglob git'
 alias grep='grep --color --binary-files=without-match --perl-regexp'
