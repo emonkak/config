@@ -35,7 +35,7 @@ media-libs/libpng apng
 media-libs/libv4l utils
 media-libs/mesa vulkan zink
 media-plugins/gst-plugins-meta mp3
-media-sound/mpd aac inotify lame ogg sqlite vorbis
+media-sound/mpd aac httpd lame sqlite vorbis
 media-sound/ncmpcpp clock taglib
 media-sound/shntool flac
 media-video/ffmpeg faac mp3 network openssl rtmp theora v4l vorbis x264 xvid

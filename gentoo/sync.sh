@@ -13,7 +13,15 @@ then
   exit 1
 fi
 
-rsync --archive --verbose --recursive --delete --files-from=<(cat <<EOF
+SOURCE_DIR=/
+DEST_DIR=.
+
+rsync \
+  --archive \
+  --verbose \
+  --recursive \
+  --delete \
+  --files-from=<(cat <<EOF
 /etc/X11/xorg.conf
 /etc/default/grub
 /etc/fstab
@@ -22,4 +30,10 @@ rsync --archive --verbose --recursive --delete --files-from=<(cat <<EOF
 /etc/udev/update-keymap.sh
 /usr/src/linux/.config
 /var/lib/portage/world
-EOF) / .
+EOF
+) \
+  --exclude-from=<(cat <<EOF
+/etc/portage/savedconfig
+EOF
+) \
+  "${SOURCE_DIR}" "${DEST_DIR}"
