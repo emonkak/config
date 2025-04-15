@@ -35,6 +35,7 @@ EOF
 ) \
   --exclude-from=<(cat <<EOF
 /etc/portage/savedconfig
+/etc/udev/rules.d/.keep*
 EOF
 ) \
   "${SOURCE_DIR}" "${DEST_DIR}"
