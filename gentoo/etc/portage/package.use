@@ -67,6 +67,7 @@ x11-terms/xterm truetype
 
 # required by app-editors/neovim
 app-editors/neovim LUA_SINGLE_TARGET: -* luajit
+dev-libs/libutf8proc -cjk
 dev-lua/mpack lua_targets_luajit
 
 # required by x11-misc/xdg-utils

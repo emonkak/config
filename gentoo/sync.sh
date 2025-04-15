@@ -26,6 +26,7 @@ rsync \
 /etc/default/grub
 /etc/fstab
 /etc/portage/
+/etc/samba/smb.conf
 /etc/udev/rules.d/
 /etc/udev/update-keymap.sh
 /usr/src/linux/.config
