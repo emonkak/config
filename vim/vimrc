@@ -1598,16 +1598,19 @@ nnoremap <silent> [Space]kh  :<C-u>call <SID>luis_start(luis#source#help#import(
 nnoremap <silent> [Space]ki  :<C-u>call <SID>luis_start(luis#source#history#new('input'))<CR>
 nnoremap <silent> [Space]kj  :<C-u>call <SID>luis_start(luis#source#jumplist#new(win_getid()))<CR>
 nnoremap <silent> [Space]kk  :<C-u>call <SID>luis_resume()<CR>
-nnoremap <silent> [Space]kl  :<C-u>call <SID>luis_start_async_files()<CR>
 nnoremap <silent> [Space]km  :<C-u>call <SID>luis_start(luis#source#local_mark#new(bufnr('%')))<CR>
 nnoremap <silent> [Space]kn  :<C-u>call <SID>luis_start_file_in_directory(expand("~/Sync/Documents/Notes"))<CR>
 nnoremap <silent> [Space]ko  :<C-u>call <SID>luis_start(luis#source#oldfiles#new())<CR>
 nnoremap <silent> [Space]kq  :<C-u>call <SID>luis_start(luis#source#quickfix#new())<CR>
 nnoremap <silent> [Space]kr  :<C-u>call <SID>luis_start(luis#source#register#new())<CR>
 nnoremap <silent> [Space]ks  :<C-u>call <SID>luis_start(luis#source#spell#import())<CR>
-nnoremap <silent> [Space]kt  :<C-u>call <SID>luis_start_async_tags()<CR>
 nnoremap <silent> [Space]kw  :<C-u>call <SID>luis_start_workspace(expand('~/Sync/works'))<CR>
 nnoremap <silent> [Space]kz  :<C-u>call <SID>luis_start(luis#source#fold#new(win_getid()))<CR>
+
+if executable('fzf-filter')
+  nnoremap <silent> [Space]kl  :<C-u>call <SID>luis_start_async_files()<CR>
+  nnoremap <silent> [Space]kt  :<C-u>call <SID>luis_start_async_tags()<CR>
+endif
 
 let s:luis_last_session = 0
 
