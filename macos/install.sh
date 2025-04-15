@@ -93,7 +93,7 @@ EOF
 install-terminfos() {
   echo Install terminfos...
 
-  tic /dev/stdin << EOF
+  tic /dev/stdin <<EOF
 tmux-256color|tmux with 256 colors and italic,
 	ritm=\E[23m,
 	rmso=\E[27m,
@@ -103,7 +103,7 @@ tmux-256color|tmux with 256 colors and italic,
 	use=screen-256color,
 EOF
 
-  tic /dev/stdin << EOF
+  tic /dev/stdin <<EOF
 xterm-256color|xterm with 256 colors and italic,
 	sitm=\E[3m,
 	ritm=\E[23m,
