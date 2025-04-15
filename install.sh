@@ -18,7 +18,7 @@ mklink "vim" "${HOME}/.config/nvim"
 
 mklink "skk" "${HOME}/.local/share/skk"
 
-for path in alacritty cabal fontconfig git libskk ncmpcpp picom polybar tig tmux vifm vim xmonad
+for path in alacritty cabal fontconfig git libskk mpv ncmpcpp picom polybar tig tmux vifm vim xmonad
 do
   mklink "${path}" "${HOME}/.config/${path}"
 done

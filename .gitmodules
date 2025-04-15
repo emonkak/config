@@ -180,3 +180,12 @@
 [submodule "vim/pack/plugins/opt/nvim-treesitter-textobjects"]
 	path = vim/pack/plugins/opt/nvim-treesitter-textobjects
 	url = https://github.com/nvim-treesitter/nvim-treesitter-textobjects.git
+[submodule "mpv/modules/subtitle-lines"]
+	path = mpv/modules/subtitle-lines
+	url = https://github.com/christoph-heinrich/mpv-subtitle-lines.git
+[submodule "mpv/modules/thumbfast"]
+	path = mpv/modules/thumbfast
+	url = https://github.com/po5/thumbfast.git
+[submodule "mpv/modules/uosc"]
+	path = mpv/modules/uosc
+	url = https://github.com/tomasklaen/uosc.git
