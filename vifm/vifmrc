@@ -50,6 +50,7 @@ mark N  ~/Downloads/
 mark O  ~/Documents/
 mark P  ~/Pictures/
 mark T  ~/.local/share/vifm/Trash/
+mark U  ~/Public/
 mark W  ~/works/
 
 " Commands  {{{1
