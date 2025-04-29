@@ -36,7 +36,7 @@ null_ls.setup({
 
 if lsp.config then
   lsp.config['haskell-language-server'] = {
-    cmd = { 'haskell-language-server', '--lsp' },
+    cmd = { 'haskell-language-server-wrapper', '--lsp' },
     filetypes = { 'haskell', 'lhaskell' },
     root_markers = { '.git', 'Setup.hs', 'stack.yml' },
     workspace_required = true,
