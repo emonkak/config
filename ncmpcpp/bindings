@@ -55,10 +55,6 @@ def_key "n"
 def_key "N"
   previous_found_item
 
-def_key "v"
-  select_item
-  scroll_down
-
 def_key "ctrl-b"
   page_up
 
@@ -71,11 +67,12 @@ def_key "ctrl-u"
 def_key "ctrl-d"
   scroll_down_album
 
-def_key "ctrl-l"
-  dummy
-
 def_key "left"
   seek_backward
 
 def_key "right"
   seek_forward
+
+def_key "space"
+  select_item
+  scroll_down
