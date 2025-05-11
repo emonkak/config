@@ -1040,7 +1040,9 @@ function! s:should_complete_rather_than_indent() abort
 endfunction
 
 function! s:keys_to_complete() abort
-  if &l:omnifunc != ''
+  if &l:filetype ==# 'vim'
+    return "\<C-x>\<C-v>"
+  elseif &l:omnifunc != ''
     return "\<C-x>\<C-o>"
   elseif &l:completefunc != ''
     return "\<C-x>\<C-u>"
