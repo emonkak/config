@@ -53,7 +53,7 @@ local function is_treesitter_fold_enabled()
     and vim.api.nvim_get_option_value('foldexpr', { scope = 'local' }) == 'v:lua.vim.treesitter.foldexpr()'
 end
 
-vim.api.nvim_create_autocmd('Filetype', {
+vim.api.nvim_create_autocmd('FileType', {
   group = TREESITTER_CONFIG_AUGROUP,
   callback = function(args)
     if vim.treesitter.highlighter.active[args.buf] then
