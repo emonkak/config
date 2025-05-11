@@ -6,6 +6,22 @@
                 "parameters": { "mouse_motion_to_scroll.speed": 800 },
                 "rules": [
                     {
+                        "description": "Change left button + right button to middle button if these buttons are pressed simultaneously (rev 1)",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "modifiers": { "optional": ["any"] },
+                                    "simultaneous": [
+                                        { "pointing_button": "button1" },
+                                        { "pointing_button": "button2" }
+                                    ]
+                                },
+                                "to": [{ "pointing_button": "button5" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
                         "description": "Swap colon and semicolon",
                         "manipulators": [
                             {
