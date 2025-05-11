@@ -134,11 +134,12 @@ nnoremap ~  :cd ~<cr>
 nnoremap <wait> a  :touch<space>""<left>
 
 " Copy files to directory of other view
+noremap C  <nop>
+noremap CC  :copy!<cr>
 noremap cC  :copy!<cr>
 noremap cc  :copy<cr>
 
 " Duplicate selected files
-noremap C  <nop>
 noremap cd  C
 
 " Open the file by the editor
