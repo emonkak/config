@@ -1340,6 +1340,8 @@ call operator#user#define('search-backward',
 \                         'let v:searchforward = 0')
 
 function! s:operator_search(motion_wiseness) abort
+  " v:searchforward will be changed by setreg('/'), so we save it.
+  let search_forward = v:searchforward
   let reg_value = getreg('"')
   let reg_type = getregtype('0')
 
@@ -1352,7 +1354,7 @@ function! s:operator_search(motion_wiseness) abort
     call setreg('/', pattern)
     call histadd('/', pattern)
 
-    execute 'normal!' (v:searchforward ? 'n' : 'N')
+    execute 'normal!' (search_forward ? 'n' : 'N')
   finally
     call setreg('"', reg_value, reg_type)
   endtry
