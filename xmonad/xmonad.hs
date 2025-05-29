@@ -3,7 +3,7 @@ import Data.Map qualified as M
 import Data.Maybe (isJust)
 import Data.Monoid (All (..))
 import Graphics.X11.Xlib.Atom (internAtom)
-import Graphics.X11.Xlib.Extras (getWindowProperty8, getWindowProperty32)
+import Graphics.X11.Xlib.Extras (getWindowProperty32, getWindowProperty8)
 import Sound.Pulse.Pactl (listPulseCards, switchPulseCardProfile)
 import System.Exit (exitSuccess)
 import XMonad
@@ -42,7 +42,7 @@ myWorkspaces = map show [(1 :: Int) .. 9]
 
 myStatusbarHeight = 20
 
-myFont = "xft:Geist Mono:size=9"
+myFont = "xft:Sono:size=9"
 
 myPrimaryColor = "#5686d7"
 

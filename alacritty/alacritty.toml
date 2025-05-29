@@ -36,11 +36,11 @@ thickness = 0.25
 size = 9
 
 [font.normal]
-family = "Geist Mono"
+family = "Sono"
 
 [font.offset]
 x = 0
-y = 2
+y = 0
 
 [font.glyph_offset]
 x = 0
