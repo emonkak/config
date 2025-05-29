@@ -147,6 +147,10 @@ api.nvim_create_autocmd('LspAttach', {
       end
     end)
 
+    if client.server_capabilities.documentSymbolProvider then
+      require('lsp_fold').attach(args.buf)
+    end
+
     if api.nvim_win_get_buf(0) == args.buf then
       api.nvim_set_option_value('signcolumn', 'yes', { scope = 'local' })
     end
@@ -228,6 +232,8 @@ api.nvim_create_autocmd('LspDetach', {
     unmap('<LocalLeader>r')
     unmap('<LocalLeader>t')
     unmap('<LocalLeader><LocalLeader>')
+
+    require('lsp_fold').detach(args.buf)
 
     if api.nvim_win_get_buf(0) == args.buf then
       api.nvim_set_option_value('signcolumn', vim.o.signcolumn, {
