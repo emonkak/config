@@ -12,6 +12,7 @@ app-arch/zip
 app-containers/docker
 app-containers/docker-compose
 app-doc/php-docs
+app-editors/helix
 app-editors/hexedit
 app-editors/leafpad
 app-editors/neovim

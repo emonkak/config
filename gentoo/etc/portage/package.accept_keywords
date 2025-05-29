@@ -38,10 +38,7 @@ sys-fs/fuse-zip ~amd64
 sys-fs/rar2fs ~amd64
 sys-process/procs ~amd64
 virtual/rust ~amd64
-www-client/brave-bin ~amd64
-www-client/firefox-bin ~amd64
-www-client/google-chrome ~amd64
-www-client/jd ~amd64
+www-client/* ~amd64
 x11-apps/igt-gpu-tools ~amd64
 x11-misc/picom ~amd64
 x11-misc/polybar ~amd64
