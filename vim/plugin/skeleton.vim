@@ -38,14 +38,14 @@ endfunction
 
 augroup plugin-skeleton
   autocmd!
-  autocmd BufNewFile *  call s:on_BufNewFile()
+  autocmd FileType *  call s:on_FileType(expand('<amatch>'))
 augroup END
 
-function! s:on_BufNewFile()
+function! s:on_FileType(filetype)
   doautocmd <nomodeline> User PluginSkeletonDetect
 
-  if &l:filetype != '' && line('$') == 1 && col('$') == 1
-    silent execute 'SkeletonLoad' &l:filetype
+  if a:filetype != '' && line('$') == 1 && col('$') == 1
+    silent execute 'SkeletonLoad' a:filetype
   endif
 endfunction
 
