@@ -246,8 +246,8 @@ fileviewer {*.wav,*.mp3,*.flac,*.m4a,*.wma,*.ape,*.ac3,*.og[agx],*.spx,*.opus,
 
 " Videos
 filextype {*.3gp,*.as[fx],*.avi,*.dat,*.divx,*.fl[icv],*.m2v,*.m4v,*.mkv,
-          \*.mov,*.mp4,*.mpeg,*.mpg,*.mts,*.ogv,*.qt,*.r[am],*.ts,*.vob,
-          \*.webm,*.wmv},<video/*>
+          \*.mov,*.mp4,*.mpeg,*.mpg,*.mts,*.ogv,*.qt,*.r[am],*.vob,*.webm,
+          \*.wmv},<video/*>
         \ {Play using mpv} mpv %f,
         \ {Resample audio using ffmpeg}
         \ ffmpeg -hide_banner -i %c -vn -af aresample=async=1 %c:r.wav,
