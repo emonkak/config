@@ -1601,7 +1601,7 @@ nnoremap <silent> [Space]kM  :<C-u>call <SID>luis_start(luis#source#mark#new())<
 nnoremap <silent> [Space]kT  :<C-u>call <SID>luis_start(luis#source#tagstack#new(win_getid()))<CR>
 nnoremap <silent> [Space]k\  :<C-u>call <SID>luis_start(luis#source#history#new('expr'))<CR>
 nnoremap <silent> [Space]ka  :<C-u>call <SID>luis_start(luis#source#arglist#new())<CR>
-nnoremap <silent> [Space]kb  :<C-u>call <SID>luis_start(luis#source#buffer#new())<CR>
+nnoremap <silent> [Space]kb  :<C-u>call <SID>luis_start_buffer_in_recently_used_order()<CR>
 nnoremap <silent> [Space]kc  :<C-u>call <SID>luis_start_with_path(luis#source#file#new(), expand('%:h'))<CR>
 nnoremap <silent> [Space]kd  :<C-u>call <SID>luis_start(luis#source#lsp_document_symbol#new(bufnr('%')))<CR>
 nnoremap <silent> [Space]kf  :<C-u>call <SID>luis_start(luis#source#file#new())<CR>
@@ -1692,6 +1692,13 @@ function! s:luis_start_async_tags() abort  " {{{3
   \   'to_candidate': function('s:to_tag_candidate'),
   \ }
   let source = luis#source#async#new(name, kind, command, options)
+  return s:luis_start(source)
+endfunction
+
+function! s:luis_start_buffer_in_recently_used_order() abort  " {{{3
+  let source = luis#source#buffer#new({
+  \   'sort_priority': { bufinfo -> -bufinfo.lastused },
+  \ })
   return s:luis_start(source)
 endfunction
 
