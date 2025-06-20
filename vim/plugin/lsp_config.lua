@@ -14,8 +14,6 @@ null_ls.setup({
         'check',
         '--write',
         '--formatter-enabled=true',
-        'true',
-        '--skip-errors',
         '--stdin-file-path=$FILENAME',
       },
       condition = function(utils)
