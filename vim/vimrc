@@ -1063,6 +1063,9 @@ noremap [Space]  <Nop>
 nnoremap <silent> [Space]w  :<C-u>w<CR>
 nnoremap <silent> [Space]W  :<C-u>SudaWrite<CR>
 
+nnoremap <silent> [Space]m  :<C-u>marks<CR>
+nnoremap <silent> [Space]r  :<C-u>registers<CR>
+
 " Close temporary windows such as 'quickfix' or 'help'.
 nnoremap <silent> [Space]c  :<C-u>call <SID>close_temporary_windows()<CR>
 
