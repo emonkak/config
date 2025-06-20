@@ -1006,6 +1006,10 @@ endfunction
 
 " Insert mode  {{{2
 
+" Disable accidental key mappings.
+inoremap <C-@>  <Nop>
+inoremap <C-Space>  <Nop>
+
 " Basic mappings like GNU Emacs.
 inoremap <C-b>  <Left>
 inoremap <C-f>  <Right>
