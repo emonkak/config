@@ -847,39 +847,39 @@ noremap q  <Nop>
 nnoremap Q  q
 
 " For quickfix list.
-nnoremap <silent> qj  :cnext<CR>
-nnoremap <silent> qk  :cprevious<CR>
-nnoremap <silent> qr  :<C-u>crewind<CR>
-nnoremap <silent> qK  :<C-u>cfirst<CR>
-nnoremap <silent> qJ  :<C-u>clast<CR>
-nnoremap <silent> qfj  :<C-u>cnfile<CR>
-nnoremap <silent> qfk  :<C-u>cpfile<CR>
-nnoremap <silent> ql  :<C-u>clist<CR>
-nnoremap <silent> qq  :<C-u>cc<CR>
-nnoremap <silent> qo  :<C-u>copen<CR>
-nnoremap <silent> qc  :<C-u>cclose<CR>
-nnoremap <silent> qp  :<C-u>colder<CR>
-nnoremap <silent> qn  :<C-u>cnewer<CR>
-nnoremap <silent> qm  :<C-u>Make<CR>
+nnoremap <silent> qj  <Cmd>cnext<CR>
+nnoremap <silent> qk  <Cmd>cprevious<CR>
+nnoremap <silent> qr  <Cmd>crewind<CR>
+nnoremap <silent> qK  <Cmd>cfirst<CR>
+nnoremap <silent> qJ  <Cmd>clast<CR>
+nnoremap <silent> qfj  <Cmd>cnfile<CR>
+nnoremap <silent> qfk  <Cmd>cpfile<CR>
+nnoremap <silent> ql  <Cmd>clist<CR>
+nnoremap <silent> qq  <Cmd>cc<CR>
+nnoremap <silent> qo  <Cmd>copen<CR>
+nnoremap <silent> qc  <Cmd>cclose<CR>
+nnoremap <silent> qp  <Cmd>colder<CR>
+nnoremap <silent> qn  <Cmd>cnewer<CR>
+nnoremap <silent> qm  <Cmd>Make<CR>
 nnoremap qM  :<C-u>Make<Space>
 nnoremap q<Space>  :<C-u>Make<Space>
 nnoremap qg  :<C-u>Grep<Space>
 
 " For location list.
-nnoremap <silent> qwj  :lnext<CR>
-nnoremap <silent> qwk  :lprevious<CR>
-nnoremap <silent> qwr  :<C-u>lrewind<CR>
-nnoremap <silent> qwK  :<C-u>lfirst<CR>
-nnoremap <silent> qwJ  :<C-u>llast<CR>
-nnoremap <silent> qwfj  :<C-u>lnfile<CR>
-nnoremap <silent> qwfk  :<C-u>lpfile<CR>
-nnoremap <silent> qwl  :<C-u>llist<CR>
-nnoremap <silent> qwq  :<C-u>ll<CR>
-nnoremap <silent> qwo  :<C-u>lopen<CR>
-nnoremap <silent> qwc  :<C-u>close<CR>
-nnoremap <silent> qwp  :<C-u>lolder<CR>
-nnoremap <silent> qwn  :<C-u>lnewer<CR>
-nnoremap <silent> qwm  :<C-u>Lmake<CR>
+nnoremap <silent> qwj  <Cmd>lnext<CR>
+nnoremap <silent> qwk  <Cmd>lprevious<CR>
+nnoremap <silent> qwr  <Cmd>lrewind<CR>
+nnoremap <silent> qwK  <Cmd>lfirst<CR>
+nnoremap <silent> qwJ  <Cmd>llast<CR>
+nnoremap <silent> qwfj  <Cmd>lnfile<CR>
+nnoremap <silent> qwfk  <Cmd>lpfile<CR>
+nnoremap <silent> qwl  <Cmd>llist<CR>
+nnoremap <silent> qwq  <Cmd>ll<CR>
+nnoremap <silent> qwo  <Cmd>lopen<CR>
+nnoremap <silent> qwc  <Cmd>close<CR>
+nnoremap <silent> qwp  <Cmd>lolder<CR>
+nnoremap <silent> qwn  <Cmd>lnewer<CR>
+nnoremap <silent> qwm  <Cmd>Lmake<CR>
 nnoremap qwM  :<C-u>Lmake<Space>
 nnoremap qw<Space>  :<C-u>Lmake<Space>
 nnoremap qwg  :<C-u>LGrep<Space>
@@ -888,28 +888,28 @@ nnoremap qwg  :<C-u>LGrep<Space>
 
 noremap <C-t>  <Nop>
 
-nnoremap <silent> <C-t>n  :<C-u>tabnew \| :tabmove<CR>
-nnoremap <silent> <C-t>c  :<C-u>tabclose<CR>
-nnoremap <silent> <C-t>o  :<C-u>tabonly<CR>
-nnoremap <silent> <C-t>i  :<C-u>tabs<CR>
+nnoremap <silent> <C-t>n  <Cmd>tabnew \| :tabmove<CR>
+nnoremap <silent> <C-t>c  <Cmd>tabclose<CR>
+nnoremap <silent> <C-t>o  <Cmd>tabonly<CR>
+nnoremap <silent> <C-t>i  <Cmd>tabs<CR>
 
 nmap <C-t><C-n>  <C-t>n
 nmap <C-t><C-c>  <C-t>c
 nmap <C-t><C-o>  <C-t>o
 nmap <C-t><C-i>  <C-t>i
 
-nnoremap <silent> <C-t><Space>  :<C-u>TabpageTitle<CR>
+nnoremap <silent> <C-t><Space>  <Cmd>TabpageTitle<CR>
 
 nmap <silent> <C-t><C-@>  <C-t><Space>
 nmap <silent> <C-t><C-Space>  <C-t><Space>
 
 " Moving around tab pages.
 nnoremap <silent> <C-t>j
-\ :<C-u>execute 'tabnext' 1 + (tabpagenr() + v:count1 - 1) % tabpagenr('$')<CR>
+\ <Cmd>execute 'tabnext' 1 + (tabpagenr() + v:count1 - 1) % tabpagenr('$')<CR>
 nnoremap <silent> <C-t>k
-\ :<C-u>execute 'tabprevious' v:count1 % tabpagenr('$')<CR>
-nnoremap <silent> <C-t>K  :<C-u>tabfirst<CR>
-nnoremap <silent> <C-t>J  :<C-u>tablast<CR>
+\ <Cmd>execute 'tabprevious' v:count1 % tabpagenr('$')<CR>
+nnoremap <silent> <C-t>K  <Cmd>tabfirst<CR>
+nnoremap <silent> <C-t>J  <Cmd>tablast<CR>
 
 nmap <C-t><C-j>  <C-t>j
 nmap <C-t><C-k>  <C-t>k
@@ -922,10 +922,10 @@ endfor
 unlet s:i
 
 " Moving tabpages them selves.
-nnoremap <silent> <C-t>l  :<C-u>execute 'tabmove' '+'.v:count1<CR>
-nnoremap <silent> <C-t>h  :<C-u>execute 'tabmove' '-'.v:count1<CR>
-nnoremap <silent> <C-t>L  :<C-u>tabmove<CR>
-nnoremap <silent> <C-t>H  :<C-u>tabmove 0<CR>
+nnoremap <silent> <C-t>l  <Cmd>execute 'tabmove' '+'.v:count1<CR>
+nnoremap <silent> <C-t>h  <Cmd>execute 'tabmove' '-'.v:count1<CR>
+nnoremap <silent> <C-t>L  <Cmd>tabmove<CR>
+nnoremap <silent> <C-t>H  <Cmd>tabmove 0<CR>
 
 nmap <C-t><C-l>  <C-t>l
 nmap <C-t><C-h>  <C-t>h
@@ -934,13 +934,13 @@ nmap <C-t><C-h>  <C-t>h
 
 noremap <C-g>  <Nop>
 
-nnoremap <silent> <C-g>l  :args<CR>
-nnoremap <silent> <C-g>j  :next<CR>
-nnoremap <silent> <C-g>k  :previous<CR>
-nnoremap <silent> <C-g>J  :last<CR>
-nnoremap <silent> <C-g>K  :first<CR>
-nnoremap <silent> <C-g>wj  :wnext<CR>
-nnoremap <silent> <C-g>wk  :wprevious<CR>
+nnoremap <silent> <C-g>l  <Cmd>args<CR>
+nnoremap <silent> <C-g>j  <Cmd>next<CR>
+nnoremap <silent> <C-g>k  <Cmd>previous<CR>
+nnoremap <silent> <C-g>J  <Cmd>last<CR>
+nnoremap <silent> <C-g>K  <Cmd>first<CR>
+nnoremap <silent> <C-g>wj  <Cmd>wnext<CR>
+nnoremap <silent> <C-g>wk  <Cmd>wprevious<CR>
 nnoremap <C-g><Space>  :<C-u>args<Space>
 
 nmap <C-g><C-l>  <C-g>l
@@ -1060,14 +1060,14 @@ endfunction
 map <Space>  [Space]
 noremap [Space]  <Nop>
 
-nnoremap <silent> [Space]w  :<C-u>w<CR>
-nnoremap <silent> [Space]W  :<C-u>SudaWrite<CR>
+nnoremap <silent> [Space]w  <Cmd>w<CR>
+nnoremap <silent> [Space]W  <Cmd>SudaWrite<CR>
 
-nnoremap <silent> [Space]m  :<C-u>marks<CR>
-nnoremap <silent> [Space]r  :<C-u>registers<CR>
+nnoremap <silent> [Space]m  <Cmd>marks<CR>
+nnoremap <silent> [Space]r  <Cmd>registers<CR>
 
 " Close temporary windows such as 'quickfix' or 'help'.
-nnoremap <silent> [Space]c  :<C-u>call <SID>close_temporary_windows()<CR>
+nnoremap <silent> [Space]c  <Cmd>call <SID>close_temporary_windows()<CR>
 
 function! s:close_temporary_windows() abort
   let last_winnr = winnr('$')
@@ -1085,15 +1085,15 @@ function! s:close_temporary_windows() abort
 endfunction
 
 nnoremap [Space]o  <Nop>
-nnoremap <silent> [Space]oc  :<C-u>call <SID>toggle_colorcolumn()<CR>
-nnoremap <silent> [Space]og  :<C-u>call <SID>toggle_grepprg()<CR>
-nnoremap <silent> [Space]ol  :<C-u>call <SID>toggle_option('cursorline')<CR>
-nnoremap <silent> [Space]on  :<C-u>call <SID>toggle_option('number')<CR>
-nnoremap <silent> [Space]op  :<C-u>call <SID>toggle_option('paste')<CR>
-nnoremap <silent> [Space]os  :<C-u>call <SID>toggle_option('spell')<CR>
-nnoremap <silent> [Space]ow  :<C-u>call <SID>toggle_option('wrap')<CR>
+nnoremap <silent> [Space]oc  <Cmd>call <SID>toggle_colorcolumn()<CR>
+nnoremap <silent> [Space]og  <Cmd>call <SID>toggle_grepprg()<CR>
+nnoremap <silent> [Space]ol  <Cmd>call <SID>toggle_option('cursorline')<CR>
+nnoremap <silent> [Space]on  <Cmd>call <SID>toggle_option('number')<CR>
+nnoremap <silent> [Space]op  <Cmd>call <SID>toggle_option('paste')<CR>
+nnoremap <silent> [Space]os  <Cmd>call <SID>toggle_option('spell')<CR>
+nnoremap <silent> [Space]ow  <Cmd>call <SID>toggle_option('wrap')<CR>
 
-nnoremap <silent> [Space]/  :<C-u>call <SID>toggle_option('hlsearch')<CR>
+nnoremap <silent> [Space]/  <Cmd>call <SID>toggle_option('hlsearch')<CR>
 
 function! s:toggle_option(option_name) abort
   execute 'setlocal' a:option_name.'!'
@@ -1117,9 +1117,9 @@ endfunction
 nnoremap [Space]f  <Nop>
 nnoremap [Space]fe  :<C-u>setlocal fileencoding=
 nnoremap [Space]ff  :<C-u>setlocal fileformat=
-nnoremap [Space]fi  :<C-u>setlocal expandtab? shiftwidth? softtabstop?<CR>
+nnoremap [Space]fi  <Cmd>setlocal expandtab? shiftwidth? softtabstop?<CR>
 nnoremap [Space]fr  :<C-\>esetcmdpos(8 + strlen(expand('%:p:r'))) ? '' : 'Rename ' . expand("%:p")<CR>
-nnoremap [Space]fs  :<C-u>setlocal filetype? fileencoding? fileformat?<CR>
+nnoremap [Space]fs  <Cmd>setlocal filetype? fileencoding? fileformat?<CR>
 nnoremap [Space]ft  :<C-u>setfiletype<Space>
 
 nnoremap [Space]l  zo
@@ -1127,8 +1127,8 @@ nnoremap [Space]h  zc
 nnoremap [Space]H  zM
 nnoremap [Space]v  zMzv
 
-nnoremap <silent> [Space].  :<C-u>Source $MYVIMRC<CR>
-nnoremap <silent> [Space]%  :<C-u>Source %<CR>
+nnoremap <silent> [Space].  <Cmd>Source $MYVIMRC<CR>
+nnoremap <silent> [Space]%  <Cmd>Source %<CR>
 
 " Put the clipboard content.
 nnoremap [Space]p  "+p
@@ -1142,11 +1142,11 @@ xnoremap [Space]:  q:
 nnoremap <Tab>  <C-w>w
 nnoremap <S-Tab>  <C-w>W
 
-nnoremap <C-w>*  :<C-u>Split \| normal! *<CR>
-nnoremap <C-w>#  :<C-u>Split \| normal! #<CR>
+nnoremap <C-w>*  <Cmd>Split \| normal! *<CR>
+nnoremap <C-w>#  <Cmd>Split \| normal! #<CR>
 
-nnoremap <C-w>f  :<C-u>Split wincmd f<CR>
-nnoremap <C-w><C-f>  :<C-u>Split wincmd f<CR>
+nnoremap <C-w>f  <Cmd>Split wincmd f<CR>
+nnoremap <C-w><C-f>  <Cmd>Split wincmd f<CR>
 
 nnoremap <silent> <C-w>t
 \ :call <SID>move_window_into_tabpage(<SID>ask_tabpage_number())<CR>
@@ -1198,7 +1198,7 @@ function! s:move_window_into_tabpage(target_tabpagenr) abort
   execute target_tabpagenr 'tabnext'
 endfunction
 
-nnoremap <C-w>Q  :<C-u>quit!<CR>
+nnoremap <C-w>Q  <Cmd>quit!<CR>
 
 " Markring  {{{2
 
@@ -1267,11 +1267,11 @@ vnoremap a`  2i`
 
 " Select the last changed text.
 nnoremap gc  `[v`]h
-onoremap gc  :<C-u>normal! gc<CR>
-vnoremap gc  :<C-u>normal! gc<CR>
+onoremap gc  <Cmd>normal! gc<CR>
+vnoremap gc  <Cmd>normal! gc<CR>
 
 " Select the last selected text.
-onoremap <silent> gv  :<C-u>normal! gv<CR>
+onoremap <silent> gv  <Cmd>normal! gv<CR>
 
 " Operators  {{{2
 " operator-eval  {{{3
@@ -1429,7 +1429,7 @@ Arpeggio noremap oy  <Plug>(operator-yank-clipboard)
 " Command-line helpers.
 nnoremap <C-h>  :<C-u>Help<Space>
 nnoremap <C-o>  :<C-u>edit<Space>
-nnoremap <C-w>.  :<C-u>edit .<CR>
+nnoremap <C-w>.  <Cmd>edit .<CR>
 
 " x/X without register.
 nnoremap X  "_X
@@ -1449,7 +1449,7 @@ nnoremap ZZ  <Nop>
 nnoremap ZQ  <Nop>
 
 " The shortcut for :update.
-nnoremap <silent> <Leader><Leader>  :<C-u>update<CR>
+nnoremap <silent> <Leader><Leader>  <Cmd>update<CR>
 
 " Like o/O, but insert additional [count] blank lines.
 nnoremap <expr> <Plug>(arpeggio-default:o)
@@ -1485,7 +1485,7 @@ vnoremap <expr> <CR>  &l:filetype ==# 'qf' ? "\<CR>" : "\<C-]>"
 nnoremap <silent> \  .
 
 noremap <C-z>  <Nop>
-nnoremap <C-z>  :<C-u>SuspendWithAutomticCD<CR>
+nnoremap <C-z>  <Cmd>SuspendWithAutomticCD<CR>
 
 noremap <Leader>  <Nop>
 noremap <LocalLeader>  <Nop>
@@ -1608,34 +1608,34 @@ vmap gd  <Plug>(operator-grex-delete)
 " Mappings  {{{3
 
 nnoremap [Space]k  <Nop>
-nnoremap <silent> [Space]k/  :<C-u>call <SID>luis_start(luis#source#history#new('search'))<CR>
-nnoremap <silent> [Space]k:  :<C-u>call <SID>luis_start(luis#source#history#new('cmd'))<CR>
-nnoremap <silent> [Space]k;  :<C-u>call <SID>luis_start(luis#source#changelist#new(bufnr('%')))<CR>
-nnoremap <silent> [Space]kM  :<C-u>call <SID>luis_start(luis#source#mark#new())<CR>
-nnoremap <silent> [Space]kT  :<C-u>call <SID>luis_start(luis#source#tagstack#new(win_getid()))<CR>
-nnoremap <silent> [Space]k\  :<C-u>call <SID>luis_start(luis#source#history#new('expr'))<CR>
-nnoremap <silent> [Space]ka  :<C-u>call <SID>luis_start(luis#source#arglist#new())<CR>
-nnoremap <silent> [Space]kb  :<C-u>call <SID>luis_start_buffer_in_recently_used_order()<CR>
-nnoremap <silent> [Space]kc  :<C-u>call <SID>luis_start_with_path(luis#source#file#new(), expand('%:h'))<CR>
-nnoremap <silent> [Space]kd  :<C-u>call <SID>luis_start(luis#source#lsp_document_symbol#new(bufnr('%')))<CR>
-nnoremap <silent> [Space]kf  :<C-u>call <SID>luis_start(luis#source#file#new())<CR>
-nnoremap <silent> [Space]kg  :<C-u>call <SID>luis_start(luis#source#metarw#new('git'))<CR>
-nnoremap <silent> [Space]kh  :<C-u>call <SID>luis_start(luis#source#help#import())<CR>
-nnoremap <silent> [Space]ki  :<C-u>call <SID>luis_start(luis#source#history#new('input'))<CR>
-nnoremap <silent> [Space]kj  :<C-u>call <SID>luis_start(luis#source#jumplist#new(win_getid()))<CR>
-nnoremap <silent> [Space]kk  :<C-u>call <SID>luis_resume()<CR>
-nnoremap <silent> [Space]km  :<C-u>call <SID>luis_start(luis#source#local_mark#new(bufnr('%')))<CR>
-nnoremap <silent> [Space]kn  :<C-u>call <SID>luis_start_file_in_directory(expand("~/Sync/Documents/Notes"))<CR>
-nnoremap <silent> [Space]ko  :<C-u>call <SID>luis_start(luis#source#oldfiles#new())<CR>
-nnoremap <silent> [Space]kq  :<C-u>call <SID>luis_start(luis#source#quickfix#new())<CR>
-nnoremap <silent> [Space]kr  :<C-u>call <SID>luis_start(luis#source#register#new())<CR>
-nnoremap <silent> [Space]ks  :<C-u>call <SID>luis_start(luis#source#spell#import())<CR>
-nnoremap <silent> [Space]kw  :<C-u>call <SID>luis_start_workspace(expand('~/Sync/works'))<CR>
-nnoremap <silent> [Space]kz  :<C-u>call <SID>luis_start(luis#source#fold#new(win_getid()))<CR>
+nnoremap <silent> [Space]k/  <Cmd>call <SID>luis_start(luis#source#history#new('search'))<CR>
+nnoremap <silent> [Space]k:  <Cmd>call <SID>luis_start(luis#source#history#new('cmd'))<CR>
+nnoremap <silent> [Space]k;  <Cmd>call <SID>luis_start(luis#source#changelist#new(bufnr('%')))<CR>
+nnoremap <silent> [Space]kM  <Cmd>call <SID>luis_start(luis#source#mark#new())<CR>
+nnoremap <silent> [Space]kT  <Cmd>call <SID>luis_start(luis#source#tagstack#new(win_getid()))<CR>
+nnoremap <silent> [Space]k\  <Cmd>call <SID>luis_start(luis#source#history#new('expr'))<CR>
+nnoremap <silent> [Space]ka  <Cmd>call <SID>luis_start(luis#source#arglist#new())<CR>
+nnoremap <silent> [Space]kb  <Cmd>call <SID>luis_start_buffer_in_recently_used_order()<CR>
+nnoremap <silent> [Space]kc  <Cmd>call <SID>luis_start_with_path(luis#source#file#new(), expand('%:h'))<CR>
+nnoremap <silent> [Space]kd  <Cmd>call <SID>luis_start(luis#source#lsp_document_symbol#new(bufnr('%')))<CR>
+nnoremap <silent> [Space]kf  <Cmd>call <SID>luis_start(luis#source#file#new())<CR>
+nnoremap <silent> [Space]kg  <Cmd>call <SID>luis_start(luis#source#metarw#new('git'))<CR>
+nnoremap <silent> [Space]kh  <Cmd>call <SID>luis_start(luis#source#help#import())<CR>
+nnoremap <silent> [Space]ki  <Cmd>call <SID>luis_start(luis#source#history#new('input'))<CR>
+nnoremap <silent> [Space]kj  <Cmd>call <SID>luis_start(luis#source#jumplist#new(win_getid()))<CR>
+nnoremap <silent> [Space]kk  <Cmd>call <SID>luis_resume()<CR>
+nnoremap <silent> [Space]km  <Cmd>call <SID>luis_start(luis#source#local_mark#new(bufnr('%')))<CR>
+nnoremap <silent> [Space]kn  <Cmd>call <SID>luis_start_file_in_directory(expand("~/Sync/Documents/Notes"))<CR>
+nnoremap <silent> [Space]ko  <Cmd>call <SID>luis_start(luis#source#oldfiles#new())<CR>
+nnoremap <silent> [Space]kq  <Cmd>call <SID>luis_start(luis#source#quickfix#new())<CR>
+nnoremap <silent> [Space]kr  <Cmd>call <SID>luis_start(luis#source#register#new())<CR>
+nnoremap <silent> [Space]ks  <Cmd>call <SID>luis_start(luis#source#spell#import())<CR>
+nnoremap <silent> [Space]kw  <Cmd>call <SID>luis_start_workspace(expand('~/Sync/works'))<CR>
+nnoremap <silent> [Space]kz  <Cmd>call <SID>luis_start(luis#source#fold#new(win_getid()))<CR>
 
 if executable('fzf-filter')
-  nnoremap <silent> [Space]kl  :<C-u>call <SID>luis_start_async_files()<CR>
-  nnoremap <silent> [Space]kt  :<C-u>call <SID>luis_start_async_tags()<CR>
+  nnoremap <silent> [Space]kl  <Cmd>call <SID>luis_start_async_files()<CR>
+  nnoremap <silent> [Space]kt  <Cmd>call <SID>luis_start_async_tags()<CR>
 endif
 
 let s:luis_last_session = 0
@@ -1934,8 +1934,8 @@ endfunction
 nmap <silent> K  <Plug>(ref-keyword)
 vmap <silent> K  <Plug>(ref-keyword)
 
-nnoremap <silent> <Leader>a  :<C-u>call ref#jump('normal', 'alc')<CR>
-vnoremap <silent> <Leader>a  :<C-u>call ref#jump('visual', 'alc')<CR>
+nnoremap <silent> <Leader>a  <Cmd>call ref#jump('normal', 'alc')<CR>
+vnoremap <silent> <Leader>a  <Cmd>call ref#jump('visual', 'alc')<CR>
 
 AlterCommand ref  Ref
 
@@ -2112,11 +2112,11 @@ call submode#map('undo/redo', 'n', '', '+', 'g+')
 
 call submode#enter_with(
 \   'winsize', 'n', '', '<C-w><Space>',
-\   ':<C-u>call ' . s:SID_PREFIX . 'submode_winsize()<CR>'
+\   '<Cmd>call ' . s:SID_PREFIX . 'submode_winsize()<CR>'
 \ )
 call submode#enter_with(
 \   'winsize', 'n', '', '<C-w><C-@>',
-\   ':<C-u>call ' . s:SID_PREFIX . 'submode_winsize()<CR>'
+\   '<Cmd>call ' . s:SID_PREFIX . 'submode_winsize()<CR>'
 \ )
 
 function! s:submode_winsize() abort
@@ -2165,7 +2165,7 @@ let g:surround_obj_objects = {
 
 " table-mode  {{{2
 
-nnoremap <silent> [Space]ot  :<C-u>TableModeToggle<CR>
+nnoremap <silent> [Space]ot  <Cmd>TableModeToggle<CR>
 
 " Fin.  {{{1
 
