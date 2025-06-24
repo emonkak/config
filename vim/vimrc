@@ -1490,9 +1490,20 @@ nnoremap <C-z>  :<C-u>SuspendWithAutomticCD<CR>
 noremap <Leader>  <Nop>
 noremap <LocalLeader>  <Nop>
 
-" A shortcut for :substitute
-nnoremap gs  :%s/<C-r>=expand('<cword>')<CR>//gI<Left><Left><Left>
-vnoremap gs  :s/<C-r>=expand('<cword>')<CR>//gI<Left><Left><Left>
+" Map a shortcut for :substitute.
+nnoremap gs  :<C-u>%s/\V<C-r>=<SID>get_cursor_word_pattern()<CR>//gI<Left><Left><Left>
+vnoremap gs
+\ :<C-u>%s/\V<C-r>=<SID>get_visual_selection_pattern()<CR>//gI<Left><Left><Left>
+
+function! s:get_cursor_word_pattern() abort
+  return escape(expand('<cword>'), '/\')
+endfunction
+
+function! s:get_visual_selection_pattern() abort
+  let lines = getregion(getpos("'<"), getpos("'>"))
+  call map(lines, { _, line -> escape(line, '/\') })
+  return join(lines, '\\n')
+endfunction
 
 " Filetypes  {{{1
 " All filetypes   {{{2
