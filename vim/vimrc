@@ -1281,7 +1281,7 @@ call operator#user#define('eval',
 
 function! s:operator_eval(motion_wiseness) abort
   let reg_value = getreg('"')
-  let reg_type = getregtype('0')
+  let reg_type = getregtype('"')
   try
     let visual_command =
     \   operator#user#visual_command_from_wise_name(a:motion_wiseness)
@@ -1326,7 +1326,7 @@ call operator#user#define('multiply',
 
 function! s:operator_multiply(motion_wiseness) abort
   let reg_value = getreg('"')
-  let reg_type = getregtype('0')
+  let reg_type = getregtype('"')
   try
     let visual_command =
     \   operator#user#visual_command_from_wise_name(a:motion_wiseness)
@@ -1352,7 +1352,7 @@ function! s:operator_search(motion_wiseness) abort
   " v:searchforward will be changed by setreg('/'), so we save it.
   let search_forward = v:searchforward
   let reg_value = getreg('"')
-  let reg_type = getregtype('0')
+  let reg_type = getregtype('"')
 
   try
     let visual_command =
