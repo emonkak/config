@@ -1934,8 +1934,8 @@ endfunction
 nmap <silent> K  <Plug>(ref-keyword)
 vmap <silent> K  <Plug>(ref-keyword)
 
-nnoremap <silent> <Leader>a  <Cmd>call ref#jump('normal', 'alc')<CR>
-vnoremap <silent> <Leader>a  <Cmd>call ref#jump('visual', 'alc')<CR>
+nnoremap <silent> <Leader>a  :<C-u>call ref#jump('normal', 'alc')<CR>
+vnoremap <silent> <Leader>a  :<C-u>call ref#jump('visual', 'alc')<CR>
 
 AlterCommand ref  Ref
 
