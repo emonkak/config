@@ -2,8 +2,6 @@ import Control.Monad (filterM)
 import Data.Map qualified as M
 import Data.Maybe (isJust)
 import Data.Monoid (All (..))
-import Graphics.X11.Xlib.Atom (internAtom)
-import Graphics.X11.Xlib.Extras (getWindowProperty32, getWindowProperty8)
 import Sound.Pulse.Pactl (listPulseCards, switchPulseCardProfile)
 import System.Exit (exitSuccess)
 import XMonad
@@ -12,11 +10,9 @@ import XMonad.Actions.FloatSnap
 import XMonad.Actions.Promote
 import XMonad.Actions.Submap
 import XMonad.Actions.ToggleFullFloat
-import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
-import XMonad.Hooks.SetWMName
 import XMonad.Hooks.StatusBar
 import XMonad.Hooks.UrgencyHook
 import XMonad.Layout.Gaps
