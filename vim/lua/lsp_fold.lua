@@ -3,7 +3,7 @@ local TYPE_END = 2
 
 local SymbolKind = vim.lsp.protocol.SymbolKind
 
-local augroup = vim.api.nvim_create_augroup('LSPFold', {})
+local LSP_FOLD_AUGROUP = vim.api.nvim_create_augroup('LSPFold', {})
 
 local fold_states = {}
 
@@ -76,7 +76,7 @@ local function request_update_fold(bufnr)
       return
     end
     vim.api.nvim_create_autocmd('InsertLeave', {
-      group = augroup,
+      group = LSP_FOLD_AUGROUP,
       buffer = bufnr,
       once = true,
       callback = function()
@@ -213,6 +213,7 @@ function M.attach(bufnr)
   fold_states[bufnr] = state
 
   local changedtick = vim.api.nvim_buf_get_changedtick(bufnr)
+
   configure_fold_options(bufnr)
   get_document_symboles(bufnr, state, changedtick)
 end

@@ -1549,6 +1549,30 @@ autocmd MyAutoCmd BufReadPost *
 \ |   execute "normal! g`\"zv"
 \ | endif
 
+" Restore last enabled fold options in the buffer.
+autocmd MyAutoCmd BufWinEnter *
+\ call s:preserve_fold_options()
+
+function! s:preserve_fold_options() abort
+  if &l:foldenable && &l:foldmethod ==# 'expr'
+    let b:last_fold_options = {
+    \   'foldenable': &l:foldenable,
+    \   'foldexpr': &l:foldexpr,
+    \   'foldmethod': &l:foldmethod,
+    \   'foldminlines': &l:foldminlines,
+    \   'foldnestmax': &l:foldnestmax,
+    \   'foldtext': &l:foldtext
+    \ }
+  else
+    if exists('b:last_fold_options')
+      let bufnr = bufnr()
+      for [key, value] in items(b:last_fold_options)
+        call setbufvar(bufnr, '&' . key, value)
+      endfor
+    endif
+  endif
+endfunction
+
 " Avoid to set `filetype` twice.
 let g:ft_ignore_pat = '^\(ebuild\|eclass\)$'
 
