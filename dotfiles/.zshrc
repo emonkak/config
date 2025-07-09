@@ -130,6 +130,7 @@ alias ffprobe='ffprobe -hide_banner'
 alias g='git'
 alias git='noglob git'
 alias grep='grep --color --binary-files=without-match --perl-regexp'
+alias gs='echo "zsh: command is disabled by user: gs" >&2; return 127'
 alias http-server='python3 -m http.server'
 if which xclip &>/dev/null
 then
