@@ -133,13 +133,11 @@ net-dns/bind-tools
 net-dns/dog
 net-firewall/nftables
 net-fs/samba
-net-im/skypeforlinux
 net-misc/aria2
 net-misc/bridge-utils
 net-misc/chrony
 net-misc/gnome-connections
 net-misc/rdesktop
-net-misc/rpiplay
 net-misc/sping
 net-misc/telnet-bsd
 net-misc/tigervnc
@@ -237,5 +235,6 @@ x11-terms/alacritty
 x11-terms/wezterm
 x11-themes/adwaita-icon-theme
 x11-themes/adwaita-qt
+x11-themes/sound-theme-freedesktop
 x11-themes/vanilla-dmz-xcursors
 x11-wm/fluxbox
