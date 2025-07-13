@@ -1,14 +1,14 @@
 let g:google_translate#tkk = [0, 0]
 
-function! google_translate#translate(from, to, text) abort
+function! google_translate#translate(source_language, target_language, text) abort
   let url = 'https://translate.google.com/translate_a/single'
   let query = {
   \   'client': 'gtx',
   \   'dt': 't',
   \   'q': a:text,
-  \   'sl': a:from,
+  \   'sl': a:source_language,
   \   'tk': join(google_translate#generate_tk(a:text, g:google_translate#tkk), '.'),
-  \   'tl': a:to,
+  \   'tl': a:target_language,
   \ }
   let response = webapi#http#get(url, query)
 
