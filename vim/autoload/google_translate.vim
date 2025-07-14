@@ -1,7 +1,7 @@
 let g:google_translate#tkk = [0, 0]
 
 function! google_translate#translate(source_language, target_language, text) abort
-  let url = 'https://translate.google.com/translate_a/single'
+  let url = 'https://translate.googleapis.com/translate_a/single'
   let query = {
   \   'client': 'gtx',
   \   'dt': 't',
