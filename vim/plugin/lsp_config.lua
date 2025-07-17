@@ -89,6 +89,20 @@ if lsp.config then
       end
     end,
     workspace_required = true,
+    settings = {
+      vtsls = {
+        javascript = {
+          format = {
+            indentSize = 2,
+          },
+        },
+        typescript = {
+          format = {
+            indentSize = 2,
+          },
+        },
+      },
+    },
     on_attach = function(client, bufnr)
       vim.bo[bufnr].formatexpr = nil
       client.server_capabilities.documentFormattingProvider = false
