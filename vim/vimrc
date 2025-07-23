@@ -390,7 +390,7 @@ function! s:cmd_BufSweap(banged) abort
   \                 && (bufname(v:val) == "" || !filereadable(bufname(v:val)))
   \                 && (a:banged || !getbufvar(v:val, "&modified"))')
   for bufnr in bufnrs
-    silent execute bufnr 'bdelete' . (a:banged ? '!' : '')
+    silent execute bufnr 'bwipeout' . (a:banged ? '!' : '')
   endfor
   echo len(bufnrs) 'buffer(s) are deleted'
 endfunction
