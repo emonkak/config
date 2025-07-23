@@ -1,4 +1,4 @@
-export FZF_DEFAULT_OPTS=--color=\
+export FZF_DEFAULT_OPTS=--reverse\ --color=\
 query:regular:-1,\
 input:regular:-1,\
 disabled:regular:gray,\
