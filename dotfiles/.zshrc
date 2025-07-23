@@ -243,7 +243,17 @@ fi
 
 # compinit  #{{{2
 
-autoload -Uz compinit && compinit -u
+autoload -Uz compinit
+
+# Only update the completion cache once a day.
+if [[ -n $(echo ~/.zcompdump(Nmh+24)) ]]
+then
+  compinit
+  touch ~/.zcompdump
+else
+  # Omit the checking to see if there are new functions.
+  compinit -C
+fi
 
 zstyle ':completion:*' completer _complete _expand _ignored _match _oldlist _prefix
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
