@@ -158,9 +158,6 @@
 	path = vim/pack/plugins/start/operator-camelize.vim
 	url = https://github.com/tyru/operator-camelize.vim.git
 	ignore = dirty
-[submodule "dotfiles/.zsh/zsh-syntax-highlighting"]
-	path = dotfiles/.zsh/zsh-syntax-highlighting
-	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
 [submodule "vim/pack/plugins/start/vim-javascript"]
 	path = vim/pack/plugins/start/vim-javascript
 	url = https://github.com/pangloss/vim-javascript.git
@@ -185,3 +182,6 @@
 [submodule "mpv/modules/uosc"]
 	path = mpv/modules/uosc
 	url = https://github.com/tomasklaen/uosc.git
+[submodule "dotfiles/.zsh/fast-syntax-highlighting"]
+	path = dotfiles/.zsh/fast-syntax-highlighting
+	url = https://github.com/zdharma-continuum/fast-syntax-highlighting
