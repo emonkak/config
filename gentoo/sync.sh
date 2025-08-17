@@ -27,6 +27,7 @@ rsync \
 /etc/fstab
 /etc/portage/
 /etc/samba/smb.conf
+/etc/syslog-ng/syslog-ng.conf
 /etc/udev/rules.d/
 /etc/udev/update-keymap.sh
 /usr/src/linux/.config
