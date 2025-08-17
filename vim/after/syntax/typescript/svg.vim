@@ -16,7 +16,7 @@ call s:include_svg_syntax()
 
 syntax region typescriptSVGTemplate
 \ matchgroup=String
-\ start='\%(\K\k*\.\|\<\)svg\s*`'hs=e
+\ start='\%([\K$]\k*\.\)\?svg\s*`'hs=e
 \ skip='\\`'
 \ end='`'
 \ contains=@typescriptSVGSyntax,typescriptSVGTemplateHole

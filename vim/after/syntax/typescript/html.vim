@@ -20,7 +20,7 @@ call s:include_html_syntax()
 
 syntax region typescriptHTMLTemplate
 \ matchgroup=String
-\ start='\%(\K\k*\.\|\<\)html\s*`'hs=e
+\ start='\%([\K$]\k*\.\)\?html\s*`'hs=e
 \ skip='\\`'
 \ end='`'
 \ contains=@typescriptHTMLSyntax,typescriptHTMLTemplateHole
