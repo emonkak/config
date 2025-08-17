@@ -7,6 +7,8 @@ local TREESITTER_CONFIG_AUGROUP = vim.api.nvim_create_augroup('MyTreesitterConfi
 require('nvim-treesitter.configs').setup({
   ensure_installed = {
     'css',
+    'diff',
+    'gitcommit',
     'html',
     'javascript',
     'lua',
