@@ -36,7 +36,7 @@ if lsp.config then
   lsp.config['haskell-language-server'] = {
     cmd = { 'haskell-language-server-wrapper', '--lsp' },
     filetypes = { 'haskell', 'lhaskell' },
-    root_markers = { '.git', 'Setup.hs', 'stack.yml' },
+    root_markers = { 'Setup.hs' },
     workspace_required = true,
     settings = {
       ['rust-analyzer'] = {
@@ -52,14 +52,14 @@ if lsp.config then
   lsp.config.phpactor = {
     cmd = { 'phpactor', 'language-server' },
     filetypes = { 'php' },
-    root_markers = { '.git', 'composer.json' },
+    root_markers = { 'composer.json' },
     workspace_required = true,
   }
 
   lsp.config['rust-analyzer'] = {
     cmd = { 'rust-analyzer' },
     filetypes = { 'rust' },
-    root_markers = { '.git', 'Cargo.toml' },
+    root_markers = { 'Cargo.toml' },
     workspace_required = true,
     settings = {
       ['rust-analyzer'] = {
@@ -85,7 +85,7 @@ if lsp.config then
       if #vim.fs.find('.flowconfig', { upward = true, path = path }) > 0 then
         callback(nil)
       else
-        callback(vim.fs.root(path, { '.git', 'package.json' }))
+        callback(vim.fs.root(path, { 'package.json' }))
       end
     end,
     workspace_required = true,
