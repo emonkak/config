@@ -1,7 +1,12 @@
 #!/sbin/nft -f
 
 table inet firewall
+table ip nat
+
 delete table inet firewall
+delete table ip nat
+
+include "firewall-raspberrypi.private.nft"
 
 table inet firewall {
 	chain input {
@@ -10,28 +15,31 @@ table inet firewall {
 		ip frag-off & 0x1fff != 0 counter drop comment "early drop fragmented packets"
 		iif != lo ip daddr 127.0.0.1/8 counter drop comment "drop connections to loopback not coming from loopback"
 		iif != lo ip6 daddr ::1/128 counter drop comment "drop connections to loopback not coming from loopback"
-		udp dport 5353 ip daddr 224.0.0.251 ip saddr { 127.0.0.1, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 } counter accept comment "accept multicast DNS"
-		udp dport 5353 ip6 daddr ff02::FB ip6 saddr { ::1/128, fe80::/10 } counter accept comment "accept multicast DNS"
-		ip daddr { 255.255.255.255, 224.0.0.0/4 } counter drop
-		ip6 daddr FF00::/8 counter drop
 		iif lo accept
-		ip daddr 192.168.0.0/16 counter accept
-		ip protocol icmp counter accept
-		ip6 nexthdr icmpv6 counter accept
+		ip saddr 0.0.0.0 ip daddr 255.255.255.255 udp sport 68 udp dport 67 counter accept comment "accept DHCPDISCOVER"
+		ip saddr { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 } counter accept
+		ip protocol icmp counter drop comment "drop ICMP from WAN"
+		ip6 saddr fe80::/10 counter accept
+		ip6 nexthdr icmpv6 counter drop comment "drop ICMPv6 from WAN"
+		tcp dport 22 ip saddr $ssh_allowed_ips counter accept
 		ct state { established, related } counter accept
-		tcp dport { 60000, 60001 } counter accept
-		udp dport { 60000, 60001 } counter accept
-		log prefix "nft: dropped input: " counter
+		log prefix "nft.input.drop: " counter
 	}
 
 	chain forward {
 		type filter hook forward priority 0; policy drop;
-		iifname { "docker0", "eth0" } counter accept
-		log prefix "nft: dropped forward: " counter
+		log prefix "nft.forward.drop: " counter
 	}
 
 	chain output {
 		type filter hook output priority 0; policy accept;
 		counter
+	}
+}
+
+table ip nat {
+	chain prerouting {
+		type nat hook prerouting priority 0;
+		tcp dport $ssh_port log prefix "nft.prerouting.ssh: " redirect to :22
 	}
 }
