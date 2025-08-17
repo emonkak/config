@@ -72,7 +72,3 @@ def_key "left"
 
 def_key "right"
   seek_forward
-
-def_key "space"
-  select_item
-  scroll_down
