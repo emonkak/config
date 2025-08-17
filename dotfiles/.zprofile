@@ -40,12 +40,6 @@ then
   PATH="$GOPATH/bin:$PATH:"
 fi
 
-if [ -d "$HOME/android_sdk" ]
-then
-  export ANDROID_SDK_ROOT="$HOME/android_sdk"
-  PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH:"
-fi
-
 if which ruby >/dev/null && which gem >/dev/null
 then
   PATH="$(ruby -r rubygems -e 'puts Gem.user_dir')/bin:$PATH"
