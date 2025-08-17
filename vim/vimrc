@@ -1576,6 +1576,10 @@ endfunction
 " Avoid to set `filetype` twice.
 let g:ft_ignore_pat = '^\(ebuild\|eclass\)$'
 
+" JSON  {{{2
+
+let g:vim_json_conceal = 0
+
 " PHP  {{{2
 
 let g:PHP_vintage_case_default_indent = 1
@@ -1600,7 +1604,7 @@ let g:is_bash = 1
 " Disable continuation line indent.
 let g:vim_indent_cont = 0
 
-" Disable Lua embedding, since this is buggy.
+" Disable Lua embedding, because this is buggy.
 let g:vimsyn_embed = ''
 
 " Plugins  {{{1
