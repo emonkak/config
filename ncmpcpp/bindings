@@ -58,14 +58,20 @@ def_key "N"
 def_key "ctrl-b"
   page_up
 
+def_key "ctrl-d"
+  scroll_down_album
+
 def_key "ctrl-f"
   page_down
 
+def_key "ctrl-n"
+  scroll_down
+
+def_key "ctrl-p"
+  scroll_up
+
 def_key "ctrl-u"
   scroll_up_album
-
-def_key "ctrl-d"
-  scroll_down_album
 
 def_key "left"
   seek_backward
