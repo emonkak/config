@@ -8,7 +8,7 @@
 	dc = diff --find-copies --cached
 	ds = diff --find-copies --cached HEAD^
 	fix = commit --amend --verbose
-	fixup = "!f() { if [[ $# -gt 0 ]]; then git commit --fixup $1; else git log -n 50 --pretty=format:\"%h %s\" --no-merges | fzf | awk \"{print \\$1}\" | xargs -o git commit --fixup; fi; }; f"
+	fixup = "!f() { if [[ $# -gt 0 ]]; then git commit --fixup $1; else local hash=$(git log -n 50 --pretty=format:\"%h %s\" --no-merges | fzf | awk \"{print \\$1}\"); git commit --fixup \"$hash\" && git rebase --autosquash \"$hash~1\"; fi; }; f"
 	l = log --decorate --source --branches --tags --abbrev-commit
 	lg = log --graph --pretty=oneline --decorate --source --branches --tags --abbrev-commit
 	ls = ls-files
