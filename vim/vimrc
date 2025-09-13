@@ -1491,9 +1491,9 @@ noremap <Leader>  <Nop>
 noremap <LocalLeader>  <Nop>
 
 " Map a shortcut for :substitute.
-nnoremap gs  :<C-u>%s/\V<C-r>=<SID>get_cursor_word_pattern()<CR>//gI<Left><Left><Left>
+nnoremap gs  :<C-u>%s/\V\<<C-r>=<SID>get_cursor_word_pattern()<CR>\>//gI<Left><Left><Left>
 vnoremap gs
-\ :<C-u>%s/\V<C-r>=<SID>get_visual_selection_pattern()<CR>//gI<Left><Left><Left>
+\ :<C-u>%s/\V\<<C-r>=<SID>get_visual_selection_pattern()<CR>\>//gI<Left><Left><Left>
 
 function! s:get_cursor_word_pattern() abort
   return escape(expand('<cword>'), '/\')
