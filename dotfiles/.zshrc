@@ -348,8 +348,8 @@ then
   zle -N fzf-cdr
   zle -N fzf-history
 
-  bindkey '^Xc' fzf-cdr
-  bindkey '^X^c' fzf-cdr
+  bindkey '^Xd' fzf-cdr
+  bindkey '^X^d' fzf-cdr
   bindkey '^Xh' fzf-history
   bindkey '^X^h' fzf-history
 fi
