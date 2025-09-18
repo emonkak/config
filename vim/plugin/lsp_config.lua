@@ -159,7 +159,8 @@ api.nvim_create_autocmd('LspAttach', {
       end
     end)
 
-    if client.server_capabilities.documentSymbolProvider then
+    if client.server_capabilities.documentSymbolProvider
+      and vim.api.nvim_get_option_value('foldmethod', { scope = 'local' }) ~= 'expr' then
       require('lsp_fold').attach(args.buf)
     end
 
