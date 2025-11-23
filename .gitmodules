@@ -182,6 +182,3 @@
 [submodule "mpv/modules/uosc"]
 	path = mpv/modules/uosc
 	url = https://github.com/tomasklaen/uosc.git
-[submodule "dotfiles/.zsh/fast-syntax-highlighting"]
-	path = dotfiles/.zsh/fast-syntax-highlighting
-	url = https://github.com/zdharma-continuum/fast-syntax-highlighting

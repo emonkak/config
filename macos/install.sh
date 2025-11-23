@@ -36,8 +36,7 @@ install-brew-formulas() {
     ripgrep \
     tig \
     tmux \
-    tree \
-    zsh
+    tree
 }
 
 install-brew-casks() {
