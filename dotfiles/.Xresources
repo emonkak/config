@@ -1,5 +1,3 @@
-! My Xresources
-
 Xft.antialias: true
 Xft.autohint: false
 Xft.hinting: false
