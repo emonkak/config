@@ -1,5 +1,9 @@
 #!/bin/sh
 
+export LANG='en_US.UTF-8'
+export LC_MESSAGES='C'
+export LC_TIME='C'
+
 export BROWSER='microsoft-edge-stable'
 export QT_QPA_PLATFORMTHEME=qt5ct
 export QT_STYLE_OVERRIDE=adwaita-dark
