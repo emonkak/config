@@ -2,9 +2,11 @@
 
 set -o errexit -o nounset
 
-cabal build
+GHCUP=~/.ghcup/bin/ghcup
 
-bin="$(cabal list-bin xmonad)"
+${GHCUP} run cabal build
+
+bin="$(${GHCUP} run cabal list-bin xmonad)"
 
 if [ -n "${1-}" ] && [ -f "${bin}" ]
 then
