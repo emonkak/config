@@ -53,7 +53,7 @@ if status --is-login
 
   if test -d ~/.local/share/pnpm 
     set --global --export PNPM_HOME ~/.local/share/pnpm
-    fish_add_path "$PNPM_HOME/bin"
+    fish_add_path "$PNPM_HOME"
   end
 
   if type --query brew
