@@ -2,6 +2,8 @@
 
 set -o errexit -o nounset
 
+export PATH=~/.ghcup/bin:$PATH
+
 GHCUP=~/.ghcup/bin/ghcup
 
 ${GHCUP} run cabal build
