@@ -121,9 +121,13 @@ function fish_right_prompt
   echo -n -s (set_color white) (date '+%T')
 end
 
+function fish_user_key_bindings
+  bind -M default \cn down-or-prefix-search
+  bind -M default \cp up-or-prefix-search
+end
+
 # Abbreviations  {{{1
 
-# Single key
 abbr --add - 'cd -'
 abbr --add c command
 abbr --add g git
@@ -143,12 +147,11 @@ abbr --add lla 'ls -la'
 
 # Aliases  {{{1
 
-# Coreutils
 alias cp 'cp --interactive --verbose'
 alias ln 'ln --interactive --verbose'
 if type --query eza
   alias ls 'eza --classify --group --time-style=long-iso'
-else if type -q vdir # It is only available in GNU coreutils.
+else if type -q vdir # It is only available in GNU coreutils
   alias ls 'ls --classify --human-readable --color=auto --time-style=long-iso --show-control-chars'
 else
   alias ls 'ls -FGh'
@@ -169,13 +172,6 @@ end
 if not type --query pbcopy && type --query xclip
   alias pbcopy 'xclip -i -selection clipboard'
   alias pbpaste 'xclip -o -selection clipboard'
-end
-
-# Bindings  {{{1
-
-function fish_user_key_bindings
-  bind -M default \cn down-or-prefix-search
-  bind -M default \cp up-or-prefix-search
 end
 
 # Plugins  {{{1
