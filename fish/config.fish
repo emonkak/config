@@ -101,7 +101,7 @@ function fish_prompt
   end
 
   set --local cwd_prompt ' ' (prompt_pwd --full-length-dirs=8)
-  set --local vcs_prompt  (fish_vcs_prompt)
+  set --local vcs_prompt (fish_vcs_prompt)
   set --local status_prompt
 
   if test $last_status -ne 0
