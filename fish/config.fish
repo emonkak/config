@@ -171,6 +171,13 @@ if not type --query pbcopy && type --query xclip
   alias pbpaste 'xclip -o -selection clipboard'
 end
 
+# Bindings  {{{1
+
+function fish_user_key_bindings
+  bind -M default \cn down-or-prefix-search
+  bind -M default \cp up-or-prefix-search
+end
+
 # Plugins  {{{1
 # fzf   {{{2
 
