@@ -1,6 +1,11 @@
 set commit-order = topo
 set tab-size = 4
 
+color cursor default green bold
+color cursor-blur default green bold
+color title-blur default blue
+color title-focus default blue bold
+
 bind generic g move-first-line
 bind generic G move-last-line
 
