@@ -72,6 +72,7 @@ set --unexport fish_greeting
 
 function fish_prompt
   set --local user_color
+  set --local host_color
   set --local prompt_character
   set --local last_status $status
 
@@ -83,9 +84,15 @@ function fish_prompt
     set prompt_character '$'
   end
 
+  if test -n "$SSH_CONNECTION"
+    set host_color (set_color cyan)
+  else
+    set host_color (set_color white)
+  end
+
   set --local level $SHLVL
 
-  if test -n $TMUX
+  if test -n "$TMUX"
     set level (math $level - 1)
   end
 
@@ -103,7 +110,7 @@ function fish_prompt
 
   echo -n -s \
     $user_color $USER \
-    (set_color cyan) @ $hostname \
+    $host_color @ $hostname \
     (set_color yellow) $cwd_prompt \
     (set_color blue) $vcs_prompt \
     (set_color red) $status_prompt \n \
