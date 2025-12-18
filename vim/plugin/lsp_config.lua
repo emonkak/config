@@ -19,15 +19,7 @@ null_ls.setup({
       condition = function(utils)
         return utils.root_has_file({ 'biome.json' })
       end,
-      filetypes = {
-        'css',
-        'javascript',
-        'javascriptreact',
-        'json',
-        'typescript',
-        'typescriptreact',
-      },
-      temp_dir = '/tmp',
+      prefer_local = 'node_modules/.bin',
     }),
   },
 })
@@ -75,11 +67,11 @@ if lsp.config then
   lsp.config.vtsls = {
     cmd = { 'vtsls', '--stdio' },
     filetypes = {
-        'javascript',
-        'javascriptreact',
-        'typescript',
-        'typescriptreact',
-      },
+      'javascript',
+      'javascriptreact',
+      'typescript',
+      'typescriptreact',
+    },
     root_dir = function(bufnr, callback)
       local path = api.nvim_buf_get_name(bufnr)
       if #vim.fs.find('.flowconfig', { upward = true, path = path }) > 0 then
@@ -132,9 +124,6 @@ api.nvim_create_autocmd('LspAttach', {
   group = LSP_CONFIG_AUGROUP,
   callback = function(args)
     local client = lsp.get_client_by_id(args.data.client_id)
-    if client.name == 'null-ls' then
-      return
-    end
 
     local map = function(lhs, rhs)
       vim.keymap.set('n', lhs, rhs, { buffer = args.buf })
