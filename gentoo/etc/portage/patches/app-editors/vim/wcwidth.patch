@@ -1,6 +1,8 @@
+diff --git a/src/mbyte.c b/src/mbyte.c
+index 325527725..d93eedd87 100644
 --- a/src/mbyte.c
 +++ b/src/mbyte.c
-@@ -1588,6 +1588,20 @@ utf_char2cells(int c)
+@@ -1582,6 +1582,20 @@ utf_char2cells(int c)
  #endif
      };
  
@@ -21,7 +23,7 @@
  #ifdef FEAT_EVAL
      // Use the value from setcellwidths() at 0x80 and higher, unless the
      // character is not printable.
-@@ -1636,6 +1650,7 @@ utf_char2cells(int c)
+@@ -1611,6 +1625,7 @@ utf_char2cells(int c)
  	return 2;
  
      return 1;
@@ -29,20 +31,20 @@
  }
  
  /*
-@@ -2688,6 +2703,9 @@ utf_iscomposing(int c)
+@@ -2685,6 +2700,9 @@ utf_iscomposing(int c)
      int
  utf_printable(int c)
  {
 +#if 1
 +    return wcwidth(c) > 0;
 +#else
- #ifdef USE_WCHAR_FUNCTIONS
-     /*
-      * Assume the iswprint() library function works better than our own stuff.
-@@ -2705,6 +2723,7 @@ utf_printable(int c)
+     // Sorted list of non-overlapping intervals.
+     // 0xd800-0xdfff is reserved for UTF-16, actually illegal.
+     static struct interval nonprint[] =
+@@ -2695,6 +2713,7 @@ utf_printable(int c)
+     };
  
      return !intable(nonprint, sizeof(nonprint), c);
- #endif
 +#endif
  }
  

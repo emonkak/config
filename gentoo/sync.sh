@@ -34,6 +34,7 @@ rsync \
 /var/lib/portage/world
 EOF
 ) \
+  --exclude="*~" \
   --exclude-from=<(cat <<EOF
 /etc/portage/savedconfig
 /etc/udev/rules.d/.keep*

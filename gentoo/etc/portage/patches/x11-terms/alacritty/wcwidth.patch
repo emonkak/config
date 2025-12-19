@@ -1,22 +1,22 @@
 diff --git a/alacritty/src/config/ui_config.rs b/alacritty/src/config/ui_config.rs
-index b44bda0d..2b23199c 100644
+index a884da2f..382e9f7c 100644
 --- a/alacritty/src/config/ui_config.rs
 +++ b/alacritty/src/config/ui_config.rs
-@@ -6,12 +6,11 @@ use std::path::PathBuf;
- use std::rc::Rc;
- 
- use alacritty_config::SerdeReplace;
--use alacritty_terminal::term::Config as TermConfig;
-+use alacritty_terminal::term::{char_width, Config as TermConfig};
- use alacritty_terminal::tty::{Options as PtyOptions, Shell};
+@@ -9,12 +9,12 @@ use std::rc::Rc;
  use log::{error, warn};
  use serde::de::{Error as SerdeError, MapAccess, Visitor};
- use serde::{Deserialize, Deserializer};
+ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 -use unicode_width::UnicodeWidthChar;
  use winit::keyboard::{Key, ModifiersState};
  
+ use alacritty_config::SerdeReplace;
  use alacritty_config_derive::{ConfigDeserialize, SerdeReplace};
-@@ -319,7 +318,7 @@ impl<'de> Deserialize<'de> for HintsAlphabet {
+ use alacritty_terminal::term::Config as TermConfig;
++use alacritty_terminal::term::char_width;
+ use alacritty_terminal::term::search::RegexSearch;
+ use alacritty_terminal::tty::{Options as PtyOptions, Shell};
+ 
+@@ -310,7 +310,7 @@ impl<'de> Deserialize<'de> for HintsAlphabet {
  
          let mut character_count = 0;
          for character in value.chars() {
@@ -26,10 +26,10 @@ index b44bda0d..2b23199c 100644
              }
              character_count += 1;
 diff --git a/alacritty/src/display/mod.rs b/alacritty/src/display/mod.rs
-index 6c685a2a..0dcca783 100644
+index ff4d9734..c609aad2 100644
 --- a/alacritty/src/display/mod.rs
 +++ b/alacritty/src/display/mod.rs
-@@ -21,7 +21,6 @@ use winit::raw_window_handle::RawWindowHandle;
+@@ -24,13 +24,13 @@ use winit::raw_window_handle::RawWindowHandle;
  use winit::window::CursorIcon;
  
  use crossfont::{Rasterize, Rasterizer, Size as FontSize};
@@ -37,16 +37,14 @@ index 6c685a2a..0dcca783 100644
  
  use alacritty_terminal::event::{EventListener, OnResize, WindowSize};
  use alacritty_terminal::grid::Dimensions as TermDimensions;
-@@ -29,7 +28,7 @@ use alacritty_terminal::index::{Column, Direction, Line, Point};
+ use alacritty_terminal::index::{Column, Direction, Line, Point};
  use alacritty_terminal::selection::Selection;
  use alacritty_terminal::term::cell::Flags;
++use alacritty_terminal::term::char_width;
  use alacritty_terminal::term::{
--    self, LineDamageBounds, Term, TermDamage, TermMode, MIN_COLUMNS, MIN_SCREEN_LINES,
-+    self, char_width, LineDamageBounds, Term, TermDamage, TermMode, MIN_COLUMNS, MIN_SCREEN_LINES,
+     self, LineDamageBounds, MIN_COLUMNS, MIN_SCREEN_LINES, Term, TermDamage, TermMode,
  };
- use alacritty_terminal::vte::ansi::{CursorShape, NamedColor};
- 
-@@ -1478,9 +1477,9 @@ impl Preedit {
+@@ -1524,9 +1524,9 @@ impl Preedit {
          let cursor_end_offset = if let Some(byte_offset) = cursor_byte_offset {
              // Convert byte offset into char offset.
              let start_to_end_offset =
@@ -59,7 +57,7 @@ index 6c685a2a..0dcca783 100644
              Some((start_to_end_offset, end_to_end_offset))
          } else {
 diff --git a/alacritty/src/main.rs b/alacritty/src/main.rs
-index 5382e475..bea30cc2 100644
+index 54de44bc..7a61e3b0 100644
 --- a/alacritty/src/main.rs
 +++ b/alacritty/src/main.rs
 @@ -16,6 +16,7 @@ use std::error::Error;
@@ -71,7 +69,7 @@ index 5382e475..bea30cc2 100644
  
  use log::info;
 @@ -172,6 +173,12 @@ fn alacritty(mut options: Options) -> Result<(), Box<dyn Error>> {
-         env::set_var(key, value);
+         unsafe { env::set_var(key, value) };
      }
  
 +    // Set linux locale for using wcwidth().
@@ -154,13 +152,13 @@ index 267f8322..b8b3f0d4 100644
  
      #[test]
 diff --git a/alacritty/src/renderer/mod.rs b/alacritty/src/renderer/mod.rs
-index 3362db42..13033405 100644
+index 162de9c7..2a607cbb 100644
 --- a/alacritty/src/renderer/mod.rs
 +++ b/alacritty/src/renderer/mod.rs
 @@ -10,10 +10,10 @@ use crossfont::Metrics;
  use glutin::context::{ContextApi, GlContext, PossiblyCurrentContext};
  use glutin::display::{GetGlDisplay, GlDisplay};
- use log::{debug, error, info, warn, LevelFilter};
+ use log::{LevelFilter, debug, info};
 -use unicode_width::UnicodeWidthChar;
  
  use alacritty_terminal::index::Point;
@@ -168,8 +166,8 @@ index 3362db42..13033405 100644
 +use alacritty_terminal::term::char_width;
  
  use crate::config::debug::RendererPreference;
- use crate::display::color::Rgb;
-@@ -210,7 +210,7 @@ impl Renderer {
+ use crate::display::SizeInfo;
+@@ -206,7 +206,7 @@ impl Renderer {
              let flags = if wide_char_spacer {
                  wide_char_spacer = false;
                  return None;
@@ -179,7 +177,7 @@ index 3362db42..13033405 100644
                  wide_char_spacer = true;
                  Flags::WIDE_CHAR
 diff --git a/alacritty/src/renderer/text/glyph_cache.rs b/alacritty/src/renderer/text/glyph_cache.rs
-index 6acc3189..90ec9e9f 100644
+index bba1c417..beda6305 100644
 --- a/alacritty/src/renderer/text/glyph_cache.rs
 +++ b/alacritty/src/renderer/text/glyph_cache.rs
 @@ -6,7 +6,8 @@ use crossfont::{
@@ -192,7 +190,7 @@ index 6acc3189..90ec9e9f 100644
  
  use crate::config::font::{Font, FontDescription};
  use crate::config::ui_config::Delta;
-@@ -250,7 +251,7 @@ impl GlyphCache {
+@@ -260,7 +261,7 @@ impl GlyphCache {
          // right side of the preceding character. Since we render the
          // zero-width characters inside the preceding character, the
          // anchor has been moved to the right by one cell.
@@ -233,11 +231,11 @@ index b8c47d3b..a5b1f7cf 100644
                  // Advance width.
                  self.accumulated_len += ch_width;
 diff --git a/alacritty_terminal/src/term/mod.rs b/alacritty_terminal/src/term/mod.rs
-index 84945f52..f57ef004 100644
+index 8eb67975..442b7743 100644
 --- a/alacritty_terminal/src/term/mod.rs
 +++ b/alacritty_terminal/src/term/mod.rs
-@@ -11,7 +11,6 @@ use base64::engine::general_purpose::STANDARD as Base64;
- use base64::Engine;
+@@ -11,7 +11,6 @@ use base64::Engine;
+ use base64::engine::general_purpose::STANDARD as Base64;
  use bitflags::bitflags;
  use log::{debug, trace};
 -use unicode_width::UnicodeWidthChar;
@@ -254,12 +252,12 @@ index 84945f52..f57ef004 100644
              Some(width) => width,
              None => return,
          };
-@@ -2414,6 +2412,22 @@ impl<'a> RenderableContent<'a> {
+@@ -2412,6 +2410,22 @@ impl<'a> RenderableContent<'a> {
      }
  }
  
 +#[cfg(target_os = "linux")]
-+extern "C" {
++unsafe extern "C" {
 +    pub fn wcwidth(ch: libc::wchar_t) -> libc::c_int;
 +}
 +
@@ -277,7 +275,7 @@ index 84945f52..f57ef004 100644
  /// Terminal test helpers.
  pub mod test {
      use super::*;
-@@ -2472,7 +2486,7 @@ pub mod test {
+@@ -2470,7 +2484,7 @@ pub mod test {
          let lines: Vec<&str> = content.split('\n').collect();
          let num_cols = lines
              .iter()
@@ -286,7 +284,7 @@ index 84945f52..f57ef004 100644
              .max()
              .unwrap_or(0);
  
-@@ -2492,7 +2506,7 @@ pub mod test {
+@@ -2490,7 +2504,7 @@ pub mod test {
                  term.grid[line][Column(index)].c = c;
  
                  // Handle fullwidth characters.

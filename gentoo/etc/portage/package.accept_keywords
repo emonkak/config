@@ -1,17 +1,12 @@
+*/*::guru ~amd64
 */*::local-repo ~amd64
 
-app-editors/gvim ~amd64
-app-editors/vim ~amd64
-app-editors/vim-core ~amd64
-app-editors/vscodium ~amd64
-app-emulation/genymotion-bin ~amd64
+app-editors/cursor ~amd64
 app-i18n/skk-jisyo ~amd64
 app-i18n/skktools ~amd64
-app-misc/nnn ~amd64
 app-misc/tmux ~amd64
 app-misc/vifm ~amd64
 app-misc/yq ~amd64
-app-portage/hackport ~amd64
 app-shells/fzf ~amd64
 app-text/xlsx2csv ~amd64
 dev-lang/php ~amd64
@@ -20,13 +15,13 @@ dev-php/* ~amd64
 dev-python/fonttools ~amd64
 dev-util/cargo-ebuild ~amd64
 dev-util/rust-analyzer ~amd64
-games-emulation/pcsx2 ~amd64
+dev-vcs/tig ~amd64
 gui-apps/gcolor3 ~amd64
 media-fonts/* ~amd64
 media-sound/mpd ~amd64
 media-tv/gtk-v4l ~amd64
+media-video/ffmpeg ~amd64
 net-dns/dog ~amd64
-net-im/skypeforlinux ~amd64
 net-misc/tigervnc ~amd64
 net-p2p/resilio-sync ~amd64
 sys-apps/eza ~amd64
@@ -68,9 +63,16 @@ app-editors/neovim ~amd64
 dev-libs/libutf8proc ~amd64
 dev-libs/libvterm ~amd64
 dev-libs/tree-sitter ~amd64
+dev-libs/tree-sitter-c ~amd64
 dev-libs/tree-sitter-lua ~amd64
 dev-libs/tree-sitter-markdown ~amd64
 dev-libs/tree-sitter-query ~amd64
 dev-libs/tree-sitter-vim ~amd64
 dev-libs/unibilium ~amd64
 dev-lua/* ~amd64
+
+# vim
+app-editors/gvim ~amd64
+app-editors/vim ~amd64
+app-editors/vim-core ~amd64
+dev-util/xxd ~amd64

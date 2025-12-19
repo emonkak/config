@@ -1,6 +1,9 @@
 =net-p2p/resilio-sync-9999
-=sys-apps/util-linux-2.41.1
 app-i18n/fcitx-configtool:4
 app-i18n/fcitx:4
 dev-lang/python:2.7
 media-libs/jpeg
+
+# BUG: VirtualBox 7.2 requires wayland.
+=app-emulation/virtualbox-7.2*
+=app-emulation/virtualbox-modules-7.2*
