@@ -21,6 +21,7 @@ mklink "skk" "${HOME}/.local/share/skk"
 for path in \
   alacritty \
   cabal \
+  fish/conf.d \
   fish/config.fish \
   fish/functions \
   fontconfig \
