@@ -1979,50 +1979,6 @@ endfunction
 
 let g:scratch_show_command = 'SplitTop | hide buffer'
 
-" skeleton  {{{2
-
-autocmd MyAutoCmd User PluginSkeletonDetect
-\ call s:on_PluginSkeletonDetect()
-
-function! s:on_PluginSkeletonDetect() abort
-  let components = split(expand('%:p'), '/')
-  if len(components) == 0
-    return
-  endif
-
-  let filename = components[-1]
-  let directories = components[:-2]
-
-  if filename =~# 'LICENSE'
-    SkeletonLoad license-mit
-  elseif filename =~# '\.user\.js$'
-    SkeletonLoad userjs
-  elseif filename =~# 'Cargo\.toml$'
-    SkeletonLoad cargo
-  elseif filename =~# '\.vim$'
-    if get(directories, -2) ==# "after" && get(directories, -1) ==# "ftplugin"
-      execute 'SkeletonLoad' 'vim-after-'.directories[-1]
-    elseif get(directories, -1) ==# '^\v(compiler|ftdetect|ftplugin|indent|plugin|syntax)$'
-      execute 'SkeletonLoad' 'vim-'.directories[-1]
-    endif
-  endif
-endfunction
-
-autocmd MyAutoCmd User PluginSkeletonLoad
-\ call s:on_PluginSkeletonLoad()
-
-function! s:on_PluginSkeletonLoad() abort
-  silent %s/<%=\s*\(.\{-}\)\s*%>/\=eval(submatch(1))/ge
-  if search('<%|%>', 'w')
-    normal! "_da>
-  else
-    normal! gg
-  endif
-  if foldclosed(line('.'))
-    normal! zv
-  endif
-endfunction
-
 " smartinput  {{{2
 " Initialize  {{{3
 
@@ -2187,6 +2143,50 @@ let g:surround_obj_objects = {
 " table-mode  {{{2
 
 nnoremap <silent> [Space]ot  <Cmd>TableModeToggle<CR>
+
+" template  {{{2
+
+autocmd MyAutoCmd User PluginTemplateDetect
+\ call s:on_PluginTemplateDetect()
+
+function! s:on_PluginTemplateDetect() abort
+  let components = split(expand('%:p'), '/')
+  if len(components) == 0
+    return
+  endif
+
+  let filename = components[-1]
+  let directories = components[:-2]
+
+  if filename =~# 'LICENSE'
+    TemplateLoad license-mit
+  elseif filename =~# '\.user\.js$'
+    TemplateLoad userjs
+  elseif filename =~# 'Cargo\.toml$'
+    TemplateLoad cargo
+  elseif filename =~# '\.vim$'
+    if get(directories, -2) ==# "after" && get(directories, -1) ==# "ftplugin"
+      execute 'TemplateLoad' 'vim-after-'.directories[-1]
+    elseif get(directories, -1) ==# '^\v(compiler|ftdetect|ftplugin|indent|plugin|syntax)$'
+      execute 'TemplateLoad' 'vim-'.directories[-1]
+    endif
+  endif
+endfunction
+
+autocmd MyAutoCmd User PluginTemplateLoad
+\ call s:on_PluginTemplateLoad()
+
+function! s:on_PluginTemplateLoad() abort
+  silent %s/<%=\s*\(.\{-}\)\s*%>/\=eval(submatch(1))/ge
+  if search('<%|%>', 'w')
+    normal! "_da>
+  else
+    normal! gg
+  endif
+  if foldclosed(line('.'))
+    normal! zv
+  endif
+endfunction
 
 " Fin.  {{{1
 
