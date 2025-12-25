@@ -205,8 +205,8 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
       ((modMask, xK_r), refresh),
       ((modMask .|. shiftMask, xK_r), spawn "xmonad --recompile && xmonad --restart"),
       ((modMask, xK_p), initMatches >>= shellPrompt . myXPConfig),
-      ((modMask, xK_equal), safeSpawn "amixer" ["-q", "set", "Master", "5%+"]),
-      ((modMask, xK_minus), safeSpawn "amixer" ["-q", "set", "Master", "5%-"]),
+      ((modMask, xK_equal), changeVolume "5%+"),
+      ((modMask, xK_minus), changeVolume "5%-"),
       ((modMask, xK_0), safeSpawn "amixer" ["-q", "set", "Master", "toggle"]),
       ((modMask .|. shiftMask, xK_equal), safeSpawn "mpc" ["volume", "+5"]),
       ((modMask .|. shiftMask, xK_minus), safeSpawn "mpc" ["volume", "-5"]),
@@ -244,6 +244,10 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
         ((0, xK_p), safeSpawn "pavucontrol" []),
         ((0, xK_t), safeSpawn "transmission-gtk" [])
       ]
+
+    changeVolume param = do
+      safeSpawn "amixer" ["-q", "set", "Master", param]
+      safeSpawn "paplay" ["/usr/share/sounds/freedesktop/stereo/audio-volume-change.oga"]
 
 myMouseBindings (XConfig {XMonad.modMask = modMask}) =
   M.fromList
