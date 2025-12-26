@@ -265,7 +265,7 @@
 	<key>Cursor Guide Color</key>
 	<dict>
 		<key>Alpha Component</key>
-		<real>0.031372549019607843</real>
+		<real>0.047058823529411764</real>
 		<key>Blue Component</key>
 		<real>1</real>
 		<key>Color Space</key>
