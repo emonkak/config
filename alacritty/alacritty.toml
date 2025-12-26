@@ -1,9 +1,6 @@
 [env]
 FREETYPE_PROPERTIES = "cff:no-stem-darkening=0"
 
-[terminal]
-shell = { program = "/usr/bin/fish", args = ["--login"] }
-
 [colors.primary]
 background = "#23262e"
 foreground = "#d5dae9"
