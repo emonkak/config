@@ -1581,9 +1581,6 @@ function! s:preserve_fold_options() abort
   endif
 endfunction
 
-" Avoid to set `filetype` twice.
-let g:ft_ignore_pat = '^\(ebuild\|eclass\)$'
-
 " JSON  {{{2
 
 let g:vim_json_conceal = 0
