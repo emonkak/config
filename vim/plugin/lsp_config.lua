@@ -8,6 +8,10 @@ local api = vim.api
 local lsp = vim.lsp
 
 null_ls.setup({
+  on_init = function(client)
+    client.server_capabilities.completionProvider = nil
+    client.server_capabilities.definitionProvider = nil
+  end,
   sources = {
     null_ls.builtins.formatting.biome.with({
       args = {
@@ -244,6 +248,7 @@ api.nvim_create_autocmd('LspDetach', {
     end
 
     api.nvim_set_option_value('omnifunc', nil, { buf = args.buf })
+
     api.nvim_set_option_value('tagfunc', nil, { buf = args.buf })
 
     api.nvim_clear_autocmds({
