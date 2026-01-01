@@ -18,7 +18,19 @@ if type --query less
 end
 
 if type --query fzf
-  set --global --export FZF_DEFAULT_OPTS '--reverse --color=base16'
+  set --global --export FZF_DEFAULT_OPTS '--color=base16 --reverse'
+end
+
+if test -S "$XDG_RUNTIME_DIR/mpd/socket"
+  set --global --export MPD_HOST "$XDG_RUNTIME_DIR/mpd/socket"
+end
+
+if test -S "$XDG_RUNTIME_DIR/ssh-agent.sock"
+  set --global --export SSH_AUTH_SOCK "$XDG_RUNTIME_DIR/ssh-agent.sock"
+end
+
+if test -f "$XDG_RUNTIME_DIR/supervise-ssh-agent.pid"
+  set --global --export SSH_AGENT_PID (read < "$XDG_RUNTIME_DIR/supervise-ssh-agent.pid")
 end
 
 fish_add_path ~/.cabal/bin ~/.cargo/bin ~/.composer/vendor/bin ~/.ghcup/bin

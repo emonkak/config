@@ -1,0 +1,15 @@
+#!/sbin/openrc-run
+
+supervisor=supervise-daemon
+
+description="Music Player Daemon"
+command="/usr/bin/mpd"
+command_args="--no-daemon"
+
+depend() {
+	need pipewire
+}
+
+start_pre() {
+	mkdir -p "$XDG_RUNTIME_DIR/mpd"
+}

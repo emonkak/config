@@ -22,7 +22,7 @@ data Card = Card
   { index :: Int,
     name :: String,
     driver :: String,
-    owner_module :: String,
+    owner_module :: Maybe String,
     properties :: M.Map String String,
     profiles :: M.Map String Profile,
     active_profile :: String,
@@ -71,7 +71,7 @@ switchPulseCardProfile profiles cards = do
        in mapM_ (\profile -> safeSpawn "pactl" ["set-card-profile", name, profile]) nextProfile
     _ -> return ()
   where
-    condition (Card {driver = "module-alsa-card.c", profiles = availableProfiles}) =
+    condition (Card {profiles = availableProfiles}) =
       all (`M.member` availableProfiles) profiles
     condition _ = False
 

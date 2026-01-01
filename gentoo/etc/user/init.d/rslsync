@@ -1,0 +1,7 @@
+#!/sbin/openrc-run
+
+supervisor=supervise-daemon
+
+description="Resilio Sync"
+command="/usr/bin/rslsync"
+command_args="--nodaemon --config ${XDG_CONFIG_HOME:-~/.config}/rslsync/sync.jsonc"

@@ -38,7 +38,6 @@ app-misc/jq
 app-misc/tmux
 app-misc/trash-cli
 app-misc/vifm
-app-misc/yazi
 app-misc/yq
 app-pda/ifuse
 app-pda/usbmuxd
@@ -65,19 +64,16 @@ dev-php/pecl-redis
 dev-php/php-ast
 dev-python/fonttools
 dev-python/pip
-dev-ruby/rake
 dev-ruby/rubygems
 dev-tcltk/expect
 dev-util/android-tools
 dev-util/ccache
 dev-util/ctags
 dev-util/git-delta
+dev-util/tree-sitter-cli
 dev-vcs/git
-dev-vcs/lazygit
 dev-vcs/tig
 gnome-extra/gucharmap
-llvm-core/clang
-llvm-runtimes/libcxx
 mail-client/mailx
 mail-mta/msmtp
 media-fonts/corefonts
@@ -91,7 +87,6 @@ media-gfx/feh
 media-gfx/fontforge
 media-gfx/geeqie
 media-gfx/gimp
-media-gfx/graphicsmagick
 media-gfx/graphviz
 media-gfx/imagemagick
 media-gfx/inkscape
@@ -114,7 +109,6 @@ media-sound/mpd
 media-sound/ncmpcpp
 media-sound/pasystray
 media-sound/pavucontrol
-media-sound/pulseaudio-daemon
 media-sound/shntool
 media-tv/arib25
 media-tv/epgdump
@@ -122,6 +116,7 @@ media-tv/gtk-v4l
 media-tv/recpt1
 media-video/guvcview
 media-video/mpv
+media-video/pipewire
 media-video/rtmpdump
 media-video/vlc
 net-analyzer/netcat
