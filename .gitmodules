@@ -158,9 +158,6 @@
 	path = vim/pack/plugins/start/operator-camelize.vim
 	url = https://github.com/tyru/operator-camelize.vim.git
 	ignore = dirty
-[submodule "vim/pack/plugins/start/vim-javascript"]
-	path = vim/pack/plugins/start/vim-javascript
-	url = https://github.com/pangloss/vim-javascript.git
 [submodule "vim/pack/plugins/start/plenary.nvim"]
 	path = vim/pack/plugins/start/plenary.nvim
 	url = https://github.com/nvim-lua/plenary.nvim
