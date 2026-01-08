@@ -4,7 +4,7 @@ Xft.hinting: false
 Xft.hintstyle: hintnone
 Xft.lcdfilter: lcdlight
 Xft.rgba: rgb
-Xft.dpi: 96
+Xft.dpi: 120
 
 Xcursor.theme: Vanilla-DMZ
 Xcursor.size: 24
