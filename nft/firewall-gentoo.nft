@@ -26,14 +26,14 @@ table inet firewall {
 		log prefix "nft.input.drop: " counter
 	}
 
+	chain output {
+		type filter hook output priority 0; policy accept;
+		counter
+	}
+
 	chain forward {
 		type filter hook forward priority 0; policy drop;
 		iifname { "docker0", "eth0" } counter accept
 		log prefix "nft.forward.drop: " counter
-	}
-
-	chain output {
-		type filter hook output priority 0; policy accept;
-		counter
 	}
 }
