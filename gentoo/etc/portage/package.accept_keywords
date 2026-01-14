@@ -54,10 +54,6 @@ x11-libs/xcb-imdkit ~amd64
 net-misc/freerdp ~amd64
 net-misc/gnome-connections ~amd64
 
-# geeqie (HEIC Support)
-media-gfx/geeqie ~amd64
-media-libs/imlib2 ~amd64
-
 # neovim
 app-editors/neovim ~amd64
 dev-libs/libutf8proc ~amd64

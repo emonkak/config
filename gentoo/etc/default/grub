@@ -50,7 +50,7 @@ GRUB_CMDLINE_LINUX_DEFAULT="acpi_enforce_resources=lax kvm.enable_virt_at_load=0
 # Path to theme spec txt file.
 # The starfield is by default provided with use truetype.
 # NOTE: when enabling custom theme, ensure you have required font/etc.
-#GRUB_THEME="/boot/grub/themes/starfield/theme.txt"
+GRUB_THEME="/boot/grub/themes/gentoo_glass/theme.txt"
 
 # Background image used on graphical terminal.
 # Can be in various bitmap formats.

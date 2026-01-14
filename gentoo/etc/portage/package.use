@@ -100,3 +100,7 @@ media-libs/libv4l bpf
 
 # required by net-misc/gnome-connections
 net-misc/spice-gtk vala
+
+# required by media-gfx/gimp
+media-libs/babl introspection lcms
+media-libs/gegl introspection lcms

@@ -15,10 +15,10 @@
 UUID="dfef2d8c-2c02-41c8-a33d-60ef1773fd53"	/			ext4	noatime,discard 1 1
 UUID="C454-93BB"				/boot			vfat	noatime,discard 1 2
 
-LABEL="tank1"					/mnt/tank1		ntfs3	noatime,force,uid=1000,gid=1000,fmask=0113,dmask=0022 0 0
-LABEL="tank2"					/mnt/tank2		ntfs3	noatime,force,uid=1000,gid=1000,fmask=0113,dmask=0022 0 0
-LABEL="tank3"					/mnt/tank3		ntfs3	noatime,force,uid=1000,gid=1000,fmask=0113,dmask=0022 0 0
-LABEL="windows"					/mnt/windows		ntfs3	noatime,force,uid=1000,gid=1000,fmask=0113,dmask=0022 0 0
+LABEL="tank1"					/mnt/tank1		ntfs-3g	noatime,uid=1000,gid=1000,fmask=0113,dmask=0022,windows_names 0 0
+LABEL="tank2"					/mnt/tank2		ntfs-3g	noatime,uid=1000,gid=1000,fmask=0113,dmask=0022,windows_names 0 0
+LABEL="tank3"					/mnt/tank3		ntfs-3g	noatime,uid=1000,gid=1000,fmask=0113,dmask=0022,windows_names 0 0
+LABEL="windows"					/mnt/windows		ntfs-3g	noatime,uid=1000,gid=1000,fmask=0113,dmask=0022,windows_names 0 0
 
 # /dev/cdrom					/mnt/cdrom		auto	noauto,user 0 0
 # tmpfs						/var/tmp/portage	tmpfs	noatime,size=8g 0 0

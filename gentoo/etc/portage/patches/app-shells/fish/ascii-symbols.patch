@@ -1,0 +1,20 @@
+diff --git a/src/common.rs b/src/common.rs
+index 33d650c04..189d1c084 100644
+--- a/src/common.rs
++++ b/src/common.rs
+@@ -1014,13 +1014,13 @@ pub fn shell_modes() -> MutexGuard<'static, libc::termios> {
+ 
+ /// The character to use where the text has been truncated.
+ pub fn get_ellipsis_char() -> char {
+-    '\u{2026}' // ('…')
++    '$'
+ }
+ 
+ /// The character or string to use where text has been truncated (ellipsis if possible, otherwise
+ /// ...)
+ pub fn get_ellipsis_str() -> &'static wstr {
+-    L!("\u{2026}")
++    L!("...")
+ }
+ 
+ /// Character representing an omitted newline at the end of text.

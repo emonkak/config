@@ -7,3 +7,6 @@ media-libs/jpeg
 # BUG: VirtualBox 7.2 requires wayland.
 =app-emulation/virtualbox-7.2*
 =app-emulation/virtualbox-modules-7.2*
+
+# BUG: Crashs at starting.
+=media-gfx/geeqie-2.6.1*
