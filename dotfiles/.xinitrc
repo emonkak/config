@@ -42,9 +42,9 @@ export XMODIFIERS='@im=fcitx5'
 
 fcitx5 -d
 
-dunst &
-
 picom &
+
+dunst &
 
 ${HOME}/.local/bin/geektray &
 
