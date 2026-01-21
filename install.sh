@@ -25,6 +25,7 @@ for path in \
   fish/config.fish \
   fish/functions \
   fontconfig \
+  ghc \
   git \
   libskk \
   mpv \
