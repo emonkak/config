@@ -1,3 +1,5 @@
+$include /etc/inputrc
+
 set bell-style none
 set bind-tty-special-chars off
 set completion-ignore-case on
