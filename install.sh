@@ -36,6 +36,7 @@ for path in \
   tmux \
   vifm \
   vim \
+  xkb \
   xmonad
 do
   mklink "${path}" "${HOME}/.config/${path}"

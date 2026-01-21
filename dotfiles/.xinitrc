@@ -17,7 +17,7 @@ export QT_STYLE_OVERRIDE='adwaita-dark'
 
 dbus_socket="${XDG_RUNTIME_DIR}/bus"
 xresources="${HOME}/.Xresources"
-xkb_keymap="${HOME}/.xkb/keymap/my_keymap"
+xkb_keymap="${HOME}/.config/xkb/keymap/my_keymap"
 
 if test -S "${dbus_socket}"
 then
@@ -31,7 +31,7 @@ fi
 
 if test -f "${xkb_keymap}"
 then
-  xkbcomp -w 0 -I"${HOME}/.xkb" "${xkb_keymap}" ${DISPLAY} &> /dev/null
+  xkbcomp -w 0 -I"${HOME}/.config/xkb" "${xkb_keymap}" ${DISPLAY} &> /dev/null
 fi
 
 xcape -e '#133=Escape;#134=Zenkaku_Hankaku'
