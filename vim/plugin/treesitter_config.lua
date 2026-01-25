@@ -16,6 +16,21 @@ local installed_languages = {
   'vimdoc',
 }
 
+local enabled_filetypes = {
+  ['css'] = 'css',
+  ['diff'] = 'diff',
+  ['gitcommit'] = 'gitcommit',
+  ['html'] = 'html',
+  ['javascript'] = 'javascript',
+  ['javascriptreact'] = 'javascript',
+  ['lua'] = 'lua',
+  ['query'] = 'query',
+  ['rust'] = 'rust',
+  ['typescript'] = 'typescript',
+  ['typescriptreact'] = 'typescript',
+  ['vimdoc'] = 'vimdoc',
+}
+
 require('nvim-treesitter').setup()
 
 require('nvim-treesitter').install(installed_languages)
@@ -25,11 +40,11 @@ require('nvim-treesitter-textobjects').setup()
 vim.api.nvim_create_autocmd('FileType', {
   pattern = '*',
   callback = function(args)
-    if args.match == 'markdown'
-      or not vim.tbl_contains(installed_languages, args.match) then
+    local language = enabled_filetypes[args.match]
+    if language == nil then
       return
     end
-    vim.treesitter.start()
+    vim.treesitter.start(args.buf, language)
     vim.api.nvim_set_option_value(
       'indentexpr',
       'v:lua.require("nvim-treesitter").indentexpr()',
