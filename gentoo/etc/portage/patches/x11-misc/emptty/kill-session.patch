@@ -1,0 +1,13 @@
+diff --git a/src/emptty.go b/src/emptty.go
+index f8f095b..9e43224 100644
+--- a/src/emptty.go
++++ b/src/emptty.go
+@@ -64,7 +64,7 @@ func handleInterrupt(c chan os.Signal, h *sessionHandle) {
+ 
+ 	if h.session != nil && h.session.cmd != nil {
+ 		h.session.interrupted = true
+-		if err := h.session.cmd.Process.Signal(os.Interrupt); err != nil {
++		if err := h.session.cmd.Process.Kill(); err != nil {
+ 			logPrint("Application not responding to signal")
+ 		} else {
+ 			// Only attempt clean shutdown if cmd is still
