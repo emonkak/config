@@ -139,7 +139,12 @@ if &undodir ==# '.'
 endif
 set undofile
 set updatetime=1000
-set viminfo^='1000 viminfo-='100
+if exists('+shada')
+  set shada^='1000 shada-='100
+else
+  set viminfo^='1000 viminfo-='100
+  set viminfofile=~/.local/state/vim/viminfo
+endif
 set virtualedit=block
 set wildmenu
 set wildmode=full
