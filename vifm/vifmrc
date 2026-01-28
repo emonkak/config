@@ -245,12 +245,14 @@ fileviewer {*.wav,*.mp3,*.flac,*.m4a,*.wma,*.ape,*.ac3,*.og[agx],*.spx,*.opus,
          \ ffprobe -hide_banner -pretty %c 2>&1
 
 " Videos
-filextype {*.3gp,*.as[fx],*.avi,*.dat,*.divx,*.fl[icv],*.m2v,*.m4v,*.mkv,
-          \*.mov,*.mp4,*.mpeg,*.mpg,*.mts,*.ogv,*.qt,*.r[am],*.vob,*.webm,
-          \*.wmv},<video/*>
-        \ {Play using mpv} mpv %f,
-        \ {Resample audio using ffmpeg}
-        \ ffmpeg -hide_banner -i %c -vn -af aresample=async=1 %c:r.wav,
+filetype {*.3gp,*.as[fx],*.avi,*.dat,*.divx,*.fl[icv],*.m2v,*.m4v,*.mkv,
+         \*.mov,*.mp4,*.mpeg,*.mpg,*.mts,*.ogv,*.qt,*.r[am],*.vob,*.webm,
+         \*.wmv},<video/*>
+       \ {Play using mpv} mpv %f,
+       \ {Remux to mp4 using ffmpeg}
+       \ ffmpeg -hide_banner -i %c -c copy %c:r.mp4,
+       \ {Resample audio using ffmpeg}
+       \ ffmpeg -hide_banner -i %c -vn -af aresample=async=1 %c:r.wav,
 fileviewer {*.3gp,*.as[fx],*.avi,*.dat,*.divx,*.fl[icv],*.m2v,*.m4v,*.mkv,
            \*.mov,*.mp4,*.mpeg,*.mpg,*.mts,*.ogv,*.qt,*.r[am],*.ts,*.vob,
            \*.webm,\*.wmv},<video/*>
