@@ -78,29 +78,25 @@ if exists('+breakindent')
 endif
 set cinoptions=l1,g0,t0,W1s
 if exists('+clipboard')
-  if &clipboard =~# '\<autoselect\>'
-    set clipboard& clipboard-=autoselect clipboard+=autoselectml
-  endif
+  set clipboard-=autoselect
 endif
 set cmdheight=1
-set complete& complete-=i complete-=t
+set complete-=i complete-=t
 set completeopt=menuone,longest
 set concealcursor=nc
 set conceallevel=0
 set confirm
 set diffopt=filler,vertical
-if &directory =~# '^\.'
-  set directory-=. directory=~/.local/state/vim/swap
+if &directory[0] ==# '.'
+  set directory=~/.local/state/vim/swap
 endif
 set display=lastline
 set noequalalways
 set foldmethod=marker
 set formatlistpat&
-if &formatlistpat != ''
-  let &formatlistpat .= '\|^\s*[*+-]\s*'
-endif
+let &formatlistpat .= '\|^\s*[*+-]\s*'
 set formatoptions=roqnlmM1
-set grepformat^=%f:%l:%c:%m
+set grepformat=%f:%l:%c:%m
 set hidden
 set history=1000
 set ignorecase
