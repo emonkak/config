@@ -2,7 +2,7 @@ if not status is-login
   exit
 end
 
-set --global --export LANG 'en_US.UTF-8'
+set --global --export LANG 'C.UTF-8'
 set --global --export LC_MESSAGES 'C'
 set --global --export LC_TIME 'C'
 
