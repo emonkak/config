@@ -1875,10 +1875,6 @@ let g:quickrun_config = {
 \     'hook/eval/template': 'console.log(%s)',
 \     'tempfile': '%{tempname()}.mjs',
 \   },
-\   'javascript/browserjs': {
-\     'command': 'browserjs',
-\     'hook/eval/template': 'console.log(%s)',
-\   },
 \   'json': {
 \     'cmdopt': '.',
 \     'command': 'jq',
