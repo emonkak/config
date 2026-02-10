@@ -2,7 +2,7 @@
 
 set -o errexit -o nounset
 
-if [[ "${TRACE:-0}" -ne 0 ]]
+if [ "${TRACE:-0}" -ne 0 ]
 then
   set -o xtrace
 fi
