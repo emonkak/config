@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+if [ "${TRACE:-0}" -ne 0 ]
+then
+  set -o xtrace
+fi
+
+SCRIPT=$(cat << EOL
+import fontforge
+from sys import argv
+f = fontforge.open(argv[1])
+f.generate(argv[2])
+EOL
+)
+
+for f in "$@"; do
+  if [[ "${f}" =~ ".ttf$" ]]
+  then
+    echo "Warning: Skipping ${f##*/} (must be .ttf)"
+    continue
+  fi
+  fontforge -c "${SCRIPT}" "${f}" "${f%.*}.otf"
+done

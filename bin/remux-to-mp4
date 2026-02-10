@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+if [ "${TRACE:-0}" -ne 0 ]
+then
+  set -o xtrace
+fi
+
+round() {
+  echo "scale=0; ($1 + 0.5) / 1" | bc
+}
+
+duration() {
+  duration=$(ffprobe \
+    -v error \
+    -show_entries format=duration \
+    -of default=noprint_wrappers=1:nokey=1 \
+    "$1")
+  round $duration
+}
+
+input="${1}"
+output="${1%.*}.mp4"
+
+if test "${input}" = "${output}"
+then
+  echo "Input file is already in mp4 format. Skipping conversion."
+  exit 0
+fi
+
+input_duration=$(duration "${input}")
+
+if test -z "${input_duration}"
+then
+  echo "Error: Could not retrieve input file duration" >&2
+  exit 1
+fi
+
+ffmpeg -hide_banner -fflags +genpts -i "${input}" -c copy "${output}"
+
+output_duration=$(duration "${output}")
+
+if test ${input_duration} -eq ${output_duration}
+then
+  rm "${input}"
+else
+  echo "Duration difference is found. Keeping the input file." >&2
+fi
+

@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+if [ "${TRACE:-0}" -ne 0 ]
+then
+  set -o xtrace
+fi
+
+if [ $# -lt 2 ]
+then
+  echo "Error: Missing argument"
+  echo "Usage: $(basename $0) [{username}@]{server}:{folder} {mount_point}"
+  exit 1
+fi
+
+url="$1"
+mount_point="$2"
+username="${url%%@*}"
+
+if [ "${username}" = "${url}" ]
+then
+  username="${USER}"
+fi
+
+server="${url#//}"
+server="${server#*@}"
+server="${server%%:*}"
+folder="${url#*:}"
+
+if [ "${folder}" = "${url}" ]
+then
+  folder="${USER}"
+fi
+
+if type -P mount_smbfs > /dev/null
+then
+  mount_smbfs -f 0644 -d 0755 "//${username}@${server}/${folder}" "${mount_point}"
+else
+  sudo mount \
+    -t cifs \
+    -o defaults,user,iocharset=utf8,uid=${USER},gid=users,file_mode=0644,dir_mode=0755,username=${username} \
+        "//$server/${folder}" \
+        "${mount_point}"
+fi

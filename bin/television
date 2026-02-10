@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+if [ "${TRACE:-0}" -ne 0 ]
+then
+  set -o xtrace
+fi
+
+channel=$(fzf << EOL | grep -o -E '[0-9]+'
+13 # JCOMテレビ
+16 # TOKYO MX
+18 # tvk
+21 # フジテレビ
+22 # TBS
+23 # テレビ東京
+24 # テレビ朝日
+25 # 日テレ
+26 # NHKEテレ
+27 # NHK総合
+28 # 放送大学
+29 # JCOMチャンネル
+30 # チバテレ
+32 # テレ玉
+EOL
+)
+
+if [ -z "${channel}" ]
+then
+  exit 1
+fi
+
+exec recpt1 --b25 --strip --sid hd --device /dev/pt3video2 "${channel}" - - | mpv -

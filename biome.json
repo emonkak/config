@@ -1,0 +1,13 @@
+{
+  "files": {
+    "includes": ["bin/*.ts"]
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
+  "formatter": {
+    "indentStyle": "space"
+  }
+}

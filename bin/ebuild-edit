@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+if [ "${TRACE:-0}" -ne 0 ]
+then
+  set -o xtrace
+fi
+
+ebuild_files=()
+
+for query in "$@"
+do
+  packages=($(eix --format '<installedversions:NAMEVERSION>' --pure-packages "${query}"))
+
+  for package in "${packages[@]}"
+  do
+    ebuild_files+=("$(equery which "${package}")")
+  done
+done
+
+if [ ${#ebuild_files[@]} -eq 0 ]
+then
+  echo 'No ebuild matches the queries:' "$@" >&2
+  exit 1
+fi
+
+exec "${EDITOR:-vim}" "${ebuild_files[@]}"

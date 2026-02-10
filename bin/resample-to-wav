@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+if [ "${TRACE:-0}" -ne 0 ]
+then
+  set -o xtrace
+fi
+
+input="${1}"
+output="${1%.*}.wav"
+
+exec ffmpeg -hide_banner -i "${input}" -vn -af aresample=async=1 "${output}"

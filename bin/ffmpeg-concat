@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+if [ "${TRACE:-0}" -ne 0 ]
+then
+  set -o xtrace
+fi
+
+if [ $# -le 0 ]
+then
+  echo "Error: Missing files to concatenate." >&2
+  exit 1
+fi
+
+inputs=("$@")
+output="${1%.*}-concat.mp4"
+
+ffmpeg -f concat -safe 0 -i <(for f in "${inputs[@]}"; do echo "file '${PWD}/${f}'"; done) -c copy "${output}"

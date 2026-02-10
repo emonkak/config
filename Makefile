@@ -1,11 +1,11 @@
-DOTFILE_SOURCES=\
+DOTFILES_SOURCES=\
   dotfiles/.gtkrc-2.0 \
   dotfiles/.inputrc \
   dotfiles/.my.cnf \
   dotfiles/.ssh \
   dotfiles/.xinitrc \
   dotfiles/.Xresources
-DOTFILE_TARGETS=$(patsubst dotfiles/.%, $(HOME)/.%, $(DOTFILE_SOURCES))
+DOTFILES_TARGETS=$(patsubst dotfiles/.%, $(HOME)/.%, $(DOTFILES_SOURCES))
 
 CONFIG_SOURCES=\
   alacritty \
@@ -35,9 +35,10 @@ DATA_SOURCES=\
 DATA_TARGETS=$(patsubst %, $(HOME)/.local/share/%, $(DATA_SOURCES))
 
 ALL_TARGETS=\
+  $(DOTFILES_TARGETS) \
   $(CONFIG_TARGETS) \
   $(DATA_TARGETS) \
-  $(DOTFILE_TARGETS)
+  $(HOME)/bin
 
 all: $(ALL_TARGETS)
 
@@ -50,7 +51,16 @@ $(HOME)/.config/%: %
 $(HOME)/.local/share/%: %
 	ln -s $(abspath $<) $@
 
+$(HOME)/%: %
+	ln -s $(abspath $<) $@
+
 clean:
-	unlink -f $(ALL_TARGETS)
+	@for target in $(ALL_TARGETS); \
+	do \
+	  if [ -L "$$target" ]; \
+	  then \
+	    unlink "$$target"; \
+	  fi \
+	done
 
 .PHONY: all clean
