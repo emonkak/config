@@ -45,6 +45,11 @@ if test -d ~/.local/share/pnpm
   fish_add_path "$PNPM_HOME"
 end
 
+if test -r ~/.nvm/alias/default
+  read alias < ~/.nvm/alias/default
+  fish_add_path ~/.nvm/versions/node/v$alias/bin
+end
+
 if test -d ~/go 
   set --global --export GOPATH ~/go
   fish_add_path "$GOPATH/bin"
