@@ -35,14 +35,19 @@ end
 
 fish_add_path ~/.cabal/bin ~/.cargo/bin ~/.composer/vendor/bin ~/.ghcup/bin
 
-if test -d ~/go 
-  set --global --export GOPATH ~/go
-  fish_add_path "$GOPATH/bin"
+if test -d ~/.bun
+  set --export BUN_INSTALL ~/.bun
+  fish_add_path "$BUN_INSTALL/bin"
 end
 
 if test -d ~/.local/share/pnpm 
   set --global --export PNPM_HOME ~/.local/share/pnpm
   fish_add_path "$PNPM_HOME"
+end
+
+if test -d ~/go 
+  set --global --export GOPATH ~/go
+  fish_add_path "$GOPATH/bin"
 end
 
 if type --query brew
@@ -51,4 +56,4 @@ if type --query brew
   end
 end
 
-fish_add_path -m ~/bin ~/.local/bin ~/opt/bin 
+fish_add_path --move ~/bin ~/.local/bin ~/opt/bin 
