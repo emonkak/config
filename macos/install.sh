@@ -22,7 +22,10 @@ install-brew-formulas() {
   brew install \
     coreutils \
     diffutils \
+    fd \
     findutils \
+    fish \
+    fzf \
     gawk \
     git \
     git-delta \
@@ -30,13 +33,19 @@ install-brew-formulas() {
     gnu-tar \
     grep \
     gzip \
+    imagemagick \
+    jq \
     make \
     massren \
     neovim \
     ripgrep \
+    rsync \
+    telnet \
     tig \
     tmux \
-    tree
+    tree \
+    vifm \
+    wakeonlan
 }
 
 install-brew-casks() {
