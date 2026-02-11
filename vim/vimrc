@@ -88,7 +88,7 @@ set conceallevel=0
 set confirm
 set diffopt=filler,vertical
 if &directory[0] ==# '.'
-  set directory=~/.local/state/vim/swap
+  set directory& directory-=. directory^=~/.local/state/vim/swap
 endif
 set display=lastline
 set noequalalways
