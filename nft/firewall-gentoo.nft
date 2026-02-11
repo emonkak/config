@@ -20,6 +20,7 @@ table inet firewall {
 		ip6 saddr fe80::/10 counter accept
 		ip6 daddr FF00::/8 counter drop comment "drop multicast from WAN"
 		ip6 nexthdr icmpv6 counter drop comment "drop ICMPv6 from WAN"
+		tcp dport 16002 counter drop comment "early drop Resilio Sync packets from WAN"
 		tcp dport $exposing_ports counter accept
 		udp dport $exposing_ports counter accept
 		ct state { established, related } counter accept
