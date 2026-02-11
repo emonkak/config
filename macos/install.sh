@@ -42,32 +42,6 @@ install-brew-formulas() {
 install-brew-casks() {
   echo Install brew casks...
 
-  cat <<EOF > /usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask/Casks/cooviewer.rb
-cask 'cooviewer' do
-  version '1.2b25'
-  sha256 'b085124c540ce6e7cf2f8dbf1c2a0dc7ae47133d9afbc73357ac98ea168cf09e'
-
-  url "https://github.com/coo-ona/cooViewer/releases/download/#{version}/cooViewer.zip"
-  name 'cooViewer'
-  homepage 'https://coo-ona.github.io/cooViewer/'
-
-  app 'cooViewer/cooViewer.app'
-end
-EOF
-
-  cat <<EOF > /usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask/Casks/hakumai.rb
-cask 'hakumai' do
-  version '3.8.0'
-  sha256 "4e9c911a02cb45f8c92d8a05d7cc7f943283eea491c05b8071536b4a915b2346"
-
-  url "https://hakumai.s3.amazonaws.com/Hakumai.#{version}.zip"
-  name 'Hakumai'
-  homepage 'https://honishi.github.io/Hakumai/'
-
-  app 'Hakumai.app'
-end
-EOF
-
   brew install --cask \
     appcleaner \
     aquaskk \
