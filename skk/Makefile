@@ -1,4 +1,4 @@
-# Makefile for skk dictionary
+# Makefile for personal skk dictionary
 
 all: SKK-JISYO.all.utf8
 
