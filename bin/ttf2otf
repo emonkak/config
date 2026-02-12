@@ -15,11 +15,13 @@ f.generate(argv[2])
 EOL
 )
 
-for f in "$@"; do
-  if [[ "${f}" =~ ".ttf$" ]]
+for input in "$@"
+do
+  if [[ "${input}" =~ ".ttf$" ]]
   then
-    echo "Warning: Skipping ${f##*/} (must be .ttf)"
+    echo "Warning: Skipping ${input##*/} (must be .ttf)"
     continue
   fi
-  fontforge -c "${SCRIPT}" "${f}" "${f%.*}.otf"
+  output="${input%.*}.otf"
+  fontforge -c "${SCRIPT}" "${input}" "${output}"
 done
