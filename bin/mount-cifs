@@ -10,7 +10,7 @@ fi
 if [ $# -lt 2 ]
 then
   echo "Error: Missing argument"
-  echo "Usage: $(basename $0) [{username}@]{server}:{folder} {mount_point}"
+  echo "Usage: $(basename $0) [USERNAME@]SERVER[:FOLDER] MOUNT_POINT"
   exit 1
 fi
 
@@ -30,7 +30,7 @@ folder="${url#*:}"
 
 if [ "${folder}" = "${url}" ]
 then
-  folder="${USER}"
+  folder="${username}"
 fi
 
 if type -P mount_smbfs > /dev/null
