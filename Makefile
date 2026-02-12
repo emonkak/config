@@ -58,7 +58,7 @@ clean:
 	do \
 	  if [ -L "$$target" ]; \
 	  then \
-	    unlink "$$target"; \
+	    rm -v "$$target"; \
 	  fi \
 	done
 
