@@ -9,7 +9,6 @@ DOTFILES_TARGETS=$(patsubst dotfiles/.%, $(HOME)/.%, $(DOTFILES_SOURCES))
 
 CONFIG_SOURCES=\
   alacritty \
-  cabal \
   fish/conf.d \
   fish/config.fish \
   fish/functions \
