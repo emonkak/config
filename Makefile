@@ -42,17 +42,16 @@ ALL_TARGETS=\
 
 all: $(ALL_TARGETS)
 
-$(HOME)/.%: dotfiles/.%
-	ln -s $(abspath $<) $@
+define GenerateLinkRule # (target, source)
+$(1): $(2)
+	ln -s $$(abspath $$<) $$@
 
-$(HOME)/.config/%: %
-	ln -s $(abspath $<) $@
+endef
 
-$(HOME)/.local/share/%: %
-	ln -s $(abspath $<) $@
-
-$(HOME)/%: %
-	ln -s $(abspath $<) $@
+$(eval $(call GenerateLinkRule,$(HOME)/.%,dotfiles/.%))
+$(eval $(call GenerateLinkRule,$(HOME)/.config/%,%))
+$(eval $(call GenerateLinkRule,$(HOME)/.local/share/%,%))
+$(eval $(call GenerateLinkRule,$(HOME)/%,%))
 
 clean:
 	@for target in $(ALL_TARGETS); \
