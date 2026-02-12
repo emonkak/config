@@ -165,27 +165,25 @@ class LineWriter extends Transform {
 }
 
 function parseArgs(args: string[]): LaunchParams {
-  const params: LaunchParams = {
-    batchSize: DEFAULT_BATCH_SIZE,
-    sourceLanguage: DEFAULT_SOURCE_LANGUAGE,
-    targetLanguage: DEFAULT_TARGET_LANGUAGE,
-  };
+  let batchSize = DEFAULT_BATCH_SIZE;
+  let sourceLanguage = DEFAULT_SOURCE_LANGUAGE;
+  let targetLanguage = DEFAULT_TARGET_LANGUAGE;
 
   for (let i = 0, l = args.length; i < l; i++) {
     switch (args[i]) {
       case '-b':
       case '--batch-size':
-        params.batchSize = parseInt(args[++i]!, 10);
+        batchSize = parseInt(args[++i]!, 10);
         break;
 
       case '-s':
       case '--source-language':
-        params.sourceLanguage = args[++i]!;
+        sourceLanguage = args[++i]!;
         break;
 
       case '-t':
       case '--target-language':
-        params.targetLanguage = args[++i]!;
+        targetLanguage = args[++i]!;
         break;
 
       case '-h':
@@ -200,7 +198,11 @@ function parseArgs(args: string[]): LaunchParams {
     }
   }
 
-  return params;
+  return {
+    batchSize,
+    sourceLanguage,
+    targetLanguage,
+  };
 }
 
 function stripHTMLComments(input: string): string {

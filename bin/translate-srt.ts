@@ -244,34 +244,32 @@ class SRTTranslator extends Transform {
 }
 
 function parseArgs(args: string[]): LaunchParams {
-  const params: Partial<LaunchParams> = {
-    batchSize: DEFAULT_BATCH_SIZE,
-    inputPath: undefined,
-    outputPath: undefined,
-    sourceLanguage: DEFAULT_SOURCE_LANGUAGE,
-    targetLanguage: DEFAULT_TARGET_LANGUAGE,
-  };
+  let batchSize = DEFAULT_BATCH_SIZE;
+  let inputPath: string | undefined;
+  let outputPath: string | undefined;
+  let sourceLanguage = DEFAULT_SOURCE_LANGUAGE;
+  let targetLanguage = DEFAULT_TARGET_LANGUAGE;
 
   for (let i = 0, l = args.length; i < l; i++) {
     switch (args[i]) {
       case '-b':
       case '--batch-size':
-        params.batchSize = parseInt(args[++i]!, 10);
+        batchSize = parseInt(args[++i]!, 10);
         break;
 
       case '-o':
       case '--output':
-        params.outputPath = args[++i];
+        outputPath = args[++i];
         break;
 
       case '-s':
       case '--source-language':
-        params.sourceLanguage = args[++i];
+        sourceLanguage = args[++i]!;
         break;
 
       case '-t':
       case '--target-language':
-        params.targetLanguage = args[++i];
+        targetLanguage = args[++i]!;
         break;
 
       case '-h':
@@ -280,8 +278,8 @@ function parseArgs(args: string[]): LaunchParams {
         process.exit(0);
 
       default:
-        if (params.inputPath === undefined) {
-          params.inputPath = args[i];
+        if (inputPath === undefined) {
+          inputPath = args[i];
         } else {
           console.error(`Error: Unexpected argument '${args[i]}'`);
           usage();
@@ -291,20 +289,23 @@ function parseArgs(args: string[]): LaunchParams {
     }
   }
 
-  if (params.inputPath === undefined) {
+  if (inputPath === undefined) {
     usage();
     process.exit(1);
   }
 
-  if (params.outputPath === undefined) {
-    const { name, dir, ext } = path.parse(params.inputPath);
-    params.outputPath ??= path.join(
-      dir,
-      `${name}.${params.targetLanguage}${ext}`,
-    );
+  if (outputPath === undefined) {
+    const { name, dir, ext } = path.parse(inputPath);
+    outputPath ??= path.join(dir, `${name}.${targetLanguage}${ext}`);
   }
 
-  return params as LaunchParams;
+  return {
+    batchSize,
+    inputPath,
+    outputPath,
+    sourceLanguage,
+    targetLanguage,
+  };
 }
 
 async function translateTexts(

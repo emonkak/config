@@ -86,10 +86,8 @@ function guessOutputPath(payload: any): string | null {
 }
 
 function parseArgs(args: string[]): LaunchParams {
-  const params: LaunchParams = {
-    inputPath: null,
-    outputPath: null,
-  };
+  let inputPath: string | null = null;
+  let outputPath: string | null = null;
 
   for (let i = 0, l = args.length; i < l; i++) {
     switch (args[i]) {
@@ -99,7 +97,7 @@ function parseArgs(args: string[]): LaunchParams {
           console.error('Error: -o/--output option requires a value');
           process.exit(1);
         }
-        params.outputPath = args[++i]!;
+        outputPath = args[++i]!;
         break;
 
       case '-h':
@@ -108,8 +106,8 @@ function parseArgs(args: string[]): LaunchParams {
         process.exit(0);
 
       default:
-        if (params.inputPath === null) {
-          params.inputPath = args[i]!;
+        if (inputPath === null) {
+          inputPath = args[i]!;
         } else {
           console.error(`Error: Unexpected argument '${args[i]}'`);
           usage();
@@ -119,7 +117,10 @@ function parseArgs(args: string[]): LaunchParams {
     }
   }
 
-  return params;
+  return {
+    inputPath,
+    outputPath,
+  };
 }
 
 function readStdin(): Promise<string> {

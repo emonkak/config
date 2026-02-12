@@ -131,25 +131,23 @@ function* msbBits(byte: number): Generator<boolean> {
 }
 
 function parseArgs(args: string[]): LaunchParams {
-  const params: Partial<LaunchParams> = {
-    deodorize: false,
-    device: '/dev/lirc0',
-    dry: false,
-    fan: 'auto',
-    mode: undefined,
-    power: 'on',
-    printFrames: false,
-    profile: 'normal',
-    pulseDuration: DEFAULT_PULSE_DURATION,
-    swing: 'auto',
-    temperature: undefined,
-  };
+  let deodorize = false;
+  let device = '/dev/lirc0';
+  let dry = false;
+  let fan: LaunchParams['fan'] = 'auto';
+  let mode: LaunchParams['mode'] | undefined;
+  let power: LaunchParams['power'] = 'on';
+  let printFrames = false;
+  let profile: LaunchParams['profile'] = 'normal';
+  let pulseDuration = DEFAULT_PULSE_DURATION;
+  let swing: LaunchParams['swing'] = 'auto';
+  let temperature: number | undefined;
 
   for (let i = 0, l = args.length; i < l; i++) {
     switch (args[i]!) {
       case '-d':
       case '--device':
-        params.device = parseString(
+        device = parseString(
           args[++i],
           (value) => `Invalid device path ${JSON.stringify(value)}`,
         );
@@ -157,7 +155,7 @@ function parseArgs(args: string[]): LaunchParams {
 
       case '-s':
       case '--swing':
-        params.swing = parseEnum(
+        swing = parseEnum(
           args[++i],
           Swing,
           (value) => `Invalid swing position ${JSON.stringify(value)}`,
@@ -166,7 +164,7 @@ function parseArgs(args: string[]): LaunchParams {
 
       case '-f':
       case '--fan':
-        params.fan = parseEnum(
+        fan = parseEnum(
           args[++i],
           Fan,
           (value) => `Invalid fan speed ${JSON.stringify(value)}`,
@@ -175,7 +173,7 @@ function parseArgs(args: string[]): LaunchParams {
 
       case '-p':
       case '--profile':
-        params.profile = parseEnum(
+        profile = parseEnum(
           args[++i],
           Profile,
           (value) => `Invalid profile name ${JSON.stringify(value)}`,
@@ -183,22 +181,22 @@ function parseArgs(args: string[]): LaunchParams {
         break;
 
       case '--dry':
-        params.dry = true;
+        dry = true;
         break;
 
       case '--deodorize':
-        params.deodorize = true;
+        deodorize = true;
         break;
 
       case '--pulse-duration':
-        params.pulseDuration = parseInteger(
+        pulseDuration = parseInteger(
           args[++i],
           (value) => `Invalid pulse duration ${JSON.stringify(value)}`,
         );
         break;
 
       case '--print-frames':
-        params.printFrames = true;
+        printFrames = true;
         break;
 
       case '-h':
@@ -207,20 +205,20 @@ function parseArgs(args: string[]): LaunchParams {
         process.exit(0);
 
       default:
-        if (params.mode === undefined) {
+        if (mode === undefined) {
           if (args[i] === 'off') {
-            params.mode = 'auto';
-            params.temperature = 16;
-            params.power = 'off';
+            mode = 'auto';
+            temperature = 16;
+            power = 'off';
           } else {
-            params.mode = parseEnum(
+            mode = parseEnum(
               args[i],
               Mode,
               (value) => `Invalid mode name ${JSON.stringify(value)}`,
             );
           }
-        } else if (params.temperature === undefined) {
-          params.temperature = parseInteger(
+        } else if (temperature === undefined) {
+          temperature = parseInteger(
             args[i]!,
             (value) => `Invalid temperature ${JSON.stringify(value)}`,
           );
@@ -232,19 +230,31 @@ function parseArgs(args: string[]): LaunchParams {
     }
   }
 
-  if (params.mode === undefined) {
+  if (mode === undefined) {
     console.error(`Error: No mode specified`);
     usage();
     process.exit(1);
   }
 
-  if (params.temperature === undefined) {
+  if (temperature === undefined) {
     console.error(`Error: No temperature specified`);
     usage();
     process.exit(1);
   }
 
-  return params as LaunchParams;
+  return {
+    deodorize,
+    device,
+    dry,
+    fan,
+    mode,
+    power,
+    printFrames,
+    profile,
+    pulseDuration,
+    swing,
+    temperature,
+  };
 }
 
 function parseEnum<T extends {}>(
