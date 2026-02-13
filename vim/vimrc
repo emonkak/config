@@ -348,11 +348,11 @@ endfunction
 AlterCommand mak[e]  Make
 AlterCommand lmak[e]  Lmake
 
-" BufExecute  {{{2
+" BufDo  {{{2
 
-command! -nargs=+ -complete=file BufExecute  call s:cmd_BufExecute(<f-args>)
+command! -nargs=+ -complete=file BufDo  call s:cmd_BufDo(<f-args>)
 
-function! s:cmd_BufExecute(...) abort
+function! s:cmd_BufDo(...) abort
   if a:0 > 1
     let path = substitute(a:1, '\\\@<!\~', $HOME, 'g')
     let pattern = glob2regpat(path)
