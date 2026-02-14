@@ -4,6 +4,8 @@ export DISPLAY=:0.0
 export HOME=/home/emonkak
 export XAUTHORITY=$HOME/.Xauthority
 
+XKB_PATH="${HOME}/.config/xkb"
+
 match_line() {
   local expected_line="$1"
 
@@ -26,7 +28,7 @@ update_keymap() {
   do
     if xinput list --name-only | match_line "${name}"
     then
-      xkbcomp -w 0 -I"${HOME}/.xkb" "${HOME}/.xkb/keymap/my_keymap" "${DISPLAY}"
+      xkbcomp -w 0 -I"${XKB_PATH}" "${XKB_PATH}/keymap/my_keymap" "${DISPLAY}"
       notify-send -i dialog-information "Keyboard '$name' is plugged in and ready for use now."
       break
     fi

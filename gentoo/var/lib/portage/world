@@ -10,6 +10,7 @@ app-arch/unzip
 app-arch/xar
 app-arch/zip
 app-containers/docker
+app-containers/docker-buildx
 app-containers/docker-compose
 app-doc/php-docs
 app-editors/helix
@@ -118,6 +119,7 @@ media-video/guvcview
 media-video/mpv
 media-video/pipewire
 media-video/rtmpdump
+media-video/tsduck
 media-video/vlc
 net-analyzer/netcat
 net-analyzer/ngrep
@@ -130,6 +132,7 @@ net-dns/dog
 net-firewall/nftables
 net-fs/samba
 net-misc/aria2
+net-misc/bililive-recorder
 net-misc/bridge-utils
 net-misc/chrony
 net-misc/dhcpcd
