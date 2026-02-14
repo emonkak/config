@@ -1,0 +1,12 @@
+diff --git a/crates/fallback/src/lib.rs b/crates/fallback/src/lib.rs
+index 3e2075df2..c6bff0814 100644
+--- a/crates/fallback/src/lib.rs
++++ b/crates/fallback/src/lib.rs
+@@ -48,7 +48,7 @@ pub fn fish_wcwidth(c: char) -> isize {
+     // in the console session, but knows nothing about the capabilities of other terminal emulators
+     // or ttys. Use it from the start only if we are logged in to the physical console.
+     #[cfg(not(cygwin))]
+-    if fish_common::is_console_session() {
++    if true {
+         return wcwidth(c);
+     }

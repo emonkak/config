@@ -1,0 +1,13 @@
+diff --git a/configure.ac b/configure.ac
+index fa474825..85479e4e 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -394,7 +394,7 @@ AC_ARG_ENABLE(
+ 	utf8proc,
+ 	AS_HELP_STRING(--enable-utf8proc, use utf8proc if it is installed)
+ )
+-if test "x$enable_utf8proc" = xyes; then
++if false; then
+ 	PKG_CHECK_MODULES(
+ 		LIBUTF8PROC,
+ 		libutf8proc,
