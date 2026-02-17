@@ -103,7 +103,7 @@ function* createPanasonicIRFrames(
 ): Generator<Frame> {
   const firstFrame = [0x40, 0x04, 0x07, 0x20, 0x00, 0x00, 0x00, 0x60];
 
-  yield* toAehaFrame(firstFrame, msbBits);
+  yield* toAehaFrame(firstFrame, iterateBitsMsb);
 
   const secondFrame = [
     0x02, // 00:
@@ -137,16 +137,16 @@ function* createPanasonicIRFrames(
 
   yield [1, 23]; // Gap signal
 
-  yield* toAehaFrame(secondFrame, lsbBits);
+  yield* toAehaFrame(secondFrame, iterateBitsLsb);
 }
 
-function* lsbBits(byte: number): Generator<boolean> {
+function* iterateBitsLsb(byte: number): Generator<boolean> {
   for (let n = 0; n < 8; n++) {
     yield (byte & (1 << n)) !== 0;
   }
 }
 
-function* msbBits(byte: number): Generator<boolean> {
+function* iterateBitsMsb(byte: number): Generator<boolean> {
   for (let n = 7; n >= 0; n--) {
     yield (byte & (1 << n)) !== 0;
   }
@@ -307,12 +307,12 @@ function parseString(
 
 function* toAehaFrame(
   bytes: number[] | Uint8Array,
-  toBits: (byte: number) => Generator<boolean>,
+  iterateBits: (byte: number) => Generator<boolean>,
 ): Generator<Frame> {
   yield [8, 4];
 
   for (const byte of bytes) {
-    for (const bit of toBits(byte)) {
+    for (const bit of iterateBits(byte)) {
       if (bit) {
         yield [1, 3];
       } else {
@@ -320,22 +320,6 @@ function* toAehaFrame(
       }
     }
   }
-}
-
-async function writeFrames(
-  stream: Writable,
-  frames: Generator<Frame>,
-  pulseDuration: number,
-): Promise<void> {
-  // This is required to supress "leading space ignored" warnings.
-  await writeChunk(stream, `pulse ${pulseDuration}\n`);
-
-  for (const [pulse, space] of frames) {
-    await writeChunk(stream, `pulse ${pulse * pulseDuration}\n`);
-    await writeChunk(stream, `space ${space * pulseDuration}\n`);
-  }
-
-  await writeChunk(stream, `pulse ${pulseDuration}\n`);
 }
 
 function writeChunk(
@@ -352,6 +336,22 @@ function writeChunk(
       }
     });
   });
+}
+
+async function writeFrames(
+  stream: Writable,
+  frames: Generator<Frame>,
+  pulseDuration: number,
+): Promise<void> {
+  // This is required to supress "leading space ignored" warnings.
+  await writeChunk(stream, `pulse ${pulseDuration}\n`);
+
+  for (const [pulse, space] of frames) {
+    await writeChunk(stream, `pulse ${pulse * pulseDuration}\n`);
+    await writeChunk(stream, `space ${space * pulseDuration}\n`);
+  }
+
+  await writeChunk(stream, `pulse ${pulseDuration}\n`);
 }
 
 async function main(): Promise<void> {
