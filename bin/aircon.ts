@@ -87,7 +87,10 @@ interface LaunchParams {
   temperature: number;
 }
 
-type Frame = [number, number];
+interface Frame {
+  pulse: number;
+  space: number;
+}
 
 class ParseArgsError extends Error {}
 
@@ -102,9 +105,6 @@ function* createPanasonicIRFrames(
   features2: number,
 ): Generator<Frame> {
   const firstFrame = [0x40, 0x04, 0x07, 0x20, 0x00, 0x00, 0x00, 0x60];
-
-  yield* toAehaFrame(firstFrame, iterateBitsMsb);
-
   const secondFrame = [
     0x02, // 00:
     0x20, // 01:
@@ -135,7 +135,9 @@ function* createPanasonicIRFrames(
   secondFrame[18] =
     secondFrame.reduce((totalBytes, byte) => totalBytes + byte, 0) % 256;
 
-  yield [1, 23]; // Gap signal
+  yield* toAehaFrame(firstFrame, iterateBitsMsb);
+
+  yield { pulse: 1, space: 23 }; // Gap signal
 
   yield* toAehaFrame(secondFrame, iterateBitsLsb);
 }
@@ -309,14 +311,14 @@ function* toAehaFrame(
   bytes: number[] | Uint8Array,
   iterateBits: (byte: number) => Generator<boolean>,
 ): Generator<Frame> {
-  yield [8, 4];
+  yield { pulse: 8, space: 4 };
 
   for (const byte of bytes) {
     for (const bit of iterateBits(byte)) {
       if (bit) {
-        yield [1, 3];
+        yield { pulse: 1, space: 3 };
       } else {
-        yield [1, 1];
+        yield { pulse: 1, space: 1 };
       }
     }
   }
@@ -346,7 +348,7 @@ async function writeFrames(
   // This is required to supress "leading space ignored" warnings.
   await writeChunk(stream, `pulse ${pulseDuration}\n`);
 
-  for (const [pulse, space] of frames) {
+  for (const { pulse, space } of frames) {
     await writeChunk(stream, `pulse ${pulse * pulseDuration}\n`);
     await writeChunk(stream, `space ${space * pulseDuration}\n`);
   }
