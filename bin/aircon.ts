@@ -8,6 +8,26 @@ import type { Writable } from 'node:stream';
 
 const DEFAULT_PULSE_DURATION = 435;
 
+const USAGE = `USAGE:
+  aircon.ts [OPTIONS] MODE TEMPERATURE
+  aircon.ts [OPTIONS] off
+
+ARGUMENTS:
+  MODE                       Operation mode: auto, dry, cool, heat, fan
+  TEMPERATURE                Celsius temperature: 16-30
+
+OPTIONS:
+  -d, --device PATH          IR device path (default: /dev/lirc0)
+  -s, --swing POSITION       Swing position: 1-5, auto (default: auto)
+  -f, --fan SPEED            Fan speed: 1-5, auto (default: auto)
+  -p, --profile NAME         Operation profile: normal, quite, boost (default: normal)
+  --dry                      Enable dry feature
+  --deodorize                Enable deodorize feature
+  --print-frames             Print frames to stdout instead of sending them to the IR device
+  --pulse-duration DURATION  Pulse duration (default: 435)
+  -h, --help                 Show this help message
+`;
+
 const Mode = {
   auto: 0b0000,
   dry: 0b0010,
@@ -68,6 +88,8 @@ interface LaunchParams {
 }
 
 type Frame = [number, number];
+
+class ParseArgsError extends Error {}
 
 function* createPanasonicIRFrames(
   temperature: number,
@@ -201,7 +223,7 @@ function parseArgs(args: string[]): LaunchParams {
 
       case '-h':
       case '--help':
-        usage();
+        console.log(USAGE);
         process.exit(0);
 
       default:
@@ -223,23 +245,17 @@ function parseArgs(args: string[]): LaunchParams {
             (value) => `Invalid temperature ${JSON.stringify(value)}`,
           );
         } else {
-          console.error(`Error: Unexpected argument '${args[i]}'`);
-          usage();
-          process.exit(1);
+          throw new ParseArgsError(`Unexpected argument "${args[i]}"`);
         }
     }
   }
 
   if (mode === undefined) {
-    console.error(`Error: No mode specified`);
-    usage();
-    process.exit(1);
+    throw new ParseArgsError('No mode specified');
   }
 
   if (temperature === undefined) {
-    console.error(`Error: No temperature specified`);
-    usage();
-    process.exit(1);
+    throw new ParseArgsError('No temperature specified');
   }
 
   return {
@@ -263,9 +279,7 @@ function parseEnum<T extends {}>(
   getError: (value: unknown) => string,
 ): keyof T {
   if (typeof value !== 'string' || !Object.hasOwn(expectedEnum, value)) {
-    console.error('Error: ' + getError(value));
-    usage();
-    process.exit(1);
+    throw new ParseArgsError(getError(value));
   }
   return value as keyof T;
 }
@@ -276,9 +290,7 @@ function parseInteger(
 ): number {
   const n = typeof value === 'string' ? parseInt(value, 10) : NaN;
   if (Number.isNaN(n)) {
-    console.error('Error: ' + getError(value));
-    usage();
-    process.exit(1);
+    throw new ParseArgsError(getError(value));
   }
   return n;
 }
@@ -288,9 +300,7 @@ function parseString(
   getError: (value: unknown) => string,
 ): string {
   if (typeof value !== 'string') {
-    console.error('Error: ' + getError(value));
-    usage();
-    process.exit(1);
+    throw new ParseArgsError(getError(value));
   }
   return value;
 }
@@ -310,28 +320,6 @@ function* toAehaFrame(
       }
     }
   }
-}
-
-function usage(): void {
-  console.log(`USAGE:
-  aircon.ts [OPTIONS] MODE TEMPERATURE
-  aircon.ts [OPTIONS] off
-
-ARGUMENTS:
-  MODE                       Operation mode: auto, dry, cool, heat, fan
-  TEMPERATURE                Celsius temperature: 16-30
-
-OPTIONS:
-  -d, --device PATH          IR device path (default: /dev/lirc0)
-  -s, --swing POSITION       Swing position: 1-5, auto (default: auto)
-  -f, --fan SPEED            Fan speed: 1-5, auto (default: auto)
-  -p, --profile NAME         Operation profile: normal, quite, boost (default: normal)
-  --dry                      Enable dry feature
-  --deodorize                Enable deodorize feature
-  --print-frames             Print frames to stdout instead of sending them to the IR device
-  --pulse-duration DURATION  Pulse duration (default: 435)
-  -h, --help                 Show this help message
-`);
 }
 
 async function writeFrames(
@@ -367,50 +355,58 @@ function writeChunk(
 }
 
 async function main(): Promise<void> {
-  const params = parseArgs(process.argv.slice(2));
-  let features1 = 0;
-  let features2 = 0;
+  try {
+    const params = parseArgs(process.argv.slice(2));
+    let features1 = 0;
+    let features2 = 0;
 
-  if (params.dry) {
-    features1 |= Features1.dry;
-  }
+    if (params.dry) {
+      features1 |= Features1.dry;
+    }
 
-  if (params.deodorize) {
-    features2 |= Features2.deodorize;
-  }
+    if (params.deodorize) {
+      features2 |= Features2.deodorize;
+    }
 
-  const frames = createPanasonicIRFrames(
-    params.temperature,
-    Mode[params.mode],
-    Power[params.power],
-    Swing[params.swing],
-    Fan[params.fan],
-    Profile[params.profile],
-    features1,
-    features2,
-  );
-
-  if (params.printFrames) {
-    await writeFrames(process.stdout, frames, params.pulseDuration);
-  } else {
-    // Node.js spawn() creates internal pipes that aren't real Unix pipes, so
-    // child processes cannot access them via /dev/stdin. Using bash -c creates
-    // a real Unix pipe that ir-ctl can read from /dev/stdin.
-    const subprocess = spawn(
-      'bash',
-      ['-c', 'ir-ctl --device "$0" --send <(cat)', params.device],
-      {
-        stdio: ['pipe', 'inherit', 'inherit'],
-      },
+    const frames = createPanasonicIRFrames(
+      params.temperature,
+      Mode[params.mode],
+      Power[params.power],
+      Swing[params.swing],
+      Fan[params.fan],
+      Profile[params.profile],
+      features1,
+      features2,
     );
 
-    subprocess.on('exit', (code) => {
-      process.exit(code);
-    });
+    if (params.printFrames) {
+      await writeFrames(process.stdout, frames, params.pulseDuration);
+    } else {
+      // Node.js spawn() creates internal pipes that aren't real Unix pipes, so
+      // child processes cannot access them via /dev/stdin. Using bash -c creates
+      // a real Unix pipe that ir-ctl can read from /dev/stdin.
+      const subprocess = spawn(
+        'bash',
+        ['-c', 'ir-ctl --device "$0" --send <(cat)', params.device],
+        {
+          stdio: ['pipe', 'inherit', 'inherit'],
+        },
+      );
 
-    await writeFrames(subprocess.stdin, frames, params.pulseDuration);
+      subprocess.on('exit', (code) => {
+        process.exit(code);
+      });
 
-    subprocess.stdin.end();
+      await writeFrames(subprocess.stdin, frames, params.pulseDuration);
+
+      subprocess.stdin.end();
+    }
+  } catch (error) {
+    if (error instanceof ParseArgsError) {
+      console.error('Error: ' + error.message);
+      console.log(USAGE);
+      process.exit(1);
+    }
   }
 }
 
