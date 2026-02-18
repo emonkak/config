@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+if [ "${TRACE:-0}" -ne 0 ]
+then
+  set -o xtrace
+fi
+
+MODEL='gemini-2.5-flash'
+PROMPT='Generate a shell command that accomplishes the following task. Output only the command itself. No explanations, no tool calls, no markdown, no code blocks.'
+
+if [ $# -eq 0 ]
+then
+  echo "Usage: $(basename "$0") <task description>"
+  exit 1
+fi
+
+echo "$*" | gemini --model "${MODEL}" --prompt "${PROMPT}"
