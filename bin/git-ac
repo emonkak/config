@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+if [ "${TRACE:-0}" -ne 0 ]
+then
+  set -o xtrace
+fi
+
+MODEL='gemini-2.5-flash'
+PROMPT='Review the following git diff and generate a concise commit message in Conventional Commits format. Output only the commit message text itself. No explanations, no tool calls, no file operations.'
+
+if git diff --staged --quiet
+then
+  echo 'No staged changes found.'
+  exit 1
+fi
+
+message=$(git diff --staged | gemini --model "${MODEL}" --prompt "${PROMPT}")
+
+exec git commit --edit --verbose --message "${message}"
