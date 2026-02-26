@@ -409,6 +409,7 @@ async function main(): Promise<void> {
       console.log(USAGE);
       process.exit(1);
     }
+    throw error;
   }
 }
 
