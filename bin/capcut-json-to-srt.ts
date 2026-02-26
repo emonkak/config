@@ -77,12 +77,23 @@ function guessOutputPath(payload: any): string | null {
     payload.materials.audios,
   ]) {
     for (const material of materials) {
-      if (material.path.length > 0) {
+      if (material.path.length > 0 && isMaterialUsed(material.id, payload)) {
         return path.parse(material.path).name + '.srt';
       }
     }
   }
   return null;
+}
+
+function isMaterialUsed(id: unknown, payload: any): boolean {
+  for (const track of payload.tracks) {
+    for (const segment of track.segments) {
+      if (segment.visible && segment.material_id === id) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 function parseArgs(args: string[]): LaunchParams {
